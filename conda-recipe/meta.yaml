@@ -1,0 +1,28 @@
+package:
+    name: sf_daq_broker
+    version: 0.0.1
+
+source:
+    path: ..
+
+build:
+    number: 0
+
+requirements:
+    build:
+        - python
+
+    run:
+        - python
+        - bsread >=1.4.0
+        - bottle
+        - requests
+        - data_api
+
+build:
+  entry_points:
+    - sf_daq_broker = sf_daq_broker.broker:run
+    - sf_daq_broker_writer = sf_daq_broker.writer:run
+
+about:
+    home: https://github.com/paulscherrerinstitute/sf_daq_broker

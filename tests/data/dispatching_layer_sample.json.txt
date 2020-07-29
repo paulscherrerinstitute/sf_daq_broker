@@ -1,0 +1,9 @@
+// This parameters were used to request data from the dispatching layer.
+
+{'channels': [{'name': 'SAROP21-CVME-PBPS2:Lnk9Ch6-DATA-CALIBRATED'},
+  {'name': 'SAROP21-CVME-PBPS2:Lnk9Ch6-DATA-MAX'},
+  {'name': 'SAROP21-CVME-PBPS2:Lnk9Ch6-DATA-MIN'}],
+ 'configFields': ['type', 'shape'],
+ 'eventFields': ['channel', 'pulseId', 'value', 'shape', 'globalDate'],
+ 'range': {'endPulseId': 5721143416, 'startPulseId': 5721143344},
+ 'response': {'compression': 'none', 'format': 'json'}}
