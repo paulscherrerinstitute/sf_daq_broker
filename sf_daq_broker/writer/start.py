@@ -51,9 +51,15 @@ def wait_for_delay(request_timestamp):
     sleep(adjusted_retrieval_delay)
 
 
-def process_request(data_api_request, output_file, metadata, request_timestamp):
+def process_request(request):
 
     try:
+        data_api_request = request["data_api_request"]
+        output_file = request["output_file"]
+        run_log_file = request["run_log_file"]
+        metadata = request["metadata"]
+        request_timestamp = request["timestamp"]
+
         _logger.info("Received request to write file %s from startPulseId=%s to endPulseId=%s" % (
             output_file,
             data_api_request["range"]["startPulseId"],
@@ -66,6 +72,7 @@ def process_request(data_api_request, output_file, metadata, request_timestamp):
         channels = data_api_request.get("channels")
         if not channels:
             _logger.info("No channels requested. Skipping request.")
+            return
 
         if config.TRANSFORM_PULSE_ID_TO_TIMESTAMP_QUERY:
             data_api_request = utils.transform_range_from_pulse_id_to_timestamp(data_api_request)
@@ -83,7 +90,7 @@ def process_request(data_api_request, output_file, metadata, request_timestamp):
         _logger.info("Data writing took %s seconds. (DATA_API3)" % (end_time - start_time))
 
     except Exception:
-        audit_failed_write_request(data_api_request, metadata, request_timestamp)
+        audit_failed_write_request(request)
         raise
 
 
@@ -111,17 +118,10 @@ def on_broker_message(channel, method_frame, header_frame, body):
     try:
         request = json.loads(body.decode())
 
-        data_api_request = request["data_api_request"]
         output_file = request["output_file"]
-        metadata = request["metadata"]
-        request_timestamp = request["timestamp"]
-
         update_status(channel, body, "write_start", output_file)
 
-        process_request(data_api_request=data_api_request,
-                        output_file=output_file,
-                        metadata=metadata,
-                        request_timestamp=request_timestamp)
+        process_request(request)
 
     except Exception as e:
 
