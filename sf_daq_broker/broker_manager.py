@@ -162,12 +162,15 @@ class BrokerManager(object):
             output_file = f'{output_file_prefix}.{filename_suffix}.h5'
             output_files_list.append(output_file)
 
-            write_request = get_writer_request(channels=channels,
+            run_log_file = f'{run_info_directory}/run_{current_run:06}.{filename_suffix}.log'
+
+            write_request = get_writer_request(writer_type=tag,
+                                               channels=channels,
                                                output_file=output_file,
                                                metadata=metadata,
                                                start_pulse_id=adjusted_start_pulse_id,
-                                               stop_pulse_id=adjusted_stop_pulse_id)
-            write_request["run_log_file"] = f'{run_info_directory}/run_{current_run:06}.{filename_suffix}.log'
+                                               stop_pulse_id=adjusted_stop_pulse_id,
+                                               run_log_file=run_log_file)
 
             try:
                 self.broker_client.send(tag, write_request)
