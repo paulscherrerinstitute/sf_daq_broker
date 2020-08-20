@@ -17,11 +17,6 @@ def start_server(output_port, queue_length, rest_port, epics_writer_url=None):
 
     app = bottle.Bottle()
 
-    request_sender = StreamRequestSender(output_port=output_port,
-                                         queue_length=queue_length,
-                                         send_timeout=config.DEFAULT_SEND_TIMEOUT,
-                                         mode=PUSH)
-
     manager = BrokerManager(request_sender=request_sender, epics_writer_url=epics_writer_url)
 
     register_rest_interface(app, manager)
