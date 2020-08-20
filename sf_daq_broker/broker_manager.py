@@ -1,12 +1,6 @@
 from datetime import datetime
-from threading import Thread
-
 import logging
 import json
-
-import requests
-from bsread.sender import Sender
-
 from sf_daq_broker import config
 from sf_daq_broker.utils import get_writer_request
 
