@@ -158,7 +158,7 @@ class BrokerManager(object):
             if not channels:
                 return
 
-            output_file = output_file_prefix + filename_suffix
+            output_file = f'{output_file_prefix}.{filename_suffix}.h5'
             output_files_list.append(output_file)
 
             write_request = get_writer_request(channels=channels,
@@ -166,6 +166,7 @@ class BrokerManager(object):
                                                metadata=metadata,
                                                start_pulse_id=adjusted_start_pulse_id,
                                                stop_pulse_id=adjusted_stop_pulse_id)
+            write_request["run_log_file"] = f'{run_info_directory}/run_{current_run:06}.{filename_suffix}.log'
 
             self.broker_client.send(tag, write_request)
 
