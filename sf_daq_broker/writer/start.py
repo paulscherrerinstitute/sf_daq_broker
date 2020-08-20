@@ -140,7 +140,7 @@ def on_broker_message(channel, method_frame, header_frame, body):
         _logger.exception("Error while trying to write a requested data.")
 
         channel.basic_reject(delivery_tag=method_frame.delivery_tag,
-                             requeue=True)
+                             requeue=False)
 
         update_status(channel, body, "write_rejected", output_file, str(e))
 
