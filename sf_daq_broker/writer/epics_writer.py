@@ -20,7 +20,7 @@ def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_
     data = get_data(epics_pvs, start=start_date, stop=stop_date)
     # TODO: Merge metadata to data.
 
-    if data:
+    if len(data) < 1:
         logger.info("Persist data to hdf5 file")
         data_api.to_hdf5(data, output_file, overwrite=True, compression=None, shuffle=False)
     else:
