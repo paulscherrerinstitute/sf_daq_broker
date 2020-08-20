@@ -169,7 +169,13 @@ class BrokerManager(object):
                                                stop_pulse_id=adjusted_stop_pulse_id)
             write_request["run_log_file"] = f'{run_info_directory}/run_{current_run:06}.{filename_suffix}.log'
 
-            self.broker_client.send(tag, write_request)
+            try:
+                self.broker_client.send(tag, write_request)
+            except:
+                log_file = open(write_request["run_log_file"], "a")
+                log_file.write("Can not contact writer")
+                log_file.close()
+                raise
 
         self.broker_client.open()
 
