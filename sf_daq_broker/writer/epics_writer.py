@@ -7,7 +7,7 @@ import pytz
 import requests
 import data_api
 
-logger = logging.getLogger("broker_writer")
+logger = logging.getLogger()
 
 DATA_API_QUERY_URL = "https://data-api.psi.ch/sf/query"
 

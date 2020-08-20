@@ -14,7 +14,7 @@ from sf_daq_broker.utils import get_data_api_request
 from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_from_databuffer
 from sf_daq_broker.writer.epics_writer import write_epics_pvs
 
-_logger = logging.getLogger("broker_writer")
+_logger = logging.getLogger()
 
 
 def audit_failed_write_request(write_request):
@@ -216,13 +216,6 @@ def run():
     writer_id_format = '{broker_writer_%s}' % args.writer_id
     logs_format = '[%(levelname)s] %(message)s'
     logging.basicConfig(level=args.log_level, format=writer_id_format + logs_format)
-    logger_ostream = logging.StreamHandler()
-    logs_format = '{broker_writer_%s}' % args.writer_id + '[%(levelname)s] %(message)s'
-    logger_ostream.setFormatter(logging.Formatter(logs_format))
-
-    _logger.handlers.clear()
-    _logger.addHandler(logger_ostream)
-    _logger.setLevel(args.log_level)
 
     logging.getLogger("pika").setLevel(logging.WARNING)
 
