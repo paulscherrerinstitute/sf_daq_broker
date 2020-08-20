@@ -10,7 +10,7 @@ import requests
 from sf_daq_broker import config, utils
 from sf_daq_broker.writer.utils import channel_type_deserializer_mapping
 
-_logger = logging.getLogger(__name__)
+_logger = logging.getLogger("broker_writer")
 
 try:
     import ujson as json
