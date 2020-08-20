@@ -201,10 +201,14 @@ def run():
     parser.add_argument("--log_level", default="INFO",
                         choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'],
                         help="Log level to use.")
+    parser.add_argument("--writer_id", default="writer",
+                        help="Name of the writer for the logs")
 
     args = parser.parse_args()
 
-    logging.basicConfig(level=args.log_level, format='[%(levelname)s] %(message)s')
+    writer_id_format = '{%s}' % args.writer_id
+    logs_format = '[%(levelname)s] %(message)s'
+    logging.basicConfig(level=args.log_level, format=writer_id_format + logs_format)
 
     config.DEFAULT_DATA_RETRIEVAL_DELAY = args.data_retrieval_delay
 
