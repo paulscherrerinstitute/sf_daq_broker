@@ -29,12 +29,12 @@ class RabbitMqClient(object):
         self.connection = None
         self.channel = None
 
-    def send(self, tag, write_request):
+    def send(self, write_request):
 
         if self.channel is None:
             raise RuntimeError("RabbitMqClient not connected.")
 
-        routing_key = "." + tag + "."
+        routing_key = "*"
 
         body_bytes = json.dumps(write_request).encode()
 
@@ -51,5 +51,5 @@ class RabbitMqClient(object):
         self.channel.basic_publish(exchange=broker_config.STATUS_EXCHANGE,
                                    properties=BasicProperties(
                                        headers=status_header),
-                                   routing_key="",
+                                   routing_key=routing_key,
                                    body=body_bytes)
