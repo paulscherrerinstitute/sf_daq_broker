@@ -91,9 +91,16 @@ def get_data_from_buffer(data_api_request):
 
 def get_and_write_data_by_api3(data_api_request_pulseid, parameters):
     import data_api3.h5 as h5
+    import data_api3.reader as reader
     import pytz
 
     data_api_request = utils.transform_range_from_pulse_id_to_timestamp(data_api_request_pulseid)
+
+    url = config.IMAGE_API_QUERY_ADDRESS
+    buffer = "camera"
+    if data_api_request['channels'][0]['backend'] != 'sf-imagebuffer':
+        url = config.DATA_API3_QUERY_ADDRESS
+        buffer = "data"
 
     channels = [channel["name"] for channel in data_api_request["channels"]]
 
@@ -111,9 +118,16 @@ def get_and_write_data_by_api3(data_api_request_pulseid, parameters):
         }
     }
 
-    _logger.info("Going to make query %s to write file %s from %s " % (query, filename, config.IMAGE_API_QUERY_ADDRESS))
-
-    h5.request(query, filename, url=config.IMAGE_API_QUERY_ADDRESS)
+#    fh = logging.FileHandler("/tmp/test.logging.log")
+#    _logger.addHandler(fh)
+    if buffer == "camera":
+        _logger.info("Going to make query %s to write file %s from %s " % (query, filename, url))
+        h5.request(query, filename, url=url)
+    else:
+        _logger.info("Going to make query %s from %s " % (query, url))
+#        d = reader.request(query, url=url)
+        h5.request(query, filename, url=url)
+#    _logger.removeHandler(fh)
 
 def process_message(message, data_retrieval_delay):
     data_api_request = None
@@ -161,9 +175,15 @@ def process_message(message, data_retrieval_delay):
                 start_time = time()
                 write_data_to_file(parameters, data)
                 _logger.info("Data writing took %s seconds." % (time() - start_time))
+             
+#                start_time = time()
+#                parameters["output_file"] = parameters["output_file"] + ".API3"
+#                get_and_write_data_by_api3(data_api_request, parameters)
+#                _logger.info("Data writing took %s seconds. (DATA_API3 DATA_BUFFER)" % (time() - start_time))
+
             else:
                 get_and_write_data_by_api3(data_api_request, parameters)
-                _logger.info("Data writing took %s seconds. (DATA_API3)" % (time() - start_time))
+                _logger.info("Data writing took %s seconds. (DATA_API3 CAMERA_BUFFER)" % (time() - start_time))
                 #_logger.info("No Image retrieval currently")
 
     except:
