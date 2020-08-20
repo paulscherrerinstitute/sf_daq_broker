@@ -7,8 +7,8 @@ import h5py
 import numpy
 import requests
 
-from bsread.data.serialization import channel_type_deserializer_mapping
 from sf_daq_broker import config, utils
+from sf_daq_broker.writer.utils import channel_type_deserializer_mapping
 
 _logger = logging.getLogger(__name__)
 
