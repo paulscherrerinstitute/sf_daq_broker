@@ -19,7 +19,7 @@ except:
     import json
 
 
-def audit_failed_write_request(data_api_request, parameters, timestamp):
+def audit_failed_write_request(data_api_request, output_file, metadata, timestamp):
 
     filename = None
 
@@ -41,52 +41,55 @@ def audit_failed_write_request(data_api_request, parameters, timestamp):
         _logger.error("Error while trying to write request %s to file %s." % (write_request, filename), e)
 
 
+def wait_for_delay(request_timestamp):
+
+    current_timestamp = time()
+    # sleep time = target sleep time - time that has already passed.
+    adjusted_retrieval_delay = config.DATA_RETRIEVAL_DELAY - (current_timestamp - request_timestamp)
+
+    if adjusted_retrieval_delay < 0:
+        adjusted_retrieval_delay = 0
+
+    _logger.debug("Request timestamp=%s, current_timestamp=%s, adjusted_retrieval_delay=%s." %
+                  (request_timestamp, current_timestamp, adjusted_retrieval_delay))
+
+    _logger.info("Sleeping for %s seconds before continuing." % adjusted_retrieval_delay)
+    sleep(adjusted_retrieval_delay)
+
+
 def process_request(data_api_request, output_file, metadata, request_timestamp):
 
     try:
-
         _logger.info("Received request to write file %s from startPulseId=%s to endPulseId=%s" % (
             output_file,
             data_api_request["range"]["startPulseId"],
             data_api_request["range"]["endPulseId"]))
 
-        if config.TRANSFORM_PULSE_ID_TO_TIMESTAMP_QUERY:
-            data_api_request = utils.transform_range_from_pulse_id_to_timestamp(data_api_request)
-
         if output_file == "/dev/null":
             _logger.info("Output file set to /dev/null. Skipping request.")
             return
 
+        channels = data_api_request.get("channels")
+        if not channels:
+            _logger.info("No channels requested. Skipping request.")
 
-        current_timestamp = time()
-        # sleep time = target sleep time - time that has already passed.
-        adjusted_retrieval_delay = data_retrieval_delay - (current_timestamp - request_timestamp)
+        if config.TRANSFORM_PULSE_ID_TO_TIMESTAMP_QUERY:
+            data_api_request = utils.transform_range_from_pulse_id_to_timestamp(data_api_request)
 
-        if adjusted_retrieval_delay < 0:
-            adjusted_retrieval_delay = 0
-
-        _logger.info("Request timestamp=%s, current_timestamp=%s, adjusted_retrieval_delay=%s." %
-                     (request_timestamp, current_timestamp, adjusted_retrieval_delay))
-
-        _logger.info("Sleeping for %s seconds before calling the data api." % adjusted_retrieval_delay)
-        sleep(adjusted_retrieval_delay)
-        _logger.info("Sleeping finished. Retrieving data.")
+        wait_for_delay(request_timestamp)
 
         start_time = time()
 
-        channels = data_api_request.get("channels")
-        if channels:
-            use_imagebuffer = channels[0]['backend'] == 'sf-imagebuffer'
+        if channels[0]['backend'] == 'sf-imagebuffer':
+            write_from_imagebuffer(data_api_request, output_file, metadata)
+        else:
+            write_from_databuffer(data_api_request, output_file, metadata)
 
-            if use_imagebuffer:
-                write_from_imagebuffer(data_api_request, parameters)
-            else:
-                write_from_databuffer(data_api_request, parameters)
-
-        _logger.info("Data writing took %s seconds. (DATA_API3)" % (time() - start_time))
+        end_time = time()
+        _logger.info("Data writing took %s seconds. (DATA_API3)" % (end_time - start_time))
 
     except Exception:
-        audit_failed_write_request(data_api_request, parameters, request_timestamp)
+        audit_failed_write_request(data_api_request, metadata, request_timestamp)
         raise
 
 
