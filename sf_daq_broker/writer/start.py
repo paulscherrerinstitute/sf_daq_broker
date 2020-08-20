@@ -87,7 +87,7 @@ def process_request(request):
         else:
             write_from_databuffer(data_api_request, output_file, metadata)
 
-        _logger.info("Data writing took %s seconds. (DATA_API3)" % (time() - start_time))
+        _logger.info("Data extraction took %s seconds." % (time() - start_time))
 
         _logger.removeHandler(file_handler)
 
