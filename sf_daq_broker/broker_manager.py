@@ -2,7 +2,7 @@ from datetime import datetime
 import logging
 import json
 from sf_daq_broker import config
-from sf_daq_broker.rabbitmq.msg_broker_client import RabbitMqClient
+import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker.utils import get_writer_request
 
 import os
@@ -173,7 +173,7 @@ class BrokerManager(object):
                                                run_log_file=run_log_file)
 
             try:
-                self.broker_client.send(tag, write_request)
+                self.broker_client.send(write_request)
             except:
                 log_file = open(write_request["run_log_file"], "a")
                 log_file.write("Can not contact writer")
@@ -182,9 +182,17 @@ class BrokerManager(object):
 
         self.broker_client.open()
 
-        send_write_request("epics", request.get("pv_list"), config.OUTPUT_FILE_SUFFIX_EPICS)
-        send_write_request("bsread", request.get("channels_list"), config.OUTPUT_FILE_SUFFIX_DATA_BUFFER)
-        send_write_request("bsread", request.get("camera_list"), config.OUTPUT_FILE_SUFFIX_IMAGE_BUFFER)
+        send_write_request(broker_config.TAG_EPICS,
+                           request.get("pv_list"),
+                           config.OUTPUT_FILE_SUFFIX_EPICS)
+
+        send_write_request(broker_config.TAG_DATABUFFER,
+                           request.get("channels_list"),
+                           config.OUTPUT_FILE_SUFFIX_DATA_BUFFER)
+
+        send_write_request(broker_config.TAG_IMAGEBUFFER,
+                           request.get("camera_list"),
+                           config.OUTPUT_FILE_SUFFIX_IMAGE_BUFFER)
 
         self.broker_client.close()
 

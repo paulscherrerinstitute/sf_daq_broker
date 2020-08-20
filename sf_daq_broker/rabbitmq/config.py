@@ -7,4 +7,6 @@ REQUEST_EXCHANGE = "request"
 STATUS_EXCHANGE = "status"
 
 # Name of the queue for bsread write requests.
-BSREAD_QUEUE = "bsread"
+TAG_DATABUFFER = "databuffer"
+TAG_IMAGEBUFFER = "imagebuffer"
+TAG_EPICS = "epics"
