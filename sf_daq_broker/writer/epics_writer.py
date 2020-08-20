@@ -29,7 +29,7 @@ def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_
 
 
 def get_data(channel_list, start=None, stop=None, base_url=None):
-    logger.info("Requesting range %s to %s for channels: " % (start, stop, channel_list))
+    logger.info("Requesting range %s to %s for channels: %s" % (start, stop, channel_list))
 
     query = {"range": {"startDate": datetime.datetime.isoformat(start),
                        "endDate": datetime.datetime.isoformat(stop),
