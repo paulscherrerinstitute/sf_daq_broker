@@ -14,7 +14,7 @@ from sf_daq_broker.utils import get_data_api_request
 from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_from_databuffer
 from sf_daq_broker.writer.epics_writer import write_epics_pvs
 
-_logger = logging.getLogger()
+_logger = logging.getLogger("broker_writer")
 
 
 def audit_failed_write_request(write_request):
