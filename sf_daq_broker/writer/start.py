@@ -196,8 +196,6 @@ def run():
 
     parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL,
                         help="Address of the broker to connect to.")
-    parser.add_argument("--data_retrieval_delay", default=config.DATA_RETRIEVAL_DELAY, type=int,
-                        help="Time to wait before asking the data-api for the data.")
     parser.add_argument("--log_level", default="INFO",
                         choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'],
                         help="Log level to use.")
@@ -209,8 +207,6 @@ def run():
     writer_id_format = '{%s}' % args.writer_id
     logs_format = '[%(levelname)s] %(message)s'
     logging.basicConfig(level=args.log_level, format=writer_id_format + logs_format)
-
-    config.DATA_RETRIEVAL_DELAY = args.data_retrieval_delay
 
     start_service(broker_url=args.broker_url)
 
