@@ -12,30 +12,24 @@ _logger = logging.getLogger(__name__)
 
 
 class BsreadH5Writer(object):
-    def __init__(self, output_file, parameters):
+
+    def __init__(self, output_file, metadata):
         self.output_file = output_file
-        self.parameters = parameters
 
         path_to_file = os.path.dirname(self.output_file)
-        os.makedirs(path_to_file, exist_ok=True)        
+        os.makedirs(path_to_file, exist_ok=True)
 
         self.file = h5py.File(self.output_file, "w")
+        _logger.debug("File %s created." % self.output_file)
 
-    def _prepare_format_datasets(self):
+        self._create_metadata_datasets(metadata)
 
-        _logger.info("Initializing format datasets.")
+    def _create_metadata_datasets(self, metadata):
 
-        self.file.create_dataset("/general/created",
-                                 data=numpy.string_(self.parameters["general/created"]))
+        _logger.debug("Initializing metadata datasets.")
 
-        self.file.create_dataset("/general/instrument",
-                                 data=numpy.string_(self.parameters["general/instrument"]))
-
-        self.file.create_dataset("/general/process",
-                                 data=numpy.string_(self.parameters["general/process"]))
-
-        self.file.create_dataset("/general/user",
-                                 data=numpy.string_(self.parameters["general/user"]))
+        for key, value in metadata.items():
+            self.file.create_dataset(key, data=numpy.string_(value))
 
     def _build_datasets_data(self, json_data):
 
@@ -133,7 +127,7 @@ class BsreadH5Writer(object):
 
     def write_data(self, json_data):
 
-        self._prepare_format_datasets()
+        self._create_metadata_datasets()
 
         _logger.info("Building numpy arrays with received data.")
 
@@ -217,7 +211,7 @@ class CompactBsreadH5Writer(BsreadH5Writer):
 
     def write_data(self, json_data):
 
-        self._prepare_format_datasets()
+        self._create_metadata_datasets()
 
         _logger.info("Building numpy arrays with received data.")
 
