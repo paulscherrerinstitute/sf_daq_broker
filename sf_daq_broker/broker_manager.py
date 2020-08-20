@@ -17,7 +17,7 @@ _logger = logging.getLogger(__name__)
 
 
 class BrokerManager(object):
-    REQUIRED_PARAMETERS = ["general/created", "general/user", "general/process", "general/instrument", "output_file"]
+    REQUIRED_PARAMETERS = ["output_file"]
 
     def __init__(self, request_sender, epics_writer_url=None):
 
@@ -146,7 +146,7 @@ class BrokerManager(object):
 
         output_files_list = []
 
-        current_parameters = {
+        metadata = {
                      "general/user": str(pgroup[1:6]),
                      "general/process": __name__,
                      "general/created": str(datetime.now()),
@@ -159,11 +159,19 @@ class BrokerManager(object):
             except:
                 return {"status" : "failed", "message" : f'no permission or possibility to make directory in pgroup space {full_path}'}
 
+        output_file_prefix = f'{full_path}/run_{current_run:06}'
+
         if "pv_list" in request:
-            write_request = get_writer_request(request["pv_list"], current_parameters,
-                                               adjuster_start_pulse_id, adjusted_stop_pulse_id)
-            output_file_epics = f'{full_path}/run_{current_run:06}.PVCHANNELS.h5'
+
+            output_file_epics = output_file_prefix + config.OUTPUT_FILE_SUFFIX_EPICS
             output_files_list.append(output_file_epics)
+
+            write_request = get_writer_request(channels=request["pv_list"],
+                                               output_file=output_file_epics,
+                                               metadata=metadata,
+                                               start_pulse_id=adjusted_start_pulse_id,
+                                               stop_pulse_id=adjusted_stop_pulse_id)
+
             def send_epics_request():
                 try:
 
@@ -181,19 +189,26 @@ class BrokerManager(object):
             Thread(target=send_epics_request).start()
 
         if "channels_list" in request:
-            output_file_bsread = f'{full_path}/run_{current_run:06}.BSREAD.h5'
+            output_file_bsread = output_file_prefix + config.OUTPUT_FILE_SUFFIX_DATA_BUFFER
             output_files_list.append(output_file_bsread)
-            current_parameters["output_file"] = output_file_bsread
-            write_request = get_writer_request(request["channels_list"], current_parameters,
-                                               adjusted_start_pulse_id, adjusted_stop_pulse_id)
+
+            write_request = get_writer_request(channels=request["channels_list"],
+                                               output_file=output_file_bsread,
+                                               metadata=metadata,
+                                               start_pulse_id=adjusted_start_pulse_id,
+                                               stop_pulse_id=adjusted_stop_pulse_id)
+
             self.request_sender.send(write_request)
 
         if "camera_list" in request:
-            output_file_cameras = f'{full_path}/run_{current_run:06}.CAMERAS.h5'
+            output_file_cameras = output_file_prefix + config.OUTPUT_FILE_SUFFIX_IMAGE_BUFFER
             output_files_list.append(output_file_cameras)
-            current_parameters["output_file"] = output_file_cameras
-            write_request = get_writer_request(request["camera_list"], current_parameters,
-                                               adjusted_start_pulse_id, adjusted_stop_pulse_id)
+
+            write_request = get_writer_request(channels=request["camera_list"],
+                                               output_File=output_file_cameras,
+                                               metadata=metadata,
+                                               start_pulse_id=adjusted_start_pulse_id,
+                                               stop_pulse_id=adjusted_stop_pulse_id)
             self.request_sender.send(write_request)
 
         if "detectors" in request:
@@ -252,27 +267,3 @@ class BrokerManager(object):
                     json.dump(scan_info, json_file, indent=4)
 
         return {"status" : "ok", "message" : str(current_run) }
-
-class StreamRequestSender(object):
-    def __init__(self, output_port, queue_length, send_timeout, mode):
-
-        self.output_port = output_port
-        self.queue_length = queue_length
-        self.send_timeout = send_timeout
-        self.mode = mode
-
-        _logger.info("Starting stream request sender with output_port=%s, queue_length=%s, send_timeout=%s, mode=%s "
-                     % (self.output_port, self.queue_length, self.send_timeout, self.mode))
-
-        self.output_stream = Sender(port=self.output_port,
-                                    queue_size=self.queue_length,
-                                    send_timeout=self.send_timeout,
-                                    mode=self.mode)
-
-        self.output_stream.open()
-
-    def send(self, write_request):
-
-        _logger.info("Sending write write_request: %s" % write_request)
-        self.output_stream.send(data=write_request)
-
