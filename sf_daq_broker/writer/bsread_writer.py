@@ -221,7 +221,7 @@ class CompactBsreadH5Writer(BsreadH5Writer):
             self.file["/data/" + name + "/is_data_present"] = data["is_data_present"]
 
 
-def write_from_databuffer(data_api_request, parameters):
+def write_from_databuffer(data_api_request, output_file, parameters):
     data, data_len = get_data_from_buffer(data_api_request)
     _logger.info("Data retrieval (%d bytes) took %s seconds." % (data_len, time() - start_time))
 
@@ -230,7 +230,7 @@ def write_from_databuffer(data_api_request, parameters):
     _logger.info("Data writing took %s seconds." % (time() - start_time))
 
 
-def write_from_imagebuffer(data_api_request_pulseid, parameters):
+def write_from_imagebuffer(data_api_request_pulseid, output_file, parameters):
     import data_api3.h5 as h5
     import pytz
 
