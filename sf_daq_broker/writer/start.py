@@ -4,15 +4,11 @@ import os
 
 from datetime import datetime
 from time import time, sleep
-
-import requests
-from bsread import source, PULL
 from pika import BlockingConnection, ConnectionParameters, BasicProperties
 
 from sf_daq_broker import config, utils
 import sf_daq_broker.rabbitmq.config as broker_config
-
-from sf_daq_broker.writer.bsread_writer import CompactBsreadH5Writer
+from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_from_databuffer
 
 _logger = logging.getLogger(__name__)
 
@@ -21,18 +17,6 @@ try:
 except:
     _logger.warning("There is no ujson in this environment. Performance will suffer.")
     import json
-
-
-def create_folders(output_file):
-
-    filename_folder = os.path.dirname(output_file)
-
-    # Create a folder if it does not exist.
-    if filename_folder and not os.path.exists(filename_folder):
-        _logger.info("Creating folder '%s'.", filename_folder)
-        os.makedirs(filename_folder, exist_ok=True)
-    else:
-        _logger.info("Folder '%s' already exists.", filename_folder)
 
 
 def audit_failed_write_request(data_api_request, parameters, timestamp):
@@ -57,79 +41,10 @@ def audit_failed_write_request(data_api_request, parameters, timestamp):
         _logger.error("Error while trying to write request %s to file %s." % (write_request, filename), e)
 
 
-def write_data_to_file(parameters, json_data):
-    
-    if not parameters:
-        raise ValueError("Received parameters from broker are empty. parameters=%s" % parameters)
-    
-    output_file = parameters["output_file"]
-
-    writer = CompactBsreadH5Writer(output_file, parameters)
-
-    writer.write_data(json_data)
-    writer.close()
-
-
-def get_data_from_buffer(data_api_request):
-
-    _logger.info("Loading data for range: %s" % data_api_request["range"])
-
-    _logger.debug("Data API request: %s", data_api_request)
-
-    response = requests.post(url=config.DATA_API_QUERY_ADDRESS, json=data_api_request)
-
-    data, data_len = json.loads(response.content), len(response.content)
-
-    if not data:
-        raise ValueError("Received data from data_api is empty. data=%s" % data)
-
-    # The response is a list if status is OK, otherwise its a dictionary, of course.
-    if isinstance(data, dict):
-        if data.get("status") == 500:
-            raise Exception("Server returned error: %s" % data) 
-
-        raise Exception("Server returned a dict (keys: %s), but a list was expected." % list(data.keys()))
-    
-    return data, data_len
-
-
-def get_and_write_data_by_api3(data_api_request_pulseid, parameters):
-    import data_api3.h5 as h5
-    import pytz
-
-    data_api_request = utils.transform_range_from_pulse_id_to_timestamp(data_api_request_pulseid)
-
-    channels = [channel["name"] for channel in data_api_request["channels"]]
-
-    filename = parameters["output_file"]
-
-    start = datetime.fromtimestamp(float(data_api_request["range"]["startSeconds"])).astimezone(pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
-    end   = datetime.fromtimestamp(float(data_api_request["range"]["endSeconds"])).astimezone(pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
-
-    query = {
-        "channels": channels,
-        "range": {
-            "type": "date",
-            "startDate": start,
-            "endDate": end
-        }
-    }
-
-    _logger.info("Going to make query %s to write file %s from %s " % (query, filename, config.IMAGE_API_QUERY_ADDRESS))
-
-    h5.request(query, filename, url=config.IMAGE_API_QUERY_ADDRESS)
-
-
-def process_message(message, data_retrieval_delay):
-    data_api_request = None
-    parameters = None
-    request_timestamp = None
+def process_request(data_api_request, output_file, metadata, request_timestamp):
 
     try:
-        data_api_request = json.loads(message.data.data["data_api_request"].value)
-        parameters = json.loads(message.data.data["parameters"].value)
 
-        output_file = parameters["output_file"]
         _logger.info("Received request to write file %s from startPulseId=%s to endPulseId=%s" % (
             output_file,
             data_api_request["range"]["startPulseId"],
@@ -142,7 +57,7 @@ def process_message(message, data_retrieval_delay):
             _logger.info("Output file set to /dev/null. Skipping request.")
             return
 
-        request_timestamp = message.data.data["timestamp"].value
+
         current_timestamp = time()
         # sleep time = target sleep time - time that has already passed.
         adjusted_retrieval_delay = data_retrieval_delay - (current_timestamp - request_timestamp)
@@ -158,50 +73,21 @@ def process_message(message, data_retrieval_delay):
         _logger.info("Sleeping finished. Retrieving data.")
 
         start_time = time()
-        if 'channels' in data_api_request and len(data_api_request['channels']) > 0:
-            if data_api_request['channels'][0]['backend'] != 'sf-imagebuffer':
-                data, data_len = get_data_from_buffer(data_api_request)
-                _logger.info("Data retrieval (%d bytes) took %s seconds." % (data_len, time() - start_time))
 
-                start_time = time()
-                write_data_to_file(parameters, data)
-                _logger.info("Data writing took %s seconds." % (time() - start_time))
+        channels = data_api_request.get("channels")
+        if channels:
+            use_imagebuffer = channels[0]['backend'] == 'sf-imagebuffer'
+
+            if use_imagebuffer:
+                write_from_imagebuffer(data_api_request, parameters)
             else:
-                get_and_write_data_by_api3(data_api_request, parameters)
-                _logger.info("Data writing took %s seconds. (DATA_API3)" % (time() - start_time))
-                #_logger.info("No Image retrieval currently")
+                write_from_databuffer(data_api_request, parameters)
 
-    except:
+        _logger.info("Data writing took %s seconds. (DATA_API3)" % (time() - start_time))
+
+    except Exception:
         audit_failed_write_request(data_api_request, parameters, request_timestamp)
-
-        _logger.exception("Error while trying to write a requested data range.")
-
-
-def process_requests(stream_address, receive_timeout=None, mode=PULL, data_retrieval_delay=None):
-
-    if receive_timeout is None:
-        receive_timeout = config.DEFAULT_RECEIVE_TIMEOUT
-
-    if data_retrieval_delay is None:
-        data_retrieval_delay = config.DEFAULT_DATA_RETRIEVAL_DELAY
-
-    source_host, source_port = stream_address.rsplit(":", maxsplit=1)
-
-    source_host = source_host.split("//")[1]
-    source_port = int(source_port)
-
-    _logger.info("Connecting to broker host %s:%s." % (source_host, source_port))
-    _logger.info("Using data_retrieval_delay=%s seconds." % data_retrieval_delay)
-
-    with source(host=source_host, port=source_port, mode=mode, receive_timeout=receive_timeout) as input_stream:
-
-        while True:
-                message = input_stream.receive()
-
-                if message is None:
-                    continue
-
-                process_message(message, data_retrieval_delay)
+        raise
 
 
 def update_status(channel, body, action, file, message=None):
@@ -221,20 +107,29 @@ def update_status(channel, body, action, file, message=None):
                           body=body)
 
 
-def process_request(channel, method_frame, header_frame, body):
+def on_broker_message(channel, method_frame, header_frame, body):
 
     output_file = None
 
     try:
         request = json.loads(body.decode())
 
-        # TODO: Extract data from request.
+        data_api_request = request["data_api_request"]
+        output_file = request["output_file"]
+        metadata = request["metadata"]
+        request_timestamp = request["timestamp"]
 
         update_status(channel, body, "write_start", output_file)
 
-        # TODO: Call writing.
+        process_request(data_api_request=data_api_request,
+                        output_file=output_file,
+                        metadata=metadata,
+                        request_timestamp=request_timestamp)
 
     except Exception as e:
+
+        _logger.exception("Error while trying to write a requested data.")
+
         channel.basic_reject(delivery_tag=method_frame.delivery_tag,
                              requeue=True)
 
@@ -270,7 +165,7 @@ def start_service(broker_url, user_id):
                        routing_key="*.%s.*" % broker_config.BSREAD_QUEUE)
 
     channel.basic_qos(prefetch_count=1)
-    channel.basic_consume(broker_config.BSREAD_QUEUE, process_request)
+    channel.basic_consume(broker_config.BSREAD_QUEUE, on_broker_message)
 
     try:
         channel.start_consuming()
