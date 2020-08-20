@@ -1,10 +1,7 @@
-import copy
-import json
 from copy import deepcopy
 from logging import getLogger
 from time import time
 
-from datetime import datetime
 import requests
 
 from sf_daq_broker import config
@@ -12,11 +9,7 @@ from sf_daq_broker import config
 _logger = getLogger(__name__)
 
 
-def get_writer_request(channels, parameters, start_pulse_id, stop_pulse_id):
-
-    if "channels" in parameters:
-        _logger.info('Overwriting default channel list with provided "channels" in parameters.')
-        channels = parameters["channels"]
+def get_writer_request(channels, output_file, metadata, start_pulse_id, stop_pulse_id):
 
     data_api_request = {
         "channels": [{'name': ch, 'backend': config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND}
@@ -32,8 +25,9 @@ def get_writer_request(channels, parameters, start_pulse_id, stop_pulse_id):
     }
 
     write_request = {
-        "data_api_request": json.dumps(data_api_request),
-        "parameters": json.dumps(parameters),
+        "data_api_request": data_api_request,
+        "output_file": output_file,
+        "metadata": metadata,
         "timestamp": time()
     }
 
