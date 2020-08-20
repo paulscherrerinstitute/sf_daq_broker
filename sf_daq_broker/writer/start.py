@@ -86,8 +86,7 @@ def process_request(request):
         else:
             write_from_databuffer(data_api_request, output_file, metadata)
 
-        end_time = time()
-        _logger.info("Data writing took %s seconds. (DATA_API3)" % (end_time - start_time))
+        _logger.info("Data writing took %s seconds. (DATA_API3)" % (time() - start_time))
 
     except Exception:
         audit_failed_write_request(request)
