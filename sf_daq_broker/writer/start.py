@@ -84,6 +84,8 @@ def process_request(request):
 
         wait_for_delay(request_timestamp)
 
+        _logger.info("Starting download.")
+
         start_time = time()
 
         if channels[0]['backend'] == 'sf-imagebuffer':
