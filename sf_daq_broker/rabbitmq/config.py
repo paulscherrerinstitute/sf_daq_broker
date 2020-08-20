@@ -6,6 +6,8 @@ REQUEST_EXCHANGE = "request"
 # Exchange where the status of the writing is reported.
 STATUS_EXCHANGE = "status"
 
+DEFAULT_QUEUE = "write_request"
+
 # Name of the queue for bsread write requests.
 TAG_DATABUFFER = "databuffer"
 TAG_IMAGEBUFFER = "imagebuffer"

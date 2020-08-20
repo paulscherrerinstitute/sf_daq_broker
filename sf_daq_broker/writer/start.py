@@ -116,7 +116,7 @@ def update_status(channel, body, action, file, message=None):
     status_header = {
         "action": action,
         "source": "bsread_writer",
-        "routing_key": broker_config.BSREAD_QUEUE,
+        "routing_key": "*",
         "file": file,
         "message": message
     }
@@ -184,15 +184,15 @@ def start_service(broker_url):
     channel.exchange_declare(exchange=broker_config.REQUEST_EXCHANGE,
                              exchange_type="topic")
 
-    channel.queue_declare(queue=broker_config.BSREAD_QUEUE, auto_delete=True)
-    channel.queue_bind(queue=broker_config.BSREAD_QUEUE,
+    channel.queue_declare(queue=broker_config.DEFAULT_QUEUE, auto_delete=True)
+    channel.queue_bind(queue=broker_config.DEFAULT_QUEUE,
                        exchange=broker_config.REQUEST_EXCHANGE,
                        routing_key="*")
 
     channel.basic_qos(prefetch_count=1)
 
     on_broker_message_f = partial(on_broker_message, connection=connection)
-    channel.basic_consume(broker_config.BSREAD_QUEUE, on_broker_message_f)
+    channel.basic_consume(broker_config.DEFAULT_QUEUE, on_broker_message_f)
 
     try:
         channel.start_consuming()
