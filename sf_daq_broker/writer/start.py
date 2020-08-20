@@ -53,13 +53,17 @@ def wait_for_delay(request_timestamp):
 
 def process_request(request):
 
-    try:
-        data_api_request = request["data_api_request"]
-        output_file = request["output_file"]
-        run_log_file = request["run_log_file"]
-        metadata = request["metadata"]
-        request_timestamp = request["timestamp"]
+    data_api_request = request["data_api_request"]
+    output_file = request["output_file"]
+    run_log_file = request["run_log_file"]
+    metadata = request["metadata"]
+    request_timestamp = request["timestamp"]
 
+    file_handler = logging.FileHandler(run_log_file)
+    file_handler.setLevel(logging.INFO)
+    _logger.addHandler(file_handler)
+
+    try:
         _logger.info("Received request to write file %s from startPulseId=%s to endPulseId=%s" % (
             output_file,
             data_api_request["range"]["startPulseId"],
@@ -88,9 +92,14 @@ def process_request(request):
 
         _logger.info("Data writing took %s seconds. (DATA_API3)" % (time() - start_time))
 
+        _logger.removeHandler(file_handler)
+
     except Exception:
         audit_failed_write_request(request)
         raise
+
+    finally:
+        _logger.removeHandler(file_handler)
 
 
 def update_status(channel, body, action, file, message=None):
