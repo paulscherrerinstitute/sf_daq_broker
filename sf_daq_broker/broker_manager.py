@@ -161,41 +161,25 @@ class BrokerManager(object):
 
         output_file_prefix = f'{full_path}/run_{current_run:06}'
 
-        if "pv_list" in request:
+        def send_write_request(tag, channels, filename_suffix):
 
-            output_file_epics = output_file_prefix + config.OUTPUT_FILE_SUFFIX_EPICS
-            output_files_list.append(output_file_epics)
+            if not channels:
+                return
 
-            write_request = get_writer_request(channels=request["pv_list"],
-                                               output_file=output_file_epics,
+            output_file = output_file_prefix + filename_suffix
+            output_files_list.append(output_file)
+
+            write_request = get_writer_request(channels=channels,
+                                               output_file=output_file,
                                                metadata=metadata,
                                                start_pulse_id=adjusted_start_pulse_id,
                                                stop_pulse_id=adjusted_stop_pulse_id)
 
-            self.request_sender.send("epics", write_request)
+            self.request_sender.send(tag, write_request)
 
-        if "channels_list" in request:
-            output_file_bsread = output_file_prefix + config.OUTPUT_FILE_SUFFIX_DATA_BUFFER
-            output_files_list.append(output_file_bsread)
-
-            write_request = get_writer_request(channels=request["channels_list"],
-                                               output_file=output_file_bsread,
-                                               metadata=metadata,
-                                               start_pulse_id=adjusted_start_pulse_id,
-                                               stop_pulse_id=adjusted_stop_pulse_id)
-
-            self.request_sender.send("bsread", write_request)
-
-        if "camera_list" in request:
-            output_file_cameras = output_file_prefix + config.OUTPUT_FILE_SUFFIX_IMAGE_BUFFER
-            output_files_list.append(output_file_cameras)
-
-            write_request = get_writer_request(channels=request["camera_list"],
-                                               output_File=output_file_cameras,
-                                               metadata=metadata,
-                                               start_pulse_id=adjusted_start_pulse_id,
-                                               stop_pulse_id=adjusted_stop_pulse_id)
-            self.request_sender.send("bsread", write_request)
+        send_write_request("epics", request.get("pv_list"), config.OUTPUT_FILE_SUFFIX_EPICS)
+        send_write_request("bsread", request.get("channels_list"), config.OUTPUT_FILE_SUFFIX_DATA_BUFFER)
+        send_write_request("bsread", request.get("camera_list"), config.OUTPUT_FILE_SUFFIX_IMAGE_BUFFER)
 
         if "detectors" in request:
             for detector in request["detectors"]:
