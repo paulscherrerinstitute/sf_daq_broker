@@ -146,15 +146,7 @@ def on_broker_message(channel, method_frame, header_frame, body):
         update_status(channel, body, "write_finished", output_file)
 
 
-def start_service(broker_url, user_id):
-
-    if user_id != -1:
-        _logger.info("Setting bsread writer uid and gid to %s.", user_id)
-        os.setgid(user_id)
-        os.setuid(user_id)
-
-    else:
-        _logger.info("Not changing process uid and gid.")
+def start_service(broker_url):
 
     connection = BlockingConnection(ConnectionParameters(broker_url))
     channel = connection.channel()
@@ -183,8 +175,6 @@ def run():
 
     parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL,
                         help="Address of the broker to connect to.")
-    parser.add_argument("--user_id", type=int, default=-1,
-                        help="user_id under which to run the writer process. Use -1 for current user.")
     parser.add_argument("--data_retrieval_delay", default=config.DEFAULT_DATA_RETRIEVAL_DELAY, type=int,
                         help="Time to wait before asking the data-api for the data.")
     parser.add_argument("--log_level", default="INFO",
@@ -197,8 +187,7 @@ def run():
 
     config.DEFAULT_DATA_RETRIEVAL_DELAY = args.data_retrieval_delay
 
-    start_service(broker_url=args.broker_url,
-                  user_id=args.user_id)
+    start_service(broker_url=args.broker_url)
 
 
 if __name__ == "__main__":
