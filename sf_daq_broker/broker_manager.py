@@ -19,10 +19,8 @@ _logger = logging.getLogger(__name__)
 class BrokerManager(object):
     REQUIRED_PARAMETERS = ["output_file"]
 
-    def __init__(self, request_sender, epics_writer_url=None):
-
-        self.request_sender   = request_sender
-        self.epics_writer_url = epics_writer_url
+    def __init__(self, broker_client):
+        self.broker_client = broker_client
 
     def retrieve(self, request=None, remote_ip=None, beamline_force=None):
 
@@ -175,7 +173,7 @@ class BrokerManager(object):
                                                start_pulse_id=adjusted_start_pulse_id,
                                                stop_pulse_id=adjusted_stop_pulse_id)
 
-            self.request_sender.send(tag, write_request)
+            self.broker_client.send(tag, write_request)
 
         send_write_request("epics", request.get("pv_list"), config.OUTPUT_FILE_SUFFIX_EPICS)
         send_write_request("bsread", request.get("channels_list"), config.OUTPUT_FILE_SUFFIX_DATA_BUFFER)

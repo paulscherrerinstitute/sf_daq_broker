@@ -2,22 +2,24 @@ import argparse
 import logging
 
 import bottle
-from bsread import PUSH
 
 from sf_daq_broker import config
-from sf_daq_broker.broker_manager import BrokerManager, StreamRequestSender
+import sf_daq_broker.rabbitmq.config as broker_config
+from sf_daq_broker.broker_manager import BrokerManager
+from sf_daq_broker.rabbitmq.msg_broker_client import RabbitMqClient
 from sf_daq_broker.rest_api import register_rest_interface
 
 _logger = logging.getLogger(__name__)
 
 
-def start_server(output_port, queue_length, rest_port, epics_writer_url=None):
+def start_server(broker_url, rest_port):
 
-    _logger.debug("Setting queue length to %s.", queue_length)
+    _logger.info("Starting sf_daq_broker on port %s with broker_url %s" % (rest_port, broker_url))
 
     app = bottle.Bottle()
 
-    manager = BrokerManager(request_sender=request_sender, epics_writer_url=epics_writer_url)
+    broker_client = RabbitMqClient(broker_url=broker_url)
+    manager = BrokerManager(broker_client=broker_client)
 
     register_rest_interface(app, manager)
 
@@ -33,12 +35,10 @@ def start_server(output_port, queue_length, rest_port, epics_writer_url=None):
 
 
 def run():
-    parser = argparse.ArgumentParser(description='bsread broker')
+    parser = argparse.ArgumentParser(description='sf_daq_broker')
 
-    parser.add_argument('-o', '--output_port', type=int, default=config.DEFAULT_STREAM_OUTPUT_PORT,
-                        help="Port to bind the output stream to.")
-    parser.add_argument("-q", "--queue_length", type=int, default=config.DEFAULT_QUEUE_LENGTH,
-                        help="Length of the zmq queue.")
+    parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL,
+                        help="Address of the broker to connect to.")
 
     parser.add_argument("--rest_port", type=int, help="Port for REST api.", default=config.DEFAULT_BROKER_REST_PORT)
 
@@ -46,19 +46,13 @@ def run():
                         choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'],
                         help="Log level to use.")
 
-    parser.add_argument("--epics_writer_url", default=config.DEFAULT_EPICS_WRITER_URL,
-                        help="Epics writer URL to notify for new acquisition.")
-
     arguments = parser.parse_args()
 
     # Setup the logging level.
     logging.basicConfig(level=arguments.log_level, format='[%(levelname)s] %(message)s')
 
-    start_server(output_port=arguments.output_port,
-                 queue_length=arguments.queue_length,
-                 rest_port=arguments.rest_port,
-                 epics_writer_url=arguments.epics_writer_url
-                 )
+    start_server(broker_url=arguments.broker_url,
+                 rest_port=arguments.rest_port)
 
 
 if __name__ == "__main__":
