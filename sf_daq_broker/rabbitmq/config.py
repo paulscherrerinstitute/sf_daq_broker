@@ -5,3 +5,6 @@ REQUEST_EXCHANGE = "request"
 
 # Exchange where the status of the writing is reported.
 STATUS_EXCHANGE = "status"
+
+# Name of the queue for bsread write requests.
+BSREAD_QUEUE = "bsread"

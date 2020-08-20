@@ -7,8 +7,11 @@ from time import time, sleep
 
 import requests
 from bsread import source, PULL
+from pika import BlockingConnection, ConnectionParameters, BasicProperties
 
 from sf_daq_broker import config, utils
+import sf_daq_broker.rabbitmq.config as broker_config
+
 from sf_daq_broker.writer.bsread_writer import CompactBsreadH5Writer
 
 _logger = logging.getLogger(__name__)
@@ -201,7 +204,49 @@ def process_requests(stream_address, receive_timeout=None, mode=PULL, data_retri
                 process_message(message, data_retrieval_delay)
 
 
-def start_server(stream_address, user_id=-1, data_retrieval_delay=None):
+def update_status(channel, body, action, file, message=None):
+
+    status_header = {
+        "action": action,
+        "source": "epics_writer",
+        "routing_key": broker_config.BSREAD_QUEUE,
+        "file": file,
+        "message": message
+    }
+
+    channel.basic_publish(exchange=broker_config.STATUS_EXCHANGE,
+                          properties=BasicProperties(
+                              headers=status_header),
+                          routing_key="",
+                          body=body)
+
+
+def process_request(channel, method_frame, header_frame, body):
+
+    output_file = None
+
+    try:
+        request = json.loads(body.decode())
+
+        # TODO: Extract data from request.
+
+        update_status(channel, body, "write_start", output_file)
+
+        # TODO: Call writing.
+
+    except Exception as e:
+        channel.basic_reject(delivery_tag=method_frame.delivery_tag,
+                             requeue=True)
+
+        update_status(channel, body, "write_rejected", output_file, str(e))
+
+    else:
+        channel.basic_ack(delivery_tag=method_frame.delivery_tag)
+
+        update_status(channel, body, "write_finished", output_file)
+
+
+def start_service(broker_url, user_id):
 
     if user_id != -1:
         _logger.info("Setting bsread writer uid and gid to %s.", user_id)
@@ -211,30 +256,49 @@ def start_server(stream_address, user_id=-1, data_retrieval_delay=None):
     else:
         _logger.info("Not changing process uid and gid.")
 
-    process_requests(stream_address, data_retrieval_delay=data_retrieval_delay)
+    connection = BlockingConnection(ConnectionParameters(broker_url))
+    channel = connection.channel()
+
+    channel.exchange_declare(exchange=broker_config.STATUS_EXCHANGE,
+                             exchange_type="fanout")
+    channel.exchange_declare(exchange=broker_config.REQUEST_EXCHANGE,
+                             exchange_type="topic")
+
+    channel.queue_declare(queue=broker_config.BSREAD_QUEUE, auto_delete=True)
+    channel.queue_bind(queue=broker_config.BSREAD_QUEUE,
+                       exchange=broker_config.REQUEST_EXCHANGE,
+                       routing_key="*.%s.*" % broker_config.BSREAD_QUEUE)
+
+    channel.basic_qos(prefetch_count=1)
+    channel.basic_consume(broker_config.BSREAD_QUEUE, process_request)
+
+    try:
+        channel.start_consuming()
+    except KeyboardInterrupt:
+        channel.stop_consuming()
 
 
 def run():
-    parser = argparse.ArgumentParser(description='bsread data buffer writer')
+    parser = argparse.ArgumentParser(description='Bsread data writer')
 
-    parser.add_argument("stream_address", help="Address of the stream to connect to.")
-    parser.add_argument("user_id", type=int, help="user_id under which to run the writer process."
-                                                  "Use -1 for current user.")
+    parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL,
+                        help="Address of the broker to connect to.")
+    parser.add_argument("--user_id", type=int, default=-1,
+                        help="user_id under which to run the writer process. Use -1 for current user.")
     parser.add_argument("--data_retrieval_delay", default=config.DEFAULT_DATA_RETRIEVAL_DELAY, type=int,
                         help="Time to wait before asking the data-api for the data.")
-
     parser.add_argument("--log_level", default="INFO",
                         choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'],
                         help="Log level to use.")
 
-    arguments = parser.parse_args()
+    args = parser.parse_args()
 
-    # Setup the logging level.
-    logging.basicConfig(level=arguments.log_level, format='[%(levelname)s] %(message)s')
+    logging.basicConfig(level=args.log_level, format='[%(levelname)s] %(message)s')
 
-    start_server(stream_address=arguments.stream_address,
-                 user_id=arguments.user_id,
-                 data_retrieval_delay=arguments.data_retrieval_delay)
+    config.DEFAULT_DATA_RETRIEVAL_DELAY = args.data_retrieval_delay
+
+    start_service(broker_url=args.broker_url,
+                  user_id=args.user_id)
 
 
 if __name__ == "__main__":
