@@ -1,4 +1,5 @@
 import argparse
+import json
 import logging
 import os
 
@@ -12,33 +13,26 @@ from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_fro
 
 _logger = logging.getLogger(__name__)
 
-try:
-    import ujson as json
-except:
-    _logger.warning("There is no ujson in this environment. Performance will suffer.")
-    import json
 
-
-def audit_failed_write_request(data_api_request, output_file, metadata, timestamp):
-
-    filename = None
+def audit_failed_write_request(data_api_request, original_output_file, metadata, timestamp):
 
     write_request = {
-        "data_api_request": json.dumps(data_api_request),
-        "parameters": json.dumps(parameters),
+        "data_api_request": data_api_request,
+        "output_file": original_output_file,
+        "metadata": metadata,
         "timestamp": timestamp
     }
 
-    try:
-        filename = parameters["output_file"] + ".err"
+    output_file = original_output_file + ".err"
 
+    try:
         current_time = datetime.now().strftime(config.AUDIT_FILE_TIME_FORMAT)
 
-        with open(filename, "w") as audit_file:
+        with open(output_file, "w") as audit_file:
             audit_file.write("[%s] %s" % (current_time, json.dumps(write_request)))
 
-    except Exception as e:
-        _logger.error("Error while trying to write request %s to file %s." % (write_request, filename), e)
+    except Exception:
+        _logger.exception("Error while trying to write request %s to file %s." % (write_request, output_file))
 
 
 def wait_for_delay(request_timestamp):
