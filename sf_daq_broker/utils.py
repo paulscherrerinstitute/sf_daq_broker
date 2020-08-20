@@ -9,9 +9,8 @@ from sf_daq_broker import config
 _logger = getLogger(__name__)
 
 
-def get_writer_request(channels, output_file, metadata, start_pulse_id, stop_pulse_id, run_log_file=None):
-
-    data_api_request = {
+def get_data_api_request(channels, start_pulse_id, stop_pulse_id):
+    return {
         "channels": [{'name': ch, 'backend': config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND}
                      for ch in channels],
         "range": {
@@ -24,15 +23,22 @@ def get_writer_request(channels, output_file, metadata, start_pulse_id, stop_pul
         "configFields": ["type", "shape"]
     }
 
-    write_request = {
-        "data_api_request": data_api_request,
+
+def get_writer_request(writer_type, channels, output_file, metadata, start_pulse_id, stop_pulse_id, run_log_file):
+
+    return {
+        "writer_type": writer_type,
+        "channels": channels,
+
+        "start_pulse_id": start_pulse_id,
+        "stop_pulse_id": stop_pulse_id,
+
         "output_file": output_file,
         "run_log_file": run_log_file,
+
         "metadata": metadata,
         "timestamp": time()
     }
-
-    return write_request
 
 
 def transform_range_from_pulse_id_to_timestamp(data_api_request):
