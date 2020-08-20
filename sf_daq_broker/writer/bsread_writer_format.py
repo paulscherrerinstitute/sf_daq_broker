@@ -1,11 +1,9 @@
 import logging
-
+import os
 import h5py
 import numpy
+
 from bsread.data.serialization import channel_type_deserializer_mapping
-
-import os
-
 from sf_daq_broker import config
 
 _logger = logging.getLogger(__name__)
@@ -14,13 +12,14 @@ _logger = logging.getLogger(__name__)
 class BsreadH5Writer(object):
 
     def __init__(self, output_file, metadata):
+
         self.output_file = output_file
 
         path_to_file = os.path.dirname(self.output_file)
         os.makedirs(path_to_file, exist_ok=True)
 
         self.file = h5py.File(self.output_file, "w")
-        _logger.debug("File %s created." % self.output_file)
+        _logger.info("File %s created." % self.output_file)
 
         self._create_metadata_datasets(metadata)
 
@@ -32,6 +31,8 @@ class BsreadH5Writer(object):
             self.file.create_dataset(key, data=numpy.string_(value))
 
     def _build_datasets_data(self, json_data):
+
+        _logger.debug("Building numpy arrays with received data.")
 
         if not isinstance(json_data, list):
             raise ValueError("json_data should be a list, but its %s." % type(json_data))
@@ -127,13 +128,9 @@ class BsreadH5Writer(object):
 
     def write_data(self, json_data):
 
-        self._create_metadata_datasets()
-
-        _logger.info("Building numpy arrays with received data.")
+        _logger.info("Writing data to disk.")
 
         pulse_ids, datasets_data = self._build_datasets_data(json_data)
-
-        _logger.info("Writing data to disk.")
 
         for name, data in datasets_data.items():
             self.file["/data/" + name + "/pulse_id"] = pulse_ids
@@ -148,6 +145,8 @@ class BsreadH5Writer(object):
 class CompactBsreadH5Writer(BsreadH5Writer):
 
     def _build_datasets_data(self, json_data):
+
+        _logger.debug("Building numpy arrays with received data.")
 
         datasets_data = {}
 
@@ -211,13 +210,9 @@ class CompactBsreadH5Writer(BsreadH5Writer):
 
     def write_data(self, json_data):
 
-        self._create_metadata_datasets()
-
-        _logger.info("Building numpy arrays with received data.")
+        _logger.info("Writing data to disk.")
 
         datasets_data = self._build_datasets_data(json_data)
-
-        _logger.info("Writing data to disk.")
 
         for name, data in datasets_data.items():
             self.file["/data/" + name + "/pulse_id"] = data["pulse_id"]
