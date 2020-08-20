@@ -219,6 +219,8 @@ def run():
 
     logging.getLogger("pika").setLevel(logging.WARNING)
 
+    _logger.info("Writer started. Waiting for requests.")
+
     start_service(broker_url=args.broker_url)
 
 
