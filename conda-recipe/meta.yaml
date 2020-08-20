@@ -5,9 +5,6 @@ package:
 source:
     path: ..
 
-build:
-    number: 0
-
 requirements:
     build:
         - python
@@ -18,8 +15,10 @@ requirements:
         - bottle
         - requests
         - data_api
+        - pika
 
 build:
+  number: 0
   entry_points:
     - sf_daq_broker = sf_daq_broker.broker:run
     - sf_daq_broker_writer = sf_daq_broker.writer:run
