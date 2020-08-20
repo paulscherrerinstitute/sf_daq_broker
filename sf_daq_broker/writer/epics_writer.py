@@ -1,6 +1,9 @@
 import datetime
 import time
 import logging
+
+import dateutil
+import pytz
 import requests
 import data_api
 
@@ -113,8 +116,8 @@ def get_pulse_id_date_mapping(pulse_id):
 
             date = data[0]["data"][0]["globalDate"]
             date = dateutil.parser.parse(date)
-            dates.append(date)
-            break
+
+            return date
 
     except Exception as e:
         raise RuntimeError('Unable to retrieve pulse_id date mapping') from e
