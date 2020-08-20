@@ -210,7 +210,7 @@ def run():
     logs_format = '[%(levelname)s] %(message)s'
     logging.basicConfig(level=args.log_level, format=writer_id_format + logs_format)
 
-    config.DEFAULT_DATA_RETRIEVAL_DELAY = args.data_retrieval_delay
+    config.DATA_RETRIEVAL_DELAY = args.data_retrieval_delay
 
     start_service(broker_url=args.broker_url)
 
