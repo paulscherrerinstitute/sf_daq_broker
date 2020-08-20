@@ -23,6 +23,9 @@ def write_from_databuffer(data_api_request, output_file, metadata):
 
     _logger.debug("Data API request: %s", data_api_request)
 
+    if config.TRANSFORM_PULSE_ID_TO_TIMESTAMP_QUERY:
+        data_api_request = utils.transform_range_from_pulse_id_to_timestamp(data_api_request)
+
     start_time = time()
 
     response = requests.post(url=config.DATA_API_QUERY_ADDRESS, json=data_api_request)
