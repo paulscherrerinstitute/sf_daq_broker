@@ -1,239 +1,221 @@
-import argparse
 import logging
 import os
+import h5py
+import numpy
 
-from datetime import datetime
-from time import time, sleep
-
-import requests
-from bsread import source, PULL
-
-from sf_daq_broker import config, utils
-from sf_daq_broker.writer.bsread_writer_format import CompactBsreadH5Writer
+from bsread.data.serialization import channel_type_deserializer_mapping
+from sf_daq_broker import config
 
 _logger = logging.getLogger(__name__)
 
-try:
-    import ujson as json
-except:
-    _logger.warning("There is no ujson in this environment. Performance will suffer.")
-    import json
 
+class BsreadH5Writer(object):
 
-def create_folders(output_file):
+    def __init__(self, output_file, metadata):
 
-    filename_folder = os.path.dirname(output_file)
+        self.output_file = output_file
 
-    # Create a folder if it does not exist.
-    if filename_folder and not os.path.exists(filename_folder):
-        _logger.info("Creating folder '%s'.", filename_folder)
-        os.makedirs(filename_folder, exist_ok=True)
-    else:
-        _logger.info("Folder '%s' already exists.", filename_folder)
+        path_to_file = os.path.dirname(self.output_file)
+        os.makedirs(path_to_file, exist_ok=True)
 
+        self.file = h5py.File(self.output_file, "w")
+        _logger.info("File %s created." % self.output_file)
 
-def audit_failed_write_request(data_api_request, parameters, timestamp):
+        self._create_metadata_datasets(metadata)
 
-    filename = None
+    def _create_metadata_datasets(self, metadata):
 
-    write_request = {
-        "data_api_request": json.dumps(data_api_request),
-        "parameters": json.dumps(parameters),
-        "timestamp": timestamp
-    }
+        _logger.debug("Initializing metadata datasets.")
 
-    try:
-        filename = parameters["output_file"] + ".err"
+        for key, value in metadata.items():
+            self.file.create_dataset(key, data=numpy.string_(value))
 
-        current_time = datetime.now().strftime(config.AUDIT_FILE_TIME_FORMAT)
+    def _build_datasets_data(self, json_data):
 
-        with open(filename, "w") as audit_file:
-            audit_file.write("[%s] %s" % (current_time, json.dumps(write_request)))
+        _logger.debug("Building numpy arrays with received data.")
 
-    except Exception as e:
-        _logger.error("Error while trying to write request %s to file %s." % (write_request, filename), e)
+        if not isinstance(json_data, list):
+            raise ValueError("json_data should be a list, but its %s." % type(json_data))
 
+        pulse_ids = set()
 
-def write_data_to_file(parameters, json_data):
-    
-    if not parameters:
-        raise ValueError("Received parameters from broker are empty. parameters=%s" % parameters)
-    
-    output_file = parameters["output_file"]
+        for channel_data in json_data:
+            if not isinstance(channel_data, dict):
+                raise ValueError("channel_data should be a dict, but its %s." % type(channel_data))
+            
+            data = channel_data["data"]
 
-    writer = CompactBsreadH5Writer(output_file, parameters)
+            if not data:
+                continue
 
-    writer.write_data(json_data)
-    writer.close()
+            for data_point in data:
+                pulse_ids.add(data_point["pulseId"])
 
+        pulse_ids = sorted(pulse_ids)
+        pulse_id_to_data_index = {data: index for index, data in enumerate(pulse_ids)}
+        n_data_points = len(pulse_id_to_data_index)
 
-def get_data_from_buffer(data_api_request):
+        _logger.info("Built array of pulse_ids. n_data_points=%d" % n_data_points)
 
-    _logger.info("Loading data for range: %s" % data_api_request["range"])
+        datasets_data = {}
+        
+        # Channel data format example
+        # channel_data = {
+        #     "data": [],
+        #     "configs": [{"shape": [2], "type": "float32"}],
+        #     "channel": {"name": "ARRAY_NO_DATA", "backend": "sf-databuffer"}
+        # }
 
-    _logger.debug("Data API request: %s", data_api_request)
+        for channel_data in json_data:
+            try:
+                name = channel_data["channel"]["name"]
+                _logger.debug("Formatting data for channel %s." % name)
 
-    response = requests.post(url=config.DATA_API_QUERY_ADDRESS, json=data_api_request)
+                data = channel_data["data"]
 
-    data, data_len = json.loads(response.content), len(response.content)
+                if not data:
+                    if config.ERROR_IF_NO_DATA:
+                        raise ValueError("There is no data for channel %s." % name)
+                    else:
+                        _logger.error("There is no data for channel %s." % name)
+                
+                channel_type = channel_data["configs"][0]["type"]
+                channel_shape = channel_data["configs"][0]["shape"]
 
-    if not data:
-        raise ValueError("Received data from data_api is empty. data=%s" % data)
+                dataset_type, dataset_shape = self._get_dataset_definition(channel_type, channel_shape, n_data_points)
 
-    # The response is a list if status is OK, otherwise its a dictionary, of course.
-    if isinstance(data, dict):
-        if data.get("status") == 500:
-            raise Exception("Server returned error: %s" % data) 
+                dataset_values = numpy.zeros(dtype=dataset_type, shape=dataset_shape)
+                dataset_value_present = numpy.zeros(shape=(n_data_points,), dtype="bool")
+                dataset_global_time = numpy.zeros(shape=(n_data_points,), dtype=h5py.special_dtype(vlen=str))
 
-        raise Exception("Server returned a dict (keys: %s), but a list was expected." % list(data.keys()))
-    
-    return data, data_len
+                if data:
+                    for data_point in data:
+                        data_index = pulse_id_to_data_index[data_point["pulseId"]]
 
-def get_and_write_data_by_api3(data_api_request_pulseid, parameters):
-    import data_api3.h5 as h5
-    import pytz
+                        if len(channel_shape) > 1:
+                            # Bsread is [X, Y] but numpy is [Y, X].
+                            data_point["value"] = numpy.array(data_point["value"], dtype=dataset_type).\
+                                reshape(channel_shape[::-1])
 
-    data_api_request = utils.transform_range_from_pulse_id_to_timestamp(data_api_request_pulseid)
+                        dataset_values[data_index] = data_point["value"]
+                        dataset_value_present[data_index] = 1
+                        dataset_global_time[data_index] = data_point["globalDate"]
 
-    channels = [channel["name"] for channel in data_api_request["channels"]]
+                datasets_data[name] = {
+                    "data": dataset_values,
+                    "is_data_present": dataset_value_present,
+                    "global_date": dataset_global_time
+                }
 
-    filename = parameters["output_file"]
+            except Exception as e:
+                _logger.error("Cannot convert channel_name %s." % name)
 
-    start = datetime.fromtimestamp(float(data_api_request["range"]["startSeconds"])).astimezone(pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
-    end   = datetime.fromtimestamp(float(data_api_request["range"]["endSeconds"])).astimezone(pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
+                if config.ERROR_IF_NO_DATA:
+                    raise
 
-    query = {
-        "channels": channels,
-        "range": {
-            "type": "date",
-            "startDate": start,
-            "endDate": end
-        }
-    }
+        return pulse_ids, datasets_data
 
-    _logger.info("Going to make query %s to write file %s from %s " % (query, filename, config.IMAGE_API_QUERY_ADDRESS))
+    def _get_dataset_definition(self, channel_dtype, channel_shape, n_data_points):
 
-    h5.request(query, filename, url=config.IMAGE_API_QUERY_ADDRESS)
+        dataset_type = channel_type_deserializer_mapping[channel_dtype][0]
+        dataset_shape = [n_data_points] + channel_shape[::-1]
 
-def process_message(message, data_retrieval_delay):
-    data_api_request = None
-    parameters = None
-    request_timestamp = None
+        if channel_dtype == "string":
+            dataset_type = h5py.special_dtype(vlen=str)
+            dataset_shape = [n_data_points] + channel_shape[::-1]
 
-    try:
-        data_api_request = json.loads(message.data.data["data_api_request"].value)
-        parameters = json.loads(message.data.data["parameters"].value)
+        return dataset_type, dataset_shape
 
-        output_file = parameters["output_file"]
-        _logger.info("Received request to write file %s from startPulseId=%s to endPulseId=%s" % (
-            output_file,
-            data_api_request["range"]["startPulseId"],
-            data_api_request["range"]["endPulseId"]))
+    def write_data(self, json_data):
 
-        if config.TRANSFORM_PULSE_ID_TO_TIMESTAMP_QUERY:
-            data_api_request = utils.transform_range_from_pulse_id_to_timestamp(data_api_request)
+        _logger.info("Writing data to disk.")
 
-        if output_file == "/dev/null":
-            _logger.info("Output file set to /dev/null. Skipping request.")
-            return
+        pulse_ids, datasets_data = self._build_datasets_data(json_data)
 
-        request_timestamp = message.data.data["timestamp"].value
-        current_timestamp = time()
-        # sleep time = target sleep time - time that has already passed.
-        adjusted_retrieval_delay = data_retrieval_delay - (current_timestamp - request_timestamp)
+        for name, data in datasets_data.items():
+            self.file["/data/" + name + "/pulse_id"] = pulse_ids
+            self.file["/data/" + name + "/global_date"] = data["global_date"]
+            self.file["/data/" + name + "/data"] = data["data"]
+            self.file["/data/" + name + "/is_data_present"] = data["is_data_present"]
 
-        if adjusted_retrieval_delay < 0:
-            adjusted_retrieval_delay = 0
+    def close(self):
+        self.file.close()
 
-        _logger.info("Request timestamp=%s, current_timestamp=%s, adjusted_retrieval_delay=%s." %
-                     (request_timestamp, current_timestamp, adjusted_retrieval_delay))
 
-        _logger.info("Sleeping for %s seconds before calling the data api." % adjusted_retrieval_delay)
-        sleep(adjusted_retrieval_delay)
-        _logger.info("Sleeping finished. Retrieving data.")
+class CompactBsreadH5Writer(BsreadH5Writer):
 
-        start_time = time()
-        if 'channels' in data_api_request and len(data_api_request['channels']) > 0:
-            if data_api_request['channels'][0]['backend'] != 'sf-imagebuffer':
-                data, data_len = get_data_from_buffer(data_api_request)
-                _logger.info("Data retrieval (%d bytes) took %s seconds." % (data_len, time() - start_time))
+    def _build_datasets_data(self, json_data):
 
-                start_time = time()
-                write_data_to_file(parameters, data)
-                _logger.info("Data writing took %s seconds." % (time() - start_time))
-            else:
-                get_and_write_data_by_api3(data_api_request, parameters)
-                _logger.info("Data writing took %s seconds. (DATA_API3)" % (time() - start_time))
-                #_logger.info("No Image retrieval currently")
+        _logger.debug("Building numpy arrays with received data.")
 
-    except:
-        audit_failed_write_request(data_api_request, parameters, request_timestamp)
+        datasets_data = {}
 
-        _logger.exception("Error while trying to write a requested data range.")
+        if not isinstance(json_data, list):
+            raise ValueError("json_data should be a list, but its %s." % type(json_data))
 
+        for channel_data in json_data:
+            
+            if not isinstance(channel_data, dict):
+                raise ValueError("channel_data should be a dict, but its %s." % type(channel_data))
 
-def process_requests(stream_address, receive_timeout=None, mode=PULL, data_retrieval_delay=None):
+            try:
+                name = channel_data["channel"]["name"]
+                _logger.debug("Formatting data for channel %s." % name)
 
-    if receive_timeout is None:
-        receive_timeout = config.DEFAULT_RECEIVE_TIMEOUT
+                data = channel_data["data"]
+                if not data:
+                    if config.ERROR_IF_NO_DATA:
+                        raise ValueError("There is no data for channel %s." % name)
+                    else:
+                        _logger.error("There is no data for channel %s." % name)
 
-    if data_retrieval_delay is None:
-        data_retrieval_delay = config.DEFAULT_DATA_RETRIEVAL_DELAY
+                channel_type = channel_data["configs"][0]["type"]
+                channel_shape = channel_data["configs"][0]["shape"]
 
-    source_host, source_port = stream_address.rsplit(":", maxsplit=1)
+                n_data_points = len(data)
+                dataset_type, dataset_shape = self._get_dataset_definition(channel_type, channel_shape, n_data_points)
 
-    source_host = source_host.split("//")[1]
-    source_port = int(source_port)
+                dataset_values = numpy.zeros(dtype=dataset_type, shape=dataset_shape)
+                dataset_value_present = numpy.zeros(shape=(n_data_points,), dtype="bool")
+                dataset_pulse_ids = numpy.zeros(shape=(n_data_points,), dtype="<i8")
+                dataset_global_time = numpy.zeros(shape=(n_data_points,), dtype=h5py.special_dtype(vlen=str))
 
-    _logger.info("Connecting to broker host %s:%s." % (source_host, source_port))
-    _logger.info("Using data_retrieval_delay=%s seconds." % data_retrieval_delay)
+                if data:
+                    for data_index, data_point in enumerate(data):
 
-    with source(host=source_host, port=source_port, mode=mode, receive_timeout=receive_timeout) as input_stream:
+                        if len(channel_shape) > 1:
+                            # Bsread is [X, Y] but numpy is [Y, X].
+                            data_point["value"] = numpy.array(data_point["value"], dtype=dataset_type).\
+                                reshape(channel_shape[::-1])
 
-        while True:
-                message = input_stream.receive()
+                        dataset_values[data_index] = data_point["value"]
+                        dataset_value_present[data_index] = 1
+                        dataset_pulse_ids[data_index] = data_point["pulseId"]
+                        dataset_global_time[data_index] = data_point["globalDate"]
 
-                if message is None:
-                    continue
+                datasets_data[name] = {
+                    "data": dataset_values,
+                    "is_data_present": dataset_value_present,
+                    "pulse_id": dataset_pulse_ids,
+                    "global_date": dataset_global_time
+                }
 
-                process_message(message, data_retrieval_delay)
+            except Exception as e:
+                _logger.error("Cannot convert channel_name %s." % name)
 
+                if config.ERROR_IF_NO_DATA:
+                    raise
 
-def start_server(stream_address, user_id=-1, data_retrieval_delay=None):
+        return datasets_data
 
-    if user_id != -1:
-        _logger.info("Setting bsread writer uid and gid to %s.", user_id)
-        os.setgid(user_id)
-        os.setuid(user_id)
+    def write_data(self, json_data):
 
-    else:
-        _logger.info("Not changing process uid and gid.")
+        _logger.info("Writing data to disk.")
 
-    process_requests(stream_address, data_retrieval_delay=data_retrieval_delay)
+        datasets_data = self._build_datasets_data(json_data)
 
-
-def run():
-    parser = argparse.ArgumentParser(description='bsread data buffer writer')
-
-    parser.add_argument("stream_address", help="Address of the stream to connect to.")
-    parser.add_argument("user_id", type=int, help="user_id under which to run the writer process."
-                                                  "Use -1 for current user.")
-    parser.add_argument("--data_retrieval_delay", default=config.DEFAULT_DATA_RETRIEVAL_DELAY, type=int,
-                        help="Time to wait before asking the data-api for the data.")
-
-    parser.add_argument("--log_level", default="INFO",
-                        choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'],
-                        help="Log level to use.")
-
-    arguments = parser.parse_args()
-
-    # Setup the logging level.
-    logging.basicConfig(level=arguments.log_level, format='[%(levelname)s] %(message)s')
-
-    start_server(stream_address=arguments.stream_address,
-                 user_id=arguments.user_id,
-                 data_retrieval_delay=arguments.data_retrieval_delay)
-
-
-if __name__ == "__main__":
-    run()
+        for name, data in datasets_data.items():
+            self.file["/data/" + name + "/pulse_id"] = data["pulse_id"]
+            self.file["/data/" + name + "/global_date"] = data["global_date"]
+            self.file["/data/" + name + "/data"] = data["data"]
+            self.file["/data/" + name + "/is_data_present"] = data["is_data_present"]
