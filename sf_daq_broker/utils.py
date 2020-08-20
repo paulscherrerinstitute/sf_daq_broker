@@ -9,7 +9,7 @@ from sf_daq_broker import config
 _logger = getLogger(__name__)
 
 
-def get_writer_request(channels, output_file, metadata, start_pulse_id, stop_pulse_id):
+def get_writer_request(channels, output_file, metadata, start_pulse_id, stop_pulse_id, run_log_file=None):
 
     data_api_request = {
         "channels": [{'name': ch, 'backend': config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND}
@@ -27,6 +27,7 @@ def get_writer_request(channels, output_file, metadata, start_pulse_id, stop_pul
     write_request = {
         "data_api_request": data_api_request,
         "output_file": output_file,
+        "run_log_file": run_log_file,
         "metadata": metadata,
         "timestamp": time()
     }
