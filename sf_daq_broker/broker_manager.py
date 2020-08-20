@@ -172,21 +172,7 @@ class BrokerManager(object):
                                                start_pulse_id=adjusted_start_pulse_id,
                                                stop_pulse_id=adjusted_stop_pulse_id)
 
-            def send_epics_request():
-                try:
-
-                    epics_writer_request = {
-                                "range": json.loads(write_request["data_api_request"])["range"],
-                                "parameters": json.loads(write_request["parameters"]),
-                                "channels" : request["pv_list"],
-                                "retrieval_url" : "https://data-api.psi.ch/sf"
-                            }
-                    epics_writer_request["parameters"]["output_file"] = output_file_epics
-                    requests.put(url=self.epics_writer_url, json=epics_writer_request)
-                except Exception as e:
-                    _logger.error("Error while trying to forward the write request to the epics writer.", e)
-#TODO: check if url is empty?
-            Thread(target=send_epics_request).start()
+            self.request_sender.send("epics", write_request)
 
         if "channels_list" in request:
             output_file_bsread = output_file_prefix + config.OUTPUT_FILE_SUFFIX_DATA_BUFFER
@@ -198,7 +184,7 @@ class BrokerManager(object):
                                                start_pulse_id=adjusted_start_pulse_id,
                                                stop_pulse_id=adjusted_stop_pulse_id)
 
-            self.request_sender.send(write_request)
+            self.request_sender.send("bsread", write_request)
 
         if "camera_list" in request:
             output_file_cameras = output_file_prefix + config.OUTPUT_FILE_SUFFIX_IMAGE_BUFFER
@@ -209,7 +195,7 @@ class BrokerManager(object):
                                                metadata=metadata,
                                                start_pulse_id=adjusted_start_pulse_id,
                                                stop_pulse_id=adjusted_stop_pulse_id)
-            self.request_sender.send(write_request)
+            self.request_sender.send("bsread", write_request)
 
         if "detectors" in request:
             for detector in request["detectors"]:
