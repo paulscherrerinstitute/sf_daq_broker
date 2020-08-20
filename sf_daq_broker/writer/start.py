@@ -58,9 +58,11 @@ def process_request(request):
     metadata = request["metadata"]
     request_timestamp = request["timestamp"]
 
-    file_handler = logging.FileHandler(run_log_file)
-    file_handler.setLevel(logging.INFO)
-    _logger.addHandler(file_handler)
+    file_handler = None
+    if run_log_file:
+        file_handler = logging.FileHandler(run_log_file)
+        file_handler.setLevel(logging.INFO)
+        _logger.addHandler(file_handler)
 
     try:
         _logger.info("Received request to write file %s from startPulseId=%s to endPulseId=%s" % (
@@ -98,7 +100,8 @@ def process_request(request):
         raise
 
     finally:
-        _logger.removeHandler(file_handler)
+        if file_handler:
+            _logger.removeHandler(file_handler)
 
 
 def update_status(channel, body, action, file, message=None):
