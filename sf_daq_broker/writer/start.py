@@ -13,15 +13,9 @@ from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_fro
 _logger = logging.getLogger(__name__)
 
 
-def audit_failed_write_request(data_api_request, original_output_file, metadata, timestamp):
+def audit_failed_write_request(write_request):
 
-    write_request = {
-        "data_api_request": data_api_request,
-        "output_file": original_output_file,
-        "metadata": metadata,
-        "timestamp": timestamp
-    }
-
+    original_output_file = write_request.get("output_file", "output_file_not_specified")
     output_file = original_output_file + ".err"
 
     try:
