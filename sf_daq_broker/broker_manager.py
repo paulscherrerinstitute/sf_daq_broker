@@ -2,6 +2,7 @@ from datetime import datetime
 import logging
 import json
 from sf_daq_broker import config
+from sf_daq_broker.rabbitmq.msg_broker_client import RabbitMqClient
 from sf_daq_broker.utils import get_writer_request
 
 import os
@@ -170,9 +171,13 @@ class BrokerManager(object):
 
             self.broker_client.send(tag, write_request)
 
+        self.broker_client.open()
+
         send_write_request("epics", request.get("pv_list"), config.OUTPUT_FILE_SUFFIX_EPICS)
         send_write_request("bsread", request.get("channels_list"), config.OUTPUT_FILE_SUFFIX_DATA_BUFFER)
         send_write_request("bsread", request.get("camera_list"), config.OUTPUT_FILE_SUFFIX_IMAGE_BUFFER)
+
+        self.broker_client.close()
 
         if "detectors" in request:
             for detector in request["detectors"]:

@@ -8,7 +8,13 @@ from pika import BlockingConnection, ConnectionParameters, BasicProperties
 class RabbitMqClient(object):
 
     def __init__(self, broker_url=broker_config.DEFAULT_BROKER_URL):
-        self.connection = BlockingConnection(ConnectionParameters(broker_url))
+        self.broker_url = broker_url
+
+        self.connection = None
+        self.channel = None
+
+    def open(self):
+        self.connection = BlockingConnection(ConnectionParameters(self.broker_url))
         self.channel = self.connection.channel()
 
         self.channel.exchange_declare(exchange=broker_config.REQUEST_EXCHANGE,
@@ -20,7 +26,13 @@ class RabbitMqClient(object):
     def close(self):
         self.connection.close()
 
+        self.connection = None
+        self.channel = None
+
     def send(self, tag, write_request):
+
+        if self.channel is None:
+            raise RuntimeError("RabbitMqClient not connected.")
 
         routing_key = "." + tag + "."
 
