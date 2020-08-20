@@ -213,11 +213,10 @@ def run():
 
     args = parser.parse_args()
 
-    logger_ostream = logging.StreamHandler()
     logs_format = '{broker_writer_%s}' % args.writer_id + '[%(levelname)s] %(message)s'
-    logger_ostream.setFormatter(logging.Formatter(logs_format))
-    _logger.addHandler(logger_ostream)
-    _logger.setLevel(args.log_level)
+    formatter = logging.Formatter(logs_format)
+    for handler in _logger.handlers:
+        handler.setFormatter(formatter)
 
     logging.getLogger("pika").setLevel(logging.WARNING)
 
