@@ -10,7 +10,9 @@ from pika import BlockingConnection, ConnectionParameters, BasicProperties
 
 from sf_daq_broker import config, utils
 import sf_daq_broker.rabbitmq.config as broker_config
+from sf_daq_broker.utils import get_data_api_request
 from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_from_databuffer
+from sf_daq_broker.writer.epics_writer import write_epics_pvs
 
 _logger = logging.getLogger(__name__)
 
@@ -48,9 +50,15 @@ def wait_for_delay(request_timestamp):
 
 def process_request(request):
 
-    data_api_request = request["data_api_request"]
+    writer_type = request["writer_type"]
+    channels = request["channels"]
+
+    start_pulse_id = request["start_pulse_id"]
+    stop_pulse_id = request["stop_pulse_id"]
+
     output_file = request["output_file"]
     run_log_file = request["run_log_file"]
+
     metadata = request["metadata"]
     request_timestamp = request["timestamp"]
 
@@ -61,22 +69,16 @@ def process_request(request):
         _logger.addHandler(file_handler)
 
     try:
-        _logger.info("Received request to write file %s from startPulseId=%s to endPulseId=%s" % (
-            output_file,
-            data_api_request["range"]["startPulseId"],
-            data_api_request["range"]["endPulseId"]))
+        _logger.info("Request for %s to write %s from pulse_id %s to %s" %
+                     (writer_type, output_file, start_pulse_id, stop_pulse_id))
 
         if output_file == "/dev/null":
             _logger.info("Output file set to /dev/null. Skipping request.")
             return
 
-        channels = data_api_request.get("channels")
         if not channels:
             _logger.info("No channels requested. Skipping request.")
             return
-
-        if config.TRANSFORM_PULSE_ID_TO_TIMESTAMP_QUERY:
-            data_api_request = utils.transform_range_from_pulse_id_to_timestamp(data_api_request)
 
         wait_for_delay(request_timestamp)
 
@@ -84,10 +86,17 @@ def process_request(request):
 
         start_time = time()
 
-        if channels[0]['backend'] == 'sf-imagebuffer':
-            write_from_imagebuffer(data_api_request, output_file, metadata)
-        else:
-            write_from_databuffer(data_api_request, output_file, metadata)
+        if writer_type == broker_config.TAG_DATABUFFER:
+            _logger.info("Using databuffer writer.")
+            write_from_databuffer(get_data_api_request(channels, start_pulse_id, stop_pulse_id), output_file, metadata)
+
+        elif writer_type == broker_config.TAG_IMAGEBUFFER:
+            _logger.info("Using imagebuffer writer.")
+            write_from_imagebuffer(get_data_api_request(channels, start_pulse_id, stop_pulse_id), output_file, metadata)
+
+        elif writer_type == broker_config.TAG_EPICS:
+            _logger.info("Using epics writer.")
+            write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, channels)
 
         _logger.info("Finished. Took %s seconds to complete request." % (time() - start_time))
 
@@ -178,7 +187,7 @@ def start_service(broker_url):
     channel.queue_declare(queue=broker_config.BSREAD_QUEUE, auto_delete=True)
     channel.queue_bind(queue=broker_config.BSREAD_QUEUE,
                        exchange=broker_config.REQUEST_EXCHANGE,
-                       routing_key="*.%s.*" % broker_config.BSREAD_QUEUE)
+                       routing_key="*")
 
     channel.basic_qos(prefetch_count=1)
 
@@ -207,6 +216,8 @@ def run():
     writer_id_format = '{broker_writer_%s}' % args.writer_id
     logs_format = '[%(levelname)s] %(message)s'
     logging.basicConfig(level=args.log_level, format=writer_id_format + logs_format)
+
+    logging.getLogger("pika").setLevel(logging.WARNING)
 
     start_service(broker_url=args.broker_url)
 
