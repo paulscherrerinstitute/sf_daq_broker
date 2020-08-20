@@ -94,7 +94,7 @@ def update_status(channel, body, action, file, message=None):
 
     status_header = {
         "action": action,
-        "source": "epics_writer",
+        "source": "bsread_writer",
         "routing_key": broker_config.BSREAD_QUEUE,
         "file": file,
         "message": message
