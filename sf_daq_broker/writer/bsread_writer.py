@@ -9,7 +9,7 @@ import requests
 from bsread import source, PULL
 
 from sf_daq_broker import config, utils
-from sf_daq_broker.writer_format import CompactDataBufferH5Writer
+from sf_daq_broker.writer.bsread_writer_format import CompactBsreadH5Writer
 
 _logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ def write_data_to_file(parameters, json_data):
     
     output_file = parameters["output_file"]
 
-    writer = CompactDataBufferH5Writer(output_file, parameters)
+    writer = CompactBsreadH5Writer(output_file, parameters)
 
     writer.write_data(json_data)
     writer.close()

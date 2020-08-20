@@ -11,7 +11,7 @@ from sf_daq_broker import config
 _logger = logging.getLogger(__name__)
 
 
-class DataBufferH5Writer(object):
+class BsreadH5Writer(object):
     def __init__(self, output_file, parameters):
         self.output_file = output_file
         self.parameters = parameters
@@ -151,7 +151,7 @@ class DataBufferH5Writer(object):
         self.file.close()
 
 
-class CompactDataBufferH5Writer(DataBufferH5Writer):
+class CompactBsreadH5Writer(BsreadH5Writer):
 
     def _build_datasets_data(self, json_data):
 
