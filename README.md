@@ -229,3 +229,16 @@ docker run -d --hostname sf-daq-1 --name sf-msg-broker --net=host rabbitmq:3-man
 There is no need for further configuration. The producers and consumer will configure it on the fly.
 
 You can access the management interface on http://localhost:15672 (the login is "guest":"guest")
+
+#### RabbitMQ status listener
+
+You can also see what is currently happening to the requests and the status of each one by using the broker debugger.
+It is located in sf_daq_broker/rabbitmq/broker_debugger.py
+
+You can start it by running:
+
+```bash
+source activate rabbit # the env where you have installed sf_daq_broker
+(rabbit) [dbe@sf-daq-1 rabbitmq]$ cd /home/dbe/git/sf_daq_broker/sf_daq_broker/rabbitmq 
+(rabbit) [dbe@sf-daq-1 rabbitmq]$ python broker_debugger.py
+```
