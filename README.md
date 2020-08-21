@@ -16,6 +16,7 @@ the camera images, detector buffer for Jungfrau and archiver for cadump)
 2. [Example1](#example1)
 3. [Example2](#example2)
 4. [Check](#check)
+5. [Deployment](#deployment)
 
 <a id="call_broker"></a>
 ## Call to broker
@@ -203,3 +204,28 @@ Result of consistency check (summary) : False
 
 ```
 
+<a id="deployment"></a>
+## Deployment
+
+### RabbitMQ (message broker)
+
+Before being able to run the broker you need to install the message broker as well. The easiest method is to just 
+use the official docker image.
+
+In order to do that, you first need to install and start docker:
+
+```bash
+yum install docker
+systemctl enable docker
+systemctl start docker
+```
+
+Once docker is running, you can start the RabbitMQ container:
+
+```bash
+docker run -d --hostname sf-daq-1 --name sf-msg-broker --net=host rabbitmq:3-management
+```
+
+There is no need for further configuration. The producers and consumer will configure it on the fly.
+
+You can access the management interface on http://localhost:15672 (the login is "guest":"guest")
