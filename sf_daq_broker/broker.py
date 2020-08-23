@@ -2,6 +2,7 @@ import argparse
 import logging
 
 import bottle
+import socket
 
 from sf_daq_broker import config
 import sf_daq_broker.rabbitmq.config as broker_config
@@ -14,22 +15,23 @@ _logger = logging.getLogger(__name__)
 
 def start_server(broker_url, rest_port):
 
-    _logger.info("Starting sf_daq_broker on port %s with broker_url %s" % (rest_port, broker_url))
+    _logger.info("Starting sf_daq_broker on port %s (rest-api) with broker_url(message-broker) %s" % (rest_port, broker_url))
 
     app = bottle.Bottle()
 
     broker_client = RabbitMqClient(broker_url=broker_url)
     manager = BrokerManager(broker_client=broker_client)
 
+    logging.getLogger("pika").setLevel(logging.WARNING)
+
     register_rest_interface(app, manager)
 
-    _logger.info("Broker started.")
+    _logger.info("SF-DAQ-BROKER started.")
 
     try:
-#TODO: config or hostname?
-        _logger.info("Starting rest API on port %s." % rest_port)
-        #bottle.run(app=app, host="127.0.0.1", port=rest_port)
-        bottle.run(app=app, host="sf-daq-1", port=rest_port)
+        hostname = socket.gethostname()
+        _logger.info("Starting rest API on port %s host %s" % (rest_port, hostname) )
+        bottle.run(app=app, host=hostname, port=rest_port)
     finally:
         pass
 
@@ -38,7 +40,7 @@ def run():
     parser = argparse.ArgumentParser(description='sf_daq_broker')
 
     parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL,
-                        help="Address of the broker to connect to.")
+                        help="Address of the message broker")
 
     parser.add_argument("--rest_port", type=int, help="Port for REST api.", default=config.DEFAULT_BROKER_REST_PORT)
 

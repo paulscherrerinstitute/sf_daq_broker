@@ -104,6 +104,7 @@ def process_request(request):
         _logger.info("Finished. Took %s seconds to complete request." % (time() - start_time))
 
         _logger.removeHandler(file_handler)
+        logger_data_api.removeHandler(file_handler)
 
     except Exception:
         audit_failed_write_request(request)
@@ -212,26 +213,29 @@ def run():
     parser.add_argument("--log_level", default="INFO",
                         choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'],
                         help="Log level to use.")
-    parser.add_argument("--writer_id", default=0, type=int,
-                        help="Id of the writer for the logs")
+    parser.add_argument("--writer_id", default=1, type=int,
+                        help="Id of the writer")
 
     args = parser.parse_args()
 
+# Logging formating:
     writer_id_format = '{broker_writer_%s}' % args.writer_id
     logs_format = '[%(levelname)s] %(message)s'
     #logging.basicConfig(level=args.log_level, format=f'{writer_id_format} {logs_format}')
+
     _logger.setLevel(args.log_level)
+
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(args.log_level)
-
-    formatter = logging.Formatter(writer_id_format + logs_format)
+    formatter = logging.Formatter(f'{writer_id_format} {logs_format}')
     stream_handler.setFormatter(formatter)
 
     _logger.addHandler(stream_handler)
 
+# make message-broker less noisy in logs
     logging.getLogger("pika").setLevel(logging.WARNING)
 
-    _logger.info("Writer started. Waiting for requests.")
+    _logger.info("Writer(%s) started. Waiting for requests." % args.writer_id)
 
     start_service(broker_url=args.broker_url)
 
