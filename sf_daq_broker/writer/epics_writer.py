@@ -5,14 +5,15 @@ import logging
 import dateutil
 import pytz
 import requests
-import data_api
 
-logger = logging.getLogger("broker_writer")
+_logger = logging.getLogger("broker_writer")
 
 DATA_API_QUERY_URL = "https://data-api.psi.ch/sf/query"
 
 
 def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_pvs):
+
+    import data_api
 
     start_date = get_pulse_id_date_mapping(start_pulse_id)
     stop_date = get_pulse_id_date_mapping(stop_pulse_id)
@@ -21,15 +22,18 @@ def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_
     # TODO: Merge metadata to data.
 
     if len(data) > 0:
-        logger.info("Persist data to hdf5 file")
+        _logger.info("Persist data to hdf5 file")
         data_api.to_hdf5(data, output_file, overwrite=True, compression=None, shuffle=False)
     else:
-        logger.error("No data retrieved")
+        _logger.error("No data retrieved")
         open(output_file + "_NO_DATA", 'a').close()
 
 
 def get_data(channel_list, start=None, stop=None, base_url=None):
-    logger.info("Requesting range %s to %s for channels: %s" % (start, stop, channel_list))
+
+    import data_api
+
+    _logger.info("Requesting range %s to %s for channels: %s" % (start, stop, channel_list))
 
     query = {"range": {"startDate": datetime.datetime.isoformat(start),
                        "endDate": datetime.datetime.isoformat(stop),
@@ -37,13 +41,13 @@ def get_data(channel_list, start=None, stop=None, base_url=None):
              "channels": channel_list,
              "fields": ["pulseId", "globalSeconds", "globalDate", "value",
                         "eventCount"]}
-    logger.debug(query)
+    _logger.debug(query)
 
     response = requests.post(DATA_API_QUERY_URL, json=query)
 
     # Check for successful return of data
     if response.status_code != 200:
-        logger.info("Data retrievali failed, sleep for another time and try")
+        _logger.info("Data retrievali failed, sleep for another time and try")
 
         itry = 0
         while itry < 5:
@@ -53,12 +57,12 @@ def get_data(channel_list, start=None, stop=None, base_url=None):
             if response.status_code == 200:
                 break
 
-            logger.info("Data retrieval failed, post attempt %d" % itry)
+            _logger.info("Data retrieval failed, post attempt %d" % itry)
 
     if response.status_code != 200:
         raise RuntimeError("Unable to retrieve data from server: ", response)
 
-    logger.info("Data retieval is successful")
+    _logger.info("Data retieval is successful")
 
     data = response.json()
 
@@ -67,7 +71,7 @@ def get_data(channel_list, start=None, stop=None, base_url=None):
 
 def get_pulse_id_date_mapping(pulse_id):
     # See https://jira.psi.ch/browse/ATEST-897 for more details ...
-    logger.info("Retrieve pulse-id/date mapping for pulse_id %s" % pulse_id)
+    _logger.info("Retrieve pulse-id/date mapping for pulse_id %s" % pulse_id)
 
     try:
 
@@ -93,7 +97,7 @@ def get_pulse_id_date_mapping(pulse_id):
                     "Didn't get good responce from data_api : %s " % data)
 
             if not pulse_id == data[0]["data"][0]["pulseId"]:
-                logger.info("retrieval failed")
+                _logger.info("retrieval failed")
                 if c == 0:
                     ref_date = data[0]["data"][0]["globalDate"]
                     ref_date = dateutil.parser.parse(ref_date)
@@ -107,7 +111,7 @@ def get_pulse_id_date_mapping(pulse_id):
                     delta_date = check_date - now_date
 
                     s = delta_date.seconds
-                    logger.info("retry in " + str(s) + " seconds ")
+                    _logger.info("retry in " + str(s) + " seconds ")
                     if not s <= 0:
                         time.sleep(s)
                     continue

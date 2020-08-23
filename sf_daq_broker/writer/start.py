@@ -68,6 +68,9 @@ def process_request(request):
         file_handler.setLevel(logging.INFO)
         _logger.addHandler(file_handler)
 
+        logger_data_api = logging.getLogger("DataApiClient")
+        logger_data_api.addHandler(file_handler)
+
     try:
         _logger.info("Request for %s to write %s from pulse_id %s to %s" %
                      (writer_type, output_file, start_pulse_id, stop_pulse_id))
@@ -109,6 +112,7 @@ def process_request(request):
     finally:
         if file_handler:
             _logger.removeHandler(file_handler)
+            logger_data_api.removeHandler(file_handler)
 
 
 def update_status(channel, body, action, file, message=None):
@@ -215,7 +219,15 @@ def run():
 
     writer_id_format = '{broker_writer_%s}' % args.writer_id
     logs_format = '[%(levelname)s] %(message)s'
-    logging.basicConfig(level=args.log_level, format=writer_id_format + logs_format)
+    #logging.basicConfig(level=args.log_level, format=f'{writer_id_format} {logs_format}')
+    _logger.setLevel(args.log_level)
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(args.log_level)
+
+    formatter = logging.Formatter(writer_id_format + logs_format)
+    stream_handler.setFormatter(formatter)
+
+    _logger.addHandler(stream_handler)
 
     logging.getLogger("pika").setLevel(logging.WARNING)
 
