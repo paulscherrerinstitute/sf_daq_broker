@@ -6,6 +6,7 @@ from time import time
 import h5py
 import numpy
 import requests
+from random import randrange
 
 from sf_daq_broker import config, utils
 from sf_daq_broker.writer.utils import channel_type_deserializer_mapping
@@ -76,12 +77,14 @@ def write_from_imagebuffer(data_api_request, output_file, parameters):
         }
     }
 
+    image_buffer_url = config.IMAGE_API_QUERY_ADDRESS[randrange(len(config.IMAGE_API_QUERY_ADDRESS))]
+
     _logger.debug("Requesting '%s' to output_file %s from %s " %
-                  (query, output_file, config.IMAGE_API_QUERY_ADDRESS))
+                  (query, output_file, image_buffer_url))
 
     start_time = time()
 
-    h5.request(query, output_file, url=config.IMAGE_API_QUERY_ADDRESS)
+    h5.request(query, output_file, url=image_buffer_url)
 
     _logger.info("Image download and writing took %s seconds." % (time() - start_time))
 
