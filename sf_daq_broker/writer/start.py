@@ -68,7 +68,13 @@ def process_request(request):
         file_handler.setLevel(logging.INFO)
         _logger.addHandler(file_handler)
 
-        logger_data_api = logging.getLogger("DataApiClient")
+        if writer_type == broker_config.TAG_DATABUFFER:
+            logger_data_api = logging.getLogger("data_api")
+        elif writer_type == broker_config.TAG_IMAGEBUFFER:
+            logger_data_api = logging.getLogger("data_api3")
+        elif writer_type == broker_config.TAG_EPICS:
+            logger_data_api = logging.getLogger("data_api")
+
         logger_data_api.addHandler(file_handler)
 
     try:
@@ -219,18 +225,20 @@ def run():
     args = parser.parse_args()
 
 # Logging formating:
-    writer_id_format = '{broker_writer_%s}' % args.writer_id
-    logs_format = '[%(levelname)s] %(message)s'
-    #logging.basicConfig(level=args.log_level, format=f'{writer_id_format} {logs_format}')
-
     _logger.setLevel(args.log_level)
 
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(args.log_level)
-    formatter = logging.Formatter(f'{writer_id_format} {logs_format}')
+    formatter = logging.Formatter(f'[%(levelname)s] (broker_writer_{args.writer_id}) %(message)s')
     stream_handler.setFormatter(formatter)
 
+    _logger.setLevel(args.log_level)
     _logger.addHandler(stream_handler)
+
+    for logger_name in ["data_api", "data_api3"]:
+        logger_data_api = logging.getLogger(logger_name)    
+        logger_data_api.setLevel(args.log_level)
+        logger_data_api.addHandler(stream_handler)
 
 # make message-broker less noisy in logs
     logging.getLogger("pika").setLevel(logging.WARNING)
