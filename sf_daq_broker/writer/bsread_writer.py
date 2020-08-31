@@ -83,11 +83,14 @@ def write_from_imagebuffer(data_api_request, output_file, parameters):
                   (query, output_file, image_buffer_url))
 
     start_time = time()
-
-    h5.request(query, output_file, url=image_buffer_url)
-
-    _logger.info("Image download and writing took %s seconds." % (time() - start_time))
-
+  
+    try:
+        h5.request(query, output_file, url=image_buffer_url)
+        _logger.info("Image download and writing took %s seconds." % (time() - start_time))
+    except Exception as e:
+        _logger.error("Got exception from data_api3")
+        _logger.error(e)
+        
 
 class BsreadH5Writer(object):
 
