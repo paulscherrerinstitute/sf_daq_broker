@@ -39,7 +39,7 @@ fi
 
 export PATH=/home/dbe/miniconda3/bin:$PATH
 source /home/dbe/miniconda3/etc/profile.d/conda.sh
-conda activate detector
+conda activate bsread
 
 sls_detector_put ${D}-timing trigger
 sls_detector_put ${D}-cycles ${n_cycles}
