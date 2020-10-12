@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import time
 import logging
 
@@ -9,10 +9,12 @@ import requests
 _logger = logging.getLogger("broker_writer")
 
 DATA_API_QUERY_URL = "https://data-api.psi.ch/sf/query"
+PULSE_ID_MAPPING_CHANNEL = "SIN-CVME-TIFGUN-EVR0:BUNCH-1-OK"
+TIMEZONE = pytz.timezone('Europe/Zurich')
+TARGET_MAPPING_DELAY_SECONDS = 30
 
 
 def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_pvs):
-
     import data_api
 
     start_date = get_pulse_id_date_mapping(start_pulse_id)
@@ -30,7 +32,6 @@ def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_
 
 
 def get_data(channel_list, start=None, stop=None, base_url=None):
-
     import data_api
 
     _logger.info("Requesting range %s to %s for channels: %s" % (start, stop, channel_list))
@@ -79,49 +80,46 @@ def get_pulse_id_date_mapping(pulse_id):
                            "endPulseId": pulse_id},
                  "limit": 1,
                  "ordering": "desc",
-                 "channels": ["SIN-CVME-TIFGUN-EVR0:BUNCH-1-OK"],
+                 "channels": [PULSE_ID_MAPPING_CHANNEL],
                  "fields": ["pulseId", "globalDate"]}
 
-        for c in range(10):
+        def retrieve_mapping():
 
             response = requests.post("https://data-api.psi.ch/sf/query", json=query)
 
             # Check for successful return of data
             if response.status_code != 200:
-                raise RuntimeError("Unable to retrieve data from server: ", response)
+                raise RuntimeError("Unable to retrieve data from data-api: ", response)
 
-            data = response.json()
+            try:
+                data = response.json()
+                mapping_data = data[0]["data"][0]
+                mapping_pulse_id = mapping_data["pulseId"]
+                mapping_global_date = mapping_data["globalDate"]
 
-            if len(data[0]["data"]) == 0 or not "pulseId" in data[0]["data"][0]:
-                raise RuntimeError(
-                    "Didn't get good responce from data_api : %s " % data)
+            except Exception as ex:
+                raise RuntimeError("Unexpected response from data-api: %s" % data) from ex
 
-            if not pulse_id == data[0]["data"][0]["pulseId"]:
-                _logger.info("retrieval failed")
-                if c == 0:
-                    ref_date = data[0]["data"][0]["globalDate"]
-                    ref_date = dateutil.parser.parse(ref_date)
+            return mapping_pulse_id, dateutil.parser.parse(mapping_global_date)
 
-                    now_date = datetime.datetime.now()
-                    now_date = pytz.timezone('Europe/Zurich').localize(
-                        now_date)
+        received_pulse_id, global_date = retrieve_mapping()
 
-                    check_date = ref_date + datetime.timedelta(
-                        seconds=24)  # 20 seconds should be enough
-                    delta_date = check_date - now_date
+        if received_pulse_id != pulse_id:
+            _logger.warning("Requested pulse_id %s but received %s.")
 
-                    s = delta_date.seconds
-                    _logger.info("retry in " + str(s) + " seconds ")
-                    if not s <= 0:
-                        time.sleep(s)
-                    continue
+            time_since_last_record = (datetime.now(TIMEZONE) - global_date).total_seconds()
+            to_sleep = max(0., TARGET_MAPPING_DELAY_SECONDS - time_since_last_record)
 
-                raise RuntimeError('Unable to retrieve mapping')
+            if to_sleep:
+                _logger.info("Retrying in %s seconds." % to_sleep)
+                time.sleep(to_sleep)
 
-            date = data[0]["data"][0]["globalDate"]
-            date = dateutil.parser.parse(date)
+                received_pulse_id, global_date = retrieve_mapping()
 
-            return date
+            if received_pulse_id != pulse_id:
+                raise RuntimeError('Cannot find requested pulse_id.')
+
+        return global_date
 
     except Exception as e:
-        raise RuntimeError('Unable to retrieve pulse_id date mapping') from e
+        raise RuntimeError('Cannot map pulse_id to global_date.') from e
