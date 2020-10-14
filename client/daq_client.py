@@ -2,7 +2,7 @@ import requests
 import argparse
 import json
 
-broker_address = "http://sf-daq-1:10002"
+broker_address = "http://sf-daq:10002"
 TIMEOUT_DAQ = 10
 
 def run():
