@@ -1,13 +1,12 @@
 from datetime import datetime
-import time
 import logging
+from time import time, sleep
 
 import dateutil
 import pytz
 import requests
 
-
-import pandas
+from sf_daq_broker.writer.bsread_writer import BsreadH5Writer
 
 _logger = logging.getLogger("broker_writer")
 
@@ -20,44 +19,43 @@ N_RETRY_TIMEOUT = 10
 
 
 def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_pvs):
-    import data_api
+    _logger.info("Writing %s from start_pulse_id %s to stop_pulse_id %s."
+                 % (output_file, start_pulse_id, stop_pulse_id))
+    _logger.debug("Requesting PVs: %s" % epics_pvs)
+
+    start_time = time()
 
     start_date = get_pulse_id_date_mapping(start_pulse_id)
     stop_date = get_pulse_id_date_mapping(stop_pulse_id)
 
-    mapping_data = get_data([PULSE_ID_MAPPING_CHANNEL], start=start_date, stop=stop_date)
     data = get_data(epics_pvs, start=start_date, stop=stop_date)
 
-    aligned_data = map_data_to_pulse_id(data, mapping_data)
+    _logger.info("Data download took %s seconds." % (time() - start_time))
+
+    if len(data) == 0:
+        raise RuntimeError("No data received for requested channels.")
+
+    start_time = time()
+
+    writer = EpicsH5Writer(output_file, metadata)
+    writer.write_data(data)
+    writer.close()
+
+    _logger.info("Data writing took %s seconds." % (time() - start_time))
 
 
-    # TODO: Merge metadata to data.
+def group_data_by_channel(raw_data):
 
-    if len(data) > 0:
-        _logger.info("Persist data to hdf5 file")
-        data_api.to_hdf5(data, output_file, overwrite=True, compression=None, shuffle=False)
-    else:
-        _logger.error("No data retrieved")
-        open(output_file + "_NO_DATA", 'a').close()
+    data = {}
+    for channel_data in raw_data:
+        channel_name = channel_data["channel"]["name"]
 
+        global_date_data = [x["globalDate"] for x in channel_data["data"]]
+        value_data = [x["value"] for x in channel_data["data"]]
 
-def map_data_to_pulse_id(data, mapping_data):
-    # There is always only 1 channel for mapping.
-    mapping_data = mapping_data[0]["data"]
-    # The last 6 digits of the globalSeconds == last 6 digits of pulse_id. Discard.
-    mapping_generator = ((float(x["globalSeconds"][:-6]), x["pulseId"])
-                         for x in mapping_data)
-    mapping_df = pandas.DataFrame(mapping_generator, columns=["globalSeconds", "pulse_id"])
-    mapping_df = mapping_df.set_index("globalSeconds").sort_index()
+        data[channel_name] = [global_date_data, value_data]
 
-
-    for channel in server_data:
-        channel_name = channel["channel"]["name"]
-        channel_data = channel["data"]
-
-        # Channel_data is a list of values.
-        is_data_present = bool(channel_data)
-    return None
+    return data
 
 
 def get_data(channel_list, start=None, stop=None):
@@ -81,16 +79,16 @@ def get_data(channel_list, start=None, stop=None):
         if response.status_code != 200:
             _logger.warning("Data retrieval failed."
                             " Trying again after %s seconds." % N_RETRY_TIMEOUT)
-            time.sleep(N_RETRY_TIMEOUT)
+            sleep(N_RETRY_TIMEOUT)
             continue
 
+        _logger.info("Downloaded %d bytes." % len(response.content))
         return response.json()
 
     raise RuntimeError("Unable to retrieve data from server: ", response)
 
 
 def get_pulse_id_date_mapping(pulse_id):
-    # See https://jira.psi.ch/browse/ATEST-897 for more details ...
     _logger.info("Retrieve pulse-id/date mapping for pulse_id %s" % pulse_id)
 
     try:
@@ -130,7 +128,7 @@ def get_pulse_id_date_mapping(pulse_id):
 
             if to_sleep:
                 _logger.info("Retrying in %s seconds." % to_sleep)
-                time.sleep(to_sleep)
+                sleep(to_sleep)
 
                 received_pulse_id, global_date = retrieve_mapping()
 
@@ -141,3 +139,10 @@ def get_pulse_id_date_mapping(pulse_id):
 
     except Exception as e:
         raise RuntimeError('Cannot map pulse_id to global_date.') from e
+
+
+class EpicsH5Writer(BsreadH5Writer):
+
+    def write_data(self, json_data):
+        pass
+
