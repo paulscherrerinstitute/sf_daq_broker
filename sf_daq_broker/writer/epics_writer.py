@@ -37,25 +37,10 @@ def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_
 
     start_time = time()
 
-    writer = EpicsH5Writer(output_file, metadata)
-    writer.write_data(data)
-    writer.close()
+    with EpicsH5Writer(output_file, metadata) as writer:
+        writer.write_data(data)
 
     _logger.info("Data writing took %s seconds." % (time() - start_time))
-
-
-def group_data_by_channel(raw_data):
-
-    data = {}
-    for channel_data in raw_data:
-        channel_name = channel_data["channel"]["name"]
-
-        global_date_data = [x["globalDate"] for x in channel_data["data"]]
-        value_data = [x["value"] for x in channel_data["data"]]
-
-        data[channel_name] = [global_date_data, value_data]
-
-    return data
 
 
 def get_data(channel_list, start=None, stop=None):
@@ -143,6 +128,19 @@ def get_pulse_id_date_mapping(pulse_id):
 
 class EpicsH5Writer(BsreadH5Writer):
 
+    def _group_data_by_channel(self, raw_data):
+        data = {}
+        for channel_data in raw_data:
+            channel_name = channel_data["channel"]["name"]
+
+            global_date_data = [x["globalDate"] for x in channel_data["data"]]
+            value_data = [x["value"] for x in channel_data["data"]]
+
+            data[channel_name] = [global_date_data, value_data]
+
+        return data
+
     def write_data(self, json_data):
-        pass
+        data = self._group_data_by_channel(json_data)
+        print(data)
 
