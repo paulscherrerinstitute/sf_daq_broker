@@ -38,7 +38,7 @@ def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_
     start_time = time()
 
     with EpicsH5Writer(output_file, metadata) as writer:
-        writer.write_data(data)
+        writer.write_data(data, start_date)
 
     _logger.info("Data writing took %s seconds." % (time() - start_time))
 
@@ -52,8 +52,7 @@ def get_data(channel_list, start=None, stop=None):
                        "startExpansion": True,
                        "endInclusive": True},
              "channels": channel_list,
-             "fields": ["pulseId", "globalSeconds", "globalDate", "value",
-                        "eventCount"]}
+             "fields": ["globalDate", "value", "type", "shape"]}
 
     _logger.debug("Data-api query: %s" % query)
 
@@ -135,12 +134,44 @@ class EpicsH5Writer(BsreadH5Writer):
 
             global_date_data = [x["globalDate"] for x in channel_data["data"]]
             value_data = [x["value"] for x in channel_data["data"]]
+            type_data = [x["type"] for x in channel_data["data"]]
+            shape_data = [x["shape"] for x in channel_data["data"]]
 
-            data[channel_name] = [global_date_data, value_data]
+            if len(global_date_data) == 0 or len(value_data) == 0:
+                global_date_data = [float("nan")]
+                value_data = [float("nan")]
+                type_data = ["float64"]
+                shape_data = [[1]]
+
+            channel_type = type_data[0]
+            channel_shape = shape_data[0]
+
+            if any((x != channel_type for x in type_data)):
+                raise RuntimeError("Channel %s data type changed during scan." % channel_name)
+
+            if any((x != channel_shape for x in shape_data)):
+                raise RuntimeError("Channel %s data shape changed during scan" % channel_name)
+
+            data[channel_name] = [channel_type, channel_shape, global_date_data, value_data]
 
         return data
 
-    def write_data(self, json_data):
+    def write_data(self, json_data, start_date):
         data = self._group_data_by_channel(json_data)
-        print(data)
 
+        for channel_name, channel_data in data.items():
+            channel_type = channel_data[0]
+            channel_shape = channel_data[1]
+            timestamps = channel_data[2]
+            values = channel_data[3]
+
+            # x == x is False for NaN values. Nan values are marked as not changed.
+            change_in_interval = (dateutil.parser.parse(x) > start_date
+                                  if x == x else False for x in timestamps)
+
+            print(channel_name)
+            print(channel_type)
+            print(channel_shape)
+            print(timestamps)
+            print(list(change_in_interval))
+            print(values)
