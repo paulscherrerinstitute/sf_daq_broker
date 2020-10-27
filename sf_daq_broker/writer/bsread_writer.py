@@ -46,9 +46,8 @@ def write_from_databuffer(data_api_request, output_file, metadata):
 
     start_time = time()
 
-    writer = BsreadH5Writer(output_file, metadata)
-    writer.write_data(data)
-    writer.close()
+    with BsreadH5Writer(output_file, metadata) as writer:
+        writer.write_data(data)
 
     _logger.info("Data writing took %s seconds." % (time() - start_time))
 
@@ -105,6 +104,12 @@ class BsreadH5Writer(object):
         _logger.info("File %s created." % self.output_file)
 
         self._create_metadata_datasets(metadata)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     def _create_metadata_datasets(self, metadata):
 
