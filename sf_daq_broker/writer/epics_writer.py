@@ -3,8 +3,10 @@ import logging
 from time import time, sleep
 
 import dateutil
+import h5py
 import pytz
 import requests
+import numpy
 
 from sf_daq_broker.writer.bsread_writer import BsreadH5Writer
 
@@ -160,18 +162,29 @@ class EpicsH5Writer(BsreadH5Writer):
         data = self._group_data_by_channel(json_data)
 
         for channel_name, channel_data in data.items():
-            channel_type = channel_data[0]
-            channel_shape = channel_data[1]
-            timestamps = channel_data[2]
-            values = channel_data[3]
+            dataset_type = channel_data[0]
+            print(channel_name, channel_data[1])
+
+            if dataset_type == "string" or dataset_type == "object":
+                dataset_type = h5py.special_dtype(vlen=str)
+                continue
+
+            global_dates = numpy.array(channel_data[2], dtype=h5py.special_dtype(vlen=str))
+
+            values = numpy.array(channel_data[3], dtype=dataset_type)
 
             # x == x is False for NaN values. Nan values are marked as not changed.
-            change_in_interval = (dateutil.parser.parse(x) > start_date
-                                  if x == x else False for x in timestamps)
+            change_in_interval = [dateutil.parser.parse(x) > start_date
+                                  if x == x else False for x in global_dates]
 
-            print(channel_name)
-            print(channel_type)
-            print(channel_shape)
-            print(timestamps)
-            print(list(change_in_interval))
-            print(values)
+            dataset_base = "/data/" + channel_name
+
+            self.file.create_dataset(dataset_base + "/data",
+                                     data=values,
+                                     dtype=dataset_type)
+
+            self.file.create_dataset(dataset_base + "/global_date",
+                                     data=global_dates)
+
+            self.file.create_dataset(dataset_base + "/changed_in_interval",
+                                     data=change_in_interval)
