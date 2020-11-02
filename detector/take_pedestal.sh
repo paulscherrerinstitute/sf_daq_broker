@@ -3,15 +3,16 @@
 #Bernina 1p5M, 16M, Vakuum:
 #DETECTORS="1 7 13"
 #DETECTORS="1 13"
-DETECTORS="1"
+#DETECTORS="1"
 
 #Alvra 4.5M, 16M(also 4M mode)
 #DETECTORS="2 6"
 #DETECTORS="6"
+DETECTORS="11"
 
 export PATH=/home/dbe/miniconda3/bin:$PATH
 source /home/dbe/miniconda3/etc/profile.d/conda.sh
-conda activate bsread
+conda activate sf-daq
 
 echo reset bits
 for d in ${DETECTORS}

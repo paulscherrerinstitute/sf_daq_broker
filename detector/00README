@@ -2,5 +2,5 @@ conda install -c slsdetectorgroup sls_detector
 
 export PATH=/home/dbe/miniconda3/bin:$PATH
 source /home/dbe/miniconda3/etc/profile.d/conda.sh
-conda activate bsread
+conda activate sf-daq
 

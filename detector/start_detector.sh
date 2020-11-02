@@ -25,6 +25,9 @@ case ${DETECTOR} in
 'JF13')
   D=13
   ;;
+'JF11')
+  D=11
+  ;;
 *)
   echo "Unsupported detector"
   exit
@@ -39,7 +42,7 @@ fi
 
 export PATH=/home/dbe/miniconda3/bin:$PATH
 source /home/dbe/miniconda3/etc/profile.d/conda.sh
-conda activate bsread
+conda activate sf-daq
 
 sls_detector_put ${D}-timing trigger
 sls_detector_put ${D}-cycles ${n_cycles}

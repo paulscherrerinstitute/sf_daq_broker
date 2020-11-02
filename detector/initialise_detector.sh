@@ -12,6 +12,6 @@ DETECTOR=$1
 export PATH=/home/dbe/miniconda3/bin:$PATH
 source /home/dbe/miniconda3/etc/profile.d/conda.sh
 conda deactivate
-conda activate bsread
+conda activate sf-daq
 
 python initialise_detector.py --detector ${DETECTOR}
