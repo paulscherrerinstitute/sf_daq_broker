@@ -24,37 +24,42 @@ BUFFER_FRAME_BYTES = sizeof(BufferBinaryFormat)
 
 
 class BufferReader(object):
-    def __init__(self, ram_buffer, detector_folder, module_name):
+    def __init__(self, ram_buffer, detector_folder, module_id):
         self.ram_buffer = ram_buffer
         self.detector_folder = detector_folder
-        self.module_name = module_name
+        self.module_id = module_id
 
         self._file = None
         self._filename = None
 
-    def get_frame(self, pulse_id):
+    def read_frame(self, pulse_id):
         pulse_filename, pulse_index = self._get_pulse_id_location(pulse_id)
 
         if pulse_filename != self._filename:
             self._open_file(pulse_filename)
 
         n_bytes_offset = pulse_index * BUFFER_FRAME_BYTES
+        self._file.seek(n_bytes_offset)
+
+        raw_buffer = self.ram_buffer.get_raw_buffer(self.module_id, pulse_id)
+        read_bytes = self._file.readinto(raw_buffer)
+
+        if read_bytes != BUFFER_FRAME_BYTES:
+            raise ValueError("Read frame %d, got %d bytes but expected %d bytes." %
+                             (pulse_id, read_bytes, BUFFER_FRAME_BYTES))
 
     def _get_pulse_id_location(self, pulse_id):
-        data_folder = pulse_id // FOLDER_MOD
-        data_folder *= FOLDER_MOD
-
-        data_file = pulse_id // FILE_MOD
-        data_file *= FILE_MOD
+        folder_base = int((pulse_id // FOLDER_MOD) * FOLDER_MOD)
+        file_base = int((pulse_id // FILE_MOD) * FILE_MOD)
 
         filename = "%s/%s/%s/%s%s" % (self.detector_folder,
                                       self.module_name,
-                                      data_folder,
-                                      data_file,
+                                      folder_base,
+                                      file_base,
                                       FILE_EXTENSION)
 
         # Index inside the data_file for the provided pulse_id.
-        pulse_id_index = pulse_id - data_file
+        pulse_id_index = pulse_id - file_base
 
         return filename, pulse_id_index
 
@@ -66,3 +71,8 @@ class BufferReader(object):
         # buffering=0 turns buffering off
         self._file = open(new_filename, mode='rb', buffering=0)
         self._filename = new_filename
+
+
+class RamBuffer(object):
+    def get_raw_buffer(self, module_id, pulse_id):
+        pass
