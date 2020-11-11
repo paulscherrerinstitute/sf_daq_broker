@@ -21,6 +21,8 @@ class BufferBinaryFormat(Structure):
 
 
 BUFFER_FRAME_BYTES = sizeof(BufferBinaryFormat)
+DATA_FRAME_BYTES = MODULE_N_BYTES
+META_FRAME_BYTES = BUFFER_FRAME_BYTES - DATA_FRAME_BYTES
 
 
 class BufferReader(object):
@@ -41,12 +43,17 @@ class BufferReader(object):
         n_bytes_offset = pulse_index * BUFFER_FRAME_BYTES
         self._file.seek(n_bytes_offset)
 
-        raw_buffer = self.ram_buffer.get_raw_buffer(self.module_id, pulse_id)
-        read_bytes = self._file.readinto(raw_buffer)
+        meta_buffer, data_buffer = self.ram_buffer.get_buffers(self.module_id, pulse_id)
 
-        if read_bytes != BUFFER_FRAME_BYTES:
-            raise ValueError("Read frame %d, got %d bytes but expected %d bytes." %
-                             (pulse_id, read_bytes, BUFFER_FRAME_BYTES))
+        meta_bytes = self._file.readinto(meta_buffer)
+        if meta_bytes != META_FRAME_BYTES:
+            raise ValueError("Read frame %d, got %d meta bytes but expected %d bytes." %
+                             (pulse_id, meta_bytes, META_FRAME_BYTES))
+
+        data_bytes = self._file.readinto(data_buffer)
+        if data_bytes != DATA_FRAME_BYTES:
+            raise ValueError("Read frame %d, got %d data bytes but expected %d bytes." %
+                             (pulse_id, data_bytes, DATA_FRAME_BYTES))
 
     def _get_pulse_id_location(self, pulse_id):
         folder_base = int((pulse_id // FOLDER_MOD) * FOLDER_MOD)
@@ -64,15 +71,26 @@ class BufferReader(object):
         return filename, pulse_id_index
 
     def _open_file(self, new_filename):
-
-        if self._file:
-            self._file.close()
+        self.close_file()
 
         # buffering=0 turns buffering off
         self._file = open(new_filename, mode='rb', buffering=0)
         self._filename = new_filename
 
+    def close_file(self):
+        if self._file:
+            self._file.close()
+
 
 class RamBuffer(object):
+    def __init__(self, n_modules, n_slots):
+        self.n_modules = n_modules
+        self.n_slots = n_slots
+
+        self.raw_buffer = bytearray(self.n_modules * self.n_slots * BUFFER_FRAME_BYTES)
+
     def get_raw_buffer(self, module_id, pulse_id):
-        pass
+        buffer_index_start = pulse_id % self.n_slots
+        buffer_index_end = buffer_index_start + BUFFER_FRAME_BYTES
+
+        return memoryview(self.raw_buffer)[buffer_index_start:buffer_index_end]
