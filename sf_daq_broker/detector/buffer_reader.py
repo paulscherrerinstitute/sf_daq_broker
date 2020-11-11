@@ -1,3 +1,7 @@
+FOLDER_MOD = 100000
+FILE_MOD = 1000
+FILE_EXTENSION = ".bin"
+
 
 class BufferReader(object):
     def __init__(self, ram_buffer, detector_folder, module_name):
@@ -23,6 +27,15 @@ class BufferReader(object):
         self._file = open(new_filename, mode='rb', buffering=0)
         self._filename = new_filename
 
-    def _get_filename_for_pulse_id(self):
-        pass
+    def _get_filename_for_pulse_id(self, pulse_id):
+        data_folder = pulse_id // FOLDER_MOD
+        data_folder *= FOLDER_MOD
 
+        data_file = pulse_id // FILE_MOD
+        data_file *= FILE_MOD
+
+        return "%s/%s/%s/%s%s" % (self.detector_folder,
+                                  self.module_name,
+                                  data_folder,
+                                  data_file,
+                                  FILE_EXTENSION)
