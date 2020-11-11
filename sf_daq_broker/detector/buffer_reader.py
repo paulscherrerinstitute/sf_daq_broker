@@ -25,7 +25,7 @@ DATA_FRAME_BYTES = MODULE_N_BYTES
 META_FRAME_BYTES = BUFFER_FRAME_BYTES - DATA_FRAME_BYTES
 
 
-class BufferReader(object):
+class ModuleReader(object):
     def __init__(self, ram_buffer, detector_folder, module_id):
         self.ram_buffer = ram_buffer
         self.detector_folder = detector_folder
@@ -80,3 +80,16 @@ class BufferReader(object):
     def close_file(self):
         if self._file:
             self._file.close()
+
+
+class DetectorReader(object):
+    def __init__(self, ram_buffer, detector_folder, n_modules):
+        self.ram_buffer = ram_buffer
+        self.detector_folder = detector_folder
+        self.n_modules = n_modules
+
+    def start_reading(self, start_pulse_id, end_pulse_id):
+        pass
+
+    def close(self):
+        pass
