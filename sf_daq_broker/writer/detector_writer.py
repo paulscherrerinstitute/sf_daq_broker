@@ -40,12 +40,13 @@ def write_from_detectorbuffer(data_api_request, output_file, metadata):
                                   end_pulse_id=end_pulse_id)
 
     image_assembler = ImageAssembler(ram_buffer=ram_buffer,
-                                     n_modules=n_modules)
+                                     n_modules=n_modules,
+                                     zmq_context=context)
 
     detector_writer = DetectorWriter(output_file=output_file)
 
     for pulse_id in range(start_pulse_id, end_pulse_id, pulse_id_step):
-        meta_buffer, data_buffer = image_assembler.get_data(pulse_id)
+        meta_buffer, data_buffer = image_assembler.get_image(pulse_id)
         detector_writer.write(pulse_id, meta_buffer, data_buffer)
 
     detector_writer.close()
