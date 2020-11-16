@@ -6,11 +6,9 @@ import zmq
 FOLDER_MOD = 100000
 FILE_MOD = 1000
 FILE_EXTENSION = ".bin"
-# Module X * Y * 2 (16 bits)
-MODULE_N_BYTES = 1024 * 512 * 2
 
 
-class BufferBinaryFormat(Structure):
+class FrameMetadata(Structure):
     _pack_ = 1
     _fields_ = [
         ("FORMAT_MARKER", c_char),
@@ -19,13 +17,13 @@ class BufferBinaryFormat(Structure):
         ("daq_rec", c_uint64),
         ("n_recv_packets", c_uint64),
         ("module_id", c_uint64),
-        ("data", c_byte * MODULE_N_BYTES)
     ]
 
 
-BUFFER_FRAME_BYTES = sizeof(BufferBinaryFormat)
-DATA_FRAME_BYTES = MODULE_N_BYTES
-META_FRAME_BYTES = BUFFER_FRAME_BYTES - DATA_FRAME_BYTES
+META_FRAME_BYTES = sizeof(FrameMetadata)
+# Module X * Y * 2 (16 bits)
+DATA_FRAME_BYTES = 1024 * 512 * 2
+BUFFER_FRAME_BYTES = META_FRAME_BYTES + DATA_FRAME_BYTES
 
 
 class ModuleReader(object):
@@ -46,7 +44,7 @@ class ModuleReader(object):
         n_bytes_offset = pulse_index * BUFFER_FRAME_BYTES
         self._file.seek(n_bytes_offset)
 
-        meta_buffer, data_buffer = self.ram_buffer.get_buffers(self.module_id, pulse_id)
+        meta_buffer, data_buffer = self.ram_buffer.get_frame_buffers(self.module_id, pulse_id)
 
         meta_bytes = self._file.readinto(meta_buffer)
         if meta_bytes != META_FRAME_BYTES:
