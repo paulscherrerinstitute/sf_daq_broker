@@ -1,4 +1,7 @@
+import threading
 from ctypes import *
+
+import zmq
 
 FOLDER_MOD = 100000
 FILE_MOD = 1000
@@ -34,7 +37,7 @@ class ModuleReader(object):
         self._file = None
         self._filename = None
 
-    def load_frame(self, pulse_id):
+    def load_frame_to_ram_buffer(self, pulse_id):
         pulse_filename, pulse_index = self._get_pulse_id_location(pulse_id)
 
         if pulse_filename != self._filename:
@@ -83,13 +86,66 @@ class ModuleReader(object):
 
 
 class DetectorReader(object):
-    def __init__(self, ram_buffer, detector_folder, n_modules):
+    def __init__(self, ram_buffer, detector_folder, n_modules, zmq_context):
         self.ram_buffer = ram_buffer
         self.detector_folder = detector_folder
         self.n_modules = n_modules
+        self.zmq_context = zmq_context
 
-    def start_reading(self, start_pulse_id, end_pulse_id):
-        pass
+        self.continue_reading_event = threading.Event()
+        self.continue_reading_event.clear()
+
+        self.threads = []
+
+    def start_reading(self, start_pulse_id, end_pulse_id, pulse_id_step):
+        self.continue_reading_event.set()
+
+        for module_id in range(self.n_modules):
+            t = threading.Thread(target=self.read_thread, kwargs={
+                "start_pulse_id": start_pulse_id,
+                "end_pulse_id": end_pulse_id,
+                "pulse_id_step": pulse_id_step,
+                "module_id": module_id
+            })
+            t.start()
+
+            self.threads.append(t)
 
     def close(self):
-        pass
+        self.continue_reading_event.clear()
+
+        for t in self.threads:
+            t.join()
+
+        self.threads.clear()
+
+    def read_thread(self, start_pulse_id, end_pulse_id, pulse_id_step, module_id):
+        reader = ModuleReader(self.ram_buffer, self.detector_folder, module_id)
+
+        pulse_id_generator = iter(range(start_pulse_id, end_pulse_id, pulse_id_step))
+
+        # We use the PUSH mechanism to moderate disk throughput.
+        sender = self.zmq_context.socket(zmq.PUSH)
+        # We have a message buffer of size 1 on the send side,
+        # the rest of buffering (RamBuffer.n_slots - 1) on the receiving end.
+        sender.setsockopt(zmq.SNDHWM, 1)
+        # If in 1 second there was nobody to read the pulse_id we abort.
+        sender.setsockopt(zmq.SNDTIMEO, 1000)
+        # And we wait indefinitely to send the last pulse_id to the writer.
+        sender.setsockopt(zmq.LINGER, 0)
+
+        try:
+            sender.bind("inproc://%s" % module_id)
+
+            while self.continue_reading_event.is_set():
+                pulse_id = next(pulse_id_generator, None)
+
+                # Pulse_id == None when all pulse_ids have been read.
+                if pulse_id is None:
+                    break
+
+                reader.load_frame_to_ram_buffer(pulse_id)
+                sender.send(pulse_id)
+
+        finally:
+            sender.close()
