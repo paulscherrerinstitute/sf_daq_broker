@@ -126,8 +126,7 @@ class DetectorReader(object):
 
         # We use the PUSH mechanism to moderate disk throughput.
         sender = self.zmq_context.socket(zmq.PUSH)
-        # We have a message buffer of size 1 on the send side,
-        # the rest of buffering (RamBuffer.n_slots - 1) on the receiving end.
+        # No buffering on send side - receiver dictates reading speed.
         sender.setsockopt(zmq.SNDHWM, 1)
         # If in 1 second there was nobody to read the pulse_id we abort.
         sender.setsockopt(zmq.SNDTIMEO, 1000)

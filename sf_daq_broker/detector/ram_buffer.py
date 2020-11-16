@@ -6,6 +6,9 @@ class RamBuffer(object):
         self.n_modules = n_modules
         self.n_slots = n_slots
 
+        if n_slots < 5:
+            raise ValueError("The buffer must have at least 5 slots.")
+
         self.raw_buffer = bytearray(self.n_modules * self.n_slots * BUFFER_FRAME_BYTES)
 
     def get_buffers(self, module_id, pulse_id):
