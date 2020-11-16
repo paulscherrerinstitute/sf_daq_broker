@@ -1,5 +1,10 @@
 import zmq
 
+from sf_daq_broker.detector.buffer_reader import FrameMetadata, META_FRAME_BYTES
+
+
+JF_N_PACKETS_PER_FRAME = 128
+
 
 class ImageAssembler(object):
     def __init__(self, ram_buffer, n_modules, zmq_context):
@@ -29,18 +34,53 @@ class ImageAssembler(object):
 
     def get_image(self, pulse_id):
 
+        # Pull next pulse id from readers.
         for receiver in self.receivers:
             received_pulse_id = receiver.recv()
-
+            # There is no possibility to loose pulses (except in case of corruption of buffer)
             if received_pulse_id != pulse_id:
                 raise ValueError("Synchronization error. received_pulse_id %s, expected pulse_id %s" %
                                  (received_pulse_id, pulse_id))
 
-        frames_meta, image_buffer = self.ram_buffer.get_image_buffers()
+        frames_meta, image_buffer = self.ram_buffer.get_image_buffers(pulse_id)
 
-        image_meta = {}
-        for module_meta in frames_meta:
-            pass
+        frame_index = None
+        daq_rec = None
+        is_good_image = True
+
+        is_pulse_init = False
+
+        # Inspect all frames metadata and mark image as good.
+        for i_module in range(self.n_modules):
+            module_offset = META_FRAME_BYTES * i_module
+            metadata = FrameMetadata.from_buffer(frames_meta, module_offset)
+
+            # We use only complete frames for metadata.
+            if metadata.n_recv_packets != JF_N_PACKETS_PER_FRAME:
+                is_good_image = False
+                continue
+
+            if metadata.pulse_id != pulse_id:
+                raise ValueError("RamBuffer error. Expected pulse_id %s, got %s." % (pulse_id, metadata.pulse_id))
+
+            if not is_pulse_init:
+                frame_index = metadata.frame_index
+                daq_rec = metadata.daq_rec
+                is_pulse_init = True
+
+            if is_good_image:
+                if frame_index != metadata.frame_index:
+                    is_good_image = False
+
+                if daq_rec != metadata.daq_rec:
+                    is_good_image = False
+
+        image_meta = {
+            "pulse_id": pulse_id,
+            "frame_index": frame_index,
+            "daq_rec": daq_rec,
+            "is_good_image": is_good_image
+        }
 
         return image_meta, image_buffer
 
