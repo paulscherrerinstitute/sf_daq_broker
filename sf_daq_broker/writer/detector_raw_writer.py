@@ -39,7 +39,8 @@ def write_detector_raw_from_buffer(
     detector_writer = DetectorWriter(output_file=output_file, metadata=metadata)
 
     detector_reader.start_reading(start_pulse_id=start_pulse_id,
-                                  stop_pulse_id=stop_pulse_id)
+                                  stop_pulse_id=stop_pulse_id,
+                                  pulse_id_step=pulse_id_step)
 
     for pulse_id in range(start_pulse_id, stop_pulse_id+1, pulse_id_step):
         meta_buffer, data_buffer = image_assembler.get_image(pulse_id)
