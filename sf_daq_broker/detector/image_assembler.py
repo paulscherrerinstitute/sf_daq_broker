@@ -1,4 +1,7 @@
+import struct
+
 import zmq
+from zmq import Again
 
 from sf_daq_broker.detector.buffer_reader import FrameMetadata, META_FRAME_BYTES
 
@@ -34,13 +37,18 @@ class ImageAssembler(object):
 
     def get_image(self, pulse_id):
 
-        # Pull next pulse id from readers.
-        for receiver in self.receivers:
-            received_pulse_id = receiver.recv()
+        try:
+            # Pull next pulse id from readers.
+            for receiver in self.receivers:
+                # Unpack always return a tuple, even for single elements.
+                received_pulse_id = struct.unpack("Q", receiver.recv())[0]
+
             # There is no possibility to loose pulses (except in case of corruption of buffer)
             if received_pulse_id != pulse_id:
                 raise ValueError("Synchronization error. received_pulse_id %s, expected pulse_id %s" %
                                  (received_pulse_id, pulse_id))
+        except zmq.Again:
+            raise TimeoutError("No data from buffer readers.")
 
         frames_meta, image_buffer = self.ram_buffer.get_image_buffers(pulse_id)
 
