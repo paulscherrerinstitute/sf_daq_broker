@@ -42,7 +42,7 @@ class RamBuffer(object):
 
         # Pulse_id slot offset + data buffer offset
         data_offset_start = pulse_id_offset + META_FRAME_BYTES * self.n_modules
-        data_offset_end = data_offset_start + DATA_FRAME_BYTES
+        data_offset_end = data_offset_start + DATA_FRAME_BYTES * self.n_modules
 
         meta_buffer = memoryview(self.raw_buffer)[meta_offset_start:meta_offset_end]
         data_buffer = memoryview(self.raw_buffer)[data_offset_start:data_offset_end]
