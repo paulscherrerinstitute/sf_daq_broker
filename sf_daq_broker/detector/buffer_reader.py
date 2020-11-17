@@ -67,11 +67,11 @@ class ModuleReader(object):
         folder_base = int((pulse_id // FOLDER_MOD) * FOLDER_MOD)
         file_base = int((pulse_id // FILE_MOD) * FILE_MOD)
 
-        filename = "%s/M%s/%s/%s%s" % (self.detector_folder,
-                                       self.module_id,
-                                       folder_base,
-                                       file_base,
-                                       FILE_EXTENSION)
+        filename = "%s/M%02d/%s/%s%s" % (self.detector_folder,
+                                         self.module_id,
+                                         folder_base,
+                                         file_base,
+                                         FILE_EXTENSION)
 
         # Index inside the data_file for the provided pulse_id.
         pulse_id_index = pulse_id - file_base
@@ -130,7 +130,7 @@ class DetectorReader(object):
     def read_thread(self, start_pulse_id, stop_pulse_id, pulse_id_step, module_id):
         reader = ModuleReader(self.ram_buffer, self.detector_folder, module_id)
 
-        pulse_id_generator = iter(range(start_pulse_id, stop_pulse_id+1, pulse_id_step))
+        pulse_id_generator = iter(range(start_pulse_id, stop_pulse_id + 1, pulse_id_step))
 
         sender = get_push_sender(self.zmq_context)
 

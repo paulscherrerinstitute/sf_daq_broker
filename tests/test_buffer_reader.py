@@ -12,23 +12,19 @@ from tests.utils import test_ram_buffer, fill_binary_file
 
 class TestBufferReader(unittest.TestCase):
 
-    needed_folder = "./M1/200000/"
-    needed_file = "202000.bin"
-    file_name = needed_folder + needed_file
-
     def setUp(self):
-        os.makedirs("./M0/200000/", exist_ok=True)
-        os.makedirs("./M1/200000/", exist_ok=True)
+        os.makedirs("./M00/200000/", exist_ok=True)
+        os.makedirs("./M01/200000/", exist_ok=True)
 
-        fill_binary_file("./M0/200000/202000.bin", pulse_id=202002, module_id=0)
-        fill_binary_file("./M1/200000/202000.bin", pulse_id=202002, module_id=1)
+        fill_binary_file("./M00/200000/202000.bin", pulse_id=202002, module_id=0)
+        fill_binary_file("./M01/200000/202000.bin", pulse_id=202002, module_id=1)
 
     def tearDown(self):
-        os.remove("./M0/200000/202000.bin")
-        os.remove("./M1/200000/202000.bin")
+        os.remove("./M00/200000/202000.bin")
+        os.remove("./M01/200000/202000.bin")
 
-        os.removedirs("./M0/200000/")
-        os.removedirs("./M1/200000/")
+        os.removedirs("./M00/200000/")
+        os.removedirs("./M01/200000/")
 
     def test_frame_loading(self):
         n_modules = 2
