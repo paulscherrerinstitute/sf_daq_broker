@@ -35,8 +35,9 @@ def write_detector_raw_from_buffer(
                                      n_modules=n_modules,
                                      zmq_context=context)
 
+    n_images = len(range(start_pulse_id, stop_pulse_id + 1, pulse_id_step))
+
     try:
-        n_images = len(range(start_pulse_id, stop_pulse_id + 1, pulse_id_step))
         detector_writer = DetectorWriter(output_file=output_file, n_images=n_images, n_modules=n_modules, metadata=metadata)
 
         detector_reader.start_reading(start_pulse_id=start_pulse_id,
@@ -81,9 +82,6 @@ class DetectorWriter(object):
             chunks=(1, self.n_modules * 512, 1024)
         )
 
-    def __del__(self):
-        self.close()
-
     def _create_metadata_datasets(self, metadata):
         _logger.debug("Initializing metadata datasets.")
 
@@ -98,6 +96,8 @@ class DetectorWriter(object):
         self.frame_index_cache[self.current_write_index] = meta_buffer["frame_index"]
         self.daq_rec_cache[self.current_write_index] = meta_buffer["daq_rec"]
         self.is_good_frame_cache[self.current_write_index] = meta_buffer["is_good_image"]
+
+        self.current_write_index += 1
 
     def _write_metadata(self):
         self.file["/data/" + self.detector_name + "/pulse_id"] = self.pulse_id_cache
