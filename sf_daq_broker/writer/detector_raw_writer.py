@@ -1,4 +1,5 @@
 import logging
+from time import time
 
 import numpy
 import zmq
@@ -9,20 +10,17 @@ from sf_daq_broker.detector.ram_buffer import RamBuffer
 
 _logger = logging.getLogger("broker_writer")
 
-try:
-    import ujson as json
-except:
-    _logger.warning("There is no ujson in this environment. Performance will suffer.")
-    import json
-
-
 N_RAM_BUFFER_SLOTS = 10
 
 
-def write_detector_raw_from_detector_buffer(output_file, start_pulse_id, stop_pulse_id, pulse_id_step, metadata):
+def write_detector_raw_from_buffer(
+        output_file, start_pulse_id, stop_pulse_id, pulse_id_step, metadata, detector_folder, n_modules):
 
-    detector_folder = "/tmp/det"
-    n_modules = 16
+    _logger.info("Writing %s from start_pulse_id %s to stop_pulse_id %s with pulse_id_step %s from folder %s."
+                 % (output_file, start_pulse_id, stop_pulse_id, pulse_id_step, detector_folder))
+    _logger.debug("n_modules %s" % n_modules)
+
+    start_time = time()
 
     context = zmq.Context()
 
@@ -38,7 +36,7 @@ def write_detector_raw_from_detector_buffer(output_file, start_pulse_id, stop_pu
                                      n_modules=n_modules,
                                      zmq_context=context)
 
-    detector_writer = DetectorWriter(output_file=output_file)
+    detector_writer = DetectorWriter(output_file=output_file, metadata=metadata)
 
     detector_reader.start_reading(start_pulse_id=start_pulse_id,
                                   stop_pulse_id=stop_pulse_id)
@@ -50,10 +48,13 @@ def write_detector_raw_from_detector_buffer(output_file, start_pulse_id, stop_pu
     detector_writer.close()
     detector_reader.close()
 
+    _logger.info("Data writing took %s seconds." % (time() - start_time))
+
 
 class DetectorWriter(object):
-    def __init__(self, output_file, n_images):
+    def __init__(self, output_file, n_images, metadata):
         self.output_file = output_file
+        self.metadata = metadata
 
         self.pulse_id_cache = numpy.zeros(shape=n_images, dtype="uint64")
         self.frame_index_cache = numpy.zeros(shape=n_images, dtype="uint64")
