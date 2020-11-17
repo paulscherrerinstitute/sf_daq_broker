@@ -194,6 +194,16 @@ class BrokerManager(object):
                            request.get("camera_list"),
                            config.OUTPUT_FILE_SUFFIX_IMAGE_BUFFER)
 
+        for detector_name in request.get("detectors", []):
+            detector_request = [
+                "/gpfs/photonics/swissfel/buffer/%s" % detector_name,
+                int(detector_name[5:7])
+            ]
+
+            send_write_request(broker_config.TAG_DETECTOR_RAW,
+                               detector_request,
+                               config.OUT_FILE_SUFFIX_RAW_DETECTOR % detector_name)
+
         self.broker_client.close()
 
         if "detectors" in request:

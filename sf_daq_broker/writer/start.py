@@ -114,8 +114,8 @@ def process_request(request):
                                            start_pulse_id=start_pulse_id,
                                            stop_pulse_id=stop_pulse_id,
                                            metadata=metadata,
-                                           detector_folder=detector_folder,
-                                           n_modules=n_modules)
+                                           detector_folder=channels[0],
+                                           n_modules=channels[1])
 
         _logger.info("Finished. Took %s seconds to complete request." % (time() - start_time))
 
