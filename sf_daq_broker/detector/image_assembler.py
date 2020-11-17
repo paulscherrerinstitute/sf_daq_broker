@@ -1,7 +1,6 @@
 import struct
 
 import zmq
-from zmq import Again
 
 from sf_daq_broker.detector.buffer_reader import FrameMetadata, META_FRAME_BYTES
 
