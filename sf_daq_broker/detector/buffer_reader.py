@@ -1,3 +1,4 @@
+import struct
 import threading
 from ctypes import *
 
@@ -141,7 +142,7 @@ class DetectorReader(object):
                     break
 
                 reader.load_frame_to_ram_buffer(pulse_id)
-                sender.send(pulse_id)
+                sender.send(struct.pack("Q", pulse_id))
 
         finally:
             sender.close()
