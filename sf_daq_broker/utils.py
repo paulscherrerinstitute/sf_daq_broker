@@ -6,7 +6,7 @@ import requests
 
 from sf_daq_broker import config
 
-_logger = getLogger(__name__)
+_logger = getLogger("broker_writer")
 
 
 def get_data_api_request(channels, start_pulse_id, stop_pulse_id):
@@ -50,7 +50,7 @@ def transform_range_from_pulse_id_to_timestamp(data_api_request):
         mapping_request = {'range': {'startPulseId': data_api_request["range"]["startPulseId"],
                                      'endPulseId': data_api_request["range"]["endPulseId"]+1}}
 
-        mapping_response = requests.post(url=config.DATA_API_QUERY_ADDRESS + "/mapping", json=mapping_request).json()
+        mapping_response = requests.post(url=config.DATA_API_QUERY_ADDRESS + "/mapping", json=mapping_request, timeout=10).json()
 
         _logger.info("Response to mapping request: %s", mapping_response)
 
@@ -63,6 +63,7 @@ def transform_range_from_pulse_id_to_timestamp(data_api_request):
         _logger.info("Transformed request to startSeconds and endSeconds. %s" % new_data_api_request)
 
     except Exception as e:
+        _logger.error(e)
         raise RuntimeError("Cannot retrieve the pulse_id to timestamp mapping.") from e
 
     return new_data_api_request

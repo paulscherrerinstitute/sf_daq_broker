@@ -7,6 +7,7 @@ import h5py
 import numpy
 import requests
 from random import randrange
+from copy import deepcopy
 
 from sf_daq_broker import config, utils
 from sf_daq_broker.writer.utils import channel_type_deserializer_mapping
@@ -29,7 +30,11 @@ def write_from_databuffer(data_api_request, output_file, metadata):
 
     start_time = time()
 
-    response = requests.post(url=config.DATA_API_QUERY_ADDRESS, json=data_api_request)
+    new_data_api_request = deepcopy(data_api_request)
+#    new_data_api_request["range"]["startPulseId"] -= 1
+#    new_data_api_request["range"]["endPulseId"] += 1 
+
+    response = requests.post(url=config.DATA_API_QUERY_ADDRESS, json=new_data_api_request, timeout=1000)
     data = json.loads(response.content)
 
     if not data:
@@ -90,6 +95,45 @@ def write_from_imagebuffer(data_api_request, output_file, parameters):
         _logger.error("Got exception from data_api3")
         _logger.error(e)
         
+
+def write_from_databuffer_api3(data_api_request, output_file, parameters):
+    import data_api3.h5 as h5
+    import pytz
+
+    _logger.debug("Data3 API request: %s", data_api_request)
+
+    data_api_request_timestamp = utils.transform_range_from_pulse_id_to_timestamp(data_api_request)
+
+    channels = [channel["name"] for channel in data_api_request_timestamp["channels"]]
+
+    start = datetime.fromtimestamp(float(data_api_request_timestamp["range"]["startSeconds"])).astimezone(
+        pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
+    end = datetime.fromtimestamp(float(data_api_request_timestamp["range"]["endSeconds"])).astimezone(
+        pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
+
+    query = {
+        "channels": channels,
+        "range": {
+            "type": "date",
+            "startDate": start,
+            "endDate": end
+        }
+    }
+
+    data_buffer_url = config.DATA_API3_QUERY_ADDRESS
+
+    _logger.debug("Requesting '%s' to output_file %s from %s " %
+                  (query, output_file, data_buffer_url))
+
+    start_time = time()
+
+    try:
+        h5.request(query, filename=output_file, baseurl=data_buffer_url, default_backend=config.DATA_BACKEND)
+        _logger.info("Data download and writing took %s seconds." % (time() - start_time))
+    except Exception as e:
+        _logger.error("Got exception from data_api3")
+        _logger.error(e)
+
 
 class BsreadH5Writer(object):
 

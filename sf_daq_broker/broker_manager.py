@@ -190,6 +190,10 @@ class BrokerManager(object):
                            request.get("channels_list"),
                            config.OUTPUT_FILE_SUFFIX_DATA_BUFFER)
 
+        send_write_request(broker_config.TAG_DATA3BUFFER,
+                           request.get("channels_list"),
+                           config.OUTPUT_FILE_SUFFIX_DATA3_BUFFER)
+
         send_write_request(broker_config.TAG_IMAGEBUFFER,
                            request.get("camera_list"),
                            config.OUTPUT_FILE_SUFFIX_IMAGE_BUFFER)

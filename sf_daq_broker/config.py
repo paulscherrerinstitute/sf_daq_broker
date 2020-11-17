@@ -10,9 +10,10 @@ AUDIT_FILE_TIME_FORMAT = "%Y%m%d-%H%M%S"
 
 DEFAULT_AUDIT_FILENAME = "/var/log/sf_databuffer_audit.log"
 
-DATA_API_QUERY_ADDRESS = "http://sf-data-api-02.psi.ch/query"
+#DATA_API_QUERY_ADDRESS = "http://sf-data-api-02.psi.ch/query"
+DATA_API_QUERY_ADDRESS = "https://data-api.psi.ch/sf/query"
 IMAGE_API_QUERY_ADDRESS = ["http://172.27.0.14:8080/api/v1/query", "http://172.27.0.15:8080/api/v1/query"]
-DATA_API3_QUERY_ADDRESS = "http://sf-daqbuf-21:8371/api/1.0.1/query"
+DATA_API3_QUERY_ADDRESS = "http://sf-daqbuf-33:8371/api/1"
 EPICS_QUERY_ADDRESS = "https://data-api.psi.ch/sf"
 
 DATA_BACKEND = "sf-databuffer"
@@ -23,5 +24,6 @@ TRANSFORM_PULSE_ID_TO_TIMESTAMP_QUERY = False
 SEPARATE_CAMERA_CHANNELS = True
 
 OUTPUT_FILE_SUFFIX_DATA_BUFFER = "BSREAD"
+OUTPUT_FILE_SUFFIX_DATA3_BUFFER = "BSDATA"
 OUTPUT_FILE_SUFFIX_IMAGE_BUFFER = "CAMERAS"
 OUTPUT_FILE_SUFFIX_EPICS = "PVCHANNELS"
