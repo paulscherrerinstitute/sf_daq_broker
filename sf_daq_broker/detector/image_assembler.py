@@ -23,12 +23,7 @@ class ImageAssembler(object):
             raise ValueError("RamBuffer must have at least 5 slots.")
 
         for module_id in range(self.n_modules):
-            # We use the PUSH/PULL mechanism to moderate disk throughput.
-            receiver = self.zmq_context.socket(zmq.PULL)
-            # No buffering on send side - receiver dictates reading speed.
-            receiver.setsockopt(zmq.RCVHWM, zmq_rcv_hwm)
-            # If in 1 second nothing was received we have a problem in reading.
-            receiver.setsockopt(zmq.RCVTIMEO, 1000)
+            receiver = get_pull_receiver(self.zmq_context, zmq_rcv_hwm=zmq_rcv_hwm)
 
             receiver.connect("inproc://%s" % module_id)
 
@@ -97,3 +92,13 @@ class ImageAssembler(object):
 
         self.receivers.clear()
 
+
+def get_pull_receiver(context, zmq_rcv_hwm):
+    # We use the PUSH/PULL mechanism to moderate disk throughput.
+    receiver = context.socket(zmq.PULL)
+    # No buffering on send side - receiver dictates reading speed.
+    receiver.setsockopt(zmq.RCVHWM, zmq_rcv_hwm)
+    # If in 1 second nothing was received we have a problem in reading.
+    receiver.setsockopt(zmq.RCVTIMEO, 1000)
+
+    return receiver
