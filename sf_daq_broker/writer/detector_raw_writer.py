@@ -38,7 +38,7 @@ def write_detector_raw_from_buffer(
     n_images = len(range(start_pulse_id, stop_pulse_id + 1, pulse_id_step))
 
     try:
-        detector_writer = DetectorWriter(output_file=output_file, n_images=n_images, n_modules=n_modules, metadata=metadata)
+        detector_writer = DetectorRawWriter(output_file=output_file, n_images=n_images, n_modules=n_modules, metadata=metadata)
 
         detector_reader.start_reading(start_pulse_id=start_pulse_id,
                                       stop_pulse_id=stop_pulse_id,
@@ -55,7 +55,7 @@ def write_detector_raw_from_buffer(
     _logger.info("Data writing took %s seconds." % (time() - start_time))
 
 
-class DetectorWriter(object):
+class DetectorRawWriter(object):
     def __init__(self, output_file, n_images, n_modules, metadata):
         self.output_file = output_file
         self.n_modules = n_modules
