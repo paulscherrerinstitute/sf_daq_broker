@@ -21,7 +21,6 @@ def write_detector_raw_from_buffer(
     _logger.debug("n_modules %s" % n_modules)
 
     start_time = time()
-
     context = zmq.Context()
 
     ram_buffer = RamBuffer(n_modules=n_modules,
@@ -36,19 +35,21 @@ def write_detector_raw_from_buffer(
                                      n_modules=n_modules,
                                      zmq_context=context)
 
-    n_images = len(range(start_pulse_id, stop_pulse_id + 1, pulse_id_step))
-    detector_writer = DetectorWriter(output_file=output_file, n_images=n_images, n_modules=n_modules, metadata=metadata)
+    try:
+        n_images = len(range(start_pulse_id, stop_pulse_id + 1, pulse_id_step))
+        detector_writer = DetectorWriter(output_file=output_file, n_images=n_images, n_modules=n_modules, metadata=metadata)
 
-    detector_reader.start_reading(start_pulse_id=start_pulse_id,
-                                  stop_pulse_id=stop_pulse_id,
-                                  pulse_id_step=pulse_id_step)
+        detector_reader.start_reading(start_pulse_id=start_pulse_id,
+                                      stop_pulse_id=stop_pulse_id,
+                                      pulse_id_step=pulse_id_step)
 
-    for pulse_id in range(start_pulse_id, stop_pulse_id + 1, pulse_id_step):
-        meta_buffer, data_buffer = image_assembler.get_image(pulse_id)
-        detector_writer.write(pulse_id, meta_buffer, data_buffer)
+        for pulse_id in range(start_pulse_id, stop_pulse_id + 1, pulse_id_step):
+            meta_buffer, data_buffer = image_assembler.get_image(pulse_id)
+            detector_writer.write(pulse_id, meta_buffer, data_buffer)
 
-    detector_writer.close()
-    detector_reader.close()
+    finally:
+        detector_writer.close()
+        detector_reader.close()
 
     _logger.info("Data writing took %s seconds." % (time() - start_time))
 
@@ -91,12 +92,12 @@ class DetectorWriter(object):
 
     def write(self, pulse_id, meta_buffer, data_buffer):
         self._image_dataset.id.write_direct_chunk((self.current_write_index, 0, 0),
-                                                  data_buffer)
+                                                  data_buffer.tobytes())
 
         self.pulse_id_cache[self.current_write_index] = meta_buffer["pulse_id"]
         self.frame_index_cache[self.current_write_index] = meta_buffer["frame_index"]
         self.daq_rec_cache[self.current_write_index] = meta_buffer["daq_rec"]
-        self.is_good_frame_cache[self.current_write_index] = meta_buffer["is_good_frame"]
+        self.is_good_frame_cache[self.current_write_index] = meta_buffer["is_good_image"]
 
     def _write_metadata(self):
         self.file["/data/" + self.detector_name + "/pulse_id"] = self.pulse_id_cache
