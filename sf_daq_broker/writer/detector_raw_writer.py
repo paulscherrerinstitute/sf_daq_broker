@@ -16,7 +16,6 @@ N_RAM_BUFFER_SLOTS = 10
 
 def write_detector_raw_from_buffer(
         output_file, start_pulse_id, stop_pulse_id, pulse_id_step, metadata, detector_folder, n_modules):
-
     _logger.info("Writing %s from start_pulse_id %s to stop_pulse_id %s with pulse_id_step %s from folder %s."
                  % (output_file, start_pulse_id, stop_pulse_id, pulse_id_step, detector_folder))
     _logger.debug("n_modules %s" % n_modules)
@@ -37,14 +36,14 @@ def write_detector_raw_from_buffer(
                                      n_modules=n_modules,
                                      zmq_context=context)
 
-    n_images = len(range(start_pulse_id, stop_pulse_id+1, pulse_id_step))
+    n_images = len(range(start_pulse_id, stop_pulse_id + 1, pulse_id_step))
     detector_writer = DetectorWriter(output_file=output_file, n_images=n_images, n_modules=n_modules, metadata=metadata)
 
     detector_reader.start_reading(start_pulse_id=start_pulse_id,
                                   stop_pulse_id=stop_pulse_id,
                                   pulse_id_step=pulse_id_step)
 
-    for pulse_id in range(start_pulse_id, stop_pulse_id+1, pulse_id_step):
+    for pulse_id in range(start_pulse_id, stop_pulse_id + 1, pulse_id_step):
         meta_buffer, data_buffer = image_assembler.get_image(pulse_id)
         detector_writer.write(pulse_id, meta_buffer, data_buffer)
 
@@ -74,23 +73,23 @@ class DetectorWriter(object):
 
         self.current_write_index = 0
 
-        self.file.create_dataset(name="/data/" + self.detector_name + "/data",
-                                 dtype="uint16",
-                                 shape=(n_images, self.n_modules * 512, 1024),
-                                 chunks=(1, self.n_modules * 512, 1024))
+        self._image_dataset = self.file.create_dataset(
+            name="/data/" + self.detector_name + "/data",
+            dtype="uint16",
+            shape=(n_images, self.n_modules * 512, 1024),
+            chunks=(1, self.n_modules * 512, 1024)
+        )
 
     def __del__(self):
         self.close()
 
     def _create_metadata_datasets(self, metadata):
-
         _logger.debug("Initializing metadata datasets.")
 
         for key, value in metadata.items():
             self.file.create_dataset(key, data=numpy.string_(value))
 
     def write(self, pulse_id, meta_buffer, data_buffer):
-
         self._image_dataset.id.write_direct_chunk((self.current_write_index, 0, 0),
                                                   data_buffer)
 
@@ -108,5 +107,3 @@ class DetectorWriter(object):
     def close(self):
         self._write_metadata()
         self.file.close()
-
-
