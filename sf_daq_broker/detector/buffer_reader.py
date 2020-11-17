@@ -60,11 +60,11 @@ class ModuleReader(object):
         folder_base = int((pulse_id // FOLDER_MOD) * FOLDER_MOD)
         file_base = int((pulse_id // FILE_MOD) * FILE_MOD)
 
-        filename = "%s/%s/%s/%s%s" % (self.detector_folder,
-                                      self.module_name,
-                                      folder_base,
-                                      file_base,
-                                      FILE_EXTENSION)
+        filename = "%s/M%s/%s/%s%s" % (self.detector_folder,
+                                       self.module_id,
+                                       folder_base,
+                                       file_base,
+                                       FILE_EXTENSION)
 
         # Index inside the data_file for the provided pulse_id.
         pulse_id_index = pulse_id - file_base
