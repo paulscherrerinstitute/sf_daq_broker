@@ -35,21 +35,27 @@ class ModuleReader(object):
         self._file = None
         self._filename = None
 
+    def __del__(self):
+        self.close_file()
+
     def load_frame_to_ram_buffer(self, pulse_id):
         pulse_filename, pulse_index = self._get_pulse_id_location(pulse_id)
 
         if pulse_filename != self._filename:
             self._open_file(pulse_filename)
 
-        n_bytes_offset = pulse_index * BUFFER_FRAME_BYTES
-        self._file.seek(n_bytes_offset)
-
         meta_buffer, data_buffer = self.ram_buffer.get_frame_buffers(self.module_id, pulse_id)
+
+        n_bytes_meta_offset = pulse_index * BUFFER_FRAME_BYTES
+        self._file.seek(n_bytes_meta_offset)
 
         meta_bytes = self._file.readinto(meta_buffer)
         if meta_bytes != META_FRAME_BYTES:
             raise ValueError("Read frame %d, got %d meta bytes but expected %d bytes." %
                              (pulse_id, meta_bytes, META_FRAME_BYTES))
+
+        n_bytes_data_offset = n_bytes_meta_offset + META_FRAME_BYTES
+        self._file.seek(n_bytes_data_offset)
 
         data_bytes = self._file.readinto(data_buffer)
         if data_bytes != DATA_FRAME_BYTES:
