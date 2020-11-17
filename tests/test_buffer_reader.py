@@ -1,7 +1,11 @@
 import os
+import struct
 import unittest
 
-from sf_daq_broker.detector.buffer_reader import ModuleReader
+import zmq
+
+from sf_daq_broker.detector.buffer_reader import ModuleReader, DetectorReader
+from sf_daq_broker.detector.image_assembler import get_pull_receiver
 from sf_daq_broker.detector.ram_buffer import RamBuffer
 from tests.utils import test_ram_buffer, fill_binary_file
 
@@ -39,3 +43,34 @@ class TestBufferReader(unittest.TestCase):
         module_1_reader.load_frame_to_ram_buffer(202002)
 
         test_ram_buffer(self, ram_buffer, 202002)
+
+    def test_detector_reading(self):
+        n_modules = 2
+        n_slots = 5
+        detector_folder = "."
+        pulse_id = 202002
+
+        context = zmq.Context()
+        receivers = []
+
+        ram_buffer = RamBuffer(n_modules=n_modules, n_slots=n_slots)
+        detector_reader = DetectorReader(ram_buffer=ram_buffer,
+                                         detector_folder=detector_folder,
+                                         n_modules=n_modules,
+                                         zmq_context=context)
+
+        for i_module in range(n_modules):
+            receiver = get_pull_receiver(context, zmq_rcv_hwm=1)
+            receiver.connect("inproc://%d" % i_module)
+
+            receivers.append(receiver)
+
+        detector_reader.start_reading(start_pulse_id=pulse_id, end_pulse_id=pulse_id+1, pulse_id_step=1)
+
+        for receiver in receivers:
+            received_pulse_id = struct.unpack("Q", receiver.recv())[0]
+            self.assertEqual(pulse_id, received_pulse_id)
+
+        detector_reader.close()
+
+        test_ram_buffer(self, ram_buffer=ram_buffer, pulse_id=pulse_id)
