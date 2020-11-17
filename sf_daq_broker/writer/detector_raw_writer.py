@@ -1,6 +1,7 @@
 import logging
 from time import time
 
+import h5py
 import numpy
 import zmq
 
@@ -57,14 +58,49 @@ class DetectorWriter(object):
     def __init__(self, output_file, n_images, metadata):
         self.output_file = output_file
         self.metadata = metadata
+        # TODO: Put real name here, please.
+        self.detector_name = "detector"
 
         self.pulse_id_cache = numpy.zeros(shape=n_images, dtype="uint64")
         self.frame_index_cache = numpy.zeros(shape=n_images, dtype="uint64")
         self.daq_rec_cache = numpy.zeros(shape=n_images, dtype="uint32")
         self.is_good_frame_cache = numpy.zeros(shape=n_images, dtype="uint8")
 
+        self.file = h5py.File(self.output_file, "w")
+        _logger.info("File %s created." % self.output_file)
+
+        self._create_metadata_datasets(metadata)
+
+        self.current_write_index = 0
+
+    def __del__(self):
+        self.close()
+
+    def _create_metadata_datasets(self, metadata):
+
+        _logger.debug("Initializing metadata datasets.")
+
+        for key, value in metadata.items():
+            self.file.create_dataset(key, data=numpy.string_(value))
+
     def write(self, pulse_id, meta_buffer, data_buffer):
-        pass
+
+        self._image_dataset.id.write_direct_chunk((self.current_write_index, 0, 0),
+                                                  data_buffer)
+
+        self.pulse_id_cache[self.current_write_index] = meta_buffer["pulse_id"]
+        self.frame_index_cache[self.current_write_index] = meta_buffer["frame_index"]
+        self.daq_rec_cache[self.current_write_index] = meta_buffer["daq_rec"]
+        self.is_good_frame_cache[self.current_write_index] = meta_buffer["is_good_frame"]
+
+    def _write_metadata(self):
+        self.file["/data/" + self.detector_name + "/pulse_id"] = self.pulse_id_cache
+        self.file["/data/" + self.detector_name + "/frame_index"] = self.frame_index_cache
+        self.file["/data/" + self.detector_name + "/daq_rec"] = self.daq_rec_cache
+        self.file["/data/" + self.detector_name + "/is_good_frame"] = self.is_good_frame_cache
 
     def close(self):
-        pass
+        self._write_metadata()
+        self.file.close()
+
+
