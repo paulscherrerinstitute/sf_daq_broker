@@ -102,6 +102,9 @@ class DetectorReader(object):
 
         self.threads = []
 
+    def __del__(self):
+        self.close()
+
     def start_reading(self, start_pulse_id, end_pulse_id, pulse_id_step):
         self.continue_reading_event.set()
 
