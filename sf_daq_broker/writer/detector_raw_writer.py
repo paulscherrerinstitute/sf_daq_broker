@@ -38,7 +38,7 @@ def write_detector_raw_from_buffer(
                                      zmq_context=context)
 
     n_images = len(range(start_pulse_id, stop_pulse_id+1, pulse_id_step))
-    detector_writer = DetectorWriter(output_file=output_file, n_images=n_images, metadata=metadata)
+    detector_writer = DetectorWriter(output_file=output_file, n_images=n_images, n_modules=n_modules, metadata=metadata)
 
     detector_reader.start_reading(start_pulse_id=start_pulse_id,
                                   stop_pulse_id=stop_pulse_id,
@@ -55,8 +55,9 @@ def write_detector_raw_from_buffer(
 
 
 class DetectorWriter(object):
-    def __init__(self, output_file, n_images, metadata):
+    def __init__(self, output_file, n_images, n_modules, metadata):
         self.output_file = output_file
+        self.n_modules = n_modules
         self.metadata = metadata
         # TODO: Put real name here, please.
         self.detector_name = "detector"
@@ -72,6 +73,11 @@ class DetectorWriter(object):
         self._create_metadata_datasets(metadata)
 
         self.current_write_index = 0
+
+        self.file.create_dataset(name="/data/" + self.detector_name + "/data",
+                                 dtype="uint16",
+                                 shape=(n_images, self.n_modules * 512, 1024),
+                                 chunks=(1, self.n_modules * 512, 1024))
 
     def __del__(self):
         self.close()
