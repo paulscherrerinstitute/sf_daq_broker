@@ -8,11 +8,11 @@ from threading import Thread
 from time import time, sleep
 from pika import BlockingConnection, ConnectionParameters, BasicProperties
 
-from sf_daq_broker import config, utils
+from sf_daq_broker import config
 import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker.utils import get_data_api_request
 from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_from_databuffer
-from sf_daq_broker.writer.detector_raw_writer import write_detector_raw_from_detector_buffer
+from sf_daq_broker.writer.detector_raw_writer import write_detector_raw_from_buffer
 from sf_daq_broker.writer.epics_writer import write_epics_pvs
 
 _logger = logging.getLogger("broker_writer")
@@ -110,7 +110,12 @@ def process_request(request):
 
         elif writer_type == broker_config.TAG_DETECTOR_RAW:
             _logger.info("Using detector raw writer.")
-            write_detector_raw_from_detector_buffer(output_file, start_pulse_id, stop_pulse_id, metadata, detector)
+            write_detector_raw_from_buffer(output_file=output_file,
+                                           start_pulse_id=start_pulse_id,
+                                           stop_pulse_id=stop_pulse_id,
+                                           metadata=metadata,
+                                           detector_folder=detector_folder,
+                                           n_modules=n_modules)
 
         _logger.info("Finished. Took %s seconds to complete request." % (time() - start_time))
 
@@ -229,7 +234,7 @@ def run():
 
     args = parser.parse_args()
 
-# Logging formating:
+    # Logging formatting:
     _logger.setLevel(args.log_level)
 
     stream_handler = logging.StreamHandler()
