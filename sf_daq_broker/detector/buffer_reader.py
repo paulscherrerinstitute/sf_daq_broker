@@ -122,14 +122,7 @@ class DetectorReader(object):
 
         pulse_id_generator = iter(range(start_pulse_id, end_pulse_id, pulse_id_step))
 
-        # We use the PUSH mechanism to moderate disk throughput.
-        sender = self.zmq_context.socket(zmq.PUSH)
-        # No buffering on send side - receiver dictates reading speed.
-        sender.setsockopt(zmq.SNDHWM, 1)
-        # If in 1 second there was nobody to read the pulse_id we abort.
-        sender.setsockopt(zmq.SNDTIMEO, 1000)
-        # And we wait indefinitely to send the last pulse_id to the writer.
-        sender.setsockopt(zmq.LINGER, 0)
+        sender = get_push_sender(self.zmq_context)
 
         try:
             sender.bind("inproc://%s" % module_id)
@@ -146,3 +139,16 @@ class DetectorReader(object):
 
         finally:
             sender.close()
+
+
+def get_push_sender(context):
+    # We use the PUSH mechanism to moderate disk throughput.
+    sender = context.socket(zmq.PUSH)
+    # No buffering on send side - receiver dictates reading speed.
+    sender.setsockopt(zmq.SNDHWM, 1)
+    # If in 1 second there was nobody to read the pulse_id we abort.
+    sender.setsockopt(zmq.SNDTIMEO, 1000)
+    # And we wait indefinitely to send the last pulse_id to the writer.
+    sender.setsockopt(zmq.LINGER, 0)
+
+    return sender
