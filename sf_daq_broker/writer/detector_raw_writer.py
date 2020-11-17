@@ -16,28 +16,23 @@ except:
     import json
 
 
-def write_from_detectorbuffer(data_api_request, output_file, metadata):
-    _logger.debug("Data API request: %s", data_api_request)
+N_RAM_BUFFER_SLOTS = 10
+
+
+def write_detector_raw_from_detector_buffer(output_file, start_pulse_id, stop_pulse_id, pulse_id_step, metadata):
 
     detector_folder = "/tmp/det"
-    output_file = "output_file"
     n_modules = 16
-    n_slots = 100
-    start_pulse_id = 0
-    end_pulse_id = 200
-    pulse_id_step = 1
 
     context = zmq.Context()
 
     ram_buffer = RamBuffer(n_modules=n_modules,
-                           n_slots=n_slots)
+                           n_slots=N_RAM_BUFFER_SLOTS)
 
     detector_reader = DetectorReader(ram_buffer=ram_buffer,
                                      detector_folder=detector_folder,
                                      n_modules=n_modules,
                                      zmq_context=context)
-    detector_reader.start_reading(start_pulse_id=start_pulse_id,
-                                  end_pulse_id=end_pulse_id)
 
     image_assembler = ImageAssembler(ram_buffer=ram_buffer,
                                      n_modules=n_modules,
@@ -45,7 +40,10 @@ def write_from_detectorbuffer(data_api_request, output_file, metadata):
 
     detector_writer = DetectorWriter(output_file=output_file)
 
-    for pulse_id in range(start_pulse_id, end_pulse_id, pulse_id_step):
+    detector_reader.start_reading(start_pulse_id=start_pulse_id,
+                                  stop_pulse_id=stop_pulse_id)
+
+    for pulse_id in range(start_pulse_id, stop_pulse_id+1, pulse_id_step):
         meta_buffer, data_buffer = image_assembler.get_image(pulse_id)
         detector_writer.write(pulse_id, meta_buffer, data_buffer)
 

@@ -105,13 +105,13 @@ class DetectorReader(object):
     def __del__(self):
         self.close()
 
-    def start_reading(self, start_pulse_id, end_pulse_id, pulse_id_step):
+    def start_reading(self, start_pulse_id, stop_pulse_id, pulse_id_step):
         self.continue_reading_event.set()
 
         for module_id in range(self.n_modules):
             t = threading.Thread(target=self.read_thread, kwargs={
                 "start_pulse_id": start_pulse_id,
-                "end_pulse_id": end_pulse_id,
+                "stop_pulse_id": stop_pulse_id,
                 "pulse_id_step": pulse_id_step,
                 "module_id": module_id
             })
@@ -127,10 +127,10 @@ class DetectorReader(object):
 
         self.threads.clear()
 
-    def read_thread(self, start_pulse_id, end_pulse_id, pulse_id_step, module_id):
+    def read_thread(self, start_pulse_id, stop_pulse_id, pulse_id_step, module_id):
         reader = ModuleReader(self.ram_buffer, self.detector_folder, module_id)
 
-        pulse_id_generator = iter(range(start_pulse_id, end_pulse_id, pulse_id_step))
+        pulse_id_generator = iter(range(start_pulse_id, stop_pulse_id+1, pulse_id_step))
 
         sender = get_push_sender(self.zmq_context)
 

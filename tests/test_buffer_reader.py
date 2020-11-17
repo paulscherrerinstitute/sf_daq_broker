@@ -65,7 +65,7 @@ class TestBufferReader(unittest.TestCase):
 
             receivers.append(receiver)
 
-        detector_reader.start_reading(start_pulse_id=pulse_id, end_pulse_id=pulse_id+1, pulse_id_step=1)
+        detector_reader.start_reading(start_pulse_id=pulse_id, stop_pulse_id=pulse_id, pulse_id_step=1)
 
         for receiver in receivers:
             received_pulse_id = struct.unpack("Q", receiver.recv())[0]

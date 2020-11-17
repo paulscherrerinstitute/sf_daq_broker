@@ -12,6 +12,7 @@ from sf_daq_broker import config, utils
 import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker.utils import get_data_api_request
 from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_from_databuffer
+from sf_daq_broker.writer.detector_raw_writer import write_detector_raw_from_detector_buffer
 from sf_daq_broker.writer.epics_writer import write_epics_pvs
 
 _logger = logging.getLogger("broker_writer")
@@ -106,6 +107,10 @@ def process_request(request):
         elif writer_type == broker_config.TAG_EPICS:
             _logger.info("Using epics writer.")
             write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, channels)
+
+        elif writer_type == broker_config.TAG_DETECTOR_RAW:
+            _logger.info("Using detector raw writer.")
+            write_detector_raw_from_detector_buffer(output_file, start_pulse_id, stop_pulse_id, metadata, detector)
 
         _logger.info("Finished. Took %s seconds to complete request." % (time() - start_time))
 
