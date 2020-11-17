@@ -36,7 +36,8 @@ def write_detector_raw_from_buffer(
                                      n_modules=n_modules,
                                      zmq_context=context)
 
-    detector_writer = DetectorWriter(output_file=output_file, metadata=metadata)
+    n_images = len(range(start_pulse_id, stop_pulse_id+1, pulse_id_step))
+    detector_writer = DetectorWriter(output_file=output_file, n_images=n_images, metadata=metadata)
 
     detector_reader.start_reading(start_pulse_id=start_pulse_id,
                                   stop_pulse_id=stop_pulse_id,
