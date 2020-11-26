@@ -45,11 +45,11 @@ source /home/dbe/miniconda3/etc/profile.d/conda.sh
 conda activate sf-daq
 
 sls_detector_put ${D}-timing trigger
-sls_detector_put ${D}-cycles ${n_cycles}
-sls_detector_put ${D}-exptime 5e-06
+sls_detector_put ${D}-triggers ${n_cycles}
+sls_detector_put ${D}-exptime 5us
 sls_detector_put ${D}-frames 1
 sls_detector_put ${D}-dr 16
 #sls_detector_put ${D}-clearbit to 0x5d 0 # normal mode, not highG0
-sls_detector_put ${D}-status start
+sls_detector_put ${D}-start
 
 echo "Now start trigger"

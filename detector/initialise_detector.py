@@ -1,6 +1,6 @@
 import argparse
 import os
-from sls_detector import Eiger, Jungfrau
+from slsdet import Eiger, Jungfrau
 
 def main():
 
@@ -32,11 +32,15 @@ def main():
 
     detector = Jungfrau(detector_number)
     
-    detector.stop_detector()
-    detector.free_shared_memory()
-    detector.load_config(config_file)
-    detector.power_chip = True
-    detector.high_voltage = 120
+    try:
+        detector.stopDetector()
+    except:
+        print(f'{detector_name} (number {detector_number}) can not be stopped, may be was not initialised before')
+
+    detector.freeSharedMemory()
+    detector.loadConfig(config_file)
+    detector.powerchip = True
+    detector.highvoltage = 120
 
 if __name__ == "__main__":
     main()
