@@ -4,9 +4,12 @@ import json
 from sf_daq_broker import config
 import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker.utils import get_writer_request
+from sf_daq_broker.detector.pedestal import take_pedestal
 
 import os
 from subprocess import Popen
+
+PEDESTAL_FRAMES=5000
 
 _logger = logging.getLogger(__name__)
 
@@ -16,6 +19,42 @@ class BrokerManager(object):
 
     def __init__(self, broker_client):
         self.broker_client = broker_client
+
+    def take_pedestal(self, request=None, remote_ip=None):
+
+        if not request:
+            return {"status" : "failed", "message" : "request parameters are empty"}
+
+        if not remote_ip:
+            return {"status" : "failed", "message" : "can not identify from which machine request were made"}
+
+        if "start_pulseid" not in request:
+            return {"status" : "failed", "message" : "aaa no start pluseid provided in request parameters"}
+
+        rate_multiplicator = 1
+        if "rate_multiplicator" in request:
+            rate_multiplicator = request["rate_multiplicator"]
+
+        request["stop_pulseid"] = int(request["start_pulseid"])+PEDESTAL_FRAMES*rate_multiplicator
+
+        if "detectors" not in request:
+            return {"status" : "failed", "message" : "no detectors defined"}
+
+        detectors = request["detectors"].keys()
+
+        if len(detectors) < 1:
+            return {"status" : "failed", "message" : "no detectors defined"}
+
+        try:
+            time_to_wait = PEDESTAL_FRAMES/100*rate_multiplicator+10
+            return {"status" : "ok", "message" : f"will do a pedestal now, wait at least {time_to_wait} seconds"}
+
+        finally:
+
+            take_pedestal(detectors_name=detectors, rate=rate_multiplicator)
+
+            message = self.retrieve(request=request, remote_ip=remote_ip) 
+
 
     def retrieve(self, request=None, remote_ip=None, beamline_force=None):
 

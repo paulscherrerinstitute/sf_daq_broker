@@ -14,6 +14,10 @@ def register_rest_interface(app, manager):
     def retrieve_from_buffers():
         return manager.retrieve(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
 
+    @app.post("/take_pedestal")
+    def take_pedestal():
+        return manager.take_pedestal(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
+
     @app.error(500)
     def error_handler_500(error):
         bottle.response.content_type = 'application/json'
