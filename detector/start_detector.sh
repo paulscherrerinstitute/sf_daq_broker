@@ -28,6 +28,15 @@ case ${DETECTOR} in
 'JF11')
   D=11
   ;;
+'JF04')
+  D=4
+  ;;
+'JF09')
+  D=9
+  ;;
+'JF10')
+  D=10
+  ;;
 *)
   echo "Unsupported detector"
   exit
