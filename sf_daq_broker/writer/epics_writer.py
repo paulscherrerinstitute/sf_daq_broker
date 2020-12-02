@@ -140,7 +140,7 @@ class EpicsH5Writer(BsreadH5Writer):
             shape_data = [x["shape"] for x in channel_data["data"]]
 
             if len(global_date_data) == 0 or len(value_data) == 0:
-                global_date_data = [float("nan")]
+                global_date_data = []
                 value_data = [float("nan")]
                 type_data = ["float64"]
                 shape_data = [[1]]
