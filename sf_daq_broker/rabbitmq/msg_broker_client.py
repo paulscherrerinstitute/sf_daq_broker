@@ -4,6 +4,7 @@ import sf_daq_broker.rabbitmq.config as broker_config
 
 from pika import BlockingConnection, ConnectionParameters, BasicProperties
 
+from time import sleep
 
 class RabbitMqClient(object):
 
@@ -14,7 +15,12 @@ class RabbitMqClient(object):
         self.channel = None
 
     def open(self):
-        self.connection = BlockingConnection(ConnectionParameters(self.broker_url))
+        try:
+            self.connection = BlockingConnection(ConnectionParameters(self.broker_url))
+        except:
+            sleep(1)
+            self.connection = BlockingConnection(ConnectionParameters(self.broker_url))
+
         self.channel = self.connection.channel()
 
         self.channel.exchange_declare(exchange=broker_config.REQUEST_EXCHANGE,
