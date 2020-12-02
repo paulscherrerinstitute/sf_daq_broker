@@ -2,7 +2,7 @@ from datetime import datetime
 import logging
 from time import time, sleep
 
-import dateutil
+import dateutil.parser
 import h5py
 import pytz
 import requests
