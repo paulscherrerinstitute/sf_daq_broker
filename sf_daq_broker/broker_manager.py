@@ -51,8 +51,8 @@ class BrokerManager(object):
 
         def make_pedestal_run(detectors_name=detectors, rate=rate_multiplicator, request=request, remote_ip=remote_ip):
             take_pedestal(detectors_name=detectors, rate=rate_multiplicator)
-            message = self.retrieve(request=request, remote_ip=remote_ip)
-            sleep(1)
+#            message = self.retrieve(request=request, remote_ip=remote_ip)
+#            sleep(1)
             return
 
         task_thread = Thread(target=make_pedestal_run, kwargs={'detectors_name': detectors , 'rate' : rate_multiplicator, 'request' : request, 'remote_ip' : remote_ip})
@@ -60,7 +60,7 @@ class BrokerManager(object):
         task_thread.start()
 
         time_to_wait = PEDESTAL_FRAMES/100*rate_multiplicator+10
-        return {"status" : "ok", "message" : f"will do a pedestal now, wait at least {time_to_wait} seconds"}
+        return {"status" : "ok", "message" : f"will do a pedestal now, wait at least {time_to_wait} seconds", "stop_pulseid": request["stop_pulseid"]}
 
 
     def retrieve(self, request=None, remote_ip=None, beamline_force=None):
