@@ -38,8 +38,6 @@ class BrokerManager(object):
         if "rate_multiplicator" in request:
             rate_multiplicator = request["rate_multiplicator"]
 
-        request["stop_pulseid"] = int(request["start_pulseid"])+PEDESTAL_FRAMES*rate_multiplicator
-
         if "detectors" not in request:
             return {"status" : "failed", "message" : "no detectors defined"}
 
@@ -49,18 +47,17 @@ class BrokerManager(object):
             return {"status" : "failed", "message" : "no detectors defined"}
 
 
-        def make_pedestal_run(detectors_name=detectors, rate=rate_multiplicator, request=request, remote_ip=remote_ip):
+        def make_pedestal_run(detectors_name=detectors, rate=rate_multiplicator):
             take_pedestal(detectors_name=detectors, rate=rate_multiplicator)
-#            message = self.retrieve(request=request, remote_ip=remote_ip)
-#            sleep(1)
             return
 
-        task_thread = Thread(target=make_pedestal_run, kwargs={'detectors_name': detectors , 'rate' : rate_multiplicator, 'request' : request, 'remote_ip' : remote_ip})
+        task_thread = Thread(target=make_pedestal_run, kwargs={'detectors_name': detectors , 'rate' : rate_multiplicator})
         task_thread.setDaemon(True)
         task_thread.start()
 
         time_to_wait = PEDESTAL_FRAMES/100*rate_multiplicator+10
-        return {"status" : "ok", "message" : f"will do a pedestal now, wait at least {time_to_wait} seconds", "stop_pulseid": request["stop_pulseid"]}
+        stop_pulseid = int(request["start_pulseid"])+PEDESTAL_FRAMES*rate_multiplicator
+        return {"status" : "ok", "message" : f"will do a pedestal now, wait at least {time_to_wait} seconds", "stop_pulseid": stop_pulseid}
 
 
     def retrieve(self, request=None, remote_ip=None, beamline_force=None):
