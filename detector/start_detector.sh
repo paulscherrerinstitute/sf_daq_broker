@@ -31,6 +31,9 @@ case ${DETECTOR} in
 'JF04')
   D=4
   ;;
+'JF03')
+  D=3
+  ;;
 'JF09')
   D=9
   ;;
