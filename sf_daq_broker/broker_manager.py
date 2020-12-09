@@ -4,7 +4,6 @@ import json
 from sf_daq_broker import config
 import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker.utils import get_writer_request
-from sf_daq_broker.detector.pedestal import take_pedestal
 
 import os
 from subprocess import Popen
@@ -34,29 +33,33 @@ class BrokerManager(object):
         if "start_pulseid" not in request:
             return {"status" : "failed", "message" : "aaa no start pluseid provided in request parameters"}
 
-        rate_multiplicator = 1
-        if "rate_multiplicator" in request:
-            rate_multiplicator = request["rate_multiplicator"]
+        rate_multiplicator = request.get("rate_multiplicator", 1)
 
         if "detectors" not in request:
             return {"status" : "failed", "message" : "no detectors defined"}
 
-        detectors = request["detectors"].keys()
+        detectors = list(request["detectors"].keys())
 
         if len(detectors) < 1:
             return {"status" : "failed", "message" : "no detectors defined"}
 
-
-        def make_pedestal_run(detectors_name=detectors, rate=rate_multiplicator):
-            take_pedestal(detectors_name=detectors, rate=rate_multiplicator)
-            return
-
-        task_thread = Thread(target=make_pedestal_run, kwargs={'detectors_name': detectors , 'rate' : rate_multiplicator})
-        task_thread.setDaemon(True)
-        task_thread.start()
+        stop_pulseid = int(request["start_pulseid"])+PEDESTAL_FRAMES*rate_multiplicator
+        pedestal_request = {"detectors": detectors, 
+                            "rate_multiplicator": rate_multiplicator,
+                            "writer_type": broker_config.TAG_PEDESTAL, 
+                            "channels": None, 
+                            "start_pulse_id": request["start_pulseid"],
+                            "stop_pulse_id": stop_pulseid,
+                            "output_file": None,
+                            "run_log_file": None,
+                            "metadata": None,
+                            "timestamp": None
+                           }
+        self.broker_client.open()
+        self.broker_client.send(pedestal_request)
+        self.broker_client.close()
 
         time_to_wait = PEDESTAL_FRAMES/100*rate_multiplicator+10
-        stop_pulseid = int(request["start_pulseid"])+PEDESTAL_FRAMES*rate_multiplicator
         return {"status" : "ok", "message" : f"will do a pedestal now, wait at least {time_to_wait} seconds", "stop_pulseid": stop_pulseid}
 
 

@@ -8,8 +8,9 @@ STATUS_EXCHANGE = "status"
 
 DEFAULT_QUEUE = "write_request"
 
-# Name of the queue for bsread write requests.
+# Name of the queue for rabbitmq requests.
 TAG_DATABUFFER = "databuffer"
 TAG_IMAGEBUFFER = "imagebuffer"
 TAG_EPICS = "epics"
 TAG_DATA3BUFFER = "data3buffer"
+TAG_PEDESTAL = "pedestal"

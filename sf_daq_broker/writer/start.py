@@ -13,13 +13,17 @@ import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker.utils import get_data_api_request
 from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_from_databuffer, write_from_databuffer_api3
 from sf_daq_broker.writer.epics_writer import write_epics_pvs
+from sf_daq_broker.detector.pedestal import take_pedestal
 
 _logger = logging.getLogger("broker_writer")
 
 
 def audit_failed_write_request(write_request):
 
-    original_output_file = write_request.get("output_file", "output_file_not_specified")
+    original_output_file = write_request.get("output_file", None)
+    if original_output_file is None:
+        return
+
     output_file = original_output_file + ".err"
 
     try:
@@ -33,6 +37,9 @@ def audit_failed_write_request(write_request):
 
 
 def wait_for_delay(request_timestamp):
+
+    if request_timestamp is None:
+        return
 
     current_timestamp = time()
     # sleep time = target sleep time - time that has already passed.
@@ -87,7 +94,7 @@ def process_request(request):
             _logger.info("Output file set to /dev/null. Skipping request.")
             return
 
-        if not channels:
+        if not channels and writer_type != broker_config.TAG_PEDESTAL:
             _logger.info("No channels requested. Skipping request.")
             return
 
@@ -113,10 +120,15 @@ def process_request(request):
             _logger.info("Using epics writer.")
             write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, channels)
 
+        elif writer_type == broker_config.TAG_PEDESTAL:
+            _logger.info("Doing pedestal.")
+            take_pedestal(detectors_name=request.get("detectors", []), rate=request.get("rate_multiplicator", 1))
+
         _logger.info("Finished. Took %s seconds to complete request." % (time() - start_time))
 
-        _logger.removeHandler(file_handler)
-        logger_data_api.removeHandler(file_handler)
+        if file_handler:
+            _logger.removeHandler(file_handler)
+            logger_data_api.removeHandler(file_handler)
 
     except Exception:
         audit_failed_write_request(request)
