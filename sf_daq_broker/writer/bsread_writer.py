@@ -36,7 +36,6 @@ def write_from_databuffer(data_api_request, output_file, metadata):
 
     response = requests.post(url=config.DATA_API_QUERY_ADDRESS, json=new_data_api_request, timeout=1000)
     data = json.loads(response.content)
-
     if not data:
         raise ValueError("Received data from data_api is empty.")
 

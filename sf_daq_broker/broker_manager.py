@@ -121,9 +121,14 @@ class BrokerManager(object):
         if not os.path.exists(path_to_pgroup):
             return {"status" : "failed", "message" : f'pgroup directory {path_to_pgroup} not reachable'}
 
+        if "directory_name" in request and request["directory_name"] is not None:
+            # happened already that directory name were made with spaces, which make problem to propagate to linux scripts
+            request["directory_name"] = request["directory_name"].replace(" ","_")
+            # remove possibility to reffer to directory name with ".." (potentially allowing to write to another pgroup)
+            request["directory_name"] = request["directory_name"].replace("..","_")
+
         full_path = path_to_pgroup
         if "directory_name" in request and request["directory_name"] is not None:
-            # TODO cleanup directory_name from request to remove possibility to write to another pgroup folder
             full_path = path_to_pgroup+request["directory_name"]
 
 # TODO : put in in config            
