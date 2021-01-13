@@ -1,0 +1,6 @@
+[[inputs.exec]]
+#  name_override = "daqbuffer"
+  timeout = "10s"
+  interval = "10s"
+  data_format = "influx"
+  commands = ["sudo /usr/local/bin/telegraph_feed.sh JF06T32V02"]
