@@ -30,6 +30,6 @@
     - name: install check for changes in configuration file script
       template:
           src: templates/check_config_changed.sh
-          dest: /home/dbe/service_scripts/check_config_changed-test.sh
+          dest: /home/dbe/service_scripts/check_config_changed.sh
           mode: '0755'
 
