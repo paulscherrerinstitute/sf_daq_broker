@@ -13,13 +13,12 @@ NM=`echo ${DETECTOR} | cut -c 6-7`
 
 NM=`expr ${NM} - 1`
 
-#NM=01
-
-for SERVICE in writer worker
+for SERVICE in udp_recv buffer_writer
 do
     for m in `seq -w 00 ${NM}`
     do
-         journalctl -u JF${DS}-buffer-${SERVICE}@${m} -n 1 | tail -1 | awk -F ': ' '{print $2}' | sed 's/-/_/g'
+         journalctl -u JF${DS}-${SERVICE}-worker@${m} -n 1 | tail -1 | awk -F ': ' '{print $2}' | sed 's/-/_/g' | grep "^jf"
     done
 done
 
+journalctl -u JF${DS}-stream2vis -n 1 | tail -1 | awk -F ': ' '{print $2}' | sed 's/-/_/g' | grep "^sf"

@@ -12,3 +12,8 @@ ansible-playbook daq4.yml
 
 5. clean daq receiver machine from all services, files, installation
 ansible-playbook --extra-vars "host=sf_daq_alvra" clean_receiver_daq.yml
+
+
+To install ram-buffer version of the receiver:
+ansible-playbook --extra-vars "host=sf_daq_alvra" install_sf_daq_buffer.ram-buffer.yml
+ansible-playbook daq4.ram-buffer.yml
