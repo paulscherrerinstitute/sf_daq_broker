@@ -23,6 +23,6 @@ envtest=$(conda env list | grep ${CONDA_ENV_NAME})
 
 if [ $? != 0 ]; then
   echo "Creating the ${CONDA_ENV_NAME} environment"
-  conda create -n vis -y -c paulscherrerinstitute -c conda-forge streamvis
+  conda create -n vis -y -c paulscherrerinstitute -c conda-forge streamvis={{ streamvis_version }}
 fi
 

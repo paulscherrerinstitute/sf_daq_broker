@@ -6,5 +6,5 @@ SERVICE={{ detector }}-stream
 
 /home/dbe/git/sf_daq_buffer/scripts/check_config_changed.sh ${CONFIG} ${SERVICE} &
 
-taskset -c ${coreAssociated} /usr/local/bin/sf_stream ${CONFIG}
+taskset -c ${coreAssociated} /home/dbe/bin/sf_stream ${CONFIG}
 

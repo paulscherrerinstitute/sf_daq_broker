@@ -1,0 +1,14 @@
+- name: clean daq machine from all receiver services
+  hosts: '{{ host }}'
+  become: true
+  tasks:
+    - name: stop, disable and remove services
+      shell: |
+          systemctl stop JF06*
+          rm -rf /etc/systemd/system/multi-user.target.wants/JF*
+          rm -rf /etc/systemd/system/JF*
+          rm -rf /home/dbe/git /home/dbe/miniconda3 /home/dbe/service_scripts /home/dbe/bin
+
+          
+  
+

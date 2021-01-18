@@ -1,0 +1,14 @@
+1. clean daq machine from not proper services:
+ansible-playbook --extra-vars "host=sf_daq_maloja" clean_old_services.yml
+
+2. install sf_daq_buffer on receiver machines
+ansible-playbook --extra-vars "host=sf_daq_alvra" install_sf_daq_buffer.yml
+
+3. install streamvis in receiver machines
+ansible-playbook --extra-vars "host=sf_daq_alvra" install_streamvis.yml
+
+4. configure daq machine
+ansible-playbook daq4.yml
+
+5. clean daq receiver machine from all services, files, installation
+ansible-playbook --extra-vars "host=sf_daq_alvra" clean_receiver_daq.yml

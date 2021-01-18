@@ -1,0 +1,55 @@
+
+- name: install jf06 receiver services on daq4
+  hosts: sf_daq_test
+  become: true
+
+  vars:
+      detector: JF06
+      detector_full_name: JF06T32V02
+      visualisation_cores: 43,44
+      visualisation_view: default16m
+      alias_visualisation: sf-daq-alvra
+      incoming_data_port: 9006
+      visualisation_port: 5006
+      visualisation_title: 16M_Jungfrau_Alvra
+      stream_cores: 40,41,42
+      stream_config: stream-{{ detector }}.json.daq4
+      last_module_number: 31
+      cores_receivers: 38 38 39 39 13 13 14 14 15 15 16 16 17 17 18 18 19 19 20 20 21 21 33 33 34 34 35 35 36 36 37 37
+      initial_udp_port: 50060
+
+  tasks:
+    - name: install visualisation script for detector
+      become_user: dbe
+      template:
+          src: templates/streamvis.sh
+          dest: /home/dbe/service_scripts/{{ detector }}-vis.sh
+
+    - name: install stream script for detector
+      become_user: dbe
+      template:
+          src: templates/stream.sh
+          dest: /home/dbe/service_scripts/{{ detector }}-stream.sh
+
+    - name: install buffer script for detector
+      become_user: dbe
+      template:
+          src: templates/buffer-worker.sh
+          dest: /home/dbe/service_scripts/{{ detector }}-buffer-worker.sh
+
+    - name: install service files for all services
+      become_user: root
+      template: src={{item.src}} dest={{item.dest}}
+      with_items:
+      - { src: 'templates/buffer.service',        dest: '/etc/systemd/system/{{ detector }}-buffer.service' }
+      - { src: 'templates/buffer-worker.service', dest: '/etc/systemd/system/{{ detector }}-buffer-worker@.service' }
+      - { src: 'templates/stream.service',        dest: '/etc/systemd/system/{{ detector }}-stream.service' }
+      - { src: 'templates/streamvis.service',     dest: '/etc/systemd/system/{{ detector }}-vis.service' }
+
+    - name: start detector services
+      systemd: state=started name={{item.name}} daemon_reload=yes
+      with_items:
+      - { name: '{{ detector }}-buffer' }
+      - { name: '{{ detector }}-stream' }
+      - { name: '{{ detector }}-vis' }
+
