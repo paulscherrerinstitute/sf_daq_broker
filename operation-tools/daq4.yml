@@ -1,22 +1,23 @@
 
-- name: install jf06 receiver services on daq4
+- name: install receiver services on daq4 for JF06T32V02
   hosts: sf_daq_test
   become: true
 
   vars:
-      detector: JF06
-      detector_full_name: JF06T32V02
-      visualisation_cores: 43,44
-      visualisation_view: default16m
-      alias_visualisation: sf-daq-alvra
-      incoming_data_port: 9006
-      visualisation_port: 5006
-      visualisation_title: 16M_Jungfrau_Alvra
-      stream_cores: 40,41,42
+      detector: "{{ JF06_detector_short_name }}"
+      detector_full_name: "{{ JF06_detector_full_name }}"
+      visualisation_view: "{{ JF06_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF06_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF06_visualisation_port }}"
+      visualisation_title: "{{ JF06_visualisation_title }}"
+      last_module_number: "{{ JF06_last_module_number }}"
+      initial_udp_port: "{{ JF06_initial_udp_port }}"
+
       stream_config: stream-{{ detector }}.json.daq4
-      last_module_number: 31
+      visualisation_alias: sf-daq-alvra
+      visualisation_cores: 43,44
+      stream_cores: 40,41,42
       cores_receivers: 38 38 39 39 13 13 14 14 15 15 16 16 17 17 18 18 19 19 20 20 21 21 33 33 34 34 35 35 36 36 37 37
-      initial_udp_port: 50060
 
   tasks:
     - name: install visualisation script for detector

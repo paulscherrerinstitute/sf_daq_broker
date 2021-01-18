@@ -4,19 +4,20 @@
   become: true
 
   vars:
-      detector: JF06
-      detector_full_name: JF06T32V02
-      visualisation_cores: 35,36
-      visualisation_view: default16m
-      alias_visualisation: sf-daq-alvra
-      incoming_data_port: 9006
-      visualisation_port: 5006
-      visualisation_title: 16M_Jungfrau_Alvra
-      stream_cores: 22,23,24
+      detector: "{{ JF06_detector_short_name }}"
+      detector_full_name: "{{ JF06_detector_full_name }}"
+      visualisation_view: "{{ JF06_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF06_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF06_visualisation_port }}"
+      visualisation_title: "{{ JF06_visualisation_title }}"
+      last_module_number: "{{ JF06_last_module_number }}"
+      initial_udp_port: "{{ JF06_initial_udp_port }}"
+
       stream_config: stream-{{ detector }}.json
-      last_module_number: 31
+      visualisation_alias: sf-daq-alvra
+      visualisation_cores: 35,36
+      stream_cores: 22,23,24
       cores_receivers: 4 4 4 4 5 5 5 5 6 6 6 6 7 7 7 7 8 8 8 8 9 9 9 9 10 10 10 10 11 11 11 11
-      initial_udp_port: 50060
 
   tasks:
     - name: install visualisation script for detector

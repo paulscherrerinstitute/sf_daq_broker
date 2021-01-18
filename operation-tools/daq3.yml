@@ -4,19 +4,20 @@
   become: true
 
   vars:
-      detector: JF01
-      detector_full_name: JF01T03V01
-      visualisation_cores: 17,18
-      visualisation_view: bernina
-      alias_visualisation: sf-daq-bernina
-      incoming_data_port: 9001
-      visualisation_port: 5001
-      visualisation_title: 1p5M
-      stream_cores: 24
+      detector: "{{ JF01_detector_short_name }}"
+      detector_full_name: "{{ JF01_detector_full_name }}"
+      visualisation_view: "{{ JF01_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF01_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF01_visualisation_port }}"
+      visualisation_title: "{{ JF01_visualisation_title }}"
+      last_module_number: "{{ JF01_last_module_number }}"
+      initial_udp_port: "{{ JF01_initial_udp_port }}"
+
       stream_config: stream-{{ detector }}.json
-      last_module_number: 02
+      visualisation_alias: sf-daq-bernina
+      visualisation_cores: 17,18
+      stream_cores: 24
       cores_receivers: 12 12 12
-      initial_udp_port: 50010
 
   tasks:
     - name: install visualisation script for detector
