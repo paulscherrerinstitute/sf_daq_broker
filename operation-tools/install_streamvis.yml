@@ -1,0 +1,18 @@
+- name: install streamvis
+  hosts: '{{ host }}'
+  become: true
+  become_user: dbe
+  vars:
+      streamvis_version: 1.2.0
+  tasks:
+    - name: Create service directory
+      file:
+        path: /home/dbe/service_scripts
+        state: directory
+    - name: install setup script
+      template:
+          src: templates/streamvis_setup.sh
+          dest: /home/dbe/service_scripts/streamvis_setup.sh 
+          mode: '0755'
+    - name: execute setup script
+      shell: /home/dbe/service_scripts/streamvis_setup.sh

@@ -1,0 +1,11 @@
+[Unit]
+Description=All UDP receiver instances of {{ detector }}
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sh /home/dbe/service_scripts/{{ detector }}-udp_recv-worker.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+
