@@ -54,3 +54,59 @@
       - { name: '{{ detector }}-stream' }
       - { name: '{{ detector }}-vis' }
 
+- name: install receiver services on daq3 for JF03
+  hosts: sf_daq_bernina
+  become: true
+
+  vars:
+      detector: "{{ JF03_detector_short_name }}"
+      detector_full_name: "{{ JF03_detector_full_name }}"
+      visualisation_view: "{{ JF03_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF03_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF03_visualisation_port }}"
+      visualisation_title: "{{ JF03_visualisation_title }}"
+      last_module_number: "{{ JF03_last_module_number }}"
+      initial_udp_port: "{{ JF03_initial_udp_port }}"
+
+      stream_config: stream-{{ detector }}.json
+      visualisation_alias: sf-daq-bernina
+      visualisation_cores: 19
+      stream_cores: 25
+      cores_receivers: 13
+
+  tasks:
+    - name: install visualisation script for detector
+      become_user: dbe
+      template:
+          src: templates/streamvis.sh
+          dest: /home/dbe/service_scripts/{{ detector }}-vis.sh
+
+    - name: install stream script for detector
+      become_user: dbe
+      template:
+          src: templates/stream.sh
+          dest: /home/dbe/service_scripts/{{ detector }}-stream.sh
+
+    - name: install buffer script for detector
+      become_user: dbe
+      template:
+          src: templates/buffer-worker.sh
+          dest: /home/dbe/service_scripts/{{ detector }}-buffer-worker.sh
+
+    - name: install service files for all services
+      become_user: root
+      template: src={{item.src}} dest={{item.dest}}
+      with_items:
+      - { src: 'templates/buffer.service',        dest: '/etc/systemd/system/{{ detector }}-buffer.service' }
+      - { src: 'templates/buffer-worker.service', dest: '/etc/systemd/system/{{ detector }}-buffer-worker@.service' }
+      - { src: 'templates/stream.service',        dest: '/etc/systemd/system/{{ detector }}-stream.service' }
+      - { src: 'templates/streamvis.service',     dest: '/etc/systemd/system/{{ detector }}-vis.service' }
+
+    - name: start detector services
+      systemd: state=started name={{item.name}} daemon_reload=yes
+      with_items:
+      - { name: '{{ detector }}-buffer' }
+      - { name: '{{ detector }}-stream' }
+      - { name: '{{ detector }}-vis' }
+
+
