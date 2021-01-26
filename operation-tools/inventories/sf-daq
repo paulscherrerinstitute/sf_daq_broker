@@ -46,6 +46,26 @@ JF01_visualisation_title=1p5M
 JF01_last_module_number=02
 JF01_initial_udp_port=50010
 
+#JF02
+JF02_detector_short_name=JF02
+JF02_detector_full_name=JF02T09V02
+JF02_visualisation_incoming_data_port=9002
+JF02_visualisation_port=5002
+JF02_visualisation_view=alvra
+JF02_visualisation_title=4p5M_Alvra
+JF02_last_module_number=08
+JF02_initial_udp_port=50020
+
+#JF03
+JF03_detector_short_name=JF03
+JF03_detector_full_name=JF03T01V02
+JF03_visualisation_incoming_data_port=9003
+JF03_visualisation_port=5003
+JF03_visualisation_view=bernina
+JF03_visualisation_title=I0
+JF03_last_module_number=00
+JF03_initial_udp_port=50030
+
 #JF06
 JF06_detector_short_name=JF06
 JF06_detector_full_name=JF06T32V02
