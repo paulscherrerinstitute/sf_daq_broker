@@ -1,0 +1,17 @@
+[Unit]
+Description={{ detector }} UDP2buffer worker instance as a service, instance %i
+Requires={{ detector }}-buffer.service
+Before={{ detector }}-buffer.service
+BindsTo={{ detector }}-buffer.service
+
+[Service]
+PermissionsStartOnly=true
+Type=idle
+User=root
+ExecStart=/usr/bin/sh /home/dbe/service_scripts/{{ detector }}-buffer-worker.sh %i
+TimeoutStartSec=10
+RestartSec=1
+
+[Install]
+WantedBy={{ detector }}-buffer.service
+
