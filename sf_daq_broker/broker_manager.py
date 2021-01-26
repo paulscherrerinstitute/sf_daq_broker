@@ -237,9 +237,9 @@ class BrokerManager(object):
                            request.get("pv_list"),
                            config.OUTPUT_FILE_SUFFIX_EPICS)
 
-        send_write_request(broker_config.TAG_DATABUFFER,
-                           request.get("channels_list"),
-                           config.OUTPUT_FILE_SUFFIX_DATA_BUFFER)
+#        send_write_request(broker_config.TAG_DATABUFFER,
+#                           request.get("channels_list"),
+#                           config.OUTPUT_FILE_SUFFIX_DATA_BUFFER)
 
         send_write_request(broker_config.TAG_DATA3BUFFER,
                            request.get("channels_list"),
