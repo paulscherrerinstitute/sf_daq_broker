@@ -1,0 +1,80 @@
+
+- name: install receiver services on daq9 for JF04T01V01
+  hosts: sf_daq_maloja
+  become: true
+
+  vars:
+      detector: "{{ JF04_detector_short_name }}"
+      detector_full_name: "{{ JF04_detector_full_name }}"
+      visualisation_view: "{{ JF04_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF04_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF04_visualisation_port }}"
+      visualisation_title: "{{ JF04_visualisation_title }}"
+      last_module_number: "{{ JF04_last_module_number }}"
+      initial_udp_port: "{{ JF04_initial_udp_port }}"
+
+      detector_config: "/gpfs/photonics/swissfel/buffer/config/{{ detector_full_name }}.json"
+      visualisation_alias: sf-daq-alvra
+      visualisation_cores: 3
+      stream2vis_cores: 4
+      cores_buffer_writer: 5
+      cores_udp_recv_receivers: 6
+
+  tasks:
+    - name: install visualisation script for detector
+      become_user: dbe
+      template:
+          src: templates/streamvis.sh
+          dest: /home/dbe/service_scripts/{{ detector }}-vis.sh
+
+    - name: install stream2vis script for detector
+      become_user: dbe
+      template:
+          src: templates/stream2vis.sh
+          dest: /home/dbe/service_scripts/{{ detector }}-stream2vis.sh
+
+    - name: install buffer_writer script for detector
+      become_user: dbe
+      template:
+          src: templates/buffer_writer-worker.sh
+          dest: /home/dbe/service_scripts/{{ detector }}-buffer_writer-worker.sh
+
+    - name: install udp_recv script for detector
+      become_user: dbe
+      template:
+          src: templates/udp_recv-worker.sh
+          dest: /home/dbe/service_scripts/{{ detector }}-udp_recv-worker.sh
+
+    - name: install service files for all services
+      become_user: root
+      template: src={{item.src}} dest={{item.dest}}
+      with_items:
+      - { src: 'templates/udp_recv.service',             dest: '/etc/systemd/system/{{ detector }}-udp_recv.service' }
+      - { src: 'templates/udp_recv-worker.service',      dest: '/etc/systemd/system/{{ detector }}-udp_recv-worker@.service' }
+      - { src: 'templates/buffer_writer.service',        dest: '/etc/systemd/system/{{ detector }}-buffer_writer.service' }
+      - { src: 'templates/buffer_writer-worker.service', dest: '/etc/systemd/system/{{ detector }}-buffer_writer-worker@.service' }
+      - { src: 'templates/stream2vis.service',           dest: '/etc/systemd/system/{{ detector }}-stream2vis.service' }
+      - { src: 'templates/streamvis.service',            dest: '/etc/systemd/system/{{ detector }}-vis.service' }
+
+    - name: start detector services
+      systemd: state=started name={{item.name}} daemon_reload=yes
+      with_items:
+      - { name: '{{ detector }}-udp_recv' }
+      - { name: '{{ detector }}-buffer_writer' }
+      - { name: '{{ detector }}-stream2vis' }
+      - { name: '{{ detector }}-vis' }
+
+    - name: telegraph feeding script
+      become_user: root
+      template:
+          src: templates/telegraph_feed.sh
+          dest: /usr/local/bin/telegraph_feed.sh
+          mode: '0755'
+
+    - name: telegraph configuration
+      become_user: root
+      template:
+          src: templates/telegraph_detector.conf
+          dest: /etc/telegraf/telegraf.d/{{ detector }}_daq.conf
+
+
