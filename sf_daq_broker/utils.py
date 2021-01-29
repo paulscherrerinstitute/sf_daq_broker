@@ -50,8 +50,8 @@ def transform_range_from_pulse_id_to_timestamp(data_api_request):
         mapping_request = {'range': {'startPulseId': data_api_request["range"]["startPulseId"],
                                      'endPulseId': data_api_request["range"]["endPulseId"]+1}}
 
-        mapping_response = requests.post(url=config.DATA_API_QUERY_ADDRESS + "/mapping", json=mapping_request, timeout=10).json()
 
+        mapping_response = requests.post(url=config.DATA_API_QUERY_ADDRESS + "/mapping", json=mapping_request, timeout=10).json()
         _logger.info("Response to mapping request: %s", mapping_response)
 
         del new_data_api_request["range"]["startPulseId"]
@@ -68,3 +68,38 @@ def transform_range_from_pulse_id_to_timestamp(data_api_request):
 
     return new_data_api_request
 
+def pulse_id_to_seconds(pulse_id):
+
+    sec = 0
+    try:
+        request = requests.get(f'{config.DATA_API3_QUERY_ADDRESS}/map/pulse/{pulse_id}')
+        if request.status_code == 200:
+            sec = float(request.json())/1000000000.
+        else:
+            _logger.error(f'Problem to convert {pulse_id} to timestamp. return code {request.status_code}')
+    except Exception as e:
+        _logger.error(e)
+        raise RuntimeError("Cannot convert pulse_id to time")
+    return sec
+
+def transform_range_from_pulse_id_to_timestamp_new(data_api_request):
+
+    new_data_api_request = deepcopy(data_api_request)
+
+    try:
+        start_seconds = pulse_id_to_seconds(data_api_request["range"]["startPulseId"])
+        stop_seconds  = pulse_id_to_seconds(data_api_request["range"]["endPulseId"]+1)
+
+        if start_seconds != 0 and stop_seconds != 0 and start_seconds < stop_seconds:
+            del new_data_api_request["range"]["startPulseId"]
+            new_data_api_request["range"]["startSeconds"] = start_seconds
+            del new_data_api_request["range"]["endPulseId"]
+            new_data_api_request["range"]["endSeconds"] = stop_seconds
+        else:
+            _logger.error(f'Convertion pulse_id to time failed {start_seconds} {stop_seconds}')
+            
+    except Exception as e:
+        _logger.error(e)
+        raise RuntimeError("Failed to convert pulse_id to time")
+
+    return new_data_api_request
