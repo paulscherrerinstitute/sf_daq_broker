@@ -1,4 +1,3 @@
-from datetime import datetime
 import logging
 from time import time, sleep
 
@@ -111,6 +110,7 @@ class EpicsH5Writer(BsreadH5Writer):
 
             if dataset_type == "string" or dataset_type == "object":
                 dataset_type = h5py.special_dtype(vlen=str)
+                _logger.warning("Writing of string data not supported. Channel %s omitted." % channel_name)
                 continue
 
             global_dates = numpy.array(channel_data[2], dtype=h5py.special_dtype(vlen=str))
