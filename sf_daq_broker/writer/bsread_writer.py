@@ -107,7 +107,7 @@ def write_from_databuffer(data_api_request, output_file, metadata):
 
     start_time = time()
 
-    with BsreadH5Writer(output_file, metadata) as writer:
+    with BsreadH5Writer(output_file) as writer:
         writer.write_data(data)
 
     _logger.info("Data writing took %s seconds." % (time() - start_time))
@@ -205,7 +205,7 @@ def write_from_databuffer_api3(data_api_request, output_file, parameters):
 
 class BsreadH5Writer(object):
 
-    def __init__(self, output_file, metadata):
+    def __init__(self, output_file):
 
         self.output_file = output_file
 
@@ -215,20 +215,11 @@ class BsreadH5Writer(object):
         self.file = h5py.File(self.output_file, "w")
         _logger.info("File %s created." % self.output_file)
 
-        self._create_metadata_datasets(metadata)
-
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
-
-    def _create_metadata_datasets(self, metadata):
-
-        _logger.debug("Initializing metadata datasets.")
-
-        for key, value in metadata.items():
-            self.file.create_dataset(key, data=numpy.string_(value))
 
     def _build_datasets_data(self, json_data):
 
@@ -312,10 +303,10 @@ class BsreadH5Writer(object):
         datasets_data = self._build_datasets_data(json_data)
 
         for name, data in datasets_data.items():
-            self.file["/data/" + name + "/pulse_id"] = data["pulse_id"]
-            self.file["/data/" + name + "/global_date"] = data["global_date"]
-            self.file["/data/" + name + "/data"] = data["data"]
-            self.file["/data/" + name + "/is_data_present"] = data["is_data_present"]
+            self.file[name + "/pulse_id"] = data["pulse_id"]
+            self.file[name + "/global_date"] = data["global_date"]
+            self.file[name + "/data"] = data["data"]
+            self.file[name + "/is_data_present"] = data["is_data_present"]
 
     def close(self):
         self.file.close()

@@ -35,7 +35,7 @@ def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_
 
     start_time = time()
 
-    with EpicsH5Writer(output_file, metadata) as writer:
+    with EpicsH5Writer(output_file) as writer:
         writer.write_data(data, start_seconds)
 
     _logger.info("Data writing took %s seconds." % (time() - start_time))
