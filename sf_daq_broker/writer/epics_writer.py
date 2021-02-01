@@ -7,12 +7,12 @@ import h5py
 import requests
 import numpy
 
+from sf_daq_broker.config import DATA_API_QUERY_ADDRESS
 from sf_daq_broker.utils import pulse_id_to_seconds
 from sf_daq_broker.writer.bsread_writer import BsreadH5Writer
 
 _logger = logging.getLogger("broker_writer")
 
-DATA_API_QUERY_URL = "https://data-api.psi.ch/sf/query"
 N_RETRY_LIMIT = 5
 N_RETRY_TIMEOUT = 10
 
@@ -56,7 +56,7 @@ def get_data(channel_list, start_seconds=None, stop_seconds=None):
     _logger.debug("Data-api query: %s" % query)
 
     for i in range(N_RETRY_LIMIT):
-        response = requests.post(DATA_API_QUERY_URL, json=query)
+        response = requests.post(DATA_API_QUERY_ADDRESS, json=query)
 
         # Check for successful return of data.
         if response.status_code != 200:
@@ -102,7 +102,7 @@ class EpicsH5Writer(BsreadH5Writer):
 
         return data
 
-    def write_data(self, json_data, start_date):
+    def write_data(self, json_data, start_seconds):
         data = self._group_data_by_channel(json_data)
 
         for channel_name, channel_data in data.items():
@@ -118,7 +118,7 @@ class EpicsH5Writer(BsreadH5Writer):
             values = numpy.array(channel_data[3], dtype=dataset_type)
 
             # x == x is False for NaN values. Nan values are marked as not changed.
-            change_in_interval = [dateutil.parser.parse(x) > start_date
+            change_in_interval = [dateutil.parser.parse(x).timestamp() > start_seconds
                                   if x == x else False for x in global_dates]
 
             dataset_base = "/data/" + channel_name
