@@ -3,6 +3,7 @@ import os
 import json
 from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer,write_from_databuffer_api3,write_from_databuffer
 from sf_daq_broker.utils import get_data_api_request
+from sf_daq_broker.writer.epics_writer import write_epics_pvs
 import logging
 from sf_daq_broker import config
 from datetime import datetime
@@ -13,7 +14,7 @@ logger.setLevel("INFO")
 #logger.setLevel("DEBUG")
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--source", default="image", type=str, help="retrieve from image or data buffer")
+parser.add_argument("--source", default="image", type=str, help="retrieve from image or data buffer (possible values data, data_api3, image, epics)")
 parser.add_argument("--run_info", default=None, type=str, help="run_info json file")
 args = parser.parse_args()
 
@@ -22,6 +23,8 @@ if args.source == "image":
     source = "image"
 elif args.source == "data_api3":
     source = "data_api3"
+elif args.source == "epics":
+    source = "epics"
  
 if args.run_info is None:
     print("provide run info file")
@@ -39,11 +42,16 @@ if source == "image":
         print("No cameras defined in run_info file")
         exit(1)
     channels = run_info.get("camera_list", [])
-else:
+elif source == "data" or source == "data_api3":
     if "channels_list" not in run_info:
         print("No BS channels defined in run_info file")
         exit(1)
     channels = run_info.get("channels_list", [])
+else:
+    if "pv_list" not in run_info:
+        print("No PV channels defined in run_info file")
+        exit(1)
+    channels = run_info.get("pv_list", [])
 
 start_pulse_id = run_info["start_pulseid"]
 stop_pulse_id = run_info["stop_pulseid"]
@@ -61,20 +69,29 @@ if source == "image":
     output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/{run_info["directory_name"]}/run_{run_info["run_number"]:06}.CAMERAS.h5.2'
 
     write_from_imagebuffer(data_request, output_file, parameters)
+elif source == "data_api3":
+    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/{run_info["directory_name"]}/run_{run_info["run_number"]:06}.BSDATA.h5'
+
+    write_from_databuffer_api3(data_request, output_file, parameters)
+elif source == "data":
+    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/{run_info["directory_name"]}/run_{run_info["run_number"]:06}.BSREAD.h5'
+
+    metadata = {
+                 "general/user": run_info["pgroup"],
+                 "general/process": __name__,
+                 "general/created": str(datetime.now()),
+                 "general/instrument": run_info["beamline"]
+    }
+
+    write_from_databuffer(get_data_api_request(channels, start_pulse_id, stop_pulse_id), output_file, metadata)
 else:
-    if source == "data_api3":
-        output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/{run_info["directory_name"]}/run_{run_info["run_number"]:06}.BSDATA.h5'
+    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/{run_info["directory_name"]}/run_{run_info["run_number"]:06}.PVCHANNELS.h5'
 
-        write_from_databuffer_api3(data_request, output_file, parameters)
-    else:
-        output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/{run_info["directory_name"]}/run_{run_info["run_number"]:06}.BSREAD.h5'
+    metadata = {
+                 "general/user": run_info["pgroup"],
+                 "general/process": __name__,
+                 "general/created": str(datetime.now()),
+                 "general/instrument": run_info["beamline"]
+    }
 
-        metadata = {
-                     "general/user": run_info["pgroup"],
-                     "general/process": __name__,
-                     "general/created": str(datetime.now()),
-                     "general/instrument": run_info["beamline"]
-        }
-
-        write_from_databuffer(get_data_api_request(channels, start_pulse_id, stop_pulse_id), output_file, metadata)
-
+    write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, channels)
