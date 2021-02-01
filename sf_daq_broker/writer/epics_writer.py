@@ -85,13 +85,13 @@ class EpicsH5Writer(BsreadH5Writer):
         for channel_data in raw_data:
             channel_name = channel_data["channel"]["name"]
 
-            timestamp_data = [int(float(x["globalSeconds"])*(10**9)) for x in channel_data["data"]]
+            timestamp_data = [int(float(x["globalSeconds"]) * (10 ** 9)) for x in channel_data["data"]]
             value_data = [x["value"] for x in channel_data["data"]]
             type_data = [x["type"] for x in channel_data["data"]]
             shape_data = [x["shape"] for x in channel_data["data"]]
 
             if len(timestamp_data) == 0 or len(value_data) == 0:
-                _logger.error("Data for PV %s does not exist.")
+                _logger.error(f"Data for PV {channel_name} does not exist.")
                 timestamp_data = []
                 value_data = [float("nan")]
                 type_data = ["float64"]
@@ -127,6 +127,9 @@ class EpicsH5Writer(BsreadH5Writer):
 
             # x == x is False for NaN values. Nan values are marked as not changed.
             change_in_interval = [x > start_seconds if x == x else False for x in timestamps]
+
+            if not (change_in_interval[0] is False and all((x is True for x in change_in_interval[1:]))):
+                _logger.error(f"Change in interval for PV {channel_name} is wrong. Problematic data.")
 
             dataset_base = "/" + channel_name
 
