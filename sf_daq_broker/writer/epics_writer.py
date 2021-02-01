@@ -19,7 +19,7 @@ N_RETRY_TIMEOUT = 10
 def verify_data(pv_list, processed_data):
     for pv in pv_list:
         if pv not in processed_data:
-            _logger.error(f"Data for PV {pv} not present.")
+            _logger.error(f"PV {pv} not present.")
 
 
 def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_pvs):
@@ -129,9 +129,10 @@ class EpicsH5Writer(BsreadH5Writer):
             change_in_interval = [x > start_seconds if x == x else False for x in timestamps]
 
             # TODO: Ugly, fix.
-            if not (change_in_interval[0] is False and
-                    (len(change_in_interval) == 1 or all((x is True for x in change_in_interval[1:])))):
-                _logger.error(f"Change in interval for PV {channel_name} is wrong. Problematic data.")
+            if change_in_interval:
+                if not (change_in_interval[0] is False and
+                        all((x is True for x in change_in_interval[1:]))):
+                    _logger.error(f"Change in interval for PV {channel_name} is wrong. Problematic data.")
 
             dataset_base = "/" + channel_name
 
