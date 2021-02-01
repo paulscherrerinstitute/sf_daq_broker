@@ -128,7 +128,9 @@ class EpicsH5Writer(BsreadH5Writer):
             # x == x is False for NaN values. Nan values are marked as not changed.
             change_in_interval = [x > start_seconds if x == x else False for x in timestamps]
 
-            if not (change_in_interval[0] is False and all((x is True for x in change_in_interval[1:]))):
+            # TODO: Ugly, fix.
+            if not (change_in_interval[0] is False and
+                    (len(change_in_interval) == 1 or all((x is True for x in change_in_interval[1:])))):
                 _logger.error(f"Change in interval for PV {channel_name} is wrong. Problematic data.")
 
             dataset_base = "/" + channel_name
