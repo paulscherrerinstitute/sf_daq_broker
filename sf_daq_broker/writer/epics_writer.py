@@ -91,6 +91,7 @@ class EpicsH5Writer(BsreadH5Writer):
             shape_data = [x["shape"] for x in channel_data["data"]]
 
             if len(timestamp_data) == 0 or len(value_data) == 0:
+                _logger.error("Data for PV %s does not exist.")
                 timestamp_data = []
                 value_data = [float("nan")]
                 type_data = ["float64"]
