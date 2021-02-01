@@ -19,7 +19,7 @@ N_RETRY_TIMEOUT = 10
 def verify_data(pv_list, processed_data):
     for pv in pv_list:
         if pv not in processed_data:
-            _logger.error("Data for PV %s not present." % pv)
+            _logger.error(f"Data for PV {pv} not present.")
 
 
 def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_pvs):
