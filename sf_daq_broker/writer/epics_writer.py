@@ -130,9 +130,11 @@ class EpicsH5Writer(BsreadH5Writer):
 
             # TODO: Ugly, fix.
             if change_in_interval:
-                if not (change_in_interval[0] is False and
-                        all((x is True for x in change_in_interval[1:]))):
-                    _logger.error(f"Change in interval for PV {channel_name} is wrong. Problematic data.")
+                if change_in_interval[0] is True:
+                    _logger.error(f"PV {channel_name} does not have a data point before start of acquisition.")
+
+                if any((x is False for x in change_in_interval[1:])):
+                    _logger.error(f"PV {channel_name} has corrupted data.")
 
             dataset_base = "/" + channel_name
 
