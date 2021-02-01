@@ -106,7 +106,6 @@ class EpicsH5Writer(BsreadH5Writer):
 
         for channel_name, channel_data in data.items():
             dataset_type = channel_data[0]
-            print(channel_name, channel_data[1])
 
             if dataset_type == "string" or dataset_type == "object":
                 dataset_type = h5py.special_dtype(vlen=str)
