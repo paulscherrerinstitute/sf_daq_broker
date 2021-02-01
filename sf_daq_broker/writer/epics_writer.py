@@ -16,6 +16,12 @@ N_RETRY_LIMIT = 5
 N_RETRY_TIMEOUT = 10
 
 
+def verify_data(pv_list, processed_data):
+    for pv in pv_list:
+        if pv not in processed_data:
+            _logger.error("Data for PV %s not present." % pv)
+
+
 def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_pvs):
     _logger.info("Writing %s from start_pulse_id %s to stop_pulse_id %s."
                  % (output_file, start_pulse_id, stop_pulse_id))
@@ -36,9 +42,11 @@ def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_
     start_time = time()
 
     with EpicsH5Writer(output_file) as writer:
-        writer.write_data(data, start_seconds)
+        processed_data = writer.write_data(data, start_seconds)
 
     _logger.info("Data writing took %s seconds." % (time() - start_time))
+
+    verify_data(epics_pvs, processed_data)
 
 
 def get_data(channel_list, start_seconds=None, stop_seconds=None):
@@ -130,3 +138,5 @@ class EpicsH5Writer(BsreadH5Writer):
 
             self.file.create_dataset(dataset_base + "/changed_in_interval",
                                      data=change_in_interval)
+
+        return data
