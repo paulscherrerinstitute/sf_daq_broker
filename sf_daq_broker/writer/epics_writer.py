@@ -50,7 +50,7 @@ def get_data(channel_list, start_seconds=None, stop_seconds=None):
                        "startExpansion": True,
                        "endInclusive": True},
              "channels": channel_list,
-             "fields": ["globalDate", "value", "type", "shape"]}
+             "fields": ["globalSeconds", "value", "type", "shape"]}
 
     _logger.debug("Data-api query: %s" % query)
 
@@ -77,13 +77,13 @@ class EpicsH5Writer(BsreadH5Writer):
         for channel_data in raw_data:
             channel_name = channel_data["channel"]["name"]
 
-            global_date_data = [x["globalDate"] for x in channel_data["data"]]
+            timestamp_data = [int(x["globalSeconds"]*10**9) for x in channel_data["data"]]
             value_data = [x["value"] for x in channel_data["data"]]
             type_data = [x["type"] for x in channel_data["data"]]
             shape_data = [x["shape"] for x in channel_data["data"]]
 
-            if len(global_date_data) == 0 or len(value_data) == 0:
-                global_date_data = []
+            if len(timestamp_data) == 0 or len(value_data) == 0:
+                timestamp_data = []
                 value_data = [float("nan")]
                 type_data = ["float64"]
                 shape_data = [[1]]
@@ -97,7 +97,7 @@ class EpicsH5Writer(BsreadH5Writer):
             if any((x != channel_shape for x in shape_data)):
                 raise RuntimeError("Channel %s data shape changed during scan" % channel_name)
 
-            data[channel_name] = [channel_type, channel_shape, global_date_data, value_data]
+            data[channel_name] = [channel_type, channel_shape, timestamp_data, value_data]
 
         return data
 
@@ -113,22 +113,21 @@ class EpicsH5Writer(BsreadH5Writer):
                 _logger.warning("Writing of string data not supported. Channel %s omitted." % channel_name)
                 continue
 
-            global_dates = numpy.array(channel_data[2], dtype=h5py.special_dtype(vlen=str))
+            timestamps = numpy.array(channel_data[2], dtype=h5py.special_dtype(vlen=str))
 
             values = numpy.array(channel_data[3], dtype=dataset_type)
 
             # x == x is False for NaN values. Nan values are marked as not changed.
-            change_in_interval = [dateutil.parser.parse(x).timestamp() > start_seconds
-                                  if x == x else False for x in global_dates]
+            change_in_interval = [x > start_seconds if x == x else False for x in timestamps]
 
-            dataset_base = "/data/" + channel_name
+            dataset_base = "/" + channel_name
 
             self.file.create_dataset(dataset_base + "/data",
                                      data=values,
                                      dtype=dataset_type)
 
-            self.file.create_dataset(dataset_base + "/global_date",
-                                     data=global_dates)
+            self.file.create_dataset(dataset_base + "/timestamp",
+                                     data=timestamps)
 
             self.file.create_dataset(dataset_base + "/changed_in_interval",
                                      data=change_in_interval)
