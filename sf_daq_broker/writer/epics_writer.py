@@ -112,7 +112,7 @@ class EpicsH5Writer(BsreadH5Writer):
                 _logger.warning("Writing of string data not supported. Channel %s omitted." % channel_name)
                 continue
 
-            timestamps = numpy.array(channel_data[2], dtype=h5py.special_dtype(vlen=str))
+            timestamps = numpy.array(channel_data[2], dtype="int64")
 
             values = numpy.array(channel_data[3], dtype=dataset_type)
 
