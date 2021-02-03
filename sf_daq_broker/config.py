@@ -13,7 +13,7 @@ DEFAULT_AUDIT_FILENAME = "/var/log/sf_databuffer_audit.log"
 # data_api and /matching query request. If sf-data-api-02 doesn't work (broke several times), switch to official one data-api.psi.ch
 DATA_API_QUERY_ADDRESS = "http://sf-data-api-02.psi.ch/query"
 #DATA_API_QUERY_ADDRESS = "https://data-api.psi.ch/sf/query"
-IMAGE_API_QUERY_ADDRESS = ["http://172.27.0.14:8371/api/v1/query", "http://172.27.0.15:8371/api/v1/query"]
+IMAGE_API_QUERY_ADDRESS = ["http://172.27.0.14:8371/api/1/query", "http://172.27.0.15:8371/api/1/query"]
 DATA_API3_QUERY_ADDRESS = "http://sf-daqbuf-33:8371/api/1"
 EPICS_QUERY_ADDRESS = "https://data-api.psi.ch/sf"
 
