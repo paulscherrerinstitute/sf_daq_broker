@@ -1,0 +1,16 @@
+- name: install sf_daq_broker
+  hosts: '{{ host }}'
+  become: true
+  become_user: dbe
+  tasks:
+    - name: Create service directory
+      file:
+        path: /home/dbe/service_scripts
+        state: directory
+    - name: install setup script
+      template:
+          src: templates/sf_daq_broker.setup.sh
+          dest: /home/dbe/service_scripts/sf_daq_broker.setup.sh
+          mode: '0755'
+    - name: execute setup script
+      shell: /home/dbe/service_scripts/sf_daq_broker.setup.sh
