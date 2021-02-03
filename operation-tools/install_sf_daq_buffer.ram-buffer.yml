@@ -33,3 +33,10 @@
           dest: /home/dbe/service_scripts/check_config_changed.sh
           mode: '0755'
 
+    - name: install sudoers rule for telegraph
+      become_user: root
+      template:
+          src: templates/detector_monitor.sudoers
+          dest: /etc/sudoers.d/detector_monitor
+
+
