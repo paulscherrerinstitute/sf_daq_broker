@@ -56,6 +56,7 @@ export PATH=/home/dbe/miniconda3/bin:$PATH
 source /home/dbe/miniconda3/etc/profile.d/conda.sh
 conda activate sf-daq
 
+sls_detector_put ${D}-stop
 sls_detector_put ${D}-timing trigger
 sls_detector_put ${D}-triggers ${n_cycles}
 sls_detector_put ${D}-exptime 5us
