@@ -258,10 +258,11 @@ class BrokerManager(object):
                 det_start_pulse_id = 0
                 det_stop_pulse_id = stop_pulse_id
 
-                det_conversion  = request["detectors"][detector].get("conversion", False)
+                det_conversion  = request["detectors"][detector].get("adc_to_energy", False)
                 det_compression = request["detectors"][detector].get("compression", False)
+                det_number_disabled_modules = len(request["detectors"][detector].get("disabled_modules", []))
                 det_export = 0
-                if det_conversion or det_compression:
+                if det_conversion or det_compression or det_number_disabled_modules>0:
                     det_export = 1
 
                 raw_file_name = output_file_detector 
