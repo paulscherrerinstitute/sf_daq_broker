@@ -53,7 +53,7 @@ Utility to read binary Jungfrau gain maps from PSI Detectors Group and save them
 
     res = merge_gainmaps(maps, args.shape, module_shape)
 
-    f = h5py.File(args.outfile)
+    f = h5py.File(args.outfile, "w")
     dst = f.create_dataset(dst_name, data=res)
     dst.attrs["creator"] = os.getenv("USER")
     dst.attrs["date"] = datetime.now().strftime("%Y%m%d %H:%M:%S")
