@@ -11,7 +11,7 @@ fi
 
 REPO=sf_daq_buffer
 if [ ! -d /home/dbe/git/${REPO} ]; then
-  cd /home/dbe/git && git clone --branch ram_buffer https://github.com/paulscherrerinstitute/${REPO}.git
+  cd /home/dbe/git && git clone https://github.com/paulscherrerinstitute/${REPO}.git
 
   source /opt/rh/devtoolset-9/enable
   cd /home/dbe/git/${REPO} && mkdir -p build && cd build/ && cmake3 .. && make

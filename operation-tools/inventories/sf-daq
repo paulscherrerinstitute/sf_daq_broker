@@ -87,4 +87,13 @@ JF06_visualisation_title=16M_Jungfrau_Alvra
 JF06_last_module_number=31
 JF06_initial_udp_port=50060
 
+#JF06
+JF07_detector_short_name=JF07
+JF07_detector_full_name=JF07T32V01
+JF07_visualisation_incoming_data_port=9007
+JF07_visualisation_port=5007
+JF07_visualisation_view=default16m
+JF07_visualisation_title=16M_Jungfrau_Bernina
+JF07_last_module_number=31
+JF07_initial_udp_port=50100
 

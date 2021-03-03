@@ -22,3 +22,5 @@ do
 done
 
 journalctl -u JF${DS}-stream2vis -n 1 | tail -1 | awk -F ': ' '{print $2}' | sed 's/-/_/g' | grep "^sf"
+
+exit 0
