@@ -38,13 +38,13 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
         inside_file = list(data_h5py.keys())
         for channel in channels:
             if channel not in inside_file:
-                _logger.error(f'check channel {channel} not present in file')
+                _logger.error(f'check {channel} not present in file')
             else:
 
                 pulse_id_raw    = data_h5py[f'/{channel}/pulse_id'][:]
 
                 if numpy.sum(pulse_id_raw < start_pulse_id) or numpy.sum(pulse_id_raw > stop_pulse_id):
-                    _logger.error(f'check channel {channel} contains pulse_id outside of requested range')
+                    _logger.error(f'check {channel} contains pulse_id outside of requested range')
 
                 n_pulse_id_raw = len(pulse_id_raw)
 
