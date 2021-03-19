@@ -1,0 +1,136 @@
+
+- name: install receiver services on daq8 for JF06
+  hosts: sf_daq_alvra
+  become: true
+
+  vars:
+      detector: "{{ JF06_detector_short_name }}"
+      detector_full_name: "{{ JF06_detector_full_name }}"
+      visualisation_view: "{{ JF06_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF06_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF06_visualisation_port }}"
+      visualisation_title: "{{ JF06_visualisation_title }}"
+      last_module_number: "{{ JF06_last_module_number }}"
+      initial_udp_port: "{{ JF06_initial_udp_port }}"
+
+      detector_config: "/gpfs/photonics/swissfel/buffer/config/{{ detector_full_name }}.json"
+      visualisation_alias: sf-daq-alvra
+      visualisation_cores: 1,2
+      stream2vis_cores: 3
+      cores_buffer_writer: 5 5 5 5 5 5 5 5 6 6 6 6 6 6 6 6 7 7 7 7 7 7 7 7 8 8 8 8 8 8 8 8
+      cores_udp_recv_receivers: 9 9 9 9 9 9 9 9 10 10 10 10 10 10 10 10 11 11 11 11 11 11 11 11 12 12 12 12 12 12 12 12
+      cores_assembler: 4
+
+  tasks:
+    - name: install execution scripts
+      become_user: dbe
+      template: src={{item.src}} dest={{item.dest}}
+      with_items:
+      - { src: 'templates/streamvis.sh',             dest: '/home/dbe/service_scripts/{{ detector }}-vis.sh' }
+      - { src: 'templates/stream2vis.sh',            dest: '/home/dbe/service_scripts/{{ detector }}-stream2vis.sh' }
+      - { src: 'templates/buffer_writer-worker.sh',  dest: '/home/dbe/service_scripts/{{ detector }}-buffer_writer-worker.sh' }
+      - { src: 'templates/udp_recv-worker.sh',       dest: '/home/dbe/service_scripts/{{ detector }}-udp_recv-worker.sh' }
+      - { src: 'templates/assembler.sh',             dest: '/home/dbe/service_scripts/{{ detector }}-assembler.sh' }
+
+    - name: install service files for all services
+      become_user: root
+      template: src={{item.src}} dest={{item.dest}}
+      with_items:
+      - { src: 'templates/udp_recv.service',             dest: '/etc/systemd/system/{{ detector }}-udp_recv.service' }
+      - { src: 'templates/udp_recv-worker.service',      dest: '/etc/systemd/system/{{ detector }}-udp_recv-worker@.service' }
+      - { src: 'templates/buffer_writer.service',        dest: '/etc/systemd/system/{{ detector }}-buffer_writer.service' }
+      - { src: 'templates/buffer_writer-worker.service', dest: '/etc/systemd/system/{{ detector }}-buffer_writer-worker@.service' }
+      - { src: 'templates/stream2vis.service',           dest: '/etc/systemd/system/{{ detector }}-stream2vis.service' }
+      - { src: 'templates/assembler.service',            dest: '/etc/systemd/system/{{ detector }}-assembler.service' }
+      - { src: 'templates/streamvis.service',            dest: '/etc/systemd/system/{{ detector }}-vis.service' }
+
+    - name: start detector services
+      systemd: state=started name={{item.name}} daemon_reload=yes
+      with_items:
+      - { name: '{{ detector }}-udp_recv' }
+      - { name: '{{ detector }}-buffer_writer' }
+      - { name: '{{ detector }}-stream2vis' }
+      - { name: '{{ detector }}-assembler' }
+      - { name: '{{ detector }}-vis' }
+
+    - name: telegraph feeding script
+      become_user: root
+      template:
+          src: templates/telegraph_feed.sh
+          dest: /usr/local/bin/telegraph_feed.sh
+          mode: '0755'
+
+    - name: telegraph configuration
+      become_user: root
+      template:
+          src: templates/telegraph_detector.conf
+          dest: /etc/telegraf/telegraf.d/{{ detector }}_daq.conf
+
+- name: install receiver services on daq8 for JF02
+  hosts: sf_daq_alvra
+  become: true
+
+  vars:
+      detector: "{{ JF02_detector_short_name }}"
+      detector_full_name: "{{ JF02_detector_full_name }}"
+      visualisation_view: "{{ JF02_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF02_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF02_visualisation_port }}"
+      visualisation_title: "{{ JF02_visualisation_title }}"
+      last_module_number: "{{ JF02_last_module_number }}"
+      initial_udp_port: "{{ JF02_initial_udp_port }}"
+
+      detector_config: "/gpfs/photonics/swissfel/buffer/config/{{ detector_full_name }}.json"
+      visualisation_alias: sf-daq-alvra
+      visualisation_cores: 13,14
+      stream2vis_cores: 15
+      cores_buffer_writer: 27 27 27 27 27 28 28 28 28
+      cores_udp_recv_receivers: 29 29 29 29 29 30 30 30 30
+      cores_assembler: 16
+
+  tasks:
+    - name: install execution scripts
+      become_user: dbe
+      template: src={{item.src}} dest={{item.dest}}
+      with_items:
+      - { src: 'templates/streamvis.sh',             dest: '/home/dbe/service_scripts/{{ detector }}-vis.sh' }
+      - { src: 'templates/stream2vis.sh',            dest: '/home/dbe/service_scripts/{{ detector }}-stream2vis.sh' }
+      - { src: 'templates/buffer_writer-worker.sh',  dest: '/home/dbe/service_scripts/{{ detector }}-buffer_writer-worker.sh' }
+      - { src: 'templates/udp_recv-worker.sh',       dest: '/home/dbe/service_scripts/{{ detector }}-udp_recv-worker.sh' }
+      - { src: 'templates/assembler.sh',             dest: '/home/dbe/service_scripts/{{ detector }}-assembler.sh' }
+
+    - name: install service files for all services
+      become_user: root
+      template: src={{item.src}} dest={{item.dest}}
+      with_items:
+      - { src: 'templates/udp_recv.service',             dest: '/etc/systemd/system/{{ detector }}-udp_recv.service' }
+      - { src: 'templates/udp_recv-worker.service',      dest: '/etc/systemd/system/{{ detector }}-udp_recv-worker@.service' }
+      - { src: 'templates/buffer_writer.service',        dest: '/etc/systemd/system/{{ detector }}-buffer_writer.service' }
+      - { src: 'templates/buffer_writer-worker.service', dest: '/etc/systemd/system/{{ detector }}-buffer_writer-worker@.service' }
+      - { src: 'templates/stream2vis.service',           dest: '/etc/systemd/system/{{ detector }}-stream2vis.service' }
+      - { src: 'templates/assembler.service',            dest: '/etc/systemd/system/{{ detector }}-assembler.service' }
+      - { src: 'templates/streamvis.service',            dest: '/etc/systemd/system/{{ detector }}-vis.service' }
+
+    - name: start detector services
+      systemd: state=started name={{item.name}} daemon_reload=yes
+      with_items:
+      - { name: '{{ detector }}-udp_recv' }
+      - { name: '{{ detector }}-buffer_writer' }
+      - { name: '{{ detector }}-stream2vis' }
+      - { name: '{{ detector }}-assembler' }
+      - { name: '{{ detector }}-vis' }
+
+    - name: telegraph feeding script
+      become_user: root
+      template:
+          src: templates/telegraph_feed.sh
+          dest: /usr/local/bin/telegraph_feed.sh
+          mode: '0755'
+
+    - name: telegraph configuration
+      become_user: root
+      template:
+          src: templates/telegraph_detector.conf
+          dest: /etc/telegraf/telegraf.d/{{ detector }}_daq.conf
+
+
