@@ -87,7 +87,18 @@ JF06_visualisation_title=16M_Jungfrau_Alvra
 JF06_last_module_number=31
 JF06_initial_udp_port=50060
 
-#JF06
+#JF06_4M
+JF06_4M_detector_short_name=JF06_4M
+JF06_4M_detector_full_name=JF06T08V02
+JF06_4M_visualisation_incoming_data_port=9006
+JF06_4M_visualisation_port=5006
+JF06_4M_visualisation_view=default16m
+JF06_4M_visualisation_title=16M_4M_center_Alvra
+JF06_4M_last_module_number=7
+JF06_4M_initial_udp_port=50060
+
+
+#JF07
 JF07_detector_short_name=JF07
 JF07_detector_full_name=JF07T32V01
 JF07_visualisation_incoming_data_port=9007

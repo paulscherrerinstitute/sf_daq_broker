@@ -8,6 +8,8 @@
           rm -rf /etc/systemd/system/multi-user.target.wants/JF*
           rm -rf /etc/systemd/system/JF*
           rm -rf /home/dbe/git /home/dbe/miniconda3 /home/dbe/service_scripts /home/dbe/bin
+          rm -rf /etc/telegraf/telegraf.d/JF*
+          systemctl restart telegraf
 
           
   
