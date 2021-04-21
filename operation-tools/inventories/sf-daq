@@ -108,3 +108,13 @@ JF07_visualisation_title=16M_Jungfrau_Bernina
 JF07_last_module_number=31
 JF07_initial_udp_port=50100
 
+#JF14
+JF14_detector_short_name=JF14
+JF14_detector_full_name=JF14T01V01
+JF14_visualisation_incoming_data_port=9014
+JF14_visualisation_port=5014
+JF14_visualisation_view=default
+JF14_visualisation_title=RIXS
+JF14_last_module_number=00
+JF14_initial_udp_port=50191
+
