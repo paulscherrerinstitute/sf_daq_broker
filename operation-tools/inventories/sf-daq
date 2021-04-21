@@ -118,3 +118,13 @@ JF14_visualisation_title=RIXS
 JF14_last_module_number=00
 JF14_initial_udp_port=50191
 
+#JF15
+JF15_detector_short_name=JF15
+JF15_detector_full_name=JF15T08V01
+JF15_visualisation_incoming_data_port=9015
+JF15_visualisation_port=5015
+JF15_visualisation_view=square
+JF15_visualisation_title=Maloja
+JF15_last_module_number=07
+JF15_initial_udp_port=50192
+
