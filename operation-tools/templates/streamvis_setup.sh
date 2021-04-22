@@ -14,15 +14,14 @@ then
 fi
 
 # Setup the conda environment.
-export PATH=/home/dbe/miniconda3/bin:$PATH
-
 source /home/dbe/miniconda3/etc/profile.d/conda.sh
 
-CONDA_ENV_NAME=vis
-envtest=$(conda env list | grep ${CONDA_ENV_NAME})
+envtest=$(conda env list | grep vis)
 
 if [ $? != 0 ]; then
-  echo "Creating the ${CONDA_ENV_NAME} environment"
-  conda create -n vis -y -c paulscherrerinstitute -c conda-forge streamvis={{ streamvis_version }}
+  echo "Creating the vis environment"
+  conda config --append channels conda-forge
+  conda config --append channels paulscherrerinstitute
+  conda config --set channel_priority strict
+  conda create -n vis -y streamvis={{ streamvis_version }}
 fi
-
