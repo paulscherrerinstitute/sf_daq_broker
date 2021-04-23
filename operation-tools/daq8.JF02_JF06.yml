@@ -1,9 +1,14 @@
-
-- name: install receiver services on daq8 for JF06
-  hosts: sf_daq_alvra
-  become: true
-
+- import_playbook: install_sf_daq_buffer.yml
   vars:
+      host: sf_daq_alvra
+
+- import_playbook: install_streamvis.yml
+  vars:
+      host: sf_daq_alvra
+
+- import_playbook: receiver_services_detector.yml
+  vars:
+      host: sf_daq_alvra
       detector: "{{ JF06_detector_short_name }}"
       detector_full_name: "{{ JF06_detector_full_name }}"
       visualisation_view: "{{ JF06_visualisation_view }}"
@@ -21,56 +26,9 @@
       cores_udp_recv_receivers: 9 9 9 9 9 9 9 9 10 10 10 10 10 10 10 10 11 11 11 11 11 11 11 11 12 12 12 12 12 12 12 12
       cores_assembler: 4
 
-  tasks:
-    - name: install execution scripts
-      become_user: dbe
-      template: src={{item.src}} dest={{item.dest}}
-      with_items:
-      - { src: 'templates/streamvis.sh',             dest: '/home/dbe/service_scripts/{{ detector }}-vis.sh' }
-      - { src: 'templates/stream2vis.sh',            dest: '/home/dbe/service_scripts/{{ detector }}-stream2vis.sh' }
-      - { src: 'templates/buffer_writer-worker.sh',  dest: '/home/dbe/service_scripts/{{ detector }}-buffer_writer-worker.sh' }
-      - { src: 'templates/udp_recv-worker.sh',       dest: '/home/dbe/service_scripts/{{ detector }}-udp_recv-worker.sh' }
-      - { src: 'templates/assembler.sh',             dest: '/home/dbe/service_scripts/{{ detector }}-assembler.sh' }
-
-    - name: install service files for all services
-      become_user: root
-      template: src={{item.src}} dest={{item.dest}}
-      with_items:
-      - { src: 'templates/udp_recv.service',             dest: '/etc/systemd/system/{{ detector }}-udp_recv.service' }
-      - { src: 'templates/udp_recv-worker.service',      dest: '/etc/systemd/system/{{ detector }}-udp_recv-worker@.service' }
-      - { src: 'templates/buffer_writer.service',        dest: '/etc/systemd/system/{{ detector }}-buffer_writer.service' }
-      - { src: 'templates/buffer_writer-worker.service', dest: '/etc/systemd/system/{{ detector }}-buffer_writer-worker@.service' }
-      - { src: 'templates/stream2vis.service',           dest: '/etc/systemd/system/{{ detector }}-stream2vis.service' }
-      - { src: 'templates/assembler.service',            dest: '/etc/systemd/system/{{ detector }}-assembler.service' }
-      - { src: 'templates/streamvis.service',            dest: '/etc/systemd/system/{{ detector }}-vis.service' }
-
-    - name: start detector services
-      systemd: state=started name={{item.name}} daemon_reload=yes
-      with_items:
-      - { name: '{{ detector }}-udp_recv' }
-      - { name: '{{ detector }}-buffer_writer' }
-      - { name: '{{ detector }}-stream2vis' }
-      - { name: '{{ detector }}-assembler' }
-      - { name: '{{ detector }}-vis' }
-
-    - name: telegraph feeding script
-      become_user: root
-      template:
-          src: templates/telegraph_feed.sh
-          dest: /usr/local/bin/telegraph_feed.sh
-          mode: '0755'
-
-    - name: telegraph configuration
-      become_user: root
-      template:
-          src: templates/telegraph_detector.conf
-          dest: /etc/telegraf/telegraf.d/{{ detector }}_daq.conf
-
-- name: install receiver services on daq8 for JF02
-  hosts: sf_daq_alvra
-  become: true
-
+- import_playbook: receiver_services_detector.yml
   vars:
+      host: sf_daq_alvra
       detector: "{{ JF02_detector_short_name }}"
       detector_full_name: "{{ JF02_detector_full_name }}"
       visualisation_view: "{{ JF02_visualisation_view }}"
@@ -87,50 +45,4 @@
       cores_buffer_writer: 27 27 27 27 27 28 28 28 28
       cores_udp_recv_receivers: 29 29 29 29 29 30 30 30 30
       cores_assembler: 16
-
-  tasks:
-    - name: install execution scripts
-      become_user: dbe
-      template: src={{item.src}} dest={{item.dest}}
-      with_items:
-      - { src: 'templates/streamvis.sh',             dest: '/home/dbe/service_scripts/{{ detector }}-vis.sh' }
-      - { src: 'templates/stream2vis.sh',            dest: '/home/dbe/service_scripts/{{ detector }}-stream2vis.sh' }
-      - { src: 'templates/buffer_writer-worker.sh',  dest: '/home/dbe/service_scripts/{{ detector }}-buffer_writer-worker.sh' }
-      - { src: 'templates/udp_recv-worker.sh',       dest: '/home/dbe/service_scripts/{{ detector }}-udp_recv-worker.sh' }
-      - { src: 'templates/assembler.sh',             dest: '/home/dbe/service_scripts/{{ detector }}-assembler.sh' }
-
-    - name: install service files for all services
-      become_user: root
-      template: src={{item.src}} dest={{item.dest}}
-      with_items:
-      - { src: 'templates/udp_recv.service',             dest: '/etc/systemd/system/{{ detector }}-udp_recv.service' }
-      - { src: 'templates/udp_recv-worker.service',      dest: '/etc/systemd/system/{{ detector }}-udp_recv-worker@.service' }
-      - { src: 'templates/buffer_writer.service',        dest: '/etc/systemd/system/{{ detector }}-buffer_writer.service' }
-      - { src: 'templates/buffer_writer-worker.service', dest: '/etc/systemd/system/{{ detector }}-buffer_writer-worker@.service' }
-      - { src: 'templates/stream2vis.service',           dest: '/etc/systemd/system/{{ detector }}-stream2vis.service' }
-      - { src: 'templates/assembler.service',            dest: '/etc/systemd/system/{{ detector }}-assembler.service' }
-      - { src: 'templates/streamvis.service',            dest: '/etc/systemd/system/{{ detector }}-vis.service' }
-
-    - name: start detector services
-      systemd: state=started name={{item.name}} daemon_reload=yes
-      with_items:
-      - { name: '{{ detector }}-udp_recv' }
-      - { name: '{{ detector }}-buffer_writer' }
-      - { name: '{{ detector }}-stream2vis' }
-      - { name: '{{ detector }}-assembler' }
-      - { name: '{{ detector }}-vis' }
-
-    - name: telegraph feeding script
-      become_user: root
-      template:
-          src: templates/telegraph_feed.sh
-          dest: /usr/local/bin/telegraph_feed.sh
-          mode: '0755'
-
-    - name: telegraph configuration
-      become_user: root
-      template:
-          src: templates/telegraph_detector.conf
-          dest: /etc/telegraf/telegraf.d/{{ detector }}_daq.conf
-
 
