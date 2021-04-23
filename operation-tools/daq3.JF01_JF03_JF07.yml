@@ -1,3 +1,10 @@
+- import_playbook: install_sf_daq_buffer.yml
+  vars:
+      host: sf_daq_bernina
+
+- import_playbook: install_streamvis.yml
+  vars:
+      host: sf_daq_bernina
 
 - name: install receiver services on daq3 for JF07
   hosts: sf_daq_bernina
@@ -21,6 +28,12 @@
       cores_udp_recv_receivers: 36 36 36 36 36 36 36 36 37 37 37 37 37 37 37 37 38 38 38 38 38 38 38 38 39 39 39 39 39 39 39 39
       cores_assembler: 9
 
+  handlers:
+     - name: restart_telegraf
+       service:
+         name: telegraf
+         state: restarted
+
   tasks:
     - name: install execution scripts
       become_user: dbe
@@ -65,7 +78,8 @@
       template:
           src: templates/telegraph_detector.conf
           dest: /etc/telegraf/telegraf.d/{{ detector }}_daq.conf
-
+      notify:
+          - restart_telegraf
 
 - name: install receiver services on daq3 for JF01
   hosts: sf_daq_bernina
@@ -89,6 +103,12 @@
       cores_udp_recv_receivers: 16 16 16
       cores_assembler: 10
 
+  handlers:
+     - name: restart_telegraf
+       service:
+         name: telegraf
+         state: restarted
+
   tasks:
     - name: install execution scripts
       become_user: dbe
@@ -133,7 +153,8 @@
       template:
           src: templates/telegraph_detector.conf
           dest: /etc/telegraf/telegraf.d/{{ detector }}_daq.conf
-
+      notify:
+          - restart_telegraf
 
 - name: install receiver services on daq3 for JF03
   hosts: sf_daq_bernina
@@ -157,6 +178,12 @@
       cores_udp_recv_receivers: 12
       cores_assembler: 11
 
+  handlers:
+     - name: restart_telegraf
+       service:
+         name: telegraf
+         state: restarted
+
   tasks:
     - name: install execution scripts
       become_user: dbe
@@ -201,5 +228,7 @@
       template:
           src: templates/telegraph_detector.conf
           dest: /etc/telegraf/telegraf.d/{{ detector }}_daq.conf
+      notify:
+          - restart_telegraf
 
 
