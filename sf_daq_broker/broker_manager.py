@@ -292,7 +292,21 @@ class BrokerManager(object):
                     os.makedirs(scan_dir)
                 scan_info_file = scan_dir+"/"+scan_name+".json"
                 if not os.path.exists(scan_info_file):
-                    scan_info = {"scan_files" : [], "scan_parameters" : {"Id" : request_scan_info.get("motors_pv_name"), "name": request_scan_info.get("motors_name"), "offset": request_scan_info.get("motors_offset"), "conversion_factor": request_scan_info.get("motors_coefficient")}, "scan_readbacks": [], "scan_step_info": [], "scan_values": [], "scan_readbacks_raw": [], "pulseIds": []} 
+                    scan_info = {
+                        "scan_parameters": {
+                            "Id": request_scan_info.get("motors_pv_name"),
+                            "name": request_scan_info.get("motors_name"),
+                            "units": request_scan_info.get("motors_units"),
+                            "offset": request_scan_info.get("motors_offset"),
+                            "conversion_factor": request_scan_info.get("motors_coefficient")
+                        },
+                        "scan_files": [],
+                        "scan_readbacks": [],
+                        "scan_step_info": [],
+                        "scan_values": [],
+                        "scan_readbacks_raw": [],
+                        "pulseIds": []
+                    } 
                 else:
                     with open(scan_info_file) as json_file:
                         scan_info = json.load(json_file)
