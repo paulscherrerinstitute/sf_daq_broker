@@ -15,6 +15,21 @@ PEDESTAL_FRAMES=5000
 
 _logger = logging.getLogger(__name__)
 
+allowed_detectors_beamline = { "alvra" : [ "JF02T09V02", "JF06T08V02", "JF06T32V02", "JF08T01V01", "JF09T01V01", "JF10T01V01"],
+                               "bernina" : [ "JF01T03V01", "JF03T01V02", "JF04T01V01", "JF05T01V01", "JF07T32V01", "JF13T01V01", "JF14T01V01"],
+                               "maloja" : [ "JF15T08V01"]
+                             }
+
+def ip_to_console(remote_ip):
+    beamline = None
+    if len(remote_ip) > 11:
+        if remote_ip[:11] == "129.129.242":
+            beamline = "alvra"
+        elif remote_ip[:11] == "129.129.243":
+            beamline = "bernina"
+        elif remote_ip[:11] == "129.129.246":
+            beamline = "maloja"
+    return beamline
 
 class BrokerManager(object):
     REQUIRED_PARAMETERS = ["output_file"]
@@ -30,6 +45,14 @@ class BrokerManager(object):
         if not remote_ip:
             return {"status" : "failed", "message" : "can not identify from which machine request were made"}
 
+        beamline = ip_to_console(remote_ip)
+
+        if not beamline:
+            return {"status" : "failed", "message" : "can not determine from which console request came, rejected"}
+
+        if beamline not in allowed_detectors_beamline:
+            return {"status" : "failed", "message" : "request is made from beamline which doesnt have detectors"}
+
         if "start_pulseid" not in request:
             return {"status" : "failed", "message" : "aaa no start pluseid provided in request parameters"}
 
@@ -42,6 +65,10 @@ class BrokerManager(object):
 
         if len(detectors) < 1:
             return {"status" : "failed", "message" : "no detectors defined"}
+
+        for det in detectors:
+            if det not in allowed_detectors_beamline[beamline]:
+                return {"status" : "failed", "message" : f"{det} not belongs to the {beamline}"}
 
         stop_pulseid = int(request["start_pulseid"])+PEDESTAL_FRAMES*rate_multiplicator
         pedestal_request = {"detectors": detectors, 
@@ -74,17 +101,10 @@ class BrokerManager(object):
         if beamline_force:
             beamline = beamline_force
         else:
-            beamline = None
-            if len(remote_ip) > 11:
-                if remote_ip[:11] == "129.129.242":
-                    beamline = "alvra"
-                elif remote_ip[:11] == "129.129.243":
-                    beamline = "bernina"
-                elif remote_ip[:11] == "129.129.246":
-                    beamline = "maloja"
+            beamline = ip_to_console(remote_ip)
 
         if not beamline:
-            return {"status" : "failed", "message" : "can not determine from which console request came, so which beamline it's"}
+            return {"status" : "failed", "message" : "can not determine from which console request came, rejected"}
 
         if "pgroup" not in request:
             return {"status" : "failed", "message" : "no pgroup in request parameters"}
@@ -152,6 +172,19 @@ class BrokerManager(object):
 
         if "detectors" in request and type(request["detectors"]) is not dict:
             return {"status" : "failed", "message" : f'{request["detectors"]} is not dictionary'}        
+
+        detectors = []
+        if "detectors" in request:
+            detectors = list(request["detectors"].keys())
+
+        if len(detectors) > 0:
+            if beamline not in allowed_detectors_beamline:
+                return {"status" : "failed", "message" : "request is made from beamline which doesnt have detectors"}
+
+            for det in detectors:
+                if det not in allowed_detectors_beamline[beamline]:
+                    return {"status" : "failed", "message" : f"{det} not belongs to the {beamline}"}
+
 
         if "channels_list" in request:
             request["channels_list"] = list(set(request["channels_list"]))
@@ -286,34 +319,26 @@ class BrokerManager(object):
         if "scan_info" in request:
             request_scan_info = request["scan_info"]
             if "scan_name" in request_scan_info:
+                each_scan_fields = ["scan_readbacks", "scan_step_info", "scan_values", "scan_readbacks_raw"]
                 scan_name = request_scan_info["scan_name"]
                 scan_dir = path_to_pgroup+"/scan_info"
                 if not os.path.exists(scan_dir):
                     os.makedirs(scan_dir)
                 scan_info_file = scan_dir+"/"+scan_name+".json"
                 if not os.path.exists(scan_info_file):
-                    scan_info = {
-                        "scan_parameters": {
-                            "Id": request_scan_info.get("motors_pv_name"),
-                            "name": request_scan_info.get("motors_name"),
-                            "units": request_scan_info.get("motors_units"),
-                            "offset": request_scan_info.get("motors_offset"),
-                            "conversion_factor": request_scan_info.get("motors_coefficient")
-                        },
-                        "scan_files": [],
-                        "scan_readbacks": [],
-                        "scan_step_info": [],
-                        "scan_values": [],
-                        "scan_readbacks_raw": [],
-                        "pulseIds": []
-                    } 
+                    scan_info = {"scan_files" : [], "pulseIds": []}
+                    scan_info["scan_parameters"] = {}
+                    for scan_key in request_scan_info:
+                        if scan_key not in each_scan_fields:
+                            scan_info["scan_parameters"][scan_key] = request_scan_info[scan_key]
+                    for scan_step_field in each_scan_fields:
+                        scan_info[scan_step_field] = [] 
                 else:
                     with open(scan_info_file) as json_file:
                         scan_info = json.load(json_file)
-                scan_info["scan_readbacks"].append(request_scan_info.get("motors_readback_value",[]))
-                scan_info["scan_values"].append(request_scan_info.get("motors_value",[]))
-                scan_info["scan_step_info"].append(request_scan_info.get("step_info"))
-                scan_info["scan_readbacks_raw"].append(request_scan_info.get("motors_readback_raw",[]))
+
+                for scan_step_field in each_scan_fields:
+                    scan_info[scan_step_field].append(request_scan_info.get(scan_step_field, []))
 
                 scan_info["scan_files"].append(output_files_list)
                 scan_info["pulseIds"].append([start_pulse_id, stop_pulse_id])
