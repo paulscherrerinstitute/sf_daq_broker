@@ -14,3 +14,66 @@
           mode: '0755'
     - name: execute setup script
       shell: /home/dbe/service_scripts/sf_daq_broker.setup.sh
+    - name: install execution scripts
+      template: src={{item.src}} dest={{item.dest}}
+      with_items:
+      - { src: 'templates/sf-daq_broker.start.sh',            dest: '/home/dbe/service_scripts/sf-daq_broker.start.sh' }
+      - { src: 'templates/sf-daq_writer.start.sh',            dest: '/home/dbe/service_scripts/sf-daq_writer.start.sh' }
+
+    - name: install service files for all services
+      become_user: root
+      template: src={{item.src}} dest={{item.dest}}
+      with_items:
+      - { src: 'templates/sf-daq_broker.service',             dest: '/etc/systemd/system/sf-daq_broker.service' }
+      - { src: 'templates/sf-daq_writer@.service',            dest: '/etc/systemd/system/sf-daq_writer@.service' }
+      - { src: 'templates/sf-daq_writers.service',            dest: '/etc/systemd/system/sf-daq_writers.service' }
+
+
+- name: install sf_daq_buffer
+  hosts: '{{ host }}'
+  become: true
+  become_user: dbe
+  tasks:
+    - name: Create service directory
+      file:
+        path: /home/dbe/service_scripts
+        state: directory
+    - name: install setup script
+      template:
+          src: templates/sf_daq_buffer.setup.new.sh
+          dest: /home/dbe/service_scripts/sf_daq_buffer.setup.sh 
+          mode: '0755'
+    - name: execute setup script
+      shell: /home/dbe/service_scripts/sf_daq_buffer.setup.sh
+
+- name: install cleanup service for the buffer
+  hosts: '{{ host }}'
+  become: true
+  become_user: dbe
+  tasks:
+    - name: install cleanup script
+      template:
+          src: templates/delete_old_files_in_buffer.sh
+          dest: /home/dbe/service_scripts/delete_old_files_in_buffer.sh
+          mode: '0755'
+    - name: install cleanup cron
+      become_user: root
+      template:
+          src: templates/clean_buffer.cron
+          dest: /etc/cron.d/clean_buffer.cron
+
+- name: start broker services
+  hosts: '{{ host }}'
+  become: true
+  tasks:
+    - name: start sf-daq_broker service
+      systemd: 
+          state=started 
+          name=sf-daq_broker.service
+          daemon_reload=yes
+    - name: start sf-daq_writers service
+      systemd:
+          state=started
+          name=sf-daq_writers.service
+          daemon_reload=yes
+

@@ -10,6 +10,10 @@ sf-daq-9.psi.ch
 [broker_test]
 sf-daq-1.psi.ch
 
+[broker_test:vars]
+minutes_cleanup=40
+number_of_writers=9
+
 [broker_production]
 sf-daq-2.psi.ch
 
