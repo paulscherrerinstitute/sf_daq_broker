@@ -16,7 +16,8 @@ PEDESTAL_FRAMES=5000
 _logger = logging.getLogger(__name__)
 
 allowed_detectors_beamline = { "alvra" : [ "JF02T09V02", "JF06T08V02", "JF06T32V02", "JF08T01V01", "JF09T01V01", "JF10T01V01"],
-                               "bernina" : [ "JF01T03V01", "JF03T01V02", "JF04T01V01", "JF05T01V01", "JF07T32V01", "JF13T01V01", "JF14T01V01"],
+                               "bernina" : [ "JF01T03V01", "JF03T01V02", "JF04T01V01", "JF05T01V01", "JF07T32V01", "JF07T03V01", "JF13T01V01", "JF14T01V01"],
+                               "furka" : [],
                                "maloja" : [ "JF15T08V01"]
                              }
 
@@ -27,6 +28,8 @@ def ip_to_console(remote_ip):
             beamline = "alvra"
         elif remote_ip[:11] == "129.129.243":
             beamline = "bernina"
+        elif remote_ip[:11] == "129.129.247":
+            beamline = "furka"
         elif remote_ip[:11] == "129.129.246":
             beamline = "maloja"
     return beamline
