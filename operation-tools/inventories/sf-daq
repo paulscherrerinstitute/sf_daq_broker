@@ -76,7 +76,6 @@ JF04_visualisation_title=Fluorescence
 JF04_last_module_number=00
 JF04_initial_udp_port=50040
 
-
 #JF06
 JF06_detector_short_name=JF06
 JF06_detector_full_name=JF06T32V02
@@ -88,7 +87,7 @@ JF06_last_module_number=31
 JF06_initial_udp_port=50060
 
 #JF06_4M
-JF06_4M_detector_short_name=JF06_4M
+JF06_4M_detector_short_name=JF06
 JF06_4M_detector_full_name=JF06T08V02
 JF06_4M_visualisation_incoming_data_port=9006
 JF06_4M_visualisation_port=5006
@@ -96,7 +95,6 @@ JF06_4M_visualisation_view=large
 JF06_4M_visualisation_title=16M_4M_center_Alvra
 JF06_4M_last_module_number=7
 JF06_4M_initial_udp_port=50060
-
 
 #JF07
 JF07_detector_short_name=JF07
@@ -107,6 +105,16 @@ JF07_visualisation_view=large
 JF07_visualisation_title=16M_Jungfrau_Bernina
 JF07_last_module_number=31
 JF07_initial_udp_port=50100
+
+#JF07_3m
+JF07_3m_detector_short_name=JF07
+JF07_3m_detector_full_name=JF07T03V01
+JF07_3m_visualisation_incoming_data_port=9007
+JF07_3m_visualisation_port=5007
+JF07_3m_visualisation_view=bernina
+JF07_3m_visualisation_title=16M_3m_Jungfrau_Bernina
+JF07_3m_last_module_number=02
+JF07_3m_initial_udp_port=50100
 
 #JF14
 JF14_detector_short_name=JF14
