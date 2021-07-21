@@ -28,25 +28,11 @@
       - { src: 'templates/sf-daq_writer@.service',            dest: '/etc/systemd/system/sf-daq_writer@.service' }
       - { src: 'templates/sf-daq_writers.service',            dest: '/etc/systemd/system/sf-daq_writers.service' }
 
+- import_playbook: install_sf_daq_buffer.yml
+  vars:
+      host: '{{ host }}'
 
-- name: install sf_daq_buffer
-  hosts: '{{ host }}'
-  become: true
-  become_user: dbe
-  tasks:
-    - name: Create service directory
-      file:
-        path: /home/dbe/service_scripts
-        state: directory
-    - name: install setup script
-      template:
-          src: templates/sf_daq_buffer.setup.new.sh
-          dest: /home/dbe/service_scripts/sf_daq_buffer.setup.sh 
-          mode: '0755'
-    - name: execute setup script
-      shell: /home/dbe/service_scripts/sf_daq_buffer.setup.sh
-
-- name: install cleanup service for the buffer
+- name: install cleanup service for the detector buffer
   hosts: '{{ host }}'
   become: true
   become_user: dbe
