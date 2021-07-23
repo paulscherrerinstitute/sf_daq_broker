@@ -17,6 +17,10 @@ number_of_writers=9
 [broker_production]
 sf-daq-2.psi.ch
 
+[broker_production:vars]
+minutes_cleanup=10
+number_of_writers=9
+
 [sf_daq_bernina]
 sf-daq-3.psi.ch
 

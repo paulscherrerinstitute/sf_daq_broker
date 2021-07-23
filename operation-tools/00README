@@ -1,10 +1,15 @@
+To install broker node:
+    ansible-playbook --extra-vars "host=broker_test" install_broker_node.yml
+to clean installation on broker node:
+    ansible-playbook --extra-vars "host=broker_test" clean_broker_node.yml
+
 Following pre-defined configuration exists (to apply it:
 ansible-playbook <machine>.<detector_configuration>.yml
 
 Machine  detector_configuration
 daq9     JF15
 daq4     JF02_JF06
-daq4     JF06_4M
+daq4     JF06-4M
 daq3     JF14
 daq3     
 ...      ... 
