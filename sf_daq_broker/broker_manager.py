@@ -57,7 +57,7 @@ class BrokerManager(object):
             return {"status" : "failed", "message" : "request is made from beamline which doesnt have detectors"}
 
         if "start_pulseid" not in request:
-            return {"status" : "failed", "message" : "aaa no start pluseid provided in request parameters"}
+            return {"status" : "failed", "message" : "no start pluseid provided in request parameters"}
 
         rate_multiplicator = request.get("rate_multiplicator", 1)
 
@@ -86,7 +86,7 @@ class BrokerManager(object):
                             "timestamp": None
                            }
         self.broker_client.open()
-        self.broker_client.send(pedestal_request)
+        self.broker_client.send(pedestal_request, broker_config.TAG_PEDESTAL)
         self.broker_client.close()
 
         time_to_wait = PEDESTAL_FRAMES/100*rate_multiplicator+10
@@ -260,7 +260,7 @@ class BrokerManager(object):
                                                run_log_file=run_log_file)
 
             try:
-                self.broker_client.send(write_request)
+                self.broker_client.send(write_request, tag)
             except:
                 log_file = open(write_request["run_log_file"], "a")
                 log_file.write("Can not contact writer")
@@ -285,39 +285,38 @@ class BrokerManager(object):
                            request.get("camera_list"),
                            config.OUTPUT_FILE_SUFFIX_IMAGE_BUFFER)
 
-        self.broker_client.close()
-
         if "detectors" in request:
+            request_detector = {}
+
+            det_start_pulse_id = 0
+            det_stop_pulse_id = stop_pulse_id
+            for p in range(start_pulse_id, stop_pulse_id+1):
+                if p%rate_multiplicator == 0:
+                    det_stop_pulse_id = p
+                    if det_start_pulse_id == 0:
+                        det_start_pulse_id = p
+            request_detector["det_start_pulse_id"] = det_start_pulse_id
+            request_detector["det_stop_pulse_id"]  = det_stop_pulse_id
+ 
+            request_detector["path_to_pgroup"]     = path_to_pgroup
+            request_detector["rate_multiplicator"] = rate_multiplicator
+            request_detector["run_file_json"]      = run_file_json
+            request_detector["current_run"]        = current_run
+            request_detector["run_info_directory"] = run_info_directory
+            request_detector["request_time"]       = request["request_time"]
+            if "directory_name" in request:
+                request_detector["directory_name"] = request["directory_name"]
+
             for detector in request["detectors"]:
-                output_file_detector = f'{full_path}/run_{current_run:06}.{detector}.h5'
-                output_files_list.append(output_file_detector)
-                det_start_pulse_id = 0
-                det_stop_pulse_id = stop_pulse_id
+                request_detector_send = request_detector
+                request_detector_send["detector_name"] = detector
+                request_detector_send["detectors"] = {}
+                request_detector_send["detectors"][detector] = request["detectors"][detector]
+                send_write_request(broker_config.TAG_DETECTOR_RETRIEVE,
+                           request_detector,
+                           detector)
 
-                det_conversion  = request["detectors"][detector].get("adc_to_energy", False)
-                det_compression = request["detectors"][detector].get("compression", False)
-                det_number_disabled_modules = len(request["detectors"][detector].get("disabled_modules", []))
-                det_export = 0
-                if det_conversion or det_compression or det_number_disabled_modules>0:
-                    det_export = 1
-
-                raw_file_name = output_file_detector 
-                if det_export == 1:
-                    raw_file_name = f'{path_to_pgroup}/RAW_DATA/'
-                    if "directory_name" in request and request["directory_name"] is not None:
-                        raw_file_name = raw_file_name + request["directory_name"]
-                    raw_file_name = f'{raw_file_name}/run_{current_run:06}.{detector}.h5'
-
-                for p in range(start_pulse_id, stop_pulse_id+1):
-                    if p%rate_multiplicator == 0:
-                        det_stop_pulse_id = p
-                        if det_start_pulse_id == 0:
-                            det_start_pulse_id = p
-                retrieve_command=f'/home/dbe/git/sf_daq_buffer/scripts/retrieve_detector_data.sh {detector} {det_start_pulse_id} {det_stop_pulse_id} {output_file_detector} {rate_multiplicator} {det_export} {run_file_json} {raw_file_name}'
-                process_log_file=open(f'{run_info_directory}/run_{current_run:06}.{detector}.log','w')
-                _logger.info("Starting detector retrieve command %s " % retrieve_command)
-                process=Popen(retrieve_command, shell=True, stdout=process_log_file, stderr=process_log_file)
-                process_log_file.close()
+        self.broker_client.close()
 
         if "scan_info" in request:
             request_scan_info = request["scan_info"]
