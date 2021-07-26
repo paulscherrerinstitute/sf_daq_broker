@@ -2,7 +2,7 @@
 
 if [ $# != 1 ]
 then
-    systemctl start sf-daq_writer@{00..{{ number_of_writers}}}
+    systemctl start sf-daq_writer@{01..{{ number_of_writers}}}
     exit
 fi
 
