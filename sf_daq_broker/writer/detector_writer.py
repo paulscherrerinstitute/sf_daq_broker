@@ -25,8 +25,6 @@ PEDESTAL_SPECIFIC = { "JF02T09V02" : {"number_bad_modules" : 1} }
 
 def detector_retrieve(request, output_file_detector):
 
-    _logger.info(f'{request} {output_file_detector}')
-
     detector = request["detector_name"]
 
     det_start_pulse_id = request["det_start_pulse_id"]
@@ -59,15 +57,18 @@ def detector_retrieve(request, output_file_detector):
     number_modules = int(detector[5:7])
     retrieve_command_from_buffer = f'/home/dbe/bin/sf_writer {raw_file_name} /gpfs/photonics/swissfel/buffer/{detector} {number_modules} {det_start_pulse_id} {det_stop_pulse_id} {rate_multiplicator}'
     _logger.info("Starting detector retrieve from buffer %s " % retrieve_command_from_buffer)
+    time_start = time()
     process=subprocess.run(retrieve_command_from_buffer.split(), capture_output=True)
-#    _logger.info(process)
+    _logger.info(f"Retrieve Time : {time()-time_start}")
     _logger.info("Finished retrieve from the buffer")
 
     if "directory_name" in request and request["directory_name"] == "JF_pedestals":
+        time_start = time()
         if detector in PEDESTAL_SPECIFIC:
             create_pedestal_file(filename=raw_file_name, directory=os.path.dirname(raw_file_name), **PEDESTAL_SPECIFIC[detector])
         else:
             create_pedestal_file(filename=raw_file_name, directory=os.path.dirname(raw_file_name))
+        _logger.info(f"Pedestal Time : {time()-time_start}")
         request_time = request["request_time"]
         detector_config_file = f'/gpfs/photonics/swissfel/buffer/config/{detector}.json'
         res_file_name = raw_file_name[:-3]+".res.h5"
@@ -75,7 +76,13 @@ def detector_retrieve(request, output_file_detector):
 
     if convert_ju_file:
         _logger.info(f'Will do file conversion {raw_file_name} {output_file_detector} {run_file_json} {detector_config_file}')
-        convert_file(raw_file_name, output_file_detector, run_file_json, detector_config_file)
+        time_start = time()
+        try:
+            convert_file(raw_file_name, output_file_detector, run_file_json, detector_config_file)
+        except Exception as e:
+            _logger.error("Conversion failed")
+            _logger.error(f"Error message : {e}")
+        _logger.info(f"Conversion Time : {time()-time_start}")
 
 def h5_printname(name):
     print("  {}".format(name))
