@@ -37,11 +37,11 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
             gap_pixels           = detector_params.get("gap_pixels", True)
             factor               = detector_params.get("factor", None)
         else:
-            mask = False
+            mask                 = False
             double_pixels_action = "keep"
-            geometry = False
-            gap_pixels = False
-            factor = None
+            geometry             = False
+            gap_pixels           = False
+            factor               = None
 
     file_tmp = file_in
     if len(disabled_modules)>0:

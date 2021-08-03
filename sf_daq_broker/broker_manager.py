@@ -40,6 +40,30 @@ class BrokerManager(object):
     def __init__(self, broker_client):
         self.broker_client = broker_client
 
+    def get_list_running_detectors(self, remote_ip=None):
+
+        beamline = ip_to_console(remote_ip)
+        detectors = allowed_detectors_beamline[beamline] if beamline else []
+
+        time_now = datetime.now()   
+        running_detectors = []
+        buffer_location = "/gpfs/photonics/swissfel/buffer"
+        for detector in detectors:
+            detector_buffer_file = f'{buffer_location}/{detector}/M00/LATEST'
+            if os.path.exists(detector_buffer_file):
+                time_file = datetime.fromtimestamp(os.path.getmtime(detector_buffer_file))
+                if (time_file-time_now).total_seconds() > -30:
+                    running_detectors.append(detector)
+ 
+        return {"detectors" : running_detectors}
+
+
+    def get_list_allowed_detectors(self, remote_ip=None):
+
+        beamline = ip_to_console(remote_ip)
+        detectors = allowed_detectors_beamline[beamline] if beamline else []
+        return {"detectors" : detectors}  
+
     def take_pedestal(self, request=None, remote_ip=None):
 
         if not request:
