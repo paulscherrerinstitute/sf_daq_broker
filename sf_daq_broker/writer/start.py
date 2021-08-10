@@ -15,6 +15,7 @@ from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_fro
 from sf_daq_broker.writer.epics_writer import write_epics_pvs
 from sf_daq_broker.detector.pedestal import take_pedestal
 from sf_daq_broker.writer.detector_writer import detector_retrieve
+from sf_daq_broker.detector.power_on_detector import power_on_detector
 
 _logger = logging.getLogger("broker_writer")
 
@@ -46,6 +47,10 @@ def wait_for_delay(request_timestamp, writer_type):
     if writer_type == broker_config.TAG_DETECTOR_RETRIEVE:
         time_to_wait = config.DETECTOR_RETRIEVAL_DELAY
 
+# should not come here in this case, since request_timestamp is None
+#    if writer_type == broker_config.TAG_PEDESTAL or writer_type != broker_config.TAG_POWER_ON:
+#        time_to_wait = 0
+
     current_timestamp = time()
     # sleep time = target sleep time - time that has already passed.
     adjusted_retrieval_delay = time_to_wait - (current_timestamp - request_timestamp)
@@ -63,16 +68,16 @@ def wait_for_delay(request_timestamp, writer_type):
 def process_request(request):
 
     writer_type = request["writer_type"]
-    channels = request["channels"]
+    channels = request.get("channels", None)
 
-    start_pulse_id = request["start_pulse_id"]
-    stop_pulse_id = request["stop_pulse_id"]
+    start_pulse_id = request.get("start_pulse_id", 0)
+    stop_pulse_id = request.get("stop_pulse_id", 100)
 
-    output_file = request["output_file"]
-    run_log_file = request["run_log_file"]
+    output_file = request.get("output_file", None)
+    run_log_file = request.get("run_log_file", None)
 
-    metadata = request["metadata"]
-    request_timestamp = request["timestamp"]
+    metadata = request.get("metadata", None)
+    request_timestamp = request.get("timestamp", None)
 
     file_handler = None
     if run_log_file:
@@ -95,14 +100,14 @@ def process_request(request):
             logger_data_api.addHandler(file_handler)
 
     try:
-        _logger.info("Request for %s to write %s from pulse_id %s to %s" %
+        _logger.info("Request for %s : output_file %s from pulse_id %s to %s" %
                      (writer_type, output_file, start_pulse_id, stop_pulse_id))
 
         if output_file == "/dev/null":
             _logger.info("Output file set to /dev/null. Skipping request.")
             return
 
-        if not channels and writer_type != broker_config.TAG_PEDESTAL:
+        if not channels and ( writer_type != broker_config.TAG_PEDESTAL and writer_type != broker_config.TAG_POWER_ON):
             _logger.info("No channels requested. Skipping request.")
             return
 
@@ -131,6 +136,10 @@ def process_request(request):
         elif writer_type == broker_config.TAG_PEDESTAL:
             _logger.info("Doing pedestal.")
             take_pedestal(detectors_name=request.get("detectors", []), rate=request.get("rate_multiplicator", 1))
+
+        elif writer_type == broker_config.TAG_POWER_ON:
+            _logger.info("Power ON detector")
+            power_on_detector(detector_name=request.get("detector_name", None), beamline=request.get("beamline", None))
 
         elif writer_type == broker_config.TAG_DETECTOR_RETRIEVE:
             _logger.info("Using detector retrieve writer.")
@@ -189,12 +198,10 @@ def reject_request(channel, method_frame, body, output_file, e):
 
 def on_broker_message(channel, method_frame, header_frame, body, connection):
 
-    output_file = None
-
     try:
         request = json.loads(body.decode())
 
-        output_file = request["output_file"]
+        output_file = request.get("output_file", None)
         update_status(channel, body, "write_start", output_file)
 
         def process_async():

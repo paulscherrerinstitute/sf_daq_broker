@@ -24,4 +24,5 @@ TAG_PEDESTAL = "pedestal"
 TAG_EPICS = "epics"
 TAG_DETECTOR_RETRIEVE = "detector_buffer"
 TAG_DETECTOR_CONVERT  = "detector_convert"
+TAG_POWER_ON = "detector_power_on"
 

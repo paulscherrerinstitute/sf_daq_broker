@@ -44,7 +44,8 @@ class RabbitMqClient(object):
         if ( tag == broker_config.TAG_DATABUFFER or 
              tag == broker_config.TAG_IMAGEBUFFER or 
              tag == broker_config.TAG_EPICS or
-             tag == broker_config.TAG_PEDESTAL ):
+             tag == broker_config.TAG_PEDESTAL or
+             tag == broker_config.TAG_POWER_ON):
             routing_key = broker_config.DEFAULT_ROUTE
         elif tag == broker_config.TAG_DETECTOR_RETRIEVE:
             routing_key = broker_config.DETECTOR_RETRIEVE_ROUTE

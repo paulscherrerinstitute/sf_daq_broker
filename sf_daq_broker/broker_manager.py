@@ -40,6 +40,40 @@ class BrokerManager(object):
     def __init__(self, broker_client):
         self.broker_client = broker_client
 
+    def power_on_detector(self, request=None, remote_ip=None):
+
+        if not request:
+            return {"status" : "failed", "message" : "request parameters are empty"}
+
+        if not remote_ip:
+            return {"status" : "failed", "message" : "can not identify from which machine request were made"}
+
+        beamline = ip_to_console(remote_ip)
+
+        if not beamline:
+            return {"status" : "failed", "message" : "can not determine from which console request came, rejected"}
+
+        if beamline not in allowed_detectors_beamline:
+            return {"status" : "failed", "message" : "request is made from beamline which doesnt have detectors"}
+
+        detector_name = request.get("detector_name", None)
+        if not detector_name:
+            return {"status" : "failed", "message" : "no detector name in the request"}
+
+        if detector_name not in allowed_detectors_beamline[beamline]:
+                return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
+
+        request_power_on = {"detector_name" : detector_name,
+                            "beamline" : beamline,
+                            "writer_type": broker_config.TAG_POWER_ON,
+                            "channels": None}
+
+        self.broker_client.open()
+        self.broker_client.send(request_power_on, broker_config.TAG_POWER_ON)
+        self.broker_client.close()
+
+        return {"status" : "ok", "message" : f"request to power on detector is sent, wait few minutes"}
+
     def get_list_running_detectors(self, remote_ip=None):
 
         beamline = ip_to_console(remote_ip)

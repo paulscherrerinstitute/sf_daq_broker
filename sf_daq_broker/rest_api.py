@@ -26,6 +26,10 @@ def register_rest_interface(app, manager):
     def get_running_detectors_list():
         return manager.get_list_running_detectors(remote_ip=bottle.request.remote_addr)
 
+    @app.post("/power_on_detector")
+    def power_on_detector():
+        return manager.power_on_detector(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
+
     @app.error(500)
     def error_handler_500(error):
         bottle.response.content_type = 'application/json'
