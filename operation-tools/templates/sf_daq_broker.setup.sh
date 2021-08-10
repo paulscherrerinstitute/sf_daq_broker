@@ -14,8 +14,6 @@ then
 fi
 
 # Setup the conda environment.
-export PATH=/home/dbe/miniconda3/bin:$PATH
-
 source /home/dbe/miniconda3/etc/profile.d/conda.sh
 
 CONDA_ENV_NAME=sf-daq
@@ -30,6 +28,7 @@ if [ $? != 0 ]; then
 
   conda install -y -c conda-forge bottle pika ujson
   conda install -y -c slsdetectorgroup -c conda-forge slsdet=5.1.0
+  conda install -y -c paulscherrerinstitute -c conda-forge pyepics
 else
   conda deactivate
   conda activate ${CONDA_ENV_NAME}
