@@ -1,0 +1,48 @@
+- import_playbook: install_sf_daq_buffer.yml
+  vars:
+      host: sf_daq_alvra
+
+- import_playbook: install_streamvis.yml
+  vars:
+      host: sf_daq_alvra
+
+- import_playbook: receiver_services_detector.yml
+  vars:
+      host: sf_daq_alvra
+      detector: "{{ JF06_4M_detector_short_name }}"
+      detector_full_name: "{{ JF06_4M_detector_full_name }}"
+      visualisation_view: "{{ JF06_4M_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF06_4M_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF06_4M_visualisation_port }}"
+      visualisation_title: "{{ JF06_4M_visualisation_title }}"
+      last_module_number: "{{ JF06_4M_last_module_number }}"
+      initial_udp_port: "{{ JF06_4M_initial_udp_port }}"
+
+      detector_config: "/gpfs/photonics/swissfel/buffer/config/{{ detector_full_name }}.json"
+      visualisation_alias: sf-daq-alvra
+      visualisation_cores: 1,2
+      stream2vis_cores: 3
+      cores_buffer_writer: 5 5 6 6 7 7 8 8
+      cores_udp_recv_receivers: 9 9 10 10 11 11 12 12
+      cores_assembler: 4
+
+- import_playbook: receiver_services_detector.yml
+  vars:
+      host: sf_daq_alvra
+      detector: "{{ JF02_detector_short_name }}"
+      detector_full_name: "{{ JF02_detector_full_name }}"
+      visualisation_view: "{{ JF02_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF02_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF02_visualisation_port }}"
+      visualisation_title: "{{ JF02_visualisation_title }}"
+      last_module_number: "{{ JF02_last_module_number }}"
+      initial_udp_port: "{{ JF02_initial_udp_port }}"
+
+      detector_config: "/gpfs/photonics/swissfel/buffer/config/{{ detector_full_name }}.json"
+      visualisation_alias: sf-daq-alvra
+      visualisation_cores: 13,14
+      stream2vis_cores: 15
+      cores_buffer_writer: 27 27 27 27 27 28 28 28 28
+      cores_udp_recv_receivers: 29 29 29 29 29 30 30 30 30
+      cores_assembler: 16
+
