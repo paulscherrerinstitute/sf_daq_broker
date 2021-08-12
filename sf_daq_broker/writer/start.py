@@ -135,7 +135,38 @@ def process_request(request):
 
         elif writer_type == broker_config.TAG_PEDESTAL:
             _logger.info("Doing pedestal.")
-            take_pedestal(detectors_name=request.get("detectors", []), rate=request.get("rate_multiplicator", 1))
+            detectors = request.get("detectors", [])
+            det_start_pulse_id, det_stop_pulse_id = take_pedestal(detectors_name=detectors, rate=request.get("rate_multiplicator", 1))
+            # overwrite start/stop pulse_id's in run_info json file
+            run_file_json = request.get("run_file_json", None)
+            if run_file_json is not None:
+                with open(run_file_json, "r") as request_json_file:
+                    run_info = json.load(request_json_file)
+                run_info["start_pulseid"] = det_start_pulse_id
+                run_info["stop_pulseid"]  = det_stop_pulse_id
+                with open(run_file_json, "w") as request_json_file:
+                    json.dump(run_info, request_json_file, indent=2)
+
+            request_det_retrieve = { 
+                                     "det_start_pulse_id" : det_start_pulse_id,
+                                     "det_stop_pulse_id"  : det_stop_pulse_id,
+                                     "rate_multiplicator" : request.get("rate_multiplicator", 1),
+                                     "run_file_json"      : request.get("run_file_json", None),
+                                     "path_to_pgroup"     : request.get("path_to_pgroup", None),
+                                     "current_run"        : request.get("current_run", None),
+                                     "run_info_directory" : request.get("run_info_directory", None),
+                                     "directory_name"     : request.get("directory_name"),
+                                     "request_time"       : request.get("request_time", str(datetime.now()))
+                                   }
+            
+            for detector in detectors:
+                request_det_retrieve["detector_name"] = detector
+                request_det_retrieve["detectors"] = {}
+                request_det_retrieve["detectors"][detector] = {}
+                output_file_prefix = request.get("output_file_prefix", "/tmp/error")
+                output_file_det = f'{output_file_prefix}.{detector}.h5'
+                detector_retrieve(request_det_retrieve, output_file_det)
+             
 
         elif writer_type == broker_config.TAG_POWER_ON:
             _logger.info("Power ON detector")

@@ -12,6 +12,8 @@ from threading import Thread
 from time import sleep
 
 PEDESTAL_FRAMES=5000
+# TODO : put in in config            
+DIR_NAME_RUN_INFO = "run_info"
 
 _logger = logging.getLogger(__name__)
 
@@ -33,6 +35,28 @@ def ip_to_console(remote_ip):
         elif remote_ip[:11] == "129.129.246":
             beamline = "maloja"
     return beamline
+
+def get_current_run_number(daq_directory=None, file_run="LAST_RUN"):
+    if daq_directory is None:
+        return None
+
+    last_run_file = daq_directory + "/" + file_run
+    if not os.path.exists(last_run_file):
+        run_file = open(last_run_file, "w")
+        run_file.write("0")
+        run_file.close()
+
+    run_file = open(last_run_file, "r")
+    last_run = int(run_file.read())
+    run_file.close()
+
+    current_run = last_run + 1
+
+    run_file = open(last_run_file, "w")
+    run_file.write(str(current_run))
+    run_file.close()
+
+    return current_run
 
 class BrokerManager(object):
     REQUIRED_PARAMETERS = ["output_file"]
@@ -114,9 +138,6 @@ class BrokerManager(object):
         if beamline not in allowed_detectors_beamline:
             return {"status" : "failed", "message" : "request is made from beamline which doesnt have detectors"}
 
-        if "start_pulseid" not in request:
-            return {"status" : "failed", "message" : "no start pluseid provided in request parameters"}
-
         rate_multiplicator = request.get("rate_multiplicator", 1)
 
         if "detectors" not in request:
@@ -131,24 +152,66 @@ class BrokerManager(object):
             if det not in allowed_detectors_beamline[beamline]:
                 return {"status" : "failed", "message" : f"{det} not belongs to the {beamline}"}
 
-        stop_pulseid = int(request["start_pulseid"])+PEDESTAL_FRAMES*rate_multiplicator
+        if "pgroup" not in request:
+            return {"status" : "failed", "message" : "no pgroup in request parameters"}
+        pgroup = request["pgroup"]
+
+        path_to_pgroup = f'/sf/{beamline}/data/{pgroup}/raw/'
+        if not os.path.exists(path_to_pgroup):
+            return {"status" : "failed", "message" : f'pgroup directory {path_to_pgroup} not reachable'}
+
+        # Force output directory name to be JF_pedestals
+        request["directory_name"] = "JF_pedestals"
+
+        full_path = path_to_pgroup+request["directory_name"]
+
+        daq_directory = f'{path_to_pgroup}{DIR_NAME_RUN_INFO}'
+        if not os.path.exists(daq_directory):
+            try:
+                os.mkdir(daq_directory)
+            except:
+                return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space"}
+
+        if os.path.exists(f'{daq_directory}/CLOSED'):
+            return {"status" : "failed", "message" : f'{path_to_pgroup} is closed for writing'}
+
+        current_run = get_current_run_number(daq_directory)
+
+        current_run_thousand = current_run//1000*1000
+        run_info_directory = f'{daq_directory}/{current_run_thousand:06}'
+        if not os.path.exists(run_info_directory):
+            # shouldn't fail here, since before was successful in creation of daq_directory
+            os.mkdir(run_info_directory)
+
+        run_file_json = f'{run_info_directory}/run_{current_run:06}.json'
+
+        with open(run_file_json, "w") as request_json_file:
+            json.dump(request, request_json_file, indent=2)
+
         pedestal_request = {"detectors": detectors, 
                             "rate_multiplicator": rate_multiplicator,
                             "writer_type": broker_config.TAG_PEDESTAL, 
                             "channels": None, 
-                            "start_pulse_id": request["start_pulseid"],
-                            "stop_pulse_id": stop_pulseid,
+                            "start_pulse_id": 0,
+                            "stop_pulse_id": 100,
                             "output_file": None,
-                            "run_log_file": None,
+                            "run_log_file": f'{run_info_directory}/run_{current_run:06}.PEDESTAL.log',
                             "metadata": None,
-                            "timestamp": None
+                            "timestamp": None,
+                            "run_file_json" : run_file_json,
+                            "current_run" : current_run,
+                            "path_to_pgroup" : path_to_pgroup,
+                            "run_info_directory" : run_info_directory,
+                            "output_file_prefix" :f'{full_path}/run_{current_run:06}',
+                            "directory_name" : request.get("directory_name"),
+                            "request_time" : str(datetime.now())
                            }
         self.broker_client.open()
         self.broker_client.send(pedestal_request, broker_config.TAG_PEDESTAL)
         self.broker_client.close()
 
         time_to_wait = PEDESTAL_FRAMES/100*rate_multiplicator+10
-        return {"status" : "ok", "message" : f"will do a pedestal now, wait at least {time_to_wait} seconds", "stop_pulseid": stop_pulseid}
+        return {"status" : "ok", "message" : f"will do a pedestal now, wait at least {time_to_wait} seconds", "run" : str(current_run)}
 
 
     def retrieve(self, request=None, remote_ip=None, beamline_force=None):
@@ -212,8 +275,6 @@ class BrokerManager(object):
         if "directory_name" in request and request["directory_name"] is not None:
             full_path = path_to_pgroup+request["directory_name"]
 
-# TODO : put in in config            
-        DIR_NAME_RUN_INFO = "run_info"
         daq_directory = f'{path_to_pgroup}{DIR_NAME_RUN_INFO}'
         if not os.path.exists(daq_directory):
             try:
@@ -251,21 +312,7 @@ class BrokerManager(object):
             request["channels_list"] = list(set(request["channels_list"]))
             request["channels_list"].sort()
  
-        last_run_file = daq_directory + "/LAST_RUN"
-        if not os.path.exists(last_run_file):
-            run_file = open(last_run_file, "w")
-            run_file.write("0")
-            run_file.close()
-
-        run_file = open(last_run_file, "r")
-        last_run = int(run_file.read())
-        run_file.close()
-
-        current_run = last_run + 1
-
-        run_file = open(last_run_file, "w")
-        run_file.write(str(current_run))
-        run_file.close()
+        current_run = get_current_run_number(daq_directory)
 
         request["beamline"]     = beamline
         request["run_number"]   = current_run
