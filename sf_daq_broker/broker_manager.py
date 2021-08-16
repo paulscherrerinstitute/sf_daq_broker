@@ -200,6 +200,12 @@ class BrokerManager(object):
 
         full_path = path_to_pgroup+request["directory_name"]
 
+        if not os.path.exists(full_path):
+            try:
+                os.makedirs(full_path)
+            except:
+                return {"status" : "failed", "message" : f'no permission or possibility to make directory in pgroup space {full_path}'}
+
         daq_directory = f'{path_to_pgroup}{DIR_NAME_RUN_INFO}'
         if not os.path.exists(daq_directory):
             try:

@@ -27,11 +27,6 @@ def take_pedestal(detectors_name=[], rate=1):
 
     start_pulse_id = int(pulse_id_pv.get())
 
-    #HG0
-    for detector in detectors:
-        detector.settings = detectorSettings.DYNAMICHG0
-    sleep(10*rate)
-
     #G0
     for detector in detectors:
         detector.settings = detectorSettings.DYNAMICGAIN

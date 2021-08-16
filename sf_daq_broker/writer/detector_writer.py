@@ -18,6 +18,7 @@ except:
 from sf_daq_broker import config, utils
 
 from sf_daq_broker.writer.export_file import convert_file
+from sf_daq_broker.detector.make_crystfel_list import make_crystfel_list
 
 _logger = logging.getLogger("broker_writer")
 
@@ -51,7 +52,7 @@ def detector_retrieve(request, output_file_detector):
         if "directory_name" in request and request["directory_name"] is not None:
             raw_file_name = raw_file_name + request["directory_name"]
             if not os.path.isdir(raw_file_name):
-                os.makedirs(raw_file_name)
+                os.makedirs(raw_file_name, exist_ok=True)
             raw_file_name = f'{raw_file_name}/run_{current_run:06}.{detector}.h5'
 
     number_modules = int(detector[5:7])
@@ -75,6 +76,9 @@ def detector_retrieve(request, output_file_detector):
         copy_pedestal_file(request_time, res_file_name, detector, detector_config_file)
 
     if convert_ju_file:
+        output_dir = os.path.dirname(output_file_detector)
+        if not os.path.isdir(output_dir):
+            os.makedirs(output_dir, exist_ok=True)
         _logger.info(f'Will do file conversion {raw_file_name} {output_file_detector} {run_file_json} {detector_config_file}')
         time_start = time()
         try:
@@ -84,32 +88,18 @@ def detector_retrieve(request, output_file_detector):
             _logger.error(f"Error message : {e}")
         _logger.info(f"Conversion Time : {time()-time_start}")
 
-def h5_printname(name):
-    print("  {}".format(name))
+        crystfel_lists = request["detectors"][detector].get("crystfel_lists_laser", False)
+        if crystfel_lists:
+           make_crystfel_list(output_file_detector, run_file_json, detector) 
 
-def forcedGainValue(i, n0, n1, n2, n3):
-    if i <= n0 - 1:
-        return 0
-    if i <= (n0 + n1) - 1:
-        return 1
-    if i <= (n0 + n1 + n2) - 1:
-        return 3
-    if i <= (n0 + n1 + n2 + n3) - 1:
-        return 4
-    return 2
 
 def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0, nFramesPede=1000, 
-                         frames_G0=0, frames_G1=0, frames_G2=0, frames_HG0=0, number_frames=10000, frames_average=1000, 
+                         number_frames=10000, frames_average=1000, 
                          directory="./", gain_check=1, add_pixel_mask=None, number_bad_modules=0):
 
     if not (os.path.isfile(filename) and os.access(filename, os.R_OK)):
         _logger.info("Pedestal file {} not found, exit".format(filename))
         return
-
-    overwriteGain = False
-    if (frames_G0 + frames_G1 + frames_G2) > 0:
-        _logger.error("Treat this run as taken with {} frames in gain0, then {} frames in gain1 and {} frames in gain2".format(frames_G0, frames_G1, frames_G2))
-        overwriteGain = True
 
     f = h5py.File(filename, "r")
 
@@ -140,13 +130,13 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
 
     pixelMask = np.zeros((sh_y, sh_x), dtype=int)
 
-    adcValuesN = np.zeros((5, sh_y, sh_x))
-    adcValuesNN = np.zeros((5, sh_y, sh_x))
+    adcValuesN = np.zeros((4, sh_y, sh_x))
+    adcValuesNN = np.zeros((4, sh_y, sh_x))
 
 
     averagePedestalFrames = frames_average
 
-    nMgain = [0] * 5
+    nMgain = [0] * 4
 
     gainCheck = -1
     highG0Check = 0
@@ -168,7 +158,8 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
         image = f[data_location][n][:]
         frameData = (np.bitwise_and(image, 0b0011111111111111))
         gainData = np.bitwise_and(image, 0b1100000000000000) >> 14
-        trueGain = forcedGainValue(n, framesG0, framesG1, framesG2, framesHG0) if overwriteGain else ( (daq_rec & 0b11000000000000) >> 12 )
+
+        trueGain = ( (daq_rec & 0b11000000000000) >> 12 )
         highG0 = (daq_rec & 0b1)
 
         gainGoodAllModules = True
@@ -242,23 +233,24 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
     _logger.info(" {} : Output file with pedestal corrections in: {}".format( detector_name, full_fileNameOut))
     outFile = h5py.File(full_fileNameOut, "w")
 
-    gains = [None] * 4
-    gainsRMS = [None] * 4
+    gains = [None] * 3
+    gainsRMS = [None] * 3
 
-    for gain in range(5):
+    for gain in range(4):
+        if gain == 2:
+            continue
+        g = gain if gain < 3 else (gain-1)
         numberFramesAverage = max(1, min(averagePedestalFrames, nMgain[gain]))
         mean = adcValuesN[gain] / float(numberFramesAverage)
         mean2 = adcValuesNN[gain] / float(numberFramesAverage)
         variance = mean2 - np.float_power(mean, 2)
         stdDeviation = np.sqrt(variance)
         _logger.debug(" {} : gain {} values results (pixel ({},{}) : {} {}".format( detector_name, gain, tY, tX, mean[tY][tX], stdDeviation[tY][tX]))
-        if gain != 2:
-            g = gain if gain < 3 else (gain-1)
-            gains[g] = mean
-            gainsRMS[g] = stdDeviation
+        gains[g] = mean
+        gainsRMS[g] = stdDeviation
 
-            pixelMask[np.isclose(stdDeviation,0)] |= (1 << (6 + g))
- 
+        pixelMask[np.isclose(stdDeviation,0)] |= (1 << (6 + g))
+
     dset = outFile.create_dataset('pixel_mask', data=pixelMask)
     dset = outFile.create_dataset('gains', data=gains)
     dset = outFile.create_dataset('gainsRMS', data=gainsRMS)
