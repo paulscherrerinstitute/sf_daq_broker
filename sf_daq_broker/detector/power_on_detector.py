@@ -58,9 +58,10 @@ def power_on_detector(detector_name=None, beamline=None):
         _logger.error(f"can not stop detector triggering : {e}")
         return
 
+    #sleep few second to give epics a chance to switch code
+    sleep(4)
+
     event_code = int(event_code_pv.get())
-    #sleep 1 second to give epics a chance to switch code
-    sleep(1)
     if event_code != 255:
         _logger.error(f"trigger is not stopped {event_code}")
         return
