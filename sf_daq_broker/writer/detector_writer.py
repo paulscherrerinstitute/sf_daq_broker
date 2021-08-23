@@ -1,7 +1,7 @@
 import logging
 import os
 from datetime import datetime
-from time import time
+from time import time, sleep
 
 import numpy as np
 import h5py
@@ -73,6 +73,9 @@ def detector_retrieve(request, output_file_detector):
     _logger.info("Finished retrieve from the buffer")
 
     if "directory_name" in request and request["directory_name"] == "JF_pedestals":
+        # sleep few seconds, to make sure h5 file is readable (strange but got problem rarely trying to read it)
+        sleep(2)
+
         time_start = time()
         if detector in PEDESTAL_SPECIFIC:
             create_pedestal_file(filename=raw_file_name, directory=os.path.dirname(raw_file_name), **PEDESTAL_SPECIFIC[detector])
