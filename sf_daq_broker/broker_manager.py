@@ -216,6 +216,9 @@ class BrokerManager(object):
         if os.path.exists(f'{daq_directory}/CLOSED'):
             return {"status" : "failed", "message" : f'{path_to_pgroup} is closed for writing'}
 
+        if "request_time" not in request:
+            request["request_time"] = str(datetime.now())
+
         current_run = get_current_run_number(daq_directory)
 
         current_run_thousand = current_run//1000*1000
