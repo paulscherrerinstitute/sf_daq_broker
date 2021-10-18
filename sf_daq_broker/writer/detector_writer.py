@@ -62,7 +62,7 @@ def detector_retrieve(request, output_file_detector):
             raw_file_name = raw_file_name + request["directory_name"]
             if not os.path.isdir(raw_file_name):
                 os.makedirs(raw_file_name, exist_ok=True)
-            raw_file_name = f'{raw_file_name}/run_{current_run:06}.{detector}.h5'
+        raw_file_name = f'{raw_file_name}/run_{current_run:06}.{detector}.h5'
 
     number_modules = int(detector[5:7])
     retrieve_command_from_buffer = f'/home/dbe/bin/sf_writer {raw_file_name} /gpfs/photonics/swissfel/buffer/{detector} {number_modules} {det_start_pulse_id} {det_stop_pulse_id} {rate_multiplicator}'
@@ -73,8 +73,8 @@ def detector_retrieve(request, output_file_detector):
     _logger.info("Finished retrieve from the buffer")
 
     if "directory_name" in request and request["directory_name"] == "JF_pedestals":
-        # sleep few seconds, to make sure h5 file is readable (strange but got problem rarely trying to read it)
-        sleep(2)
+        # sleep, to make sure h5 file is readable (strange but got problem rarely trying to read it)
+        sleep(60)
 
         time_start = time()
         if detector in PEDESTAL_SPECIFIC:

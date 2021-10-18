@@ -165,7 +165,13 @@ def process_request(request):
                 request_det_retrieve["detectors"][detector] = {}
                 output_file_prefix = request.get("output_file_prefix", "/tmp/error")
                 output_file_det = f'{output_file_prefix}.{detector}.h5'
-                detector_retrieve(request_det_retrieve, output_file_det)
+                try:
+                    detector_retrieve(request_det_retrieve, output_file_det)
+                except Exception as ex:
+                    _logger.exception("Error while trying to retrieve and convert pedestal data")
+                    _logger.error(f'request_det_retrieve={request_det_retrieve} output_file_det={output_file_det}')
+                    _logger.error(ex)
+                    
              
 
         elif writer_type == broker_config.TAG_POWER_ON:
