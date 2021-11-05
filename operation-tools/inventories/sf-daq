@@ -128,6 +128,26 @@ JF07_3m_visualisation_title=16M_3m_Jungfrau_Bernina
 JF07_3m_last_module_number=02
 JF07_3m_initial_udp_port=50100
 
+#JF09
+JF09_detector_short_name=JF09
+JF09_detector_full_name=JF09T01V01
+JF09_visualisation_incoming_data_port=9009
+JF09_visualisation_port=5009
+JF09_visualisation_view=square
+JF09_visualisation_title=FLEX1
+JF09_last_module_number=00
+JF09_initial_udp_port=50150
+
+#JF10
+JF10_detector_short_name=JF10
+JF10_detector_full_name=JF10T01V01
+JF10_visualisation_incoming_data_port=9010
+JF10_visualisation_port=5010
+JF10_visualisation_view=square
+JF10_visualisation_title=FLEX2
+JF10_last_module_number=00
+JF10_initial_udp_port=50160
+
 #JF14
 JF14_detector_short_name=JF14
 JF14_detector_full_name=JF14T01V01
