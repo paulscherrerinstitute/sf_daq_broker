@@ -1,6 +1,6 @@
 import os
 from slsdet import Jungfrau
-from slsdet.enums import timingMode
+from slsdet.enums import timingMode, detectorSettings
 
 import epics
 
@@ -74,13 +74,12 @@ def power_on_detector(detector_name=None, beamline=None):
         _logger.info(f'{detector_name} (number {detector_number}) can not be stopped, may be was not initialised before')
 
     detector.freeSharedMemory()
+
     try:
         detector.loadConfig(config_file)
         detector.powerchip = True
         detector.highvoltage = 120
 
-        detector.stopDetector()
-      
         detector.timing = timingMode.TRIGGER_EXPOSURE
         detector.triggers = 500000000
         if detector_number == 15:
@@ -89,7 +88,6 @@ def power_on_detector(detector_name=None, beamline=None):
             detector.exptime = 5e-06
         detector.frames = 1
         detector.dr = 16
-        detector.clearBit(0x5d,0)
 
         detector.startDetector()
 
