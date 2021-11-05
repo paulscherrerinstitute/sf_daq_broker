@@ -1,4 +1,4 @@
-from slsdet import Jungfrau, detectorSettings
+from slsdet import Jungfrau, gainMode
 from time import sleep
 
 import epics
@@ -20,33 +20,28 @@ def take_pedestal(detectors_name=[], rate=1):
 
     pulse_id_pv = epics.PV(pulse_id_source)
 
-    # reset bits
+    # switch detectors to G0 mode
     for detector in detectors:
-        detector.settings = detectorSettings.DYNAMICGAIN
+        detector.gainmode = gainMode.DYNAMIC
     sleep(1)
 
     start_pulse_id = int(pulse_id_pv.get())
 
-    #G0
-    for detector in detectors:
-        detector.settings = detectorSettings.DYNAMICGAIN
-    sleep(10*rate)
-
     #G1
     for detector in detectors:
-        detector.settings = detectorSettings.FORCESWITCHG1
+        detector.gainmode = gainMode.FORCE_SWITCH_G1
     sleep(10*rate)
 
     #G2
     for detector in detectors:
-        detector.settings = detectorSettings.FORCESWITCHG2
+        detector.gainmode = gainMode.FORCE_SWITCH_G2
     sleep(10*rate)
 
     stop_pulse_id = int(pulse_id_pv.get())
 
-    # reset bits
+    # switch detector back to dynamic mode
     for detector in detectors:
-        detector.settings = detectorSettings.DYNAMICGAIN
+        detector.gainmode = gainMode.DYNAMIC
     sleep(1)
 
     det_start_pulse_id = 0
