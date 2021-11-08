@@ -27,6 +27,9 @@ def take_pedestal(detectors_name=[], rate=1):
 
     start_pulse_id = int(pulse_id_pv.get())
 
+    # collect in G0
+    sleep(10*rate)
+
     #G1
     for detector in detectors:
         detector.gainmode = gainMode.FORCE_SWITCH_G1
