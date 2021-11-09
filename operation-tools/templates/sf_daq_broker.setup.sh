@@ -21,7 +21,7 @@ envtest=$(conda env list | grep ${CONDA_ENV_NAME})
 
 if [ $? != 0 ]; then
   echo "Creating the ${CONDA_ENV_NAME} environment"
-  conda create -y -n ${CONDA_ENV_NAME} -c paulscherrerinstitute -c conda-forge data_api jungfrau_utils cadump
+  conda create -y -n ${CONDA_ENV_NAME} -c paulscherrerinstitute -c conda-forge data_api jungfrau_utils bitshuffle=0.3.5
 
   conda deactivate
   conda activate ${CONDA_ENV_NAME}

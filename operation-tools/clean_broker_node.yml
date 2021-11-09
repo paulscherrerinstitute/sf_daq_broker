@@ -15,4 +15,4 @@
   tasks:
     - name: remove daq software
       shell: |
-          rm -rf /home/dbe/git /home/dbe/miniconda3 /home/dbe/service_scripts 
+          rm -rf /home/dbe/git /home/dbe/miniconda3 /home/dbe/service_scripts /home/dbe/bin
