@@ -1,5 +1,5 @@
 [Unit]
-Description=All sf-daq_writers detector writers (retreive and conversion)
+Description=All sf-daq_writers detector writers (retrieve and conversion)
 
 [Service]
 Type=oneshot

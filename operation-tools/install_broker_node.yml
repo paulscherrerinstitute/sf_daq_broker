@@ -17,19 +17,22 @@
     - name: install execution scripts
       template: src={{item.src}} dest={{item.dest}}
       with_items:
-      - { src: 'templates/sf-daq_broker.start.sh',            dest: '/home/dbe/service_scripts/sf-daq_broker.start.sh' }
-      - { src: 'templates/sf-daq_writer.start.sh',            dest: '/home/dbe/service_scripts/sf-daq_writer.start.sh' }
+      - { src: 'templates/sf-daq_broker.start.sh',                              dest: '/home/dbe/service_scripts/sf-daq_broker.start.sh' }
+      - { src: 'templates/sf-daq_writer.start.sh',                              dest: '/home/dbe/service_scripts/sf-daq_writer.start.sh' }
       - { src: 'templates/sf-daq_detector_retrieve_writer.start.sh',            dest: '/home/dbe/service_scripts/sf-daq_detector_retrieve_writer.start.sh' }
+      - { src: 'templates/sf-daq_detector_actions.start.sh',                    dest: '/home/dbe/service_scripts/sf-daq_detector_actions.start.sh' }
 
     - name: install service files for all services
       become_user: root
       template: src={{item.src}} dest={{item.dest}}
       with_items:
-      - { src: 'templates/sf-daq_broker.service',             dest: '/etc/systemd/system/sf-daq_broker.service' }
-      - { src: 'templates/sf-daq_writer@.service',            dest: '/etc/systemd/system/sf-daq_writer@.service' }
-      - { src: 'templates/sf-daq_writers.service',            dest: '/etc/systemd/system/sf-daq_writers.service' }
+      - { src: 'templates/sf-daq_broker.service',                               dest: '/etc/systemd/system/sf-daq_broker.service' }
+      - { src: 'templates/sf-daq_writer@.service',                              dest: '/etc/systemd/system/sf-daq_writer@.service' }
+      - { src: 'templates/sf-daq_writers.service',                              dest: '/etc/systemd/system/sf-daq_writers.service' }
       - { src: 'templates/sf-daq_detector_retrieve_writer@.service',            dest: '/etc/systemd/system/sf-daq_detector_retrieve_writer@.service' }
       - { src: 'templates/sf-daq_detector_retrieve_writers.service',            dest: '/etc/systemd/system/sf-daq_detector_retrieve_writers.service' }
+      - { src: 'templates/sf-daq_detector_actions_worker@.service',             dest: '/etc/systemd/system/sf-daq_detector_actions_worker@.service' }
+      - { src: 'templates/sf-daq_detector_actions_workers.service',             dest: '/etc/systemd/system/sf-daq_detector_actions_workers.service' }
 
 - import_playbook: install_sf_daq_buffer.yml
   vars:
@@ -70,5 +73,11 @@
           state=started
           name=sf-daq_detector_retrieve_writers.service
           daemon_reload=yes
+    - name: start sf-daq_detector_actions service
+      systemd:
+          state=started
+          name=sf-daq_detector_actions_workers.service
+          daemon_reload=yes
+
 
 
