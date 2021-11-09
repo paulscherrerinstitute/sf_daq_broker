@@ -169,8 +169,11 @@ def process_request(request):
                     detector_retrieve(request_det_retrieve, output_file_det)
                 except Exception as ex:
                     _logger.exception("Error while trying to retrieve and convert pedestal data")
-                    _logger.error(f'request_det_retrieve={request_det_retrieve} output_file_det={output_file_det}')
-                    _logger.error(ex)
+                    sleep(120)
+                    try:
+                        detector_retrieve(request_det_retrieve, output_file_det)
+                    except Exception as ex2:
+                        _logger.exception("(second attempt) Error while trying to retrieve and convert pedestal data") 
                     
              
 
@@ -282,6 +285,9 @@ def start_service(broker_url, writer_type=0):
     if writer_type == 2:
         routing_key   = broker_config.DETECTOR_CONVERSION_ROUTE
         request_queue = broker_config.DETECTOR_CONVERSION_QUEUE
+    if writer_type == 3:
+        routing_key   = broker_config.DETECTOR_PEDESTAL_ROUTE
+        request_queue = broker_config.DETECTOR_PEDESTAL_QUEUE
  
     channel.queue_declare(queue=request_queue, auto_delete=True)
     channel.queue_bind(queue=request_queue,
@@ -310,7 +316,7 @@ def run():
     parser.add_argument("--writer_id", default=1, type=int,
                         help="Id of the writer")
     parser.add_argument("--writer_type", default=0, type=int,
-                        help="Type of the writer (0-epics/bs/camera/pedestal; 1 - detector retrieve; 2 - detector conversion)")
+                        help="Type of the writer (0-epics/bs/camera; 1 - detector retrieve; 2 - detector conversion; 3 - pedestal)")
 
     args = parser.parse_args()
 

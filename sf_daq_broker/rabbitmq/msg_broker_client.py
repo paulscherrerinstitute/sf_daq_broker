@@ -43,14 +43,14 @@ class RabbitMqClient(object):
         routing_key = broker_config.DEFAULT_ROUTE
         if ( tag == broker_config.TAG_DATABUFFER or 
              tag == broker_config.TAG_IMAGEBUFFER or 
-             tag == broker_config.TAG_EPICS or
-             tag == broker_config.TAG_PEDESTAL or
-             tag == broker_config.TAG_POWER_ON):
+             tag == broker_config.TAG_EPICS ):
             routing_key = broker_config.DEFAULT_ROUTE
         elif tag == broker_config.TAG_DETECTOR_RETRIEVE:
             routing_key = broker_config.DETECTOR_RETRIEVE_ROUTE
         elif tag == broker_config.TAG_DETECTOR_CONVERT:
             routing_key = broker_config.DETECTOR_CONVERSION_ROUTE
+        elif ( tag == broker_config.TAG_PEDESTAL or tag == broker_config.TAG_POWER_ON ):
+            routing_key = broker_config.DETECTOR_PEDESTAL_ROUTE
 
         body_bytes = json.dumps(write_request).encode()
 

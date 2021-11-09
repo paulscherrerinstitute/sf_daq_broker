@@ -15,6 +15,9 @@ DETECTOR_RETRIEVE_ROUTE = "detector.retrieve"
 DETECTOR_CONVERSION_QUEUE = "detector_convert"
 DETECTOR_CONVERSION_ROUTE = "detector.convert"
 
+DETECTOR_PEDESTAL_QUEUE = "detector_pedestal"
+DETECTOR_PEDESTAL_ROUTE = "detector.pedestal"
+
 # Name of the tags for rabbitmq requests.
 TAG_DATABUFFER = "databuffer"
 TAG_IMAGEBUFFER = "imagebuffer"
