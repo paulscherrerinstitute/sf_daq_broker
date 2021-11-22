@@ -152,6 +152,16 @@ JF10_visualisation_title=FLEX2
 JF10_last_module_number=00
 JF10_initial_udp_port=50160
 
+#JF13
+JF13_detector_short_name=JF13
+JF13_detector_full_name=JF13T01V01
+JF13_visualisation_incoming_data_port=9013
+JF13_visualisation_port=5013
+JF13_visualisation_view=square
+JF13_visualisation_title=vacuum
+JF13_last_module_number=00
+JF13_initial_udp_port=50190
+
 #JF14
 JF14_detector_short_name=JF14
 JF14_detector_full_name=JF14T01V01
