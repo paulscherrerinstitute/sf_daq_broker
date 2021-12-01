@@ -27,11 +27,7 @@ PEDESTAL_SPECIFIC = { "JF02T09V02" : {"number_bad_modules" : 1},
                       "JF06T08V02" : {"add_pixel_mask" : "/sf/alvra/config/jungfrau/pixel_mask/JF06T08V01/mask_2lines_module3.h5"},
                       "JF07T32V01" : {"add_pixel_mask" : "/sf/bernina/config/jungfrau/pixel_mask/JF07T32V01/pixel_mask_13_full.h5"},
                       "JF10T01V01" : {"number_bad_modules" : 1},
-                      "JF11T04V01" : {"number_bad_modules" : 2},
-                      "JF13T01V01" : {"add_pixel_mask" : "/sf/bernina/config/jungfrau/pixel_mask/JF13T01V01/pixel_mask_bad_rb_22.09.2020.h5"} }
-
-#"JF06T08V02" : {"add_pixel_mask" : "/sf/alvra/config/jungfrau/pixel_mask/JF06T32V02/mask_noise_in_28.h5"}
-#"JF06T08V02" : {"add_pixel_mask" : "/sf/alvra/config/jungfrau/pixel_mask/JF06T08V01/mask_2lines_module3.asics_lines.h5"}
+                      "JF11T04V01" : {"number_bad_modules" : 2} }
 
 def detector_retrieve(request, output_file_detector):
 
