@@ -87,7 +87,7 @@ def transform_range_from_pulse_id_to_timestamp_new(data_api_request):
     new_data_api_request = deepcopy(data_api_request)
 
     try:
-        start_seconds = pulse_id_to_seconds(data_api_request["range"]["startPulseId"])
+        start_seconds = pulse_id_to_seconds(data_api_request["range"]["startPulseId"]-1)
         stop_seconds  = pulse_id_to_seconds(data_api_request["range"]["endPulseId"]+1)
 
         if start_seconds != 0 and stop_seconds != 0 and start_seconds < stop_seconds:
