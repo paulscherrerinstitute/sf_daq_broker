@@ -28,8 +28,14 @@ def is_it_dark(laser_mode, detector_rate, pulseid):
         dark = True
     elif laser_mode == 1:
         dark = False
+    elif laser_mode == 12:
+        if (pulseid % int(100/detector_rate*3)) == 0:
+            dark = False
     elif laser_mode == 13:
         if (pulseid % int(100/detector_rate*4)) == 0:
+            dark = False
+    elif laser_mode == 14:
+        if (pulseid % int(100/detector_rate*5)) == 0:
             dark = False
     else:
         if (pulseid + int(100/detector_rate) ) % dark_rate == 0:
@@ -42,12 +48,21 @@ def is_it_dark(laser_mode, detector_rate, pulseid):
 def which_dark(laser_mode, detector_rate, pulseid):
 
     dark_mode = -1
-    if laser_mode != 13:
+    if laser_mode not in [12, 13, 14]:
         dark_mode = 0
     else:
-        for m in range(1,4):
-            if ((pulseid-m*int(100/detector_rate)) % int(100/detector_rate*4)) == 0:
-                dark_mode = m
+        if laser_mode == 12:
+            for m in range(1,3):
+                if ((pulseid-m*int(100/detector_rate)) % int(100/detector_rate*3)) == 0:
+                    dark_mode = m
+        if laser_mode == 13:
+            for m in range(1,4):
+                if ((pulseid-m*int(100/detector_rate)) % int(100/detector_rate*4)) == 0:
+                    dark_mode = m
+        if laser_mode == 14:
+            for m in range(1,5):
+                if ((pulseid-m*int(100/detector_rate)) % int(100/detector_rate*5)) == 0:
+                    dark_mode = m
 
     return dark_mode
 
@@ -95,7 +110,7 @@ def make_crystfel_list(data_file, run_info_file, detector):
         nProcessedFrames += 1
         if is_it_dark(laser_mode, detector_rate, p):
             index_dark.append(i)
-            if laser_mode == 13:
+            if laser_mode in [12, 13, 14]:
                 dark_mode = which_dark(laser_mode, detector_rate, p)
                 if dark_mode not in index_dark_mode:
                     index_dark_mode[dark_mode] = []
