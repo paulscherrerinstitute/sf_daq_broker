@@ -221,11 +221,7 @@ class BrokerManager(object):
 
         current_run = get_current_run_number(daq_directory)
 
-        current_run_thousand = current_run//1000*1000
-        run_info_directory = f'{daq_directory}/{current_run_thousand:06}'
-        if not os.path.exists(run_info_directory):
-            # shouldn't fail here, since before was successful in creation of daq_directory
-            os.mkdir(run_info_directory)
+        run_info_directory = f'{full_path}'
 
         run_file_json = f'{run_info_directory}/run_{current_run:06}.json'
 
@@ -314,6 +310,10 @@ class BrokerManager(object):
             request["directory_name"] = request["directory_name"].replace(" ","_")
             # remove possibility to reffer to directory name with ".." (potentially allowing to write to another pgroup)
             request["directory_name"] = request["directory_name"].replace("..","_")
+            # keep only tail (no subdirectories)
+            request["directory_name"] = os.path.basename(request["directory_name"])
+            if request["directory_name"] == '' or request["directory_name"] == '.':
+                request["directory_name"] = 'not_defined'
 
         full_path = path_to_pgroup
         if "directory_name" in request and request["directory_name"] is not None:
@@ -362,13 +362,28 @@ class BrokerManager(object):
         request["run_number"]   = current_run
         request["request_time"] = str(datetime.now())
 
-        current_run_thousand = current_run//1000*1000
-        run_info_directory = f'{daq_directory}/{current_run_thousand:06}' 
-        if not os.path.exists(run_info_directory):
-            # shouldn't fail here, since before was successful in creation of daq_directory
-            os.mkdir(run_info_directory)
- 
-        run_file_json = f'{run_info_directory}/run_{current_run:06}.json'
+        if not os.path.exists(full_path):
+            try:
+                os.makedirs(full_path)
+            except:
+                return {"status" : "failed", "message" : f'no permission or possibility to make directory in pgroup space {full_path}'}
+
+        run_info_directory =    f'{full_path}/logs'
+        meta_directory =        f'{full_path}/meta'
+        output_data_directory = f'{full_path}/data'
+
+        try:
+            if not os.path.exists(run_info_directory):
+                os.mkdir(run_info_directory)
+            if not os.path.exists(meta_directory):
+                os.mkdir(meta_directory)
+            if not os.path.exists(output_data_directory):
+                os.mkdir(output_data_directory)
+        except:
+            # should not come here, directory should already exists (either made few lines above or in the previous data taking to that directory)
+            return {"status" : "failed", "message" : f'no permission or possibility to make directories in pgroup space {full_path} (meta,logs,data)'}
+
+        run_file_json = f'{meta_directory}/run_{current_run:06}.json'
 
         with open(run_file_json, "w") as request_json_file:
             json.dump(request, request_json_file, indent=2)
@@ -382,13 +397,9 @@ class BrokerManager(object):
                      "general/instrument": beamline
         }
 
-        if not os.path.exists(full_path):
-            try:
-                os.makedirs(full_path)
-            except:
-                return {"status" : "failed", "message" : f'no permission or possibility to make directory in pgroup space {full_path}'}
-
-        output_file_prefix = f'{full_path}/run_{current_run:06}'
+        output_file_prefix = f'{output_data_directory}/run_{current_run:06}'
+        if not os.path.exists(output_data_directory):
+            os.mkdir(output_data_directory)
 
         def send_write_request(tag, channels, filename_suffix):
 
@@ -467,34 +478,39 @@ class BrokerManager(object):
 
         self.broker_client.close()
 
-        if "scan_info" in request:
-            request_scan_info = request["scan_info"]
-            if "scan_name" in request_scan_info:
-                each_scan_fields = ["scan_readbacks", "scan_step_info", "scan_values", "scan_readbacks_raw"]
-                scan_name = request_scan_info["scan_name"]
-                scan_dir = path_to_pgroup+"/scan_info"
-                if not os.path.exists(scan_dir):
-                    os.makedirs(scan_dir)
-                scan_info_file = scan_dir+"/"+scan_name+".json"
-                if not os.path.exists(scan_info_file):
-                    scan_info = {"scan_files" : [], "pulseIds": []}
-                    scan_info["scan_parameters"] = {}
-                    for scan_key in request_scan_info:
-                        if scan_key not in each_scan_fields:
-                            scan_info["scan_parameters"][scan_key] = request_scan_info[scan_key]
-                    for scan_step_field in each_scan_fields:
-                        scan_info[scan_step_field] = [] 
-                else:
-                    with open(scan_info_file) as json_file:
-                        scan_info = json.load(json_file)
+        each_scan_fields = ["scan_readbacks", "scan_step_info", "scan_values", "scan_readbacks_raw"]
 
-                for scan_step_field in each_scan_fields:
-                    scan_info[scan_step_field].append(request_scan_info.get(scan_step_field, []))
+        request_scan_info = request.get("scan_info", {"scan_name": "dummy", 
+                                                      "Id": ["dummy"], 
+                                                      "name": ["dummy"], 
+                                                      "offset": [0],
+                                                      "conversion_factor": [1.0],
+                                                      "scan_readbacks": [0],
+                                                      "scan_readbacks_raw": [0],
+                                                      "scan_values": [0]})
+#        if "scan_name" in request_scan_info:
+#            scan_name = request_scan_info["scan_name"]
+#            scan_info_file = f'{meta_directory}/{scan_name}.json'
+        scan_info_file = f'{meta_directory}/scan.json'
+        if not os.path.exists(scan_info_file):
+            scan_info = {"scan_files" : [], "pulseIds": []}
+            scan_info["scan_parameters"] = {}
+            for scan_key in request_scan_info:
+                if scan_key not in each_scan_fields:
+                    scan_info["scan_parameters"][scan_key] = request_scan_info[scan_key]
+            for scan_step_field in each_scan_fields:
+                scan_info[scan_step_field] = [] 
+        else:
+            with open(scan_info_file) as json_file:
+                scan_info = json.load(json_file)
 
-                scan_info["scan_files"].append(output_files_list)
-                scan_info["pulseIds"].append([start_pulse_id, stop_pulse_id])
+        for scan_step_field in each_scan_fields:
+            scan_info[scan_step_field].append(request_scan_info.get(scan_step_field, []))
 
-                with open(scan_info_file, 'w') as json_file:
-                    json.dump(scan_info, json_file, indent=4)
+        scan_info["scan_files"].append(output_files_list)
+        scan_info["pulseIds"].append([start_pulse_id, stop_pulse_id])
+
+        with open(scan_info_file, 'w') as json_file:
+            json.dump(scan_info, json_file, indent=4)
 
         return {"status" : "ok", "message" : str(current_run) }

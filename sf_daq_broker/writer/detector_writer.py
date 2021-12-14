@@ -53,12 +53,10 @@ def detector_retrieve(request, output_file_detector):
 
     raw_file_name = output_file_detector 
     if convert_ju_file:
-        raw_file_name = f'{path_to_pgroup}/RAW_DATA/'
-        if "directory_name" in request and request["directory_name"] is not None:
-            raw_file_name = raw_file_name + request["directory_name"]
-            if not os.path.isdir(raw_file_name):
-                os.makedirs(raw_file_name, exist_ok=True)
-        raw_file_name = f'{raw_file_name}/run_{current_run:06}.{detector}.h5'
+        raw_file_name = raw_file_name.replace("/data/","/raw_data/")
+        raw_dir = os.path.dirname(raw_file_name)
+        if not os.path.isdir(raw_dir):
+            os.makedirs(raw_dir, exist_ok=True)
 
     number_modules = int(detector[5:7])
     retrieve_command_from_buffer = f'/home/dbe/bin/sf_writer {raw_file_name} /gpfs/photonics/swissfel/buffer/{detector} {number_modules} {det_start_pulse_id} {det_stop_pulse_id} {rate_multiplicator}'
