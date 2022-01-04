@@ -58,6 +58,17 @@ def get_current_run_number(daq_directory=None, file_run="LAST_RUN"):
 
     return current_run
 
+def get_current_step_in_scan(meta_directory=None):
+    if meta_directory is None:
+        return None
+
+    list = os.listdir(meta_directory) 
+    number_files = len(list)
+
+    current_step = 0 if number_files==0 else number_files-1
+
+    return current_step
+
 class BrokerManager(object):
     REQUIRED_PARAMETERS = ["output_file"]
 
@@ -356,12 +367,6 @@ class BrokerManager(object):
             request["channels_list"] = list(set(request["channels_list"]))
             request["channels_list"].sort()
  
-        current_run = get_current_run_number(daq_directory)
-
-        request["beamline"]     = beamline
-        request["run_number"]   = current_run
-        request["request_time"] = str(datetime.now())
-
         if not os.path.exists(full_path):
             try:
                 os.makedirs(full_path)
@@ -383,7 +388,13 @@ class BrokerManager(object):
             # should not come here, directory should already exists (either made few lines above or in the previous data taking to that directory)
             return {"status" : "failed", "message" : f'no permission or possibility to make directories in pgroup space {full_path} (meta,logs,data)'}
 
-        run_file_json = f'{meta_directory}/run_{current_run:06}.json'
+        current_run = get_current_step_in_scan(meta_directory)
+
+        request["beamline"]     = beamline
+        request["run_number"]   = current_run
+        request["request_time"] = str(datetime.now())
+
+        run_file_json = f'{meta_directory}/{current_run:06}.json'
 
         with open(run_file_json, "w") as request_json_file:
             json.dump(request, request_json_file, indent=2)
@@ -397,7 +408,7 @@ class BrokerManager(object):
                      "general/instrument": beamline
         }
 
-        output_file_prefix = f'{output_data_directory}/run_{current_run:06}'
+        output_file_prefix = f'{output_data_directory}/{current_run:06}'
         if not os.path.exists(output_data_directory):
             os.mkdir(output_data_directory)
 
@@ -409,7 +420,7 @@ class BrokerManager(object):
             output_file = f'{output_file_prefix}.{filename_suffix}.h5'
             output_files_list.append(output_file)
 
-            run_log_file = f'{run_info_directory}/run_{current_run:06}.{filename_suffix}.log'
+            run_log_file = f'{run_info_directory}/{current_run:06}.{filename_suffix}.log'
 
             write_request = get_writer_request(writer_type=tag,
                                                channels=channels,
