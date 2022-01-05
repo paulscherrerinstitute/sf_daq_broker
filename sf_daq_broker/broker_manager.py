@@ -20,8 +20,9 @@ _logger = logging.getLogger(__name__)
 allowed_detectors_beamline = { "alvra" : [ "JF02T09V02", "JF06T08V02", "JF06T32V02", "JF08T01V01", "JF09T01V01", "JF10T01V01"],
                                "bernina" : [ "JF01T03V01", "JF03T01V02", "JF04T01V01", "JF05T01V01", "JF07T32V01", "JF07T03V01", "JF13T01V01", "JF14T01V01"],
                                "furka" : [],
-                               "maloja" : [ "JF15T08V01"]
+                               "maloja" : []
                              }
+# "maloja" : [ "JF15T08V01"]
 
 def ip_to_console(remote_ip):
     beamline = None
@@ -75,7 +76,7 @@ class BrokerManager(object):
     def __init__(self, broker_client):
         self.broker_client = broker_client
 
-    def get_next_acquistion_number(self, request=None, remote_ip=None):
+    def get_next_run_number(self, request=None, remote_ip=None):
 
         if not request:
             return {"status" : "failed", "message" : "request parameters are empty"}
@@ -106,7 +107,7 @@ class BrokerManager(object):
         if os.path.exists(f'{daq_directory}/CLOSED'):
             return {"status" : "failed", "message" : f'{path_to_pgroup} is closed for writing'}
 
-        next_run = get_current_run_number(daq_directory, file_run="LAST_ARUN")
+        next_run = get_current_run_number(daq_directory, file_run="LAST_RUN")
 
         return {"status" : "ok", "message" : str(next_run) }
 
@@ -230,11 +231,11 @@ class BrokerManager(object):
         if "request_time" not in request:
             request["request_time"] = str(datetime.now())
 
-        current_run = get_current_run_number(daq_directory)
+        current_acq = get_current_run_number(daq_directory, file_run="LAST_ARUN")
 
         run_info_directory = f'{full_path}'
 
-        run_file_json = f'{run_info_directory}/run_{current_run:06}.json'
+        run_file_json = f'{run_info_directory}/run_{current_acq:06}.json'
 
         with open(run_file_json, "w") as request_json_file:
             json.dump(request, request_json_file, indent=2)
@@ -246,14 +247,13 @@ class BrokerManager(object):
                             "start_pulse_id": 0,
                             "stop_pulse_id": 100,
                             "output_file": None,
-                            "run_log_file": f'{run_info_directory}/run_{current_run:06}.PEDESTAL.log',
+                            "run_log_file": f'{run_info_directory}/run_{current_acq:06}.PEDESTAL.log',
                             "metadata": None,
                             "timestamp": None,
                             "run_file_json" : run_file_json,
-                            "current_run" : current_run,
                             "path_to_pgroup" : path_to_pgroup,
                             "run_info_directory" : run_info_directory,
-                            "output_file_prefix" :f'{full_path}/run_{current_run:06}',
+                            "output_file_prefix" :f'{full_path}/run_{current_acq:06}',
                             "directory_name" : request.get("directory_name"),
                             "request_time" : str(datetime.now())
                            }
@@ -262,8 +262,11 @@ class BrokerManager(object):
         self.broker_client.close()
 
         time_to_wait = PEDESTAL_FRAMES/100*rate_multiplicator+10
-        return {"status" : "ok", "message" : f"will do a pedestal now, wait at least {time_to_wait} seconds", "run" : str(current_run)}
 
+        return {"status" : "ok", "message" : f"will do a pedestal now, wait at least {time_to_wait} seconds", 
+                                 "run_number" : str(0),
+                                 "acquisition_number": str(0),
+                                 "unique_acquisition_number": str(current_acq) }
 
     def retrieve(self, request=None, remote_ip=None, beamline_force=None):
 
@@ -316,19 +319,23 @@ class BrokerManager(object):
         if not os.path.exists(path_to_pgroup):
             return {"status" : "failed", "message" : f'pgroup directory {path_to_pgroup} not reachable'}
 
-        if "directory_name" in request and request["directory_name"] is not None:
-            # happened already that directory name were made with spaces, which make problem to propagate to linux scripts
-            request["directory_name"] = request["directory_name"].replace(" ","_")
-            # remove possibility to reffer to directory name with ".." (potentially allowing to write to another pgroup)
-            request["directory_name"] = request["directory_name"].replace("..","_")
-            # keep only tail (no subdirectories)
-            request["directory_name"] = os.path.basename(request["directory_name"])
-            if request["directory_name"] == '' or request["directory_name"] == '.':
-                request["directory_name"] = 'not_defined'
+        if "run_number" in request and "user_tag" in request:
+            output_run_directory = f'run_{request["run_number"]:06}'
+        else:
+            if "directory_name" in request and request["directory_name"] is not None:
+                # happened already that directory name were made with spaces, which make problem to propagate to linux scripts
+                request["directory_name"] = request["directory_name"].replace(" ","_")
+                # remove possibility to reffer to directory name with ".." (potentially allowing to write to another pgroup)
+                request["directory_name"] = request["directory_name"].replace("..","_")
+                # keep only tail (no subdirectories)
+                request["directory_name"] = os.path.basename(request["directory_name"])
+                if request["directory_name"] == '' or request["directory_name"] == '.':
+                    request["directory_name"] = 'not_defined'
+                output_run_directory = request["directory_name"] 
+            else:
+                output_run_directory = 'not_defined'
 
-        full_path = path_to_pgroup
-        if "directory_name" in request and request["directory_name"] is not None:
-            full_path = path_to_pgroup+request["directory_name"]
+        full_path = f'{path_to_pgroup}{output_run_directory}'
 
         daq_directory = f'{path_to_pgroup}{DIR_NAME_RUN_INFO}'
         if not os.path.exists(daq_directory):
@@ -388,13 +395,17 @@ class BrokerManager(object):
             # should not come here, directory should already exists (either made few lines above or in the previous data taking to that directory)
             return {"status" : "failed", "message" : f'no permission or possibility to make directories in pgroup space {full_path} (meta,logs,data)'}
 
-        current_run = get_current_step_in_scan(meta_directory)
+        run_number = request.get("run_number", 0)
+
+        current_acq = get_current_step_in_scan(meta_directory)
+        unique_acq = get_current_run_number(daq_directory, file_run="LAST_ARUN")
 
         request["beamline"]     = beamline
-        request["run_number"]   = current_run
+        request["acquisition_number"]   = current_acq
         request["request_time"] = str(datetime.now())
+        request["unique_acquisition_run_number"] = unique_acq
 
-        run_file_json = f'{meta_directory}/{current_run:06}.json'
+        run_file_json = f'{meta_directory}/{current_acq:06}.json'
 
         with open(run_file_json, "w") as request_json_file:
             json.dump(request, request_json_file, indent=2)
@@ -408,7 +419,7 @@ class BrokerManager(object):
                      "general/instrument": beamline
         }
 
-        output_file_prefix = f'{output_data_directory}/{current_run:06}'
+        output_file_prefix = f'{output_data_directory}/{current_acq:06}'
         if not os.path.exists(output_data_directory):
             os.mkdir(output_data_directory)
 
@@ -420,7 +431,7 @@ class BrokerManager(object):
             output_file = f'{output_file_prefix}.{filename_suffix}.h5'
             output_files_list.append(output_file)
 
-            run_log_file = f'{run_info_directory}/{current_run:06}.{filename_suffix}.log'
+            run_log_file = f'{run_info_directory}/{current_acq:06}.{filename_suffix}.log'
 
             write_request = get_writer_request(writer_type=tag,
                                                channels=channels,
@@ -472,11 +483,9 @@ class BrokerManager(object):
             request_detector["path_to_pgroup"]     = path_to_pgroup
             request_detector["rate_multiplicator"] = rate_multiplicator
             request_detector["run_file_json"]      = run_file_json
-            request_detector["current_run"]        = current_run
             request_detector["run_info_directory"] = run_info_directory
             request_detector["request_time"]       = request["request_time"]
-            if "directory_name" in request:
-                request_detector["directory_name"] = request["directory_name"]
+            request_detector["directory_name"]     = output_run_directory
 
             for detector in request["detectors"]:
                 request_detector_send = request_detector
@@ -524,4 +533,20 @@ class BrokerManager(object):
         with open(scan_info_file, 'w') as json_file:
             json.dump(scan_info, json_file, indent=4)
 
-        return {"status" : "ok", "message" : str(current_run) }
+        if "run_number" in request and "user_tag" in request:
+            catalog_directory = f'{path_to_pgroup}catalog'
+            try:
+                if not os.path.exists(catalog_directory):
+                    os.mkdir(catalog_directory)
+                tag_file = f'{catalog_directory}/{request["user_tag"]}.run_{request["run_number"]:06}'
+                if not os.path.exists(tag_file):
+                    os.symlink(f'../{output_run_directory}', tag_file)
+            except:
+                _logger.info(f'Can not create user tag for run {request["run_number"]}, tag {request["user_tag"]}')
+            _logger.info(f'Creating user tag for run {request["run_number"]}, tag {request["user_tag"]}')
+
+
+        return {"status" : "ok", "message" : "OK", 
+                                 "run_number" : str(run_number), 
+                                 "acquisition_number": str(current_acq), 
+                                 "unique_acquisition_number": str(unique_acq) }

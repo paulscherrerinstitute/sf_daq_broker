@@ -153,7 +153,6 @@ def process_request(request):
                                      "rate_multiplicator" : request.get("rate_multiplicator", 1),
                                      "run_file_json"      : request.get("run_file_json", None),
                                      "path_to_pgroup"     : request.get("path_to_pgroup", None),
-                                     "current_run"        : request.get("current_run", None),
                                      "run_info_directory" : request.get("run_info_directory", None),
                                      "directory_name"     : request.get("directory_name"),
                                      "request_time"       : request.get("request_time", str(datetime.now()))

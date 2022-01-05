@@ -38,7 +38,6 @@ def detector_retrieve(request, output_file_detector):
     rate_multiplicator = request["rate_multiplicator"]
     run_file_json      = request["run_file_json"]
     path_to_pgroup     = request["path_to_pgroup"]
-    current_run        = request["current_run"]
     run_info_directory = request["run_info_directory"]
 
     detector_config_file = f'/gpfs/photonics/swissfel/buffer/config/{detector}.json'
@@ -53,7 +52,9 @@ def detector_retrieve(request, output_file_detector):
 
     raw_file_name = output_file_detector 
     if convert_ju_file:
-        raw_file_name = raw_file_name.replace("/data/","/raw_data/")
+        detector_filename = os.path.basename(raw_file_name)
+        detector_dir = os.path.dirname(os.path.dirname(raw_file_name))
+        raw_file_name = f'{detector_dir}/raw_data/{detector_filename}'
         raw_dir = os.path.dirname(raw_file_name)
         if not os.path.isdir(raw_dir):
             os.makedirs(raw_dir, exist_ok=True)
