@@ -54,6 +54,36 @@
           src: templates/clean_buffer.cron
           dest: /etc/cron.d/clean_buffer.cron
 
+- name: start crond service
+  hosts: '{{ host }}'
+  become: true
+  tasks:
+    - name: start sf-daq_broker service
+      systemd:
+          state=started
+          name=sf-daq_broker.service
+          daemon_reload=yes
+
+- name: rabbitmq service
+  hosts: '{{ host }}'
+  become: true
+  become_user: dbe
+  tasks:
+    - name: install script
+      template:
+          src: templates/sf-msg-broker.start.sh
+          dest: /home/dbe/service_scripts/sf-msg-broker.start.sh
+          mode: '0755'
+    - name: start docker service
+      become_user: root
+      systemd:
+          state=started
+          enabled=yes
+          name=docker
+    - name: execute setup script
+      become_user: root
+      shell: /home/dbe/service_scripts/sf-msg-broker.start.sh
+
 - name: start broker services
   hosts: '{{ host }}'
   become: true
@@ -77,6 +107,12 @@
       systemd:
           state=started
           name=sf-daq_detector_actions_workers.service
+          daemon_reload=yes
+    - name: start crond service
+      systemd:
+          state=started
+          enabled=yes
+          name=crond
           daemon_reload=yes
 
 

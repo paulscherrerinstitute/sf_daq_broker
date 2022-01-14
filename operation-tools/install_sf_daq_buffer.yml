@@ -35,10 +35,21 @@
           dest: /home/dbe/service_scripts/check_config_changed.sh
           mode: '0755'
 
+    - name: script for proper zeromq version installation
+      template:
+          src: templates/install_zeromq.sh
+          dest: /home/dbe/service_scripts/install_zeromq.sh
+          mode: '0755'
+      
     - name: install sudoers rule for telegraph
       become_user: root
       template:
           src: templates/detector_monitor.sudoers
           dest: /etc/sudoers.d/detector_monitor
+
+    - name: install proper zeromq version 
+      become_user: root
+      shell: /home/dbe/service_scripts/install_zeromq.sh
+
 
 
