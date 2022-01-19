@@ -68,7 +68,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
             double_pixels=double_pixels_action,
             gap_pixels=gap_pixels,
             geometry=geometry,
-            parallel=False,
+            parallel=True,
         ) as juf:
             n_input_frames = len(juf["data"])
             good_frames = np.nonzero(juf["is_good_frame"])[0]
