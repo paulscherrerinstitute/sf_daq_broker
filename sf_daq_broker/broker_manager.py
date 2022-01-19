@@ -37,7 +37,7 @@ def ip_to_console(remote_ip):
             beamline = "maloja"
     return beamline
 
-def get_current_run_number(daq_directory=None, file_run="LAST_RUN"):
+def get_current_run_number(daq_directory=None, file_run="LAST_RUN", increment_run_number=True):
     if daq_directory is None:
         return None
 
@@ -51,11 +51,14 @@ def get_current_run_number(daq_directory=None, file_run="LAST_RUN"):
     last_run = int(run_file.read())
     run_file.close()
 
-    current_run = last_run + 1
+    if not increment_run_number:
+        current_run = last_run
+    else:
+        current_run = last_run + 1
 
-    run_file = open(last_run_file, "w")
-    run_file.write(str(current_run))
-    run_file.close()
+        run_file = open(last_run_file, "w")
+        run_file.write(str(current_run))
+        run_file.close()
 
     return current_run
 
@@ -66,7 +69,7 @@ def get_current_step_in_scan(meta_directory=None):
     list = os.listdir(meta_directory) 
     number_files = len(list)
 
-    current_step = 0 if number_files==0 else number_files-1
+    current_step = 1 if number_files==0 else number_files
 
     return current_step
 
@@ -76,7 +79,7 @@ class BrokerManager(object):
     def __init__(self, broker_client):
         self.broker_client = broker_client
 
-    def get_next_run_number(self, request=None, remote_ip=None):
+    def get_next_run_number(self, request=None, remote_ip=None, increment_run_number=True):
 
         if not request:
             return {"status" : "failed", "message" : "request parameters are empty"}
@@ -107,7 +110,7 @@ class BrokerManager(object):
         if os.path.exists(f'{daq_directory}/CLOSED'):
             return {"status" : "failed", "message" : f'{path_to_pgroup} is closed for writing'}
 
-        next_run = get_current_run_number(daq_directory, file_run="LAST_RUN")
+        next_run = get_current_run_number(daq_directory, file_run="LAST_RUN", increment_run_number=increment_run_number)
 
         return {"status" : "ok", "message" : str(next_run) }
 
@@ -231,11 +234,13 @@ class BrokerManager(object):
         if "request_time" not in request:
             request["request_time"] = str(datetime.now())
 
-        current_acq = get_current_run_number(daq_directory, file_run="LAST_ARUN")
+        request_time=datetime.now() 
+
+        pedestal_name = f'{request_time.strftime("%Y%m%d_%H%M%S")}'
 
         run_info_directory = f'{full_path}'
 
-        run_file_json = f'{run_info_directory}/run_{current_acq:06}.json'
+        run_file_json = f'{run_info_directory}/{pedestal_name}.json'
 
         with open(run_file_json, "w") as request_json_file:
             json.dump(request, request_json_file, indent=2)
@@ -247,15 +252,15 @@ class BrokerManager(object):
                             "start_pulse_id": 0,
                             "stop_pulse_id": 100,
                             "output_file": None,
-                            "run_log_file": f'{run_info_directory}/run_{current_acq:06}.PEDESTAL.log',
+                            "run_log_file": f'{run_info_directory}/{pedestal_name}.PEDESTAL.log',
                             "metadata": None,
                             "timestamp": None,
                             "run_file_json" : run_file_json,
                             "path_to_pgroup" : path_to_pgroup,
                             "run_info_directory" : run_info_directory,
-                            "output_file_prefix" :f'{full_path}/run_{current_acq:06}',
+                            "output_file_prefix" :f'{full_path}/{pedestal_name}',
                             "directory_name" : request.get("directory_name"),
-                            "request_time" : str(datetime.now())
+                            "request_time" : str(request_time)
                            }
         self.broker_client.open()
         self.broker_client.send(pedestal_request, broker_config.TAG_PEDESTAL)
@@ -266,7 +271,7 @@ class BrokerManager(object):
         return {"status" : "ok", "message" : f"will do a pedestal now, wait at least {time_to_wait} seconds", 
                                  "run_number" : str(0),
                                  "acquisition_number": str(0),
-                                 "unique_acquisition_number": str(current_acq) }
+                                 "unique_acquisition_number": str(0) }
 
     def retrieve(self, request=None, remote_ip=None, beamline_force=None):
 
@@ -318,22 +323,12 @@ class BrokerManager(object):
         path_to_pgroup = f'/sf/{beamline}/data/{pgroup}/raw/'
         if not os.path.exists(path_to_pgroup):
             return {"status" : "failed", "message" : f'pgroup directory {path_to_pgroup} not reachable'}
+  
+        if "run_number" not in request:
+            request["run_number"] = get_current_run_number(daq_directory, file_run="LAST_RUN")
 
-        if "run_number" in request and "user_tag" in request:
-            output_run_directory = f'run_{request["run_number"]:06}'
-        else:
-            if "directory_name" in request and request["directory_name"] is not None:
-                # happened already that directory name were made with spaces, which make problem to propagate to linux scripts
-                request["directory_name"] = request["directory_name"].replace(" ","_")
-                # remove possibility to reffer to directory name with ".." (potentially allowing to write to another pgroup)
-                request["directory_name"] = request["directory_name"].replace("..","_")
-                # keep only tail (no subdirectories)
-                request["directory_name"] = os.path.basename(request["directory_name"])
-                if request["directory_name"] == '' or request["directory_name"] == '.':
-                    request["directory_name"] = 'not_defined'
-                output_run_directory = request["directory_name"] 
-            else:
-                output_run_directory = 'not_defined'
+        run_number = request.get("run_number", 0)        
+        output_run_directory = f'run{run_number:04}'
 
         full_path = f'{path_to_pgroup}{output_run_directory}'
 
@@ -395,8 +390,6 @@ class BrokerManager(object):
             # should not come here, directory should already exists (either made few lines above or in the previous data taking to that directory)
             return {"status" : "failed", "message" : f'no permission or possibility to make directories in pgroup space {full_path} (meta,logs,data)'}
 
-        run_number = request.get("run_number", 0)
-
         current_acq = get_current_step_in_scan(meta_directory)
         unique_acq = get_current_run_number(daq_directory, file_run="LAST_ARUN")
 
@@ -405,7 +398,7 @@ class BrokerManager(object):
         request["request_time"] = str(datetime.now())
         request["unique_acquisition_run_number"] = unique_acq
 
-        run_file_json = f'{meta_directory}/{current_acq:06}.json'
+        run_file_json = f'{meta_directory}/acq{current_acq:04}.json'
 
         with open(run_file_json, "w") as request_json_file:
             json.dump(request, request_json_file, indent=2)
@@ -419,7 +412,7 @@ class BrokerManager(object):
                      "general/instrument": beamline
         }
 
-        output_file_prefix = f'{output_data_directory}/{current_acq:06}'
+        output_file_prefix = f'{output_data_directory}/acq{current_acq:04}'
         if not os.path.exists(output_data_directory):
             os.mkdir(output_data_directory)
 
@@ -431,7 +424,7 @@ class BrokerManager(object):
             output_file = f'{output_file_prefix}.{filename_suffix}.h5'
             output_files_list.append(output_file)
 
-            run_log_file = f'{run_info_directory}/{current_acq:06}.{filename_suffix}.log'
+            run_log_file = f'{run_info_directory}/acq{current_acq:04}.{filename_suffix}.log'
 
             write_request = get_writer_request(writer_type=tag,
                                                channels=channels,
@@ -454,10 +447,6 @@ class BrokerManager(object):
         send_write_request(broker_config.TAG_EPICS,
                            request.get("pv_list"),
                            config.OUTPUT_FILE_SUFFIX_EPICS)
-
-#        send_write_request(broker_config.TAG_DATABUFFER,
-#                           request.get("channels_list"),
-#                           config.OUTPUT_FILE_SUFFIX_DATA_BUFFER)
 
         send_write_request(broker_config.TAG_DATA3BUFFER,
                            request.get("channels_list"),
@@ -508,9 +497,6 @@ class BrokerManager(object):
                                                       "scan_readbacks": [0],
                                                       "scan_readbacks_raw": [0],
                                                       "scan_values": [0]})
-#        if "scan_name" in request_scan_info:
-#            scan_name = request_scan_info["scan_name"]
-#            scan_info_file = f'{meta_directory}/{scan_name}.json'
         scan_info_file = f'{meta_directory}/scan.json'
         if not os.path.exists(scan_info_file):
             scan_info = {"scan_files" : [], "pulseIds": []}
@@ -534,19 +520,27 @@ class BrokerManager(object):
             json.dump(scan_info, json_file, indent=4)
 
         if "run_number" in request and "user_tag" in request:
+
+            user_tag = request["user_tag"]
+            if "/" in user_tag:
+                user_tag = os.path.basename(user_tag)
+            user_tag = user_tag.replace(" ","_")
+            user_tag = user_tag.replace("..","_")
+
             catalog_directory = f'{path_to_pgroup}catalog'
             try:
                 if not os.path.exists(catalog_directory):
                     os.mkdir(catalog_directory)
-                tag_file = f'{catalog_directory}/{request["user_tag"]}.run_{request["run_number"]:06}'
+                tag_file = f'{catalog_directory}/{user_tag}.run{request["run_number"]:04}'
                 if not os.path.exists(tag_file):
                     os.symlink(f'../{output_run_directory}', tag_file)
+                _logger.info(f'Creating user tag for run {request["run_number"]}, tag {user_tag}')
             except:
-                _logger.info(f'Can not create user tag for run {request["run_number"]}, tag {request["user_tag"]}')
-            _logger.info(f'Creating user tag for run {request["run_number"]}, tag {request["user_tag"]}')
+                _logger.info(f'Can not create user tag for run {request["run_number"]}, tag {user_tag}')
 
 
         return {"status" : "ok", "message" : "OK", 
                                  "run_number" : str(run_number), 
                                  "acquisition_number": str(current_acq), 
-                                 "unique_acquisition_number": str(unique_acq) }
+                                 "unique_acquisition_number": str(unique_acq),
+                                 "files" : output_files_list }
