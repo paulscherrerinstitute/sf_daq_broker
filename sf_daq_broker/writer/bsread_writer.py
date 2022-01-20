@@ -96,8 +96,6 @@ def write_from_databuffer(data_api_request, output_file, metadata):
     start_time = time()
 
     new_data_api_request = deepcopy(data_api_request)
-#    new_data_api_request["range"]["startPulseId"] -= 1
-#    new_data_api_request["range"]["endPulseId"] += 1 
 
     response = requests.post(url=config.DATA_API_QUERY_ADDRESS, json=new_data_api_request, timeout=1000)
     data = json.loads(response.content)
@@ -134,10 +132,9 @@ def write_from_imagebuffer(data_api_request, output_file, parameters):
 
     channels = [channel["name"] for channel in data_api_request_timestamp["channels"]]
 
-    #start = datetime.fromtimestamp(float(data_api_request_timestamp["range"]["startSeconds"])).astimezone(
-    #    pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
-    #end = datetime.fromtimestamp(float(data_api_request_timestamp["range"]["endSeconds"])).astimezone(
-    #    pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
+    if "startTS" not in data_api_request_timestamp["range"]:
+        _logger.info("startTS not present, tranformation of pulseid to timestamp failed")
+        return
 
     start = tsfmt(data_api_request_timestamp["range"]["startTS"])
     end = tsfmt(data_api_request_timestamp["range"]["endTS"])
@@ -180,10 +177,9 @@ def write_from_databuffer_api3(data_api_request, output_file, parameters):
 
     channels = [channel["name"] for channel in data_api_request_timestamp["channels"]]
 
-    #start = datetime.fromtimestamp(float(data_api_request_timestamp["range"]["startSeconds"])).astimezone(
-    #    pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
-    #end = datetime.fromtimestamp(float(data_api_request_timestamp["range"]["endSeconds"])).astimezone(
-    #    pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
+    if "startTS" not in data_api_request_timestamp["range"]:
+        _logger.info("startTS not present, tranformation of pulseid to timestamp failed")
+        return
 
     start = tsfmt(data_api_request_timestamp["range"]["startTS"])
     end = tsfmt(data_api_request_timestamp["range"]["endTS"])

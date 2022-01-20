@@ -72,7 +72,7 @@ def pulse_id_to_seconds(pulse_id):
 
     sec = 0
     try:
-        request = requests.get(f'{config.DATA_API3_QUERY_ADDRESS}/map/pulse/{pulse_id}')
+        request = requests.get(f'{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}')
         if request.status_code == 200:
             sec = float(request.json())/1000000000.
         else:
@@ -84,9 +84,9 @@ def pulse_id_to_seconds(pulse_id):
 
 def pulse_id_to_timestamp(pulse_id):
 
-    tm = 0
+    ts = 0
     try:
-        request = requests.get(f'{config.DATA_API3_QUERY_ADDRESS}/map/pulse/{pulse_id}')
+        request = requests.get(f'{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}')
         if request.status_code == 200:
             ts = request.json()
         else:
@@ -104,7 +104,7 @@ def transform_range_from_pulse_id_to_timestamp_new(data_api_request):
         start_ts = pulse_id_to_timestamp(data_api_request["range"]["startPulseId"])
         stop_ts  = pulse_id_to_timestamp(data_api_request["range"]["endPulseId"]+1)
 
-        if start_ts!= 0 and stop_ts != 0 and start_ts < stop_ts:
+        if start_ts != 0 and stop_ts != 0 and start_ts < stop_ts:
             del new_data_api_request["range"]["startPulseId"]
             new_data_api_request["range"]["startTS"] = start_ts
             del new_data_api_request["range"]["endPulseId"]
