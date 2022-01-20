@@ -77,8 +77,8 @@ ansible-playbook --extra-vars "host=broker_production" install_broker_node.yml
 ```
 if problem persist, clean broker node from services and re-run installation:
 ```bash
-ansible-playbook --extra-vars "host=broker_test" clean_broker_node.yml
-ansible-playbook --extra-vars "host=broker_test" install_broker_node.yml
+ansible-playbook --extra-vars "host=broker_production" clean_broker_node.yml
+ansible-playbook --extra-vars "host=broker_production" install_broker_node.yml
 ```
 
 ### Problem/reconfiguration of reciever node

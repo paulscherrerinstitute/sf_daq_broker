@@ -7,6 +7,10 @@
       file:
         path: /home/dbe/service_scripts
         state: directory
+    - name: Create config directory
+      file:
+        path: /home/dbe/service_configs
+        state: directory
     - name: install setup script
       template:
           src: templates/sf_daq_broker.setup.sh
@@ -115,5 +119,31 @@
           name=crond
           daemon_reload=yes
 
-
-
+- name: install epics buffer,writer services
+  hosts: '{{ host }}'
+  become: true
+  tasks:
+    - name: install systemd file for epics buffer service
+      template:
+          src: templates/sf.epics_buffer.service
+          dest: /etc/systemd/system/sf.{{ item.beamline_name }}.epics_buffer.service
+      loop: "{{ epics_buffer_settings }}"
+    - name: install systemd file for epics writer service
+      template:
+          src: templates/sf.epics_writer.service
+          dest: /etc/systemd/system/sf.{{ item.beamline_name }}.epics_writer.service
+      loop: "{{ epics_buffer_settings }}"
+    - name: install start file for epics buffer service
+      template:
+          src: templates/sf.epics_buffer.sh
+          dest: /home/dbe/service_scripts/sf.{{ item.beamline_name }}.epics_buffer.sh
+          mode: '0755'
+          owner: 'dbe'
+      loop: "{{ epics_buffer_settings }}"
+    - name: install start file for epics writer service
+      template:
+          src: templates/sf.epics_writer.sh
+          dest: /home/dbe/service_scripts/sf.{{ item.beamline_name }}.epics_writer.sh
+          mode: '0755'
+          owner: 'dbe'
+      loop: "{{ epics_buffer_settings }}"
