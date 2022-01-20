@@ -82,21 +82,35 @@ def pulse_id_to_seconds(pulse_id):
         raise RuntimeError("Cannot convert pulse_id to time")
     return sec
 
+def pulse_id_to_timestamp(pulse_id):
+
+    tm = 0
+    try:
+        request = requests.get(f'{config.DATA_API3_QUERY_ADDRESS}/map/pulse/{pulse_id}')
+        if request.status_code == 200:
+            ts = request.json()
+        else:
+            _logger.error(f'Problem to convert {pulse_id} to timestamp. return code {request.status_code}')
+    except Exception as e:
+        _logger.error(e)
+        raise RuntimeError("Cannot convert pulse_id to time")
+    return ts
+
 def transform_range_from_pulse_id_to_timestamp_new(data_api_request):
 
     new_data_api_request = deepcopy(data_api_request)
 
     try:
-        start_seconds = pulse_id_to_seconds(data_api_request["range"]["startPulseId"]-1)
-        stop_seconds  = pulse_id_to_seconds(data_api_request["range"]["endPulseId"]+1)
+        start_ts = pulse_id_to_timestamp(data_api_request["range"]["startPulseId"])
+        stop_ts  = pulse_id_to_timestamp(data_api_request["range"]["endPulseId"]+1)
 
-        if start_seconds != 0 and stop_seconds != 0 and start_seconds < stop_seconds:
+        if start_ts!= 0 and stop_ts != 0 and start_ts < stop_ts:
             del new_data_api_request["range"]["startPulseId"]
-            new_data_api_request["range"]["startSeconds"] = start_seconds
+            new_data_api_request["range"]["startTS"] = start_ts
             del new_data_api_request["range"]["endPulseId"]
-            new_data_api_request["range"]["endSeconds"] = stop_seconds
+            new_data_api_request["range"]["endTS"] = stop_ts
         else:
-            _logger.error(f'Convertion pulse_id to time failed {start_seconds} {stop_seconds}')
+            _logger.error(f'Convertion pulse_id to time failed {start_ts} {stop_ts}')
             
     except Exception as e:
         _logger.error(e)

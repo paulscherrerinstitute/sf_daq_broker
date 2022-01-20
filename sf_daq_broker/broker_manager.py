@@ -324,20 +324,21 @@ class BrokerManager(object):
         if not os.path.exists(path_to_pgroup):
             return {"status" : "failed", "message" : f'pgroup directory {path_to_pgroup} not reachable'}
   
-        if "run_number" not in request:
-            request["run_number"] = get_current_run_number(daq_directory, file_run="LAST_RUN")
-
-        run_number = request.get("run_number", 0)        
-        output_run_directory = f'run{run_number:04}'
-
-        full_path = f'{path_to_pgroup}{output_run_directory}'
-
         daq_directory = f'{path_to_pgroup}{DIR_NAME_RUN_INFO}'
+
         if not os.path.exists(daq_directory):
             try:
                 os.mkdir(daq_directory)
             except:
                 return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space"}
+
+        if "run_number" not in request:
+            request["run_number"] = get_current_run_number(daq_directory, file_run="LAST_RUN")
+
+        run_number = request.get("run_number", 0)
+        output_run_directory = f'run{run_number:04}'
+
+        full_path = f'{path_to_pgroup}{output_run_directory}'
 
         if os.path.exists(f'{daq_directory}/CLOSED'):
             return {"status" : "failed", "message" : f'{path_to_pgroup} is closed for writing'}

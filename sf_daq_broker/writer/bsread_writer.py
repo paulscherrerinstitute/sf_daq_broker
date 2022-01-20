@@ -2,6 +2,7 @@ import logging
 import os
 from datetime import datetime
 from time import time
+import pytz
 
 import h5py
 import numpy
@@ -20,6 +21,13 @@ except:
     _logger.warning("There is no ujson in this environment. Performance will suffer.")
     import json
 
+def tsfmt(ts):
+    ts = ts // 1000
+    n = ts // 1000000
+    m = ts % 1000000
+    s = datetime.fromtimestamp(n).astimezone(pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S")
+    s = f"{s}.{m:06d}Z"
+    return s
 
 def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, channels, output_file):
 
@@ -115,7 +123,6 @@ def write_from_databuffer(data_api_request, output_file, metadata):
 
 def write_from_imagebuffer(data_api_request, output_file, parameters):
     import data_api3.h5 as h5
-    import pytz
 
     start_pulse_id = data_api_request["range"]["startPulseId"]
     stop_pulse_id  = data_api_request["range"]["endPulseId"]
@@ -127,10 +134,13 @@ def write_from_imagebuffer(data_api_request, output_file, parameters):
 
     channels = [channel["name"] for channel in data_api_request_timestamp["channels"]]
 
-    start = datetime.fromtimestamp(float(data_api_request_timestamp["range"]["startSeconds"])).astimezone(
-        pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
-    end = datetime.fromtimestamp(float(data_api_request_timestamp["range"]["endSeconds"])).astimezone(
-        pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
+    #start = datetime.fromtimestamp(float(data_api_request_timestamp["range"]["startSeconds"])).astimezone(
+    #    pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
+    #end = datetime.fromtimestamp(float(data_api_request_timestamp["range"]["endSeconds"])).astimezone(
+    #    pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
+
+    start = tsfmt(data_api_request_timestamp["range"]["startTS"])
+    end = tsfmt(data_api_request_timestamp["range"]["endTS"])
 
     query = {
         "channels": channels,
@@ -159,7 +169,6 @@ def write_from_imagebuffer(data_api_request, output_file, parameters):
 
 def write_from_databuffer_api3(data_api_request, output_file, parameters):
     import data_api3.h5 as h5
-    import pytz
 
     _logger.debug("Data3 API request: %s", data_api_request)
 
@@ -171,10 +180,13 @@ def write_from_databuffer_api3(data_api_request, output_file, parameters):
 
     channels = [channel["name"] for channel in data_api_request_timestamp["channels"]]
 
-    start = datetime.fromtimestamp(float(data_api_request_timestamp["range"]["startSeconds"])).astimezone(
-        pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
-    end = datetime.fromtimestamp(float(data_api_request_timestamp["range"]["endSeconds"])).astimezone(
-        pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
+    #start = datetime.fromtimestamp(float(data_api_request_timestamp["range"]["startSeconds"])).astimezone(
+    #    pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
+    #end = datetime.fromtimestamp(float(data_api_request_timestamp["range"]["endSeconds"])).astimezone(
+    #    pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S.%fZ")  # isoformat()  # "2019-12-13T09:00:00.00
+
+    start = tsfmt(data_api_request_timestamp["range"]["startTS"])
+    end = tsfmt(data_api_request_timestamp["range"]["endTS"])
 
     query = {
         "channels": channels,
