@@ -76,7 +76,7 @@ JF01_initial_udp_port=50010
 
 #JF02
 JF02_detector_short_name=JF02
-JF02_detector_full_name=JF02T09V02
+JF02_detector_full_name=JF02T09V03
 JF02_visualisation_incoming_data_port=9002
 JF02_visualisation_port=5002
 JF02_visualisation_view=von_hamos
