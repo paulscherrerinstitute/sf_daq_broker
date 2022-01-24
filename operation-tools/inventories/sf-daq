@@ -39,6 +39,7 @@ number_of_detector_retrieve_writers=10
 detector_retrieve_cores="11,12,13,14,15,16,17,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18,44,43,42,41,40,39,38,37,36,45"
 number_of_detector_actions_workers=4
 detector_actions_cores="50,51,52,53,54"
+epics_buffer_container_version="1.1.6"
 epics_buffer_settings=[ { 'beamline_name': 'bernina', 'buffer_cores': 50, 'writer_cores': 51} ]
 
 [sf_daq_bernina]

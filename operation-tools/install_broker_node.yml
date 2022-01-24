@@ -147,3 +147,10 @@
           mode: '0755'
           owner: 'dbe'
       loop: "{{ epics_buffer_settings }}"
+    - name: install script to start redis
+      become_user: dbe
+      template:
+          src: templates/sf-redis.start.sh
+          dest: /home/dbe/service_scripts/sf-redis.start.sh
+          mode: '0755'
+          owner: 'dbe'

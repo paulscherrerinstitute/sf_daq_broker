@@ -1,9 +1,12 @@
 #!/bin/bash
 
 SERVICE_NAME=sf.{{ item.beamline_name }}.epics_writer
-SERVICE_VERSION=1.1.4
+SERVICE_VERSION={{ epics_buffer_container_version }}
 REDIS_HOST=127.0.0.1
 BROKER_HOST=127.0.0.1
+
+# start redis docker, if it's not running
+/home/dbe/service_scripts/sf-redis.start.sh
 
 taskset -c {{ item.writer_cores }} \
 docker run --rm --net=host \

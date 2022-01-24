@@ -1,11 +1,17 @@
 #!/bin/bash
 
 SERVICE_NAME=sf.{{ item.beamline_name }}.epics_buffer
-SERVICE_VERSION=1.1.2
+SERVICE_VERSION={{ epics_buffer_container_version }}
 REDIS_HOST=127.0.0.1
 CONFIG=/home/dbe/service_configs/sf.{{ item.beamline_name }}.epics_buffer.json
 
-touch ${CONFIG}
+# start redis docker, if it's not running
+/home/dbe/service_scripts/sf-redis.start.sh
+
+if [ ! -f ${CONFIG} ]
+then
+    echo '{"pv_list": []}' > ${CONFIG}
+fi
 
 /home/dbe/service_scripts/check_config_changed.sh ${CONFIG} sf.{{ item.beamline_name }}.epics_buffer &
 
