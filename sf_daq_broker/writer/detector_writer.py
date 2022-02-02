@@ -176,9 +176,9 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
                     if trueGain != ((daq_recs[i] & 0b11000000000000) >> 12) or highG0 != (daq_recs[i] & 0b1):
                         gainGoodAllModules = False
 
-            if highG0 == 1 and trueGain != 0:
-                gainGoodAllModules = False
-                _logger.info(" {} : Jungfrau is in the high G0 mode ({}), but gain settings is strange: {}".format( detector_name, highG0, trueGain))
+#            if highG0 == 1 and trueGain != 0:
+#                gainGoodAllModules = False
+#                _logger.info(" {} : Jungfrau is in the high G0 mode ({}), but gain settings is strange: {}".format( detector_name, highG0, trueGain))
 
             nFramesGain = np.sum(gainData==(trueGain))
             if nFramesGain < (nModules - 0.5 - n_bad_modules) * (1024 * 512):  # make sure that most are the modules are in correct gain 
@@ -208,9 +208,8 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
 
                 pixelMask[gainData != trueGain] |= (1 << (trueGain+4*highG0))
 
-                trueGain += 4 * highG0
+                #trueGain += 4 * highG0
         
-
                 nMgain[trueGain] += 1
 
                 if nMgain[trueGain] > averagePedestalFrames:
