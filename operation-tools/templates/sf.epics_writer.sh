@@ -14,7 +14,7 @@ docker run --rm --net=host \
 	-e SERVICE_NAME="${SERVICE_NAME}" \
 	-e BROKER_HOST="${BROKER_HOST}" \
 	-e REDIS_HOST="${REDIS_HOST}" \
-	-v /gpfs/photonics/swissfel/develop/epics_writer:/data \
+	-v /sf/{{ item.beamline_name }}/data:/sf/{{ item.beamline_name }}/data \
 	docker.io/paulscherrerinstitute/std-daq-service:"${SERVICE_VERSION}" \
 	epics_writer
 

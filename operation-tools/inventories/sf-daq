@@ -1,11 +1,12 @@
 [all]
 sf-daq-1.psi.ch
-sf-daq-2.psi.ch
 sf-daq-3.psi.ch
 sf-daq-4.psi.ch
 sf-daq-7.psi.ch
 sf-daq-8.psi.ch
 sf-daq-9.psi.ch
+sf-daq-10.psi.ch
+sf-daq-11.psi.ch
 
 [broker_test]
 sf-daq-1.psi.ch
@@ -19,20 +20,9 @@ number_of_detector_actions_workers=4
 detector_actions_cores="9,10,11,12,13,14"
 
 [broker_production]
-sf-daq-2.psi.ch
-
-[broker_production:vars]
-minutes_cleanup=10
-number_of_writers=8
-number_of_detector_retrieve_writers=10
-detector_retrieve_cores="9,10,11,12,13,14,15,16,17,35,34,33,32,31,30,29,28,27,26,25,24,23,22,21,20,19,18"
-number_of_detector_actions_workers=4
-detector_actions_cores="9,10,11,12,13,14"
-
-[broker_new]
 sf-daq-11.psi.ch
 
-[broker_new:vars]
+[broker_production:vars]
 minutes_cleanup=20
 number_of_writers=10
 number_of_detector_retrieve_writers=10
@@ -40,7 +30,7 @@ detector_retrieve_cores="11,12,13,14,15,16,17,35,34,33,32,31,30,29,28,27,26,25,2
 number_of_detector_actions_workers=4
 detector_actions_cores="50,51,52,53,54"
 epics_buffer_container_version="1.1.6"
-epics_buffer_settings=[ { 'beamline_name': 'bernina', 'buffer_cores': 50, 'writer_cores': 51} ]
+epics_buffer_settings=[ { 'beamline_name': 'alvra', 'buffer_cores': 46, 'writer_cores': '2,3,4,5'}, { 'beamline_name': 'bernina', 'buffer_cores': 47, 'writer_cores': '2,3,4,5'} ]
 
 [sf_daq_bernina]
 sf-daq-3.psi.ch
@@ -57,12 +47,16 @@ sf-daq-7.psi.ch
 [sf_daq_maloja]
 sf-daq-9.psi.ch
 
+[sf_daq_cristallina]
+sf-daq-10.psi.ch
+
 [sf_daq_receivers:children]
 sf_daq_bernina
 sf_daq_alvra
 sf_daq_test
 sf_daq_amd
 sf_daq_maloja
+sf_daq_cristallina
 
 [sf_daq_receivers:vars]
 #JF01
@@ -194,4 +188,14 @@ JF15_visualisation_view=square
 JF15_visualisation_title=Maloja
 JF15_last_module_number=07
 JF15_initial_udp_port=50192
+
+#JF16
+JF16_detector_short_name=JF16
+JF16_detector_full_name=JF16T03V01
+JF16_visualisation_incoming_data_port=9016
+JF16_visualisation_port=5016
+JF16_visualisation_view=bernina
+JF16_visualisation_title=Cristallina-Q1
+JF16_last_module_number=02
+JF16_initial_udp_port=50200
 
