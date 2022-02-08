@@ -15,7 +15,6 @@ requirements:
         - requests
         - data_api
         - pika
-        - pyepics
 
 build:
   number: 0
