@@ -7,10 +7,25 @@ REQUEST_EXCHANGE = "request"
 STATUS_EXCHANGE = "status"
 
 DEFAULT_QUEUE = "write_request"
+DEFAULT_ROUTE = "bs.*"
 
-# Name of the queue for rabbitmq requests.
+DETECTOR_RETRIEVE_QUEUE = "detector_retrieve"
+DETECTOR_RETRIEVE_ROUTE = "detector.retrieve"
+
+DETECTOR_CONVERSION_QUEUE = "detector_convert"
+DETECTOR_CONVERSION_ROUTE = "detector.convert"
+
+DETECTOR_PEDESTAL_QUEUE = "detector_pedestal"
+DETECTOR_PEDESTAL_ROUTE = "detector.pedestal"
+
+# Name of the tags for rabbitmq requests.
 TAG_DATABUFFER = "databuffer"
 TAG_IMAGEBUFFER = "imagebuffer"
 TAG_EPICS = "epics"
 TAG_DATA3BUFFER = "data3buffer"
 TAG_PEDESTAL = "pedestal"
+TAG_EPICS = "epics"
+TAG_DETECTOR_RETRIEVE = "detector_buffer"
+TAG_DETECTOR_CONVERT  = "detector_convert"
+TAG_POWER_ON = "detector_power_on"
+

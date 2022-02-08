@@ -4,18 +4,20 @@ DEFAULT_BROKER_REST_PORT = 10002
 DEFAULT_EPICS_WRITER_URL = "http://localhost:10200/notify"
 DEFAULT_LOG_LEVEL = "INFO"
 
-DATA_RETRIEVAL_DELAY = 60
+BSDATA_RETRIEVAL_DELAY = 60
+DETECTOR_RETRIEVAL_DELAY = 10
 
 AUDIT_FILE_TIME_FORMAT = "%Y%m%d-%H%M%S"
 
 DEFAULT_AUDIT_FILENAME = "/var/log/sf_databuffer_audit.log"
 
-# data_api and /matching query request. If sf-data-api-02 doesn't work (broke several times), switch to official one data-api.psi.ch
-DATA_API_QUERY_ADDRESS = "http://sf-data-api-02.psi.ch/query"
+DATA_API_QUERY_ADDRESS = "https://data-api.psi.ch/sf-databuffer/query"
+#DATA_API_QUERY_ADDRESS = "https://data-api.psi.ch/sf-archiverappliance/query"
 #DATA_API_QUERY_ADDRESS = "https://data-api.psi.ch/sf/query"
 IMAGE_API_QUERY_ADDRESS = ["http://172.27.0.14:8371/api/1/query", "http://172.27.0.15:8371/api/1/query"]
 DATA_API3_QUERY_ADDRESS = "http://sf-daqbuf-33:8371/api/1"
 EPICS_QUERY_ADDRESS = "https://data-api.psi.ch/sf"
+PULSEID2SECONDS_MATCHING_ADDRESS = "https://data-api.psi.ch/api/4/map/pulse/sf-databuffer"
 
 DATA_BACKEND = "sf-databuffer"
 IMAGE_BACKEND = "sf-imagebuffer"

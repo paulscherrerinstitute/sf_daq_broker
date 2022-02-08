@@ -67,7 +67,7 @@ parameters["stop_pulseid"]  = 2000 # corresponding to a time of test/use. This i
 
 The following parameters apply only when `conversion = True`, otherwise they are ignored:
 - `mask (bool)`: perform masking of bad pixels (assign them to 0), defaults to True
-- `mask_double_pixels (bool)`: also perform masking of double pixels (only applies if `mask = True`), defaults to True
+- `double_pixels_action (str)`: what to do with double pixels at chip inner edges - "keep", "mask" or "interp" ("interp" is only possible when `gap_pixels = True`), defaults to "mask"
 - `geometry (bool)`: apply geometry correction, defaults to False
 - `gap_pixels (bool)`: add gap pixels between detector chips, defaults to True
 - `factor (float, None)`: divide all pixel values by a factor and round the result, saving them as int32, keep the original values and type if None, defaults to None

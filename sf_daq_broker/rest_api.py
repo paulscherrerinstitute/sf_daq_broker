@@ -18,6 +18,26 @@ def register_rest_interface(app, manager):
     def take_pedestal():
         return manager.take_pedestal(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
 
+    @app.get("/get_allowed_detectors_list")
+    def get_allowed_detectors_list():
+        return manager.get_list_allowed_detectors(remote_ip=bottle.request.remote_addr)
+
+    @app.get("/get_running_detectors_list")
+    def get_running_detectors_list():
+        return manager.get_list_running_detectors(remote_ip=bottle.request.remote_addr)
+
+    @app.post("/power_on_detector")
+    def power_on_detector():
+        return manager.power_on_detector(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
+
+    @app.get("/get_next_run_number")
+    def get_next_run_number():
+        return manager.get_next_run_number(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
+
+    @app.get("/get_last_run_number")
+    def get_last_run_number():
+        return manager.get_next_run_number(request=bottle.request.json, remote_ip=bottle.request.remote_addr, increment_run_number=False)
+
     @app.error(500)
     def error_handler_500(error):
         bottle.response.content_type = 'application/json'

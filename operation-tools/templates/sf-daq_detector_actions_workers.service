@@ -1,0 +1,11 @@
+[Unit]
+Description=All sf-daq detector actions workers 
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/sh /home/dbe/service_scripts/sf-daq_detector_actions.start.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+

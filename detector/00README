@@ -1,6 +1,0 @@
-#conda install -c slsdetectorgroup -c conda-forge slsdetlib=5.0.1
-
-export PATH=/home/dbe/miniconda3/bin:$PATH
-source /home/dbe/miniconda3/etc/profile.d/conda.sh
-conda activate sf-daq
-

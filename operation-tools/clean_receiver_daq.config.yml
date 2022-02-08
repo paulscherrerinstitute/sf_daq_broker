@@ -2,12 +2,14 @@
   hosts: '{{ host }}'
   become: true
   tasks:
-    - name: stop, disable and remove services
+    - name: stop, disable and remove services (leave software)
       shell: |
           systemctl stop JF*
           rm -rf /etc/systemd/system/multi-user.target.wants/JF*
           rm -rf /etc/systemd/system/JF*
-          rm -rf /home/dbe/git /home/dbe/miniconda3 /home/dbe/service_scripts /home/dbe/bin
+          rm -rf /etc/telegraf/telegraf.d/JF*
+          systemctl restart telegraf
+          rm -rf /home/dbe/service_scripts/JF*
 
           
   

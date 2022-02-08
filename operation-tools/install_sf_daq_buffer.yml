@@ -9,7 +9,7 @@
         state: directory
     - name: install setup script
       template:
-          src: templates/sf_daq_buffer.setup.sh
+          src: templates/sf_daq_buffer.setup.new.sh
           dest: /home/dbe/service_scripts/sf_daq_buffer.setup.sh 
           mode: '0755'
     - name: execute setup script
@@ -24,12 +24,32 @@
         dest: '/home/dbe/bin/{{ item.dest }}'
         state: link
       loop:
-        - { src: sf_buffer, dest: sf_buffer }
-        - { src: sf_writer, dest: sf_writer }
-        - { src: sf_stream, dest: sf_stream }
+        - { src: jf_udp_recv,      dest: jf_udp_recv }
+        - { src: jf_buffer_writer, dest: jf_buffer_writer }
+        - { src: sf_stream,        dest: sf_stream }
+        - { src: jf_assembler,     dest: jf_assembler }
+        - { src: sf_writer,        dest: sf_writer }
     - name: install check for changes in configuration file script
       template:
           src: templates/check_config_changed.sh
           dest: /home/dbe/service_scripts/check_config_changed.sh
           mode: '0755'
+
+    - name: script for proper zeromq version installation
+      template:
+          src: templates/install_zeromq.sh
+          dest: /home/dbe/service_scripts/install_zeromq.sh
+          mode: '0755'
+      
+    - name: install sudoers rule for telegraph
+      become_user: root
+      template:
+          src: templates/detector_monitor.sudoers
+          dest: /etc/sudoers.d/detector_monitor
+
+    - name: install proper zeromq version 
+      become_user: root
+      shell: /home/dbe/service_scripts/install_zeromq.sh
+
+
 

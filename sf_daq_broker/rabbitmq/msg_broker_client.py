@@ -35,12 +35,22 @@ class RabbitMqClient(object):
         self.connection = None
         self.channel = None
 
-    def send(self, write_request):
+    def send(self, write_request, tag):
 
         if self.channel is None:
             raise RuntimeError("RabbitMqClient not connected.")
 
-        routing_key = "*"
+        routing_key = broker_config.DEFAULT_ROUTE
+        if ( tag == broker_config.TAG_DATABUFFER or 
+             tag == broker_config.TAG_IMAGEBUFFER or 
+             tag == broker_config.TAG_EPICS ):
+            routing_key = broker_config.DEFAULT_ROUTE
+        elif tag == broker_config.TAG_DETECTOR_RETRIEVE:
+            routing_key = broker_config.DETECTOR_RETRIEVE_ROUTE
+        elif tag == broker_config.TAG_DETECTOR_CONVERT:
+            routing_key = broker_config.DETECTOR_CONVERSION_ROUTE
+        elif ( tag == broker_config.TAG_PEDESTAL or tag == broker_config.TAG_POWER_ON ):
+            routing_key = broker_config.DETECTOR_PEDESTAL_ROUTE
 
         body_bytes = json.dumps(write_request).encode()
 
@@ -55,7 +65,7 @@ class RabbitMqClient(object):
         }
 
         self.channel.basic_publish(exchange=broker_config.STATUS_EXCHANGE,
-                                   properties=BasicProperties(
-                                       headers=status_header),
+                                   properties=BasicProperties(headers=status_header),
                                    routing_key=routing_key,
                                    body=body_bytes)
+

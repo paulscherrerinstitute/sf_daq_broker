@@ -1,0 +1,29 @@
+- import_playbook: install_sf_daq_buffer.yml
+  vars:
+      host: sf_daq_bernina
+
+- import_playbook: install_streamvis.yml
+  vars:
+      host: sf_daq_bernina
+
+
+- import_playbook: receiver_services_detector.yml
+  vars:
+      host: sf_daq_bernina
+      detector: "{{ JF14_detector_short_name }}"
+      detector_full_name: "{{ JF14_detector_full_name }}"
+      visualisation_view: "{{ JF14_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF14_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF14_visualisation_port }}"
+      visualisation_title: "{{ JF14_visualisation_title }}"
+      last_module_number: "{{ JF14_last_module_number }}"
+      initial_udp_port: "{{ JF14_initial_udp_port }}"
+
+      detector_config: "/gpfs/photonics/swissfel/buffer/config/{{ detector_full_name }}.json"
+      visualisation_alias: sf-daq-bernina
+      visualisation_cores: 15
+      stream2vis_cores: 14
+      cores_buffer_writer: 13
+      cores_udp_recv_receivers: 12
+      cores_assembler: 11
+

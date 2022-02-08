@@ -1,0 +1,156 @@
+- name: install sf_daq_broker
+  hosts: '{{ host }}'
+  become: true
+  become_user: dbe
+  tasks:
+    - name: Create service directory
+      file:
+        path: /home/dbe/service_scripts
+        state: directory
+    - name: Create config directory
+      file:
+        path: /home/dbe/service_configs
+        state: directory
+    - name: install setup script
+      template:
+          src: templates/sf_daq_broker.setup.sh
+          dest: /home/dbe/service_scripts/sf_daq_broker.setup.sh
+          mode: '0755'
+    - name: execute setup script
+      shell: /home/dbe/service_scripts/sf_daq_broker.setup.sh
+    - name: install execution scripts
+      template: src={{item.src}} dest={{item.dest}}
+      with_items:
+      - { src: 'templates/sf-daq_broker.start.sh',                              dest: '/home/dbe/service_scripts/sf-daq_broker.start.sh' }
+      - { src: 'templates/sf-daq_writer.start.sh',                              dest: '/home/dbe/service_scripts/sf-daq_writer.start.sh' }
+      - { src: 'templates/sf-daq_detector_retrieve_writer.start.sh',            dest: '/home/dbe/service_scripts/sf-daq_detector_retrieve_writer.start.sh' }
+      - { src: 'templates/sf-daq_detector_actions.start.sh',                    dest: '/home/dbe/service_scripts/sf-daq_detector_actions.start.sh' }
+
+    - name: install service files for all services
+      become_user: root
+      template: src={{item.src}} dest={{item.dest}}
+      with_items:
+      - { src: 'templates/sf-daq_broker.service',                               dest: '/etc/systemd/system/sf-daq_broker.service' }
+      - { src: 'templates/sf-daq_writer@.service',                              dest: '/etc/systemd/system/sf-daq_writer@.service' }
+      - { src: 'templates/sf-daq_writers.service',                              dest: '/etc/systemd/system/sf-daq_writers.service' }
+      - { src: 'templates/sf-daq_detector_retrieve_writer@.service',            dest: '/etc/systemd/system/sf-daq_detector_retrieve_writer@.service' }
+      - { src: 'templates/sf-daq_detector_retrieve_writers.service',            dest: '/etc/systemd/system/sf-daq_detector_retrieve_writers.service' }
+      - { src: 'templates/sf-daq_detector_actions_worker@.service',             dest: '/etc/systemd/system/sf-daq_detector_actions_worker@.service' }
+      - { src: 'templates/sf-daq_detector_actions_workers.service',             dest: '/etc/systemd/system/sf-daq_detector_actions_workers.service' }
+
+- import_playbook: install_sf_daq_buffer.yml
+  vars:
+      host: '{{ host }}'
+
+- name: install cleanup service for the detector buffer
+  hosts: '{{ host }}'
+  become: true
+  become_user: dbe
+  tasks:
+    - name: install cleanup script
+      template:
+          src: templates/delete_old_files_in_buffer.sh
+          dest: /home/dbe/service_scripts/delete_old_files_in_buffer.sh
+          mode: '0755'
+    - name: install cleanup cron
+      become_user: root
+      template:
+          src: templates/clean_buffer.cron
+          dest: /etc/cron.d/clean_buffer.cron
+
+- name: start crond service
+  hosts: '{{ host }}'
+  become: true
+  tasks:
+    - name: start sf-daq_broker service
+      systemd:
+          state=started
+          name=sf-daq_broker.service
+          daemon_reload=yes
+
+- name: rabbitmq service
+  hosts: '{{ host }}'
+  become: true
+  become_user: dbe
+  tasks:
+    - name: install script
+      template:
+          src: templates/sf-msg-broker.start.sh
+          dest: /home/dbe/service_scripts/sf-msg-broker.start.sh
+          mode: '0755'
+    - name: start docker service
+      become_user: root
+      systemd:
+          state=started
+          enabled=yes
+          name=docker
+    - name: execute setup script
+      become_user: root
+      shell: /home/dbe/service_scripts/sf-msg-broker.start.sh
+
+- name: start broker services
+  hosts: '{{ host }}'
+  become: true
+  tasks:
+    - name: start sf-daq_broker service
+      systemd: 
+          state=started 
+          name=sf-daq_broker.service
+          daemon_reload=yes
+    - name: start sf-daq_writers service
+      systemd:
+          state=started
+          name=sf-daq_writers.service
+          daemon_reload=yes
+    - name: start sf-daq_detector_retrieve_writers service
+      systemd:
+          state=started
+          name=sf-daq_detector_retrieve_writers.service
+          daemon_reload=yes
+    - name: start sf-daq_detector_actions service
+      systemd:
+          state=started
+          name=sf-daq_detector_actions_workers.service
+          daemon_reload=yes
+    - name: start crond service
+      systemd:
+          state=started
+          enabled=yes
+          name=crond
+          daemon_reload=yes
+
+- name: install epics buffer,writer services
+  hosts: '{{ host }}'
+  become: true
+  tasks:
+    - name: install systemd file for epics buffer service
+      template:
+          src: templates/sf.epics_buffer.service
+          dest: /etc/systemd/system/sf.{{ item.beamline_name }}.epics_buffer.service
+      loop: "{{ epics_buffer_settings }}"
+    - name: install systemd file for epics writer service
+      template:
+          src: templates/sf.epics_writer.service
+          dest: /etc/systemd/system/sf.{{ item.beamline_name }}.epics_writer.service
+      loop: "{{ epics_buffer_settings }}"
+    - name: install start file for epics buffer service
+      template:
+          src: templates/sf.epics_buffer.sh
+          dest: /home/dbe/service_scripts/sf.{{ item.beamline_name }}.epics_buffer.sh
+          mode: '0755'
+          owner: 'dbe'
+      loop: "{{ epics_buffer_settings }}"
+    - name: install start file for epics writer service
+      template:
+          src: templates/sf.epics_writer.sh
+          dest: /home/dbe/service_scripts/sf.{{ item.beamline_name }}.epics_writer.sh
+          mode: '0755'
+          owner: 'dbe'
+      loop: "{{ epics_buffer_settings }}"
+    - name: install script to start redis
+      become_user: dbe
+      template:
+          src: templates/sf-redis.start.sh
+          dest: /home/dbe/service_scripts/sf-redis.start.sh
+          mode: '0755'
+          owner: 'dbe'
