@@ -1,4 +1,5 @@
 import json
+import uuid
 
 import sf_daq_broker.rabbitmq.config as broker_config
 
@@ -52,10 +53,12 @@ class RabbitMqClient(object):
         elif ( tag == broker_config.TAG_PEDESTAL or tag == broker_config.TAG_POWER_ON ):
             routing_key = broker_config.DETECTOR_PEDESTAL_ROUTE
 
+        request_id = str(uuid.uuid4())
         body_bytes = json.dumps(write_request).encode()
 
         self.channel.basic_publish(exchange=broker_config.REQUEST_EXCHANGE,
                                    routing_key=routing_key,
+                                   properties=BasicProperties(correlation_id=request_id),
                                    body=body_bytes)
 
         status_header = {
@@ -65,7 +68,7 @@ class RabbitMqClient(object):
         }
 
         self.channel.basic_publish(exchange=broker_config.STATUS_EXCHANGE,
-                                   properties=BasicProperties(headers=status_header),
+                                   properties=BasicProperties(headers=status_header, correlation_id=request_id),
                                    routing_key=routing_key,
                                    body=body_bytes)
 
