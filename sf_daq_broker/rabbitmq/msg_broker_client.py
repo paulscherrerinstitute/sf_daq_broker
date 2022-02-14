@@ -52,6 +52,8 @@ class RabbitMqClient(object):
             routing_key = broker_config.DETECTOR_CONVERSION_ROUTE
         elif ( tag == broker_config.TAG_PEDESTAL or tag == broker_config.TAG_POWER_ON ):
             routing_key = broker_config.DETECTOR_PEDESTAL_ROUTE
+        elif ( tag.startswith('epics_') ):
+            routing_key = tag
 
         request_id = str(uuid.uuid4())
         body_bytes = json.dumps(write_request).encode()
