@@ -77,6 +77,13 @@ def pulse_id_to_seconds(pulse_id):
             sec = float(request.json())/1000000000.
         else:
             _logger.error(f'Problem to convert {pulse_id} to timestamp. return code {request.status_code}')
+            _logger.error(f'Trying second time')
+            time.sleep(30)
+            request = requests.get(f'{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}')
+            if request.status_code == 200:
+                sec = float(request.json())/1000000000.
+            else:
+                _logger.error(f'Problem(second time) to convert {pulse_id} to timestamp. return code {request.status_code}')
     except Exception as e:
         _logger.error(e)
         raise RuntimeError("Cannot convert pulse_id to time")
@@ -91,6 +98,13 @@ def pulse_id_to_timestamp(pulse_id):
             ts = request.json()
         else:
             _logger.error(f'Problem to convert {pulse_id} to timestamp. return code {request.status_code}')
+            _logger.error(f'Trying second time')
+            time.sleep(30)
+            request = requests.get(f'{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}')
+            if request.status_code == 200:
+                ts = request.json()
+            else:
+                _logger.error(f'Problem(second time) to convert {pulse_id} to timestamp. return code {request.status_code}')
     except Exception as e:
         _logger.error(e)
         raise RuntimeError("Cannot convert pulse_id to time")
