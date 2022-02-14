@@ -8,6 +8,7 @@
           rm -rf /etc/systemd/system/multi-user.target.wants/sf-daq*
           rm -rf /etc/systemd/system/sf-daq*
           rm -rf /etc/cron.d/clean_buffer.cron
+          rm -rf /etc/systemd/system/sf.*.epics*
 
 - name: clean broker machine from software
   hosts: '{{ host }}'
