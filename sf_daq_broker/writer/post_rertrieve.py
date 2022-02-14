@@ -63,18 +63,21 @@ data_request["range"]["endPulseId"] = run_info["stop_pulseid"]
 data_request["channels"] = [{'name': ch, 'backend': config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND}
                      for ch in channels]
 
+run_number = run_info.get("run_number", 0)
+acquisition_number = run_info.get("acquisition_number", 0)
+
 parameters = None
 
 if source == "image":
-    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/{run_info["directory_name"]}/run_{run_info["run_number"]:06}.CAMERAS.h5.2'
+    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}/data/acq{acquisition_number:04}.CAMERAS.h5.2'
 
     write_from_imagebuffer(data_request, output_file, parameters)
 elif source == "data_api3":
-    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/{run_info["directory_name"]}/run_{run_info["run_number"]:06}.BSDATA.h5'
+    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}/data/acq{acquisition_number:04}.BSDATA.h5'
 
     write_from_databuffer_api3(data_request, output_file, parameters)
 elif source == "data":
-    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/{run_info["directory_name"]}/run_{run_info["run_number"]:06}.BSREAD.h5'
+    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}/data/acq{acquisition_number:04}.BSREAD.h5'
 
     metadata = {
                  "general/user": run_info["pgroup"],
@@ -85,7 +88,7 @@ elif source == "data":
 
     write_from_databuffer(get_data_api_request(channels, start_pulse_id, stop_pulse_id), output_file, metadata)
 else:
-    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/{run_info["directory_name"]}/run_{run_info["run_number"]:06}.PVCHANNELS.h5'
+    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}/data/acq{acquisition_number:04}.PVCHANNELS.h5'
 
     metadata = {
                  "general/user": run_info["pgroup"],
