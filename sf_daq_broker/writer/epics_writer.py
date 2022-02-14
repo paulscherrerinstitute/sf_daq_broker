@@ -53,11 +53,13 @@ def get_data(channel_list, start_seconds=None, stop_seconds=None):
     _logger.info("Requesting range %s to %s for channels: %s" %
                  (start_seconds, stop_seconds, channel_list))
 
+    clean_channel_list = [c for c in channel_list if ".EGU" not in c]
+
     query = {"range": {"startSeconds": start_seconds,
                        "endSeconds": stop_seconds,
                        "startExpansion": True,
                        "endInclusive": True},
-             "channels": channel_list,
+             "channels": clean_channel_list,
              "fields": ["globalSeconds", "value", "type", "shape"]}
 
     _logger.debug("Data-api query: %s" % query)
@@ -87,8 +89,9 @@ class EpicsH5Writer(BsreadH5Writer):
 
             timestamp_data = [int(float(x["globalSeconds"]) * (10 ** 9)) for x in channel_data["data"]]
             value_data = [x["value"] for x in channel_data["data"]]
-            type_data = [x["type"] for x in channel_data["data"]]
-            shape_data = [x["shape"] for x in channel_data["data"]]
+          
+#            type_data = [x["type"] for x in channel_data["data"]]
+#            shape_data = [x["shape"] for x in channel_data["data"]]
 
             if len(timestamp_data) == 0 or len(value_data) == 0:
                 _logger.error(f"Data for PV {channel_name} does not exist.")
@@ -97,14 +100,42 @@ class EpicsH5Writer(BsreadH5Writer):
                 type_data = ["float64"]
                 shape_data = [[1]]
 
-            channel_type = type_data[0]
-            channel_shape = shape_data[0]
+#            channel_type = type_data[0]
+#            channel_shape = shape_data[0]
 
-            if any((x != channel_type for x in type_data)):
-                raise RuntimeError("Channel %s data type changed during scan." % channel_name)
+#            if any((x != channel_type for x in type_data)):
+#                raise RuntimeError("Channel %s data type changed during scan." % channel_name)
 
-            if any((x != channel_shape for x in shape_data)):
-                raise RuntimeError("Channel %s data shape changed during scan" % channel_name)
+#            if any((x != channel_shape for x in shape_data)):
+#                raise RuntimeError("Channel %s data shape changed during scan" % channel_name)
+
+            response = requests.post("https://data-api.psi.ch/sf-archiverappliance/channels/config", json={"regex": channel_name})
+            if response.status_code != 200:
+               _logger.warning(f'Channel {channel_name} request config failed. {response}')
+               continue
+            response_data = response.json()
+            #_logger.warning(f'Channel {channel_name} config : {response_data}')
+            if len(response_data[0]["channels"]) == 0:
+                _logger.error(f"Config for PV {channel_name} does not exist. Reason 1")
+                timestamp_data = []
+                value_data = [float("nan")]
+                channel_type = "float64"
+                channel_shape = [1]
+            else:
+                found_channel_config = False
+                for ich in range(len(response_data[0]["channels"])):
+                    if response_data[0]["channels"][ich]['name'] == channel_name:
+                        found_channel_config = True
+                        channel_type  = response_data[0]["channels"][ich]["type"]
+                        channel_shape = response_data[0]["channels"][ich]["shape"]
+                if not found_channel_config:
+                    _logger.error(f"Config for PV {channel_name} does not exist. Reason 2")
+                    timestamp_data = []
+                    value_data = [float("nan")]
+                    channel_type = "float64"
+                    channel_shape = [1]
+
+            #_logger.warning(f'{channel_name} {channel_type} {channel_shape} {timestamp_data} {value_data}')
 
             data[channel_name] = [channel_type, channel_shape, timestamp_data, value_data]
 
