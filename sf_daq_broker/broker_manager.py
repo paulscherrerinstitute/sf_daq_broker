@@ -11,20 +11,20 @@ from subprocess import Popen
 from threading import Thread
 from time import sleep
 
-PEDESTAL_FRAMES=5000
+PEDESTAL_FRAMES=3000
 # TODO : put in in config            
 DIR_NAME_RUN_INFO = "run_info"
 
 _logger = logging.getLogger(__name__)
 
 allowed_detectors_beamline = { "alvra"       : [ "JF02T09V03", "JF06T32V02"],
-                               "bernina"     : [ "JF01T03V01", "JF13T01V01"],
+                               "bernina"     : [ "JF01T03V01", "JF03T01V02", "JF13T01V01"],
                                "cristallina" : [ "JF16T03V01"],
                                "furka"       : [],
                                "maloja"      : [ "JF15T08V01"]
                              }
-# "alvra" : [ "JF02T09V03", "JF06T08V02", "JF06T32V02", "JF08T01V01", "JF09T01V01", "JF10T01V01"],
-# "bernina" : [ "JF03T01V02", "JF04T01V01", "JF05T01V01", "JF07T32V01", "JF07T03V01", "JF13T01V01", "JF14T01V01"],
+# "alvra" : [ "JF06T08V02", "JF08T01V01", "JF09T01V01", "JF10T01V01"],
+# "bernina" : [ "JF04T01V01", "JF05T01V01", "JF07T32V01", "JF07T03V01", "JF14T01V01"],
 
 def ip_to_console(remote_ip):
     beamline = None
@@ -338,8 +338,13 @@ class BrokerManager(object):
 
         if "run_number" not in request:
             request["run_number"] = get_current_run_number(daq_directory, file_run="LAST_RUN")
+        else:
+            current_known_run_number = get_current_run_number(daq_directory, file_run="LAST_RUN", increment_run_number=False)
+            run_number = request.get("run_number")
+            if run_number > current_known_run_number:
+                return {"status" : "failed", "message" : f"requested run_number{run_number} generated not by sf-daq"}
 
-        run_number = request.get("run_number", 0)
+        run_number = request.get("run_number")
         output_run_directory = f'run{run_number:04}'
 
         full_path = f'{path_to_pgroup}{output_run_directory}'
