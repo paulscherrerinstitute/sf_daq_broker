@@ -1,6 +1,6 @@
 from copy import deepcopy
 from logging import getLogger
-from time import time
+from time import time, sleep
 
 import requests
 
@@ -78,7 +78,7 @@ def pulse_id_to_seconds(pulse_id):
         else:
             _logger.error(f'Problem to convert {pulse_id} to timestamp. return code {request.status_code}')
             _logger.error(f'Trying second time')
-            time.sleep(30)
+            sleep(30)
             request = requests.get(f'{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}')
             if request.status_code == 200:
                 sec = float(request.json())/1000000000.
@@ -99,7 +99,7 @@ def pulse_id_to_timestamp(pulse_id):
         else:
             _logger.error(f'Problem to convert {pulse_id} to timestamp. return code {request.status_code}')
             _logger.error(f'Trying second time')
-            time.sleep(30)
+            sleep(30)
             request = requests.get(f'{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}')
             if request.status_code == 200:
                 ts = request.json()
