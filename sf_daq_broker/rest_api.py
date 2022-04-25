@@ -38,6 +38,14 @@ def register_rest_interface(app, manager):
     def get_last_run_number():
         return manager.get_next_run_number(request=bottle.request.json, remote_ip=bottle.request.remote_addr, increment_run_number=False)
 
+    @app.get("/get_pvlist")
+    def get_pvlist():
+        return manager.get_pvlist(remote_ip=bottle.request.remote_addr)
+
+    @app.post("/set_pvlist")
+    def set_pvlist():
+        return manager.set_pvlist(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
+
     @app.error(500)
     def error_handler_500(error):
         bottle.response.content_type = 'application/json'

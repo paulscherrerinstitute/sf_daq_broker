@@ -11,6 +11,8 @@ from subprocess import Popen
 from threading import Thread
 from time import sleep
 
+from shutil import copyfile
+
 PEDESTAL_FRAMES=3000
 # TODO : put in in config            
 DIR_NAME_RUN_INFO = "run_info"
@@ -82,6 +84,51 @@ class BrokerManager(object):
 
     def __init__(self, broker_client):
         self.broker_client = broker_client
+
+    def get_pvlist(self, remote_ip=None):
+
+        beamline = ip_to_console(remote_ip)
+
+        config_file = f'/home/dbe/service_configs/sf.{beamline}.epics_buffer.json'
+
+        if not os.path.exists(config_file):
+            return {"status" : f"failure, epics config file not exist for this beamline {beamline}"}
+
+        with open(config_file) as json_file:
+            config_info = json.load(json_file)
+
+        return {"pv_list": config_info["pv_list"]} 
+
+    def set_pvlist(self, request=None, remote_ip=None):
+
+        if not request:
+            return {"status" : "failed", "message" : "request parameters are empty"}
+
+        if not remote_ip:
+            return {"status" : "failed", "message" : "can not identify from which machine request were made"}
+
+        beamline = ip_to_console(remote_ip)
+
+        if not beamline:
+            return {"status" : "failed", "message" : "can not determine from which console request came, rejected"}
+
+        config_file = f'/home/dbe/service_configs/sf.{beamline}.epics_buffer.json'
+
+        if not os.path.exists(config_file):
+            return {"status" : "failed", "message" : f"failure, epics config file not exist for this beamline {beamline}"}
+
+        pv_list = request.get("pv_list", [])
+
+        config_epics = { "pulse_id_pv": "SLAAR11-LTIM01-EVR0:RX-PULSEID", "pv_list": list(set(pv_list))}
+
+        with open(config_file, "w") as json_file:
+            json.dump(config_epics, json_file, indent=2)
+
+        date_now = datetime.now()
+        date_now_str = date_now.strftime("%d-%b-%Y_%H:%M:%S")
+        copyfile(config_file, f'{config_file}.{date_now_str}')
+
+        return {"status" : "ok", "message" : config_epics["pv_list"] } 
 
     def get_next_run_number(self, request=None, remote_ip=None, increment_run_number=True):
 
