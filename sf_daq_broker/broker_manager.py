@@ -20,13 +20,13 @@ DIR_NAME_RUN_INFO = "run_info"
 _logger = logging.getLogger(__name__)
 
 allowed_detectors_beamline = { "alvra"       : [ "JF02T09V03", "JF06T32V02"],
-                               "bernina"     : [ "JF01T03V01", "JF03T01V02", "JF13T01V01", "JF14T01V01"],
+                               "bernina"     : [ "JF01T03V01", "JF03T01V02", "JF04T01V01", "JF05T01V01", "JF13T01V01", "JF14T01V01"],
                                "cristallina" : [ "JF16T03V01"],
                                "furka"       : [],
                                "maloja"      : [ "JF15T08V01"]
                              }
 # "alvra" : [ "JF06T08V02", "JF08T01V01", "JF09T01V01", "JF10T01V01"],
-# "bernina" : [ "JF04T01V01", "JF05T01V01", "JF07T32V01", "JF07T03V01"],
+# "bernina" : [ "JF07T32V01", "JF07T03V01"],
 
 def ip_to_console(remote_ip):
     beamline = None
