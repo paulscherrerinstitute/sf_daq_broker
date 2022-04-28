@@ -12,6 +12,8 @@ from threading import Thread
 from time import sleep
 
 from shutil import copyfile
+from glob import glob
+from unidecode import unidecode
 
 PEDESTAL_FRAMES=3000
 # TODO : put in in config            
@@ -394,6 +396,30 @@ class BrokerManager(object):
         run_number = request.get("run_number")
         output_run_directory = f'run{run_number:04}'
 
+        if "user_tag_cleaned" in request:
+            del request["user_tag_cleaned"]
+
+        if "user_tag" in request:
+            user_tag = unidecode(request["user_tag"])
+            if "/" in user_tag:
+                user_tag = os.path.basename(user_tag)
+            user_tag = user_tag.replace(" ","_")
+            user_tag = user_tag.replace("..","_")
+            user_tag = user_tag[:50]
+            request["user_tag_cleaned"] = user_tag
+
+        append_user_tag = request.get("append_user_tag_to_data_dir", False)
+
+        if append_user_tag and "user_tag_cleaned" in request:
+
+            user_tag = request["user_tag_cleaned"]
+            output_run_directory = f'run{run_number:04}-{user_tag}'
+
+            list_data_directories_run = glob(f'{path_to_pgroup}/run{run_number:04}*')
+            if len(list_data_directories_run) > 0:
+                if f'{path_to_pgroup}{output_run_directory}' not in list_data_directories_run:
+                    return {"status" : "failed", "message" : f'data directory for this run {run_number:04} already exists with different tag : {list_data_directories_run}, than requested {user_tag}'}
+
         full_path = f'{path_to_pgroup}{output_run_directory}'
 
         if os.path.exists(f'{daq_directory}/CLOSED'):
@@ -580,13 +606,9 @@ class BrokerManager(object):
         with open(scan_info_file, 'w') as json_file:
             json.dump(scan_info, json_file, indent=4)
 
-        if "run_number" in request and "user_tag" in request:
+        if "run_number" in request and "user_tag_cleaned" in request:
 
-            user_tag = request["user_tag"]
-            if "/" in user_tag:
-                user_tag = os.path.basename(user_tag)
-            user_tag = user_tag.replace(" ","_")
-            user_tag = user_tag.replace("..","_")
+            user_tag = request["user_tag_cleaned"]
 
             catalog_directory = f'{path_to_pgroup}catalog'
             try:
