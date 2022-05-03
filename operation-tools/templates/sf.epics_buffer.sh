@@ -11,7 +11,13 @@ CONFIG=/home/dbe/service_configs/sf.{{ item.beamline_name }}.epics_buffer.json
 
 if [ ! -f ${CONFIG} ]
 then
-    echo '{"pv_list": []}' > ${CONFIG}
+    cat <<EOF > ${CONFIG}
+{
+  "pulse_id_pv": "SLAAR11-LTIM01-EVR0:RX-PULSEID",
+  "pv_list": []
+}
+EOF
+
 fi
 
 /home/dbe/service_scripts/check_config_changed.sh ${CONFIG} sf.{{ item.beamline_name }}.epics_buffer &
@@ -25,5 +31,6 @@ docker run --rm --net=host \
 	-e EPICS_CA_ADDR_LIST=sf-daq-cagw.psi.ch:5062 \
 	-v "${CONFIG}":/std_daq_service/config.json \
 	docker.io/paulscherrerinstitute/std-daq-service:"${SERVICE_VERSION}" \
-	epics_buffer
+	epics_buffer \
+	--log_level {{ epics_buffer_log_level }}
 

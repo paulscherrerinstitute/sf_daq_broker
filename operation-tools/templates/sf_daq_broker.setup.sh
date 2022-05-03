@@ -26,7 +26,7 @@ if [ $? != 0 ]; then
   conda deactivate
   conda activate ${CONDA_ENV_NAME}
 
-  conda install -y -c conda-forge bottle pika ujson
+  conda install -y -c conda-forge bottle pika ujson unidecode
   conda install -y -c slsdetectorgroup -c conda-forge slsdet=6.1.1
   conda install -y -c paulscherrerinstitute -c conda-forge pyepics
 else

@@ -119,7 +119,7 @@
           name=crond
           daemon_reload=yes
 
-- name: install epics buffer,writer services
+- name: install epics buffer,writer and validator services
   hosts: '{{ host }}'
   become: true
   tasks:
@@ -132,6 +132,11 @@
       template:
           src: templates/sf.epics_writer.service
           dest: /etc/systemd/system/sf.{{ item.beamline_name }}.epics_writer.service
+      loop: "{{ epics_buffer_settings }}"
+    - name: install systemd file for epics validator service
+      template:
+          src: templates/sf.epics_validator.service
+          dest: /etc/systemd/system/sf.{{ item.beamline_name }}.epics_validator.service
       loop: "{{ epics_buffer_settings }}"
     - name: install start file for epics buffer service
       template:
@@ -147,6 +152,13 @@
           mode: '0755'
           owner: 'dbe'
       loop: "{{ epics_buffer_settings }}"
+    - name: install start file for epics validator service
+      template:
+          src: templates/sf.epics_validator.sh
+          dest: /home/dbe/service_scripts/sf.{{ item.beamline_name }}.epics_validator.sh
+          mode: '0755'
+          owner: 'dbe'
+      loop: "{{ epics_buffer_settings }}"
     - name: install script to start redis
       become_user: dbe
       template:
@@ -154,3 +166,27 @@
           dest: /home/dbe/service_scripts/sf-redis.start.sh
           mode: '0755'
           owner: 'dbe'
+
+- name: start epics services
+  hosts: '{{ host }}'
+  become: true
+  tasks:
+    - name: start epics buffer services
+      systemd:
+          state=started
+          name=sf.{{ item.beamline_name }}.epics_buffer.service
+          daemon_reload=yes
+      loop: "{{ epics_buffer_settings }}"
+    - name: start epics writer services
+      systemd:
+          state=started
+          name=sf.{{ item.beamline_name }}.epics_writer.service
+          daemon_reload=yes
+      loop: "{{ epics_buffer_settings }}"
+    - name: start epics validator services
+      systemd:
+          state=started
+          name=sf.{{ item.beamline_name }}.epics_validator.service
+          daemon_reload=yes
+      loop: "{{ epics_buffer_settings }}"
+
