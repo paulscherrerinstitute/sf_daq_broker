@@ -121,7 +121,7 @@ class BrokerManager(object):
 
         pv_list = request.get("pv_list", [])
 
-        config_epics = { "pulse_id_pv": "SLAAR11-LTIM01-EVR0:RX-PULSEID", "pv_list": list(set(pv_list))}
+        config_epics = { "pulse_id_pv": "SLAAR11-LTIM01-EVR0:RX-PULSEID", "pv_list": list(dict.fromkeys(pv_list))}
 
         with open(config_file, "w") as json_file:
             json.dump(config_epics, json_file, indent=2)
