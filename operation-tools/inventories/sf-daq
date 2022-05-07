@@ -202,3 +202,13 @@ JF16_visualisation_title=Cristallina-Q1
 JF16_last_module_number=02
 JF16_initial_udp_port=50200
 
+#JF17
+JF17_detector_short_name=JF17
+JF17_detector_full_name=JF17T16V01
+JF17_visualisation_incoming_data_port=9017
+JF17_visualisation_port=5017
+JF17_visualisation_view=large
+JF17_visualisation_title=Cristallina-MX
+JF17_last_module_number=15
+JF17_initial_udp_port=50203
+
