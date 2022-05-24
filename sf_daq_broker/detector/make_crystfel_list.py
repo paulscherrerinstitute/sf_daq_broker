@@ -15,8 +15,14 @@ def is_it_dark(laser_mode, detector_rate, pulseid):
         dark_rate = 100/detector_rate
         if laser_mode == 11: # 50/50 mode
             dark_rate *= 2
+        elif laser_mode == 21: # 4 lights, 1 dark sequence
+            dark_rate *= 3
+        elif laser_mode == 31: # 4 lights, 1 dark sequence
+            dark_rate *= 4
         elif laser_mode == 41: # 4 lights, 1 dark sequence
             dark_rate *= 5
+        elif laser_mode == 61: # 6 lights, 1 dark sequence
+            dark_rate *= 7
         elif laser_mode == 111: # 11 lights, 1 dark sequence
             dark_rate *= 12
         elif laser_mode == 191: # 19 lights, 1 dark sequence
