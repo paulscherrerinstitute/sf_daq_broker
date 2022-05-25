@@ -449,8 +449,10 @@ class BrokerManager(object):
 
 
         if "channels_list" in request:
-            request["channels_list"] = list(set(request["channels_list"]))
-            request["channels_list"].sort()
+            request["channels_list"] = list(dict.fromkeys(request["channels_list"]))
+
+        if "pv_list" in request:
+            request["pv_list"] = list(dict.fromkeys(request["pv_list"]))
  
         if not os.path.exists(full_path):
             try:
@@ -505,7 +507,8 @@ class BrokerManager(object):
                 return
 
             output_file = f'{output_file_prefix}.{filename_suffix}.h5'
-            output_files_list.append(output_file)
+            if filename_suffix != "PVDATA":
+                output_files_list.append(output_file)
 
             run_log_file = f'{run_info_directory}/acq{current_acq:04}.{filename_suffix}.log'
 
