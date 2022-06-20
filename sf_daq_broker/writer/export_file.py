@@ -31,6 +31,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
         conversion       = detector_params.get("adc_to_energy", False)
         disabled_modules = detector_params.get("disabled_modules", [])
         remove_raw_files = detector_params.get("remove_raw_files", False)
+        downsample       = detector_params.get("downsample", False)
         if conversion:
             mask                 = detector_params.get("mask", True)
             double_pixels_action = detector_params.get("double_pixels_action", "mask")
@@ -46,21 +47,10 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
 
     files_to_remove = set()
 
-    file_tmp = file_in
-    if len(disabled_modules)>0:
-        files_to_remove.add(file_in)
-        _logger.info(f"Will reduce data file, disabled_modules: {disabled_modules}")
-        if conversion:
-            file_tmp = file_out+".tmp"
-            files_to_remove.add(file_tmp)
-        else:
-            file_tmp = file_out
-        postprocess_raw(file_in, file_tmp, compression=compression, disabled_modules=disabled_modules)
-
-    if conversion:
+    if conversion or len(disabled_modules)>0:
         files_to_remove.add(file_in)
         with ju.File(
-            file_tmp,
+            file_in,
             gain_file=gain_file,
             pedestal_file=pedestal_file,
             conversion=conversion,
@@ -76,8 +66,10 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
 
             juf.export(
                 file_out,
+                disabled_modules=disabled_modules,
                 index=good_frames,
                 roi=None,
+                downsample=downsample,
                 compression=compression,
                 factor=factor,
                 dtype=None,
@@ -85,7 +77,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
             )
 
     else:
-        with h5py.File(file_tmp, "r") as juf:
+        with h5py.File(file_in, "r") as juf:
             n_input_frames = len(juf[f"data/{detector_name}/data"])
             good_frames = np.nonzero(juf[f"data/{detector_name}/is_good_frame"])[0]
             n_output_frames = len(good_frames)
@@ -103,6 +95,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
 
     _logger.info(f"gain_file           : {gain_file}")
     _logger.info(f"pedestal_file       : {pedestal_file}")
+    _logger.info(f"disabled_modules    : {disabled_modules}")
     _logger.info(f"conversion          : {conversion}")
     _logger.info(f"mask                : {mask}")
     _logger.info(f"double_pixels_action: {double_pixels_action}")
@@ -110,6 +103,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
     _logger.info(f"gap_pixels          : {gap_pixels}")
     _logger.info(f"compression         : {compression}")
     _logger.info(f"factor              : {factor}")
+    _logger.info(f"downsample          : {downsample}")
 
     if remove_raw_files:
         _logger.info(f'removing raw and temporary files {files_to_remove}')
