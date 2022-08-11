@@ -21,8 +21,8 @@ DIR_NAME_RUN_INFO = "run_info"
 
 _logger = logging.getLogger(__name__)
 
-allowed_detectors_beamline = { "alvra"       : [ "JF02T09V03", "JF06T32V02"],
-                               "bernina"     : [ "JF01T03V01", "JF03T01V02", "JF04T01V01", "JF05T01V01", "JF13T01V01", "JF14T01V01"],
+allowed_detectors_beamline = { "alvra"       : [ "JF02T09V03", "JF06T32V02", "JF06T08V02"],
+                               "bernina"     : [ "JF01T03V01", "JF03T01V02", "JF04T01V01", "JF05T01V01", "JF07T32V01", "JF13T01V01", "JF14T01V01"],
                                "cristallina" : [ "JF16T03V01", "JF17T16V01"],
                                "furka"       : [],
                                "maloja"      : [ "JF15T08V01"]
@@ -356,6 +356,9 @@ class BrokerManager(object):
         start_pulse_id = request["start_pulseid"]
         stop_pulse_id  = request["stop_pulseid"]
 
+        if (stop_pulse_id-start_pulse_id) > 60001 or (stop_pulse_id-start_pulse_id) < 0:
+            return {"status" : "failed", "message" : f"number of pulse_id problem: too large or negative request"}
+
         rate_multiplicator = 1
         if "rate_multiplicator" in request:
             if request["rate_multiplicator"] not in [1, 2, 4, 8, 10, 20, 40, 50, 100]:
@@ -507,7 +510,7 @@ class BrokerManager(object):
                 return
 
             output_file = f'{output_file_prefix}.{filename_suffix}.h5'
-            if filename_suffix != "PVDATA":
+            if filename_suffix != config.OUTPUT_FILE_SUFFIX_DATA3_BUFFER:
                 output_files_list.append(output_file)
 
             run_log_file = f'{run_info_directory}/acq{current_acq:04}.{filename_suffix}.log'
@@ -536,7 +539,7 @@ class BrokerManager(object):
 
         send_write_request(f'epics_{beamline}',
                            request.get("pv_list"),
-                           "PVDATA")
+                           config.OUTPUT_FILE_SUFFIX_EPICS_BUFFER)
 
         send_write_request(broker_config.TAG_DATA3BUFFER,
                            request.get("channels_list"),
