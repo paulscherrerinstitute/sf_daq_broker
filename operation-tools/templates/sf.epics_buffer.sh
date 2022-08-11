@@ -28,7 +28,7 @@ docker run --rm --net=host \
 	-e SERVICE_NAME="${SERVICE_NAME}" \
 	-e REDIS_HOST="${REDIS_HOST}" \
         -e REDIS_PORT="${REDIS_PORT}" \
-	-e EPICS_CA_ADDR_LIST=sf-daq-cagw.psi.ch:5062 \
+	-e EPICS_CA_ADDR_LIST="sf-daq-cagw.psi.ch:5062 saresa-cagw.psi.ch:5062 saresb-cagw.psi.ch:5062 saresc-cagw.psi.ch:5062 satese-cagw.psi.ch:5062 satesf-cagw.psi.ch:5062" \
 	-v "${CONFIG}":/std_daq_service/config.json \
 	docker.io/paulscherrerinstitute/std-daq-service:"${SERVICE_VERSION}" \
 	epics_buffer \

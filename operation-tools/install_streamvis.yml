@@ -3,7 +3,7 @@
   become: true
   become_user: dbe
   vars:
-      streamvis_version: 1.8.1
+      streamvis_version: 1.9.3
   tasks:
     - name: Create service directory
       file:

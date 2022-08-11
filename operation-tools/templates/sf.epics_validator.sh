@@ -18,6 +18,6 @@ docker run --rm --net=host \
         -v /gpfs/photonics/{{ item.beamline_storage }}/raw/{{ item.beamline_name }}:/gpfs/photonics/{{ item.beamline_storage }}/raw/{{ item.beamline_name }} \
 	docker.io/paulscherrerinstitute/std-daq-service:"${SERVICE_VERSION}" \
 	epics_validator \
-	--tag epics_{{ item.beamline_name }} \
+        sf.{{ item.beamline_name }}.epics_writer
 	--log_level {{ epics_buffer_log_level }}
 
