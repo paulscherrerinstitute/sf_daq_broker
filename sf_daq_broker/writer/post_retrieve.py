@@ -74,10 +74,10 @@ if source == "image":
 
     write_from_imagebuffer(data_request, output_file, parameters)
 elif source == "data_api3":
-#    if user_tag is not None:
-#        output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}-{user_tag}/data/acq{acquisition_number:04}.BSDATA2.h5'
-#    else:
-    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}/data/acq{acquisition_number:04}.BSDATA2.h5'
+    if user_tag is not None:
+        output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}-{user_tag}/data/acq{acquisition_number:04}.BSDATA2.h5'
+    else:
+        output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}/data/acq{acquisition_number:04}.BSDATA2.h5'
 
     write_from_databuffer_api3(data_request, output_file, parameters)
 elif source == "data":

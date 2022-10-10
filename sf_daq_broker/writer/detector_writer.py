@@ -23,6 +23,7 @@ from sf_daq_broker.detector.make_crystfel_list import make_crystfel_list
 _logger = logging.getLogger("broker_writer")
 
 PEDESTAL_SPECIFIC = { "JF02T09V02" : {"number_bad_modules" : 1},
+                      "JF05T01V01" : {"number_bad_modules" : 1},
                       "JF06T08V02" : {"add_pixel_mask" : "/sf/alvra/config/jungfrau/pixel_mask/JF06T08V01/mask_2lines_module3.h5"},
                       "JF07T32V01" : {"add_pixel_mask" : "/sf/bernina/config/jungfrau/pixel_mask/JF07T32V01/pixel_mask_13_full.h5"},
                       "JF10T01V01" : {"number_bad_modules" : 1},
@@ -82,6 +83,7 @@ def detector_retrieve(request, output_file_detector):
         detector_config_file = f'/gpfs/photonics/swissfel/buffer/config/{detector}.json'
         res_file_name = raw_file_name[:-3]+".res.h5"
         copy_pedestal_file(request_time, res_file_name, detector, detector_config_file)
+        copy_calibration_files(res_file_name, detector_config_file)
 
     if convert_ju_file:
         output_dir = os.path.dirname(output_file_detector)
@@ -294,4 +296,38 @@ def copy_pedestal_file(request_time, file_pedestal, detector, detector_config_fi
 
     with open(detector_config_file, "w") as write_file:
         json.dump(det, write_file, indent=4)
+
+
+def copy_calibration_files(pedestal_file, detector_config_file):
+
+    with open(detector_config_file, "r") as stream_file:
+        det_config = json.load(stream_file)
+
+    detector = det_config["detector_name"]
+
+    pedestal_directory = os.path.dirname(pedestal_file)
+    gain_directory = f'{pedestal_directory}/gainMaps'
+    pixel_mask_directory = f'{pedestal_directory}/pixel_mask'
+
+    gain_file = det_config.get("gain_file", None)
+ 
+    if gain_file is not None:
+        if not os.path.isdir(gain_directory):
+            os.makedirs(gain_directory)
+        gain_file_copy = f'{gain_directory}/{detector}.h5'
+        if not os.path.exists(gain_file_copy):
+            copyfile(gain_file, gain_file_copy)    
+
+    pixel_mask_file = None
+    if detector in PEDESTAL_SPECIFIC:
+        pixel_mask_file = PEDESTAL_SPECIFIC[detector].get("add_pixel_mask", None)
+
+    if pixel_mask_file is not None:
+        if not os.path.isdir(pixel_mask_directory):
+            os.makedirs(pixel_mask_directory)
+        pixel_mask_file_copy = f'{pixel_mask_directory}/{detector}.h5'
+        if not os.path.exists(pixel_mask_file_copy):
+            copyfile(pixel_mask_file, pixel_mask_file_copy)
+
+        
 

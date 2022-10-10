@@ -156,6 +156,7 @@ def write_from_imagebuffer(data_api_request, output_file, parameters):
     start_time = time()
   
     try:
+        _logger.info(f"query request : {query} {output_file} {image_buffer_url}")
         h5.request(query, output_file, url=image_buffer_url)
         _logger.info("Image download and writing took %s seconds." % (time() - start_time))
     except Exception as e:

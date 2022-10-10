@@ -22,13 +22,14 @@ DIR_NAME_RUN_INFO = "run_info"
 _logger = logging.getLogger(__name__)
 
 allowed_detectors_beamline = { "alvra"       : [ "JF02T09V03", "JF06T32V02", "JF06T08V02"],
-                               "bernina"     : [ "JF01T03V01", "JF03T01V02", "JF04T01V01", "JF05T01V01", "JF07T32V01", "JF13T01V01", "JF14T01V01"],
+                               "bernina"     : [ "JF01T03V01", "JF03T01V02"],
                                "cristallina" : [ "JF16T03V01", "JF17T16V01"],
                                "furka"       : [],
                                "maloja"      : [ "JF15T08V01"]
                              }
 # "alvra" : [ "JF06T08V02", "JF08T01V01", "JF09T01V01", "JF10T01V01"],
 # "bernina" : [ "JF07T32V01", "JF07T03V01"],
+# "bernina"     : [ "JF01T03V01", "JF03T01V02", "JF04T01V01", "JF05T01V01", "JF07T32V01", "JF13T01V01", "JF14T01V01"],
 
 def ip_to_console(remote_ip):
     beamline = None
@@ -510,7 +511,7 @@ class BrokerManager(object):
                 return
 
             output_file = f'{output_file_prefix}.{filename_suffix}.h5'
-            if filename_suffix != config.OUTPUT_FILE_SUFFIX_DATA3_BUFFER:
+            if filename_suffix != config.OUTPUT_FILE_SUFFIX_EPICS:
                 output_files_list.append(output_file)
 
             run_log_file = f'{run_info_directory}/acq{current_acq:04}.{filename_suffix}.log'
@@ -533,9 +534,9 @@ class BrokerManager(object):
 
         self.broker_client.open()
 
-        send_write_request(broker_config.TAG_EPICS,
-                           request.get("pv_list"),
-                           config.OUTPUT_FILE_SUFFIX_EPICS)
+#        send_write_request(broker_config.TAG_EPICS,
+#                           request.get("pv_list"),
+#                           config.OUTPUT_FILE_SUFFIX_EPICS)
 
         send_write_request(f'epics_{beamline}',
                            request.get("pv_list"),
