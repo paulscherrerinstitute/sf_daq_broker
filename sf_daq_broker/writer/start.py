@@ -11,8 +11,7 @@ from pika import BlockingConnection, ConnectionParameters, BasicProperties
 from sf_daq_broker import config, utils
 import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker.utils import get_data_api_request
-from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_from_databuffer, write_from_databuffer_api3
-from sf_daq_broker.writer.epics_writer import write_epics_pvs
+from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_from_databuffer_api3
 from sf_daq_broker.detector.pedestal import take_pedestal
 from sf_daq_broker.writer.detector_writer import detector_retrieve
 from sf_daq_broker.detector.power_on_detector import power_on_detector
@@ -87,14 +86,10 @@ def process_request(request):
 
         logger_data_api = None
 
-        if writer_type == broker_config.TAG_DATABUFFER:
-            logger_data_api = logging.getLogger("data_api")
-        elif writer_type == broker_config.TAG_DATA3BUFFER:
+        if writer_type == broker_config.TAG_DATA3BUFFER:
             logger_data_api = logging.getLogger("data_api3")
         elif writer_type == broker_config.TAG_IMAGEBUFFER:
             logger_data_api = logging.getLogger("data_api3")
-        elif writer_type == broker_config.TAG_EPICS:
-            logger_data_api = logging.getLogger("data_api")
 
         if logger_data_api is not None:
             logger_data_api.addHandler(file_handler)
@@ -117,21 +112,13 @@ def process_request(request):
 
         start_time = time()
 
-        if writer_type == broker_config.TAG_DATABUFFER:
-            _logger.info("Using databuffer writer.")
-            write_from_databuffer(get_data_api_request(channels, start_pulse_id, stop_pulse_id), output_file, metadata)
-
-        elif writer_type == broker_config.TAG_DATA3BUFFER:
+        if writer_type == broker_config.TAG_DATA3BUFFER:
             _logger.info("Using data_api3 databuffer writer.")
             write_from_databuffer_api3(get_data_api_request(channels, start_pulse_id, stop_pulse_id), output_file, metadata)
 
         elif writer_type == broker_config.TAG_IMAGEBUFFER:
             _logger.info("Using imagebuffer writer.")
             write_from_imagebuffer(get_data_api_request(channels, start_pulse_id, stop_pulse_id), output_file, metadata)
-
-        elif writer_type == broker_config.TAG_EPICS:
-            _logger.info("Using epics writer.")
-            write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, channels)
 
         elif writer_type == broker_config.TAG_PEDESTAL:
             _logger.info("Doing pedestal.")

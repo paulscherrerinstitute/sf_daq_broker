@@ -42,9 +42,8 @@ class RabbitMqClient(object):
             raise RuntimeError("RabbitMqClient not connected.")
 
         routing_key = broker_config.DEFAULT_ROUTE
-        if ( tag == broker_config.TAG_DATABUFFER or 
-             tag == broker_config.TAG_IMAGEBUFFER or 
-             tag == broker_config.TAG_EPICS ):
+        if ( tag == broker_config.TAG_DATA3BUFFER or 
+             tag == broker_config.TAG_IMAGEBUFFER ): 
             routing_key = broker_config.DEFAULT_ROUTE
         elif tag == broker_config.TAG_DETECTOR_RETRIEVE:
             routing_key = broker_config.DETECTOR_RETRIEVE_ROUTE

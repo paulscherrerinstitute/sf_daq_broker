@@ -19,12 +19,9 @@ DETECTOR_PEDESTAL_QUEUE = "detector_pedestal"
 DETECTOR_PEDESTAL_ROUTE = "detector.pedestal"
 
 # Name of the tags for rabbitmq requests.
-TAG_DATABUFFER = "databuffer"
 TAG_IMAGEBUFFER = "imagebuffer"
-TAG_EPICS = "epics"
 TAG_DATA3BUFFER = "data3buffer"
 TAG_PEDESTAL = "pedestal"
-TAG_EPICS = "epics"
 TAG_DETECTOR_RETRIEVE = "detector_buffer"
 TAG_DETECTOR_CONVERT  = "detector_convert"
 TAG_POWER_ON = "detector_power_on"

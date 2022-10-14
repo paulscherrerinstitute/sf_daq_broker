@@ -1,9 +1,8 @@
 import argparse
 import os
 import json
-from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer,write_from_databuffer_api3,write_from_databuffer
+from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_from_databuffer_api3
 from sf_daq_broker.utils import get_data_api_request
-from sf_daq_broker.writer.epics_writer import write_epics_pvs
 import logging
 from sf_daq_broker import config
 from datetime import datetime
@@ -14,11 +13,11 @@ logger.setLevel("INFO")
 #logger.setLevel("DEBUG")
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--source", default="image", type=str, help="retrieve from image or data buffer (possible values data, data_api3, image, epics)")
+parser.add_argument("--source", default="image", type=str, help="retrieve from image or data buffer (possible values data_api3, image, epics)")
 parser.add_argument("--run_info", default=None, type=str, help="run_info json file")
 args = parser.parse_args()
 
-source = "data"
+source = None
 if args.source == "image":
     source = "image"
 elif args.source == "data_api3":
@@ -42,7 +41,7 @@ if source == "image":
         print("No cameras defined in run_info file")
         exit(1)
     channels = run_info.get("camera_list", [])
-elif source == "data" or source == "data_api3":
+elif source == "data_api3":
     if "channels_list" not in run_info:
         print("No BS channels defined in run_info file")
         exit(1)
@@ -73,6 +72,7 @@ if source == "image":
     output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}/data/acq{acquisition_number:04}.CAMERAS.h5.2'
 
     write_from_imagebuffer(data_request, output_file, parameters)
+
 elif source == "data_api3":
     if user_tag is not None:
         output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}-{user_tag}/data/acq{acquisition_number:04}.BSDATA2.h5'
@@ -80,17 +80,7 @@ elif source == "data_api3":
         output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}/data/acq{acquisition_number:04}.BSDATA2.h5'
 
     write_from_databuffer_api3(data_request, output_file, parameters)
-elif source == "data":
-    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}/data/acq{acquisition_number:04}.BSREAD.h5'
 
-    metadata = {
-                 "general/user": run_info["pgroup"],
-                 "general/process": __name__,
-                 "general/created": str(datetime.now()),
-                 "general/instrument": run_info["beamline"]
-    }
-
-    write_from_databuffer(get_data_api_request(channels, start_pulse_id, stop_pulse_id), output_file, metadata)
 else:
     output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}/data/acq{acquisition_number:04}.PVCHANNELS.h5'
 
@@ -101,4 +91,4 @@ else:
                  "general/instrument": run_info["beamline"]
     }
 
-    write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, channels)
+    print("post-retrieve for EPICS-BUFFER is not implemented")

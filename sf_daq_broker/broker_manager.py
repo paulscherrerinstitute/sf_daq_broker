@@ -511,8 +511,7 @@ class BrokerManager(object):
                 return
 
             output_file = f'{output_file_prefix}.{filename_suffix}.h5'
-            if filename_suffix != config.OUTPUT_FILE_SUFFIX_EPICS:
-                output_files_list.append(output_file)
+            output_files_list.append(output_file)
 
             run_log_file = f'{run_info_directory}/acq{current_acq:04}.{filename_suffix}.log'
 
@@ -533,10 +532,6 @@ class BrokerManager(object):
                 raise
 
         self.broker_client.open()
-
-#        send_write_request(broker_config.TAG_EPICS,
-#                           request.get("pv_list"),
-#                           config.OUTPUT_FILE_SUFFIX_EPICS)
 
         send_write_request(f'epics_{beamline}',
                            request.get("pv_list"),
