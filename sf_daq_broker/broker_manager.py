@@ -14,6 +14,7 @@ from time import sleep
 from shutil import copyfile
 from glob import glob
 from unidecode import unidecode
+from re import sub
 
 PEDESTAL_FRAMES=3000
 # TODO : put in in config            
@@ -409,6 +410,8 @@ class BrokerManager(object):
                 user_tag = os.path.basename(user_tag)
             user_tag = user_tag.replace(" ","_")
             user_tag = user_tag.replace("..","_")
+            # limit user_tag to letters, digits, _ and - signs
+            user_tag = sub('[^a-zA-Z0-9\_\-]', '', user_tag)
             user_tag = user_tag[:50]
             request["user_tag_cleaned"] = user_tag
 

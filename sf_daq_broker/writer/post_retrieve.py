@@ -68,16 +68,16 @@ user_tag = run_info.get("user_tag_cleaned", None)
 
 parameters = None
 
+if user_tag is not None:
+    run_dir_name = f'run{run_number:04}-{user_tag}'
+
 if source == "image":
-    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}/data/acq{acquisition_number:04}.CAMERAS.h5.2'
+    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/{run_dir_name}/data/acq{acquisition_number:04}.CAMERAS.h5.2'
 
     write_from_imagebuffer(data_request, output_file, parameters)
 
 elif source == "data_api3":
-    if user_tag is not None:
-        output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}-{user_tag}/data/acq{acquisition_number:04}.BSDATA2.h5'
-    else:
-        output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}/data/acq{acquisition_number:04}.BSDATA2.h5'
+    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/{run_dir_name}/data/acq{acquisition_number:04}.BSDATA.h5.2'
 
     write_from_databuffer_api3(data_request, output_file, parameters)
 
