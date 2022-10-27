@@ -14,10 +14,13 @@ from time import sleep
 from shutil import copyfile
 from glob import glob
 from unidecode import unidecode
+import string
 
 PEDESTAL_FRAMES=3000
 # TODO : put in in config            
 DIR_NAME_RUN_INFO = "run_info"
+
+ALLOWED_CHARS = string.ascii_letters + string.digits + "_-"
 
 _logger = logging.getLogger(__name__)
 
@@ -81,6 +84,10 @@ def get_current_step_in_scan(meta_directory=None):
     current_step = 1 if number_files==0 else number_files
 
     return current_step
+
+def character_cleanup(s, default="_", allowed=ALLOWED_CHARS):
+    return "".join(i if i in allowed else default for i in s)
+
 
 class BrokerManager(object):
     REQUIRED_PARAMETERS = ["output_file"]
@@ -409,6 +416,7 @@ class BrokerManager(object):
                 user_tag = os.path.basename(user_tag)
             user_tag = user_tag.replace(" ","_")
             user_tag = user_tag.replace("..","_")
+            user_tag = character_cleanup(user_tag)
             user_tag = user_tag[:50]
             request["user_tag_cleaned"] = user_tag
 
