@@ -13,7 +13,7 @@ import shutil
 
 import epics
 
-from slsdet import Jungfrau
+from slsdet import Jungfrau, gainMode
 from slsdet.enums import detectorSettings
 
 from sf_daq_broker.broker_manager import allowed_detectors_beamline, ip_to_console
@@ -23,6 +23,9 @@ _logger = logging.getLogger(__name__)
 
 conv_detector_settings = { detectorSettings.GAIN0: "normal", detectorSettings.HIGHGAIN0: "low_noise" }
 conv_detector_settings_reverse = dict(zip(conv_detector_settings.values(), conv_detector_settings.keys()))
+
+conv_detector_gain_settings = { gainMode.DYNAMIC: "dynamic", gainMode.FORCE_SWITCH_G1: "fixed_gain1", gainMode.FORCE_SWITCH_G2: "fixed_gain2" }
+conv_detector_gain_settings_reverse = dict(zip(conv_detector_gain_settings.values(), conv_detector_gain_settings.keys()))
 
 def register_rest_interface(app, manager):
 
@@ -85,8 +88,9 @@ class DetectorManager(object):
         else:
             detector_mode = "unknown"
         delay = detector.delay
+        gain_mode = conv_detector_gain_settings.get(detector.gainmode, "Error")
 
-        return {"status": "ok", "exptime": exptime, "detector_mode": detector_mode, "delay": delay}
+        return {"status": "ok", "exptime": exptime, "detector_mode": detector_mode, "delay": delay, "gain_mode": gain_mode}
 
     def set_detector_settings(self, request=None, remote_ip=None):
 
@@ -114,6 +118,7 @@ class DetectorManager(object):
         exptime       = request.get("exptime", None)
         detector_mode = request.get("detector_mode", None)
         delay         = request.get("delay", None)
+        gain_mode     = request.get("gain_mode", None)
 
         event_code_pv_name = beamline_event_code[beamline]
         event_code_pv = epics.PV(event_code_pv_name)
@@ -150,9 +155,16 @@ class DetectorManager(object):
             detector.delay = delay
             print(f"setting delay to {delay}")
 
+        if gain_mode:
+            if gain_mode in conv_detector_gain_settings_reverse:
+                detector.gainmode = conv_detector_gain_settings_reverse[gain_mode]
+                print(f'settings detector settings to {conv_detector_gain_settings_reverse[gain_mode]} ({gain_mode})')
+
         # start triggering
         event_code_pv.put(254)
        
+        event_code_pv.disconnect()
+
         return {"status" : "ok"}
 
     def copy_user_files(self, request=None, remote_ip=None):
