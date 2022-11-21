@@ -13,6 +13,7 @@ from time import sleep
 
 from shutil import copyfile
 from glob import glob
+import string
 from unidecode import unidecode
 from re import sub
 
@@ -31,6 +32,11 @@ allowed_detectors_beamline = { "alvra"       : [ "JF02T09V03", "JF06T32V02", "JF
 # "alvra" : [ "JF06T08V02", "JF08T01V01", "JF09T01V01", "JF10T01V01"],
 # "bernina" : [ "JF07T32V01", "JF07T03V01"],
 # "bernina"     : [ "JF01T03V01", "JF03T01V02", "JF04T01V01", "JF05T01V01", "JF07T32V01", "JF13T01V01", "JF14T01V01"],
+
+allowed_user_tag_characters = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' + "-")
+
+def check_for_allowed_user_tag_character(user_tag):
+    return set(user_tag) <= allowed_user_tag_characters
 
 def ip_to_console(remote_ip):
     beamline = None
@@ -416,16 +422,16 @@ class BrokerManager(object):
             request["user_tag_cleaned"] = user_tag
 
         append_user_tag = request.get("append_user_tag_to_data_dir", False)
+        user_tag = request.get("user_tag", None)
 
-        if append_user_tag and "user_tag_cleaned" in request:
+        if append_user_tag and user_tag is not None and check_for_allowed_user_tag_character(user_tag):
 
-            user_tag = request["user_tag_cleaned"]
             output_run_directory = f'run{run_number:04}-{user_tag}'
 
-            list_data_directories_run = glob(f'{path_to_pgroup}/run{run_number:04}*')
-            if len(list_data_directories_run) > 0:
-                if f'{path_to_pgroup}{output_run_directory}' not in list_data_directories_run:
-                    return {"status" : "failed", "message" : f'data directory for this run {run_number:04} already exists with different tag : {list_data_directories_run}, than requested {user_tag}'}
+        list_data_directories_run = glob(f'{path_to_pgroup}/run{run_number:04}*')
+        if len(list_data_directories_run) > 0:
+            if f'{path_to_pgroup}{output_run_directory}' not in list_data_directories_run:
+                return {"status" : "failed", "message" : f'data directory for this run {run_number:04} already exists with different tag : {list_data_directories_run}, than requested {user_tag}'}
 
         full_path = f'{path_to_pgroup}{output_run_directory}'
 
@@ -567,6 +573,9 @@ class BrokerManager(object):
             request_detector["run_info_directory"] = run_info_directory
             request_detector["request_time"]       = request["request_time"]
             request_detector["directory_name"]     = output_run_directory
+
+            if "selected_pulse_ids" in request:
+                request_detector["selected_pulse_ids"] = request["selected_pulse_ids"]
 
             for detector in request["detectors"]:
                 request_detector_send = request_detector
