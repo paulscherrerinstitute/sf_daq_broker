@@ -24,7 +24,7 @@ DIR_NAME_RUN_INFO = "run_info"
 _logger = logging.getLogger(__name__)
 
 allowed_detectors_beamline = { "alvra"       : [ "JF02T09V03", "JF06T32V02", "JF06T08V02"],
-                               "bernina"     : [ "JF01T03V01", "JF03T01V02"],
+                               "bernina"     : [ "JF01T03V01", "JF03T01V02", "JF13T01V01"],
                                "cristallina" : [ "JF16T03V01", "JF17T16V01"],
                                "furka"       : [],
                                "maloja"      : [ "JF15T08V01"]

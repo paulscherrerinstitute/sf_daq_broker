@@ -18,7 +18,7 @@ except:
 from sf_daq_broker import config, utils
 
 from sf_daq_broker.writer.export_file import convert_file
-from sf_daq_broker.detector.make_crystfel_list import make_crystfel_list
+from sf_daq_broker.detector.make_crystfel_list import make_crystfel_list, store_dap_info
 
 _logger = logging.getLogger("broker_writer")
 
@@ -52,6 +52,10 @@ def detector_retrieve(request, output_file_detector):
     det_save_ppicker_events_only = request["detectors"][detector].get("save_ppicker_events_only", False)
 
     det_number_selected_pulse_ids = len(request.get("selected_pulse_ids", []))
+
+#    if detector == "JF15T08V01":
+#        file_name_out = output_file_detector[:-3]+".dap"
+#        store_dap_info(beamline="maloja", pgroup="p20279", detector=detector, start_pulse_id=det_start_pulse_id, stop_pulse_id=det_stop_pulse_id, file_name_out=file_name_out)
 
     convert_ju_file = False
     if det_conversion or det_compression or det_number_disabled_modules>0 or det_number_selected_pulse_ids>0 or det_save_ppicker_events_only:
