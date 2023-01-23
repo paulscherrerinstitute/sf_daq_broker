@@ -1,0 +1,169 @@
+- import_playbook: install_sf_daq_buffer.yml
+  vars:
+      host: daq13
+
+- import_playbook: install_streamvis.yml
+  vars:
+      host: daq13
+
+- import_playbook: receiver_services_detector.yml
+  vars:
+      host: daq13
+      detector: "{{ JF08_detector_short_name }}"
+      detector_full_name: "{{ JF08_detector_full_name }}"
+      visualisation_view: "{{ JF08_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF08_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF08_visualisation_port }}"
+      visualisation_title: "{{ JF08_visualisation_title }}"
+      last_module_number: "{{ JF08_last_module_number }}"
+      initial_udp_port: "{{ JF08_initial_udp_port }}"
+
+      detector_config: "/gpfs/photonics/swissfel/buffer/config/{{ detector_full_name }}.json"
+      visualisation_alias: sf-daq-alvra
+      visualisation_cores: 1
+      stream2vis_cores: 2
+      cores_buffer_writer: 3
+      cores_udp_recv_receivers: 4
+      cores_assembler: 5
+
+- import_playbook: receiver_services_detector.yml
+  vars:
+      host: daq13
+      detector: "{{ JF09_detector_short_name }}"
+      detector_full_name: "{{ JF09_detector_full_name }}"
+      visualisation_view: "{{ JF09_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF09_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF09_visualisation_port }}"
+      visualisation_title: "{{ JF09_visualisation_title }}"
+      last_module_number: "{{ JF09_last_module_number }}"
+      initial_udp_port: "{{ JF09_initial_udp_port }}"
+
+      detector_config: "/gpfs/photonics/swissfel/buffer/config/{{ detector_full_name }}.json"
+      visualisation_alias: sf-daq-alvra
+      visualisation_cores: 6
+      stream2vis_cores: 7
+      cores_buffer_writer: 8
+      cores_udp_recv_receivers: 9
+      cores_assembler: 10
+
+- import_playbook: receiver_services_detector.yml
+  vars:
+      host: daq13
+      detector: "{{ JF10_detector_short_name }}"
+      detector_full_name: "{{ JF10_detector_full_name }}"
+      visualisation_view: "{{ JF10_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF10_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF10_visualisation_port }}"
+      visualisation_title: "{{ JF10_visualisation_title }}"
+      last_module_number: "{{ JF10_last_module_number }}"
+      initial_udp_port: "{{ JF10_initial_udp_port }}"
+
+      detector_config: "/gpfs/photonics/swissfel/buffer/config/{{ detector_full_name }}.json"
+      visualisation_alias: sf-daq-alvra
+      visualisation_cores: 11
+      stream2vis_cores: 12
+      cores_buffer_writer: 13
+      cores_udp_recv_receivers: 14
+      cores_assembler: 15
+
+- import_playbook: receiver_services_detector.yml
+  vars:
+      host: daq13
+      detector: "{{ JF13_detector_short_name }}"
+      detector_full_name: "{{ JF13_detector_full_name }}"
+      visualisation_view: "{{ JF13_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF13_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF13_visualisation_port }}"
+      visualisation_title: "{{ JF13_visualisation_title }}"
+      last_module_number: "{{ JF13_last_module_number }}"
+      initial_udp_port: "{{ JF13_initial_udp_port }}"
+
+      detector_config: "/gpfs/photonics/swissfel/buffer/config/{{ detector_full_name }}.json"
+      visualisation_alias: sf-daq-bernina
+      visualisation_cores: 16
+      stream2vis_cores: 17
+      cores_buffer_writer: 18
+      cores_udp_recv_receivers: 19
+      cores_assembler: 20
+
+- import_playbook: receiver_services_detector.yml
+  vars:
+      host: daq13
+      detector: "{{ JF14_detector_short_name }}"
+      detector_full_name: "{{ JF14_detector_full_name }}"
+      visualisation_view: "{{ JF14_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF14_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF14_visualisation_port }}"
+      visualisation_title: "{{ JF14_visualisation_title }}"
+      last_module_number: "{{ JF14_last_module_number }}"
+      initial_udp_port: "{{ JF14_initial_udp_port }}"
+
+      detector_config: "/gpfs/photonics/swissfel/buffer/config/{{ detector_full_name }}.json"
+      visualisation_alias: sf-daq-bernina
+      visualisation_cores: 21
+      stream2vis_cores: 22
+      cores_buffer_writer: 23
+      cores_udp_recv_receivers: 24
+      cores_assembler: 25
+
+- import_playbook: receiver_services_detector.yml
+  vars:
+      host: daq13
+      detector: "{{ JF11_detector_short_name }}"
+      detector_full_name: "{{ JF11_detector_full_name }}"
+      visualisation_view: "{{ JF11_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF11_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF11_visualisation_port }}"
+      visualisation_title: "{{ JF11_visualisation_title }}"
+      last_module_number: "{{ JF11_last_module_number }}"
+      initial_udp_port: "{{ JF11_initial_udp_port }}"
+
+      detector_config: "/gpfs/photonics/swissfel/buffer/config/{{ detector_full_name }}.json"
+      visualisation_alias: sf-daq-txs
+      visualisation_cores: 26,27
+      stream2vis_cores: 28
+      cores_buffer_writer: 29 29 29 29
+      cores_udp_recv_receivers: 30 30 30 30
+      cores_assembler: 31
+
+- import_playbook: receiver_services_detector.yml
+  vars:
+      host: daq13
+      detector: "{{ JF06_4M_detector_short_name }}"
+      detector_full_name: "{{ JF06_4M_detector_full_name }}"
+      visualisation_view: "{{ JF06_4M_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF06_4M_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF06_4M_visualisation_port }}"
+      visualisation_title: "{{ JF06_4M_visualisation_title }}"
+      last_module_number: "{{ JF06_4M_last_module_number }}"
+      initial_udp_port: "{{ JF06_4M_initial_udp_port }}"
+
+      detector_config: "/gpfs/photonics/swissfel/buffer/config/{{ detector_full_name }}.json"
+      visualisation_alias: sf-daq-alvra
+      visualisation_cores: 32,33
+      stream2vis_cores: 34
+      cores_buffer_writer: 35 35 35 36 36 36 37 37
+      cores_udp_recv_receivers: 38 38 38 39 39 39 40 40
+      cores_assembler: 41
+
+- import_playbook: receiver_services_detector.yml
+  vars:
+      host: daq13
+      detector: "{{ JF07_detector_short_name }}"
+      detector_full_name: "{{ JF07_detector_full_name }}"
+      visualisation_view: "{{ JF07_visualisation_view }}"
+      visualisation_incoming_data_port: "{{ JF07_visualisation_incoming_data_port }}"
+      visualisation_port: "{{ JF07_visualisation_port }}"
+      visualisation_title: "{{ JF07_visualisation_title }}"
+      last_module_number: "{{ JF07_last_module_number }}"
+      initial_udp_port: "{{ JF07_initial_udp_port }}"
+
+      detector_config: "/gpfs/photonics/swissfel/buffer/config/{{ detector_full_name }}.json"
+      visualisation_alias: sf-daq-bernina
+      visualisation_cores: 42,43
+      stream2vis_cores: 44
+      cores_buffer_writer: 45 45 45 45 45 45 45 45 46 46 46 46 46 46 46 46 47 47 47 47 47 47 47 47 48 48 48 48 48 48 48 48 
+      cores_udp_recv_receivers: 49 49 49 49 49 49 49 49 50 50 50 50 50 50 50 50 51 51 51 51 51 51 51 51 52 52 52 52 52 52 52 52
+      cores_assembler: 53
+
+

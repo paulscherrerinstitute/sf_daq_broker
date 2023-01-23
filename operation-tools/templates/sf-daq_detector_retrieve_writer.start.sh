@@ -13,7 +13,7 @@ conda activate sf-daq
 M=$1
 C={{ detector_retrieve_cores }}
 
-export OMP_NUM_THREADS=1
+export OMP_NUM_THREADS=5
 export NUMBA_NUM_THREADS=5
 
 taskset -c $C python /home/dbe/git/sf_daq_broker/sf_daq_broker/writer/start.py  --writer_id $M  --writer_type 1

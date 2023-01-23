@@ -1,14 +1,14 @@
 - import_playbook: install_sf_daq_buffer.yml
   vars:
-      host: sf_daq_cristallina
+      host: daq10
 
 - import_playbook: install_streamvis.yml
   vars:
-      host: sf_daq_cristallina
+      host: daq10
 
 - import_playbook: receiver_services_detector.yml
   vars:
-      host: sf_daq_cristallina
+      host: daq10
       detector: "{{ JF16_detector_short_name }}"
       detector_full_name: "{{ JF16_detector_full_name }}"
       visualisation_view: "{{ JF16_visualisation_view }}"
@@ -28,7 +28,7 @@
 
 - import_playbook: receiver_services_detector.yml
   vars:
-      host: sf_daq_cristallina
+      host: daq10
       detector: "{{ JF17_detector_short_name }}"
       detector_full_name: "{{ JF17_detector_full_name }}"
       visualisation_view: "{{ JF17_visualisation_view }}"

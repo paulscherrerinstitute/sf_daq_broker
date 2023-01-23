@@ -1,14 +1,14 @@
 - import_playbook: install_sf_daq_buffer.yml
   vars:
-      host: sf_daq_maloja
+      host: daq9
 
 - import_playbook: install_streamvis.yml
   vars:
-      host: sf_daq_maloja
+      host: daq9
 
 - import_playbook: receiver_services_detector.yml
   vars:
-      host: sf_daq_maloja
+      host: daq9
       detector: "{{ JF15_detector_short_name }}"
       detector_full_name: "{{ JF15_detector_full_name }}"
       visualisation_view: "{{ JF15_visualisation_view }}"
