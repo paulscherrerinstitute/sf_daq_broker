@@ -16,8 +16,9 @@ import epics
 from slsdet import Jungfrau, gainMode
 from slsdet.enums import detectorSettings
 
-from sf_daq_broker.broker_manager import allowed_detectors_beamline, ip_to_console
+from sf_daq_broker.broker_manager import ip_to_console
 from sf_daq_broker.detector.power_on_detector import beamline_event_code
+from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline
 
 _logger = logging.getLogger(__name__)
 
@@ -68,14 +69,15 @@ class DetectorManager(object):
         if not beamline:
             return {"status" : "failed", "message" : "can not determine from which console request came, rejected"}
 
-        if beamline not in allowed_detectors_beamline:
+        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        if len(allowed_detectors_beamline) == 0:
             return {"status" : "failed", "message" : "request is made from beamline which doesnt have detectors"}
 
         detector_name = request.get("detector_name", None)
         if not detector_name:
             return {"status" : "failed", "message" : "no detector name in the request"}
 
-        if detector_name not in allowed_detectors_beamline[beamline]:
+        if detector_name not in allowed_detectors_beamline:
                 return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
 
         detector_number = int(detector_name[2:4])
@@ -105,14 +107,15 @@ class DetectorManager(object):
         if not beamline:
             return {"status" : "failed", "message" : "can not determine from which console request came, rejected"}
 
-        if beamline not in allowed_detectors_beamline:
+        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        if len(allowed_detectors_beamline) == 0:
             return {"status" : "failed", "message" : "request is made from beamline which doesnt have detectors"}
 
         detector_name = request.get("detector_name", None)
         if not detector_name:
             return {"status" : "failed", "message" : "no detector name in the request"}
 
-        if detector_name not in allowed_detectors_beamline[beamline]:
+        if detector_name not in allowed_detectors_beamline:
                 return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
 
         exptime       = request.get("exptime", None)
@@ -180,7 +183,8 @@ class DetectorManager(object):
         if not beamline:
             return {"status" : "failed", "message" : "can not determine from which console request came, rejected"}
 
-        if beamline not in allowed_detectors_beamline:
+        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        if len(allowed_detectors_beamline) == 0:
             return {"status" : "failed", "message" : "request is made from beamline which doesnt have detectors"}
 
         if "pgroup" not in request:

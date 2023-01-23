@@ -17,21 +17,13 @@ import string
 from unidecode import unidecode
 from re import sub
 
+from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline, detector_human_names, get_streamvis_address
+
 PEDESTAL_FRAMES=3000
 # TODO : put in in config            
 DIR_NAME_RUN_INFO = "run_info"
 
 _logger = logging.getLogger(__name__)
-
-allowed_detectors_beamline = { "alvra"       : [ "JF02T09V03", "JF06T32V02", "JF06T08V02"],
-                               "bernina"     : [ "JF01T03V01", "JF03T01V02", "JF13T01V01"],
-                               "cristallina" : [ "JF16T03V01", "JF17T16V01"],
-                               "furka"       : [],
-                               "maloja"      : [ "JF15T08V01"]
-                             }
-# "alvra" : [ "JF06T08V02", "JF08T01V01", "JF09T01V01", "JF10T01V01"],
-# "bernina" : [ "JF07T32V01", "JF07T03V01"],
-# "bernina"     : [ "JF01T03V01", "JF03T01V02", "JF04T01V01", "JF05T01V01", "JF07T32V01", "JF13T01V01", "JF14T01V01"],
 
 allowed_user_tag_characters = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' + "-")
 
@@ -188,14 +180,15 @@ class BrokerManager(object):
         if not beamline:
             return {"status" : "failed", "message" : "can not determine from which console request came, rejected"}
 
-        if beamline not in allowed_detectors_beamline:
+        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        if len(allowed_detectors_beamline) == 0:
             return {"status" : "failed", "message" : "request is made from beamline which doesnt have detectors"}
 
         detector_name = request.get("detector_name", None)
         if not detector_name:
             return {"status" : "failed", "message" : "no detector name in the request"}
 
-        if detector_name not in allowed_detectors_beamline[beamline]:
+        if detector_name not in allowed_detectors_beamline:
                 return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
 
         request_power_on = {"detector_name" : detector_name,
@@ -212,7 +205,7 @@ class BrokerManager(object):
     def get_list_running_detectors(self, remote_ip=None):
 
         beamline = ip_to_console(remote_ip)
-        detectors = allowed_detectors_beamline[beamline] if beamline else []
+        detectors = configured_detectors_for_beamline(beamline)
 
         time_now = datetime.now()   
         running_detectors = []
@@ -230,8 +223,18 @@ class BrokerManager(object):
     def get_list_allowed_detectors(self, remote_ip=None):
 
         beamline = ip_to_console(remote_ip)
-        detectors = allowed_detectors_beamline[beamline] if beamline else []
-        return {"detectors" : detectors}  
+        detectors = configured_detectors_for_beamline(beamline)
+        detector_names = detector_human_names()
+        names = []
+        for d in detector_names:
+            if d in detectors:
+                names.append(detector_names[d])
+        detectors_visualisation_address = get_streamvis_address()
+        address = []
+        for d in detectors_visualisation_address:
+            if d in detectors:
+                address.append(detectors_visualisation_address[d])
+        return {"detectors" : detectors, "names" : names, "visualisation_address" : address}  
 
     def take_pedestal(self, request=None, remote_ip=None):
 
@@ -246,7 +249,8 @@ class BrokerManager(object):
         if not beamline:
             return {"status" : "failed", "message" : "can not determine from which console request came, rejected"}
 
-        if beamline not in allowed_detectors_beamline:
+        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        if len(allowed_detectors_beamline) == 0:
             return {"status" : "failed", "message" : "request is made from beamline which doesnt have detectors"}
 
         rate_multiplicator = request.get("rate_multiplicator", 1)
@@ -260,7 +264,7 @@ class BrokerManager(object):
             return {"status" : "failed", "message" : "no detectors defined"}
 
         for det in detectors:
-            if det not in allowed_detectors_beamline[beamline]:
+            if det not in allowed_detectors_beamline:
                 return {"status" : "failed", "message" : f"{det} not belongs to the {beamline}"}
 
         if "pgroup" not in request:
@@ -453,11 +457,12 @@ class BrokerManager(object):
             detectors = list(request["detectors"].keys())
 
         if len(detectors) > 0:
-            if beamline not in allowed_detectors_beamline:
+            allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+            if len(allowed_detectors_beamline) == 0:
                 return {"status" : "failed", "message" : "request is made from beamline which doesnt have detectors"}
 
             for det in detectors:
-                if det not in allowed_detectors_beamline[beamline]:
+                if det not in allowed_detectors_beamline:
                     return {"status" : "failed", "message" : f"{det} not belongs to the {beamline}"}
 
 
