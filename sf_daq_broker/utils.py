@@ -1,6 +1,7 @@
 from copy import deepcopy
 from logging import getLogger
 from time import time, sleep
+from random import randint
 
 import requests
 
@@ -93,13 +94,14 @@ def pulse_id_to_timestamp(pulse_id):
 
     ts = 0
     try:
+        sleep(randint(1,10))
         request = requests.get(f'{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}')
         if request.status_code == 200:
             ts = request.json()
         else:
             _logger.error(f'Problem to convert {pulse_id} to timestamp. return code {request.status_code}')
             _logger.error(f'Trying second time')
-            sleep(30)
+            sleep(randint(1,10))
             request = requests.get(f'{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}')
             if request.status_code == 200:
                 ts = request.json()
