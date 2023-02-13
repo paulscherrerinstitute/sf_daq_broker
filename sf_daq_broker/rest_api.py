@@ -46,6 +46,10 @@ def register_rest_interface(app, manager):
     def set_pvlist():
         return manager.set_pvlist(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
 
+    @app.post("/close_pgroup_writing")
+    def close_pgroup_writing():
+        return manager.close_pgroup_writing(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
+
     @app.error(500)
     def error_handler_500(error):
         bottle.response.content_type = 'application/json'

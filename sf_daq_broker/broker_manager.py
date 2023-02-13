@@ -87,6 +87,43 @@ class BrokerManager(object):
     def __init__(self, broker_client):
         self.broker_client = broker_client
 
+    def close_pgroup_writing(self, request=None, remote_ip=None):
+
+        if not request:
+            return {"status" : "failed", "message" : "request parameters are empty"}
+
+        if not remote_ip:
+            return {"status" : "failed", "message" : "can not identify from which machine request were made"}
+
+        beamline = ip_to_console(remote_ip)
+
+        if not beamline:
+            return {"status" : "failed", "message" : "can not determine from which console request came, rejected"}
+
+        if "pgroup" not in request:
+            return {"status" : "failed", "message" : "no pgroup in request parameters"}
+        pgroup = request["pgroup"]
+
+        path_to_pgroup = f'/sf/{beamline}/data/{pgroup}/raw/'
+        if not os.path.exists(path_to_pgroup):
+            return {"status" : "failed", "message" : f'pgroup directory {path_to_pgroup} not reachable'}
+
+        daq_directory = f'{path_to_pgroup}{DIR_NAME_RUN_INFO}'
+        if not os.path.exists(daq_directory):
+            try:
+                os.mkdir(daq_directory)
+            except:
+                return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space"}
+
+        if os.path.exists(f'{daq_directory}/CLOSED'):
+            return {"status" : "failed", "message" : f'{path_to_pgroup} is already closed for writing'}
+
+        with open(f'{daq_directory}/CLOSED', 'x') as fp:
+            pass
+
+        return {"status" : "ok", "message" : f'{pgroup} closed for writing' }
+
+
     def get_pvlist(self, remote_ip=None):
 
         beamline = ip_to_console(remote_ip)
@@ -579,6 +616,9 @@ class BrokerManager(object):
             request_detector["request_time"]       = request["request_time"]
             request_detector["directory_name"]     = output_run_directory
 
+            request_detector["beamline"]           = beamline
+            request_detector["pgroup"]             = pgroup
+
             if "selected_pulse_ids" in request:
                 request_detector["selected_pulse_ids"] = request["selected_pulse_ids"]
 
@@ -625,20 +665,20 @@ class BrokerManager(object):
         with open(scan_info_file, 'w') as json_file:
             json.dump(scan_info, json_file, indent=4)
 
-        if "run_number" in request and "user_tag_cleaned" in request:
-
-            user_tag = request["user_tag_cleaned"]
-
-            catalog_directory = f'{path_to_pgroup}catalog'
-            try:
-                if not os.path.exists(catalog_directory):
-                    os.mkdir(catalog_directory)
-                tag_file = f'{catalog_directory}/{user_tag}.run{request["run_number"]:04}'
-                if not os.path.exists(tag_file):
-                    os.symlink(f'../{output_run_directory}', tag_file)
-                    _logger.info(f'Creating user tag for run {request["run_number"]}, tag {user_tag}')
-            except:
-                _logger.info(f'Can not create user tag for run {request["run_number"]}, tag {user_tag}')
+#        if "run_number" in request and "user_tag_cleaned" in request:
+#
+#            user_tag = request["user_tag_cleaned"]
+#
+#            catalog_directory = f'{path_to_pgroup}catalog'
+#            try:
+#                if not os.path.exists(catalog_directory):
+#                    os.mkdir(catalog_directory)
+#                tag_file = f'{catalog_directory}/{user_tag}.run{request["run_number"]:04}'
+#                if not os.path.exists(tag_file):
+#                    os.symlink(f'../{output_run_directory}', tag_file)
+#                    _logger.info(f'Creating user tag for run {request["run_number"]}, tag {user_tag}')
+#            except:
+#                _logger.info(f'Can not create user tag for run {request["run_number"]}, tag {user_tag}')
 
 
         return {"status" : "ok", "message" : "OK", 
