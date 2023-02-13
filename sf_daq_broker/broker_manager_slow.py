@@ -215,15 +215,24 @@ class DetectorManager(object):
             except:
                 return {"status" : "failed", "message" : "no permission or possibility to make aux sub-directory in pgroup space"}
 
+        group_to_copy = (os.stat(target_directory)).st_gid
+
         files_to_copy = request.get("files", [])
 
         error_files = []
         destination_file_path = []
         for file_to_copy in files_to_copy:
-            try:
-                dest = shutil.copy2(file_to_copy, target_directory)
-                destination_file_path.append(dest)
-            except:
+            if os.path.exists(file_to_copy):
+                group_original_file = (os.stat(file_to_copy)).st_gid
+                if group_to_copy == group_original_file:
+                    try:
+                        dest = shutil.copy2(file_to_copy, target_directory)
+                        destination_file_path.append(dest)
+                    except:
+                        error_files.append(file_to_copy)
+                else:
+                    error_files.append(file_to_copy)
+            else:
                 error_files.append(file_to_copy)
 
         return {"status" : "ok", "message" : "user file copy finished, check error_files list", "error_files" : error_files, "destination_file_path" : destination_file_path}
