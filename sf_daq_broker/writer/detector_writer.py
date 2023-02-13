@@ -49,16 +49,27 @@ def detector_retrieve(request, output_file_detector):
     det_compression = request["detectors"][detector].get("compression", False)
     det_number_disabled_modules = len(request["detectors"][detector].get("disabled_modules", []))
 
+    det_number_roi = len(request["detectors"][detector].get("roi", {}))
+
     det_save_ppicker_events_only = request["detectors"][detector].get("save_ppicker_events_only", False)
 
     det_number_selected_pulse_ids = len(request.get("selected_pulse_ids", []))
 
-#    if detector == "JF15T08V01":
-#        file_name_out = output_file_detector[:-3]+".dap"
-#        store_dap_info(beamline="maloja", pgroup="p20279", detector=detector, start_pulse_id=det_start_pulse_id, stop_pulse_id=det_stop_pulse_id, file_name_out=file_name_out)
+    beamline = request.get("beamline", None)
+    pgroup   = request.get("pgroup", None)
+
+    det_save_dap_results = request["detectors"][detector].get("save_dap_results", False)
+
+    pedestal_run = False
+    if "directory_name" in request and request["directory_name"] == "JF_pedestals":
+        pedestal_run = True
+
+    if not pedestal_run and det_save_dap_results:
+        file_name_out = output_file_detector[:-3]+".dap"
+        store_dap_info(beamline=beamline, pgroup=pgroup, detector=detector, start_pulse_id=det_start_pulse_id, stop_pulse_id=det_stop_pulse_id, file_name_out=file_name_out)
 
     convert_ju_file = False
-    if det_conversion or det_compression or det_number_disabled_modules>0 or det_number_selected_pulse_ids>0 or det_save_ppicker_events_only:
+    if det_conversion or det_compression or det_number_disabled_modules>0 or det_number_selected_pulse_ids>0 or det_save_ppicker_events_only or det_number_roi>0:
         convert_ju_file = True
 
     raw_file_name = output_file_detector 
@@ -78,7 +89,7 @@ def detector_retrieve(request, output_file_detector):
     _logger.info(f"Retrieve Time : {time()-time_start}")
     _logger.info("Finished retrieve from the buffer")
 
-    if "directory_name" in request and request["directory_name"] == "JF_pedestals":
+    if pedestal_run:
         # sleep, to make sure h5 file is readable (strange but got problem rarely trying to read it)
         sleep(60)
 

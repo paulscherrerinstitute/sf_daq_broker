@@ -86,7 +86,7 @@ def store_dap_info(beamline=None, pgroup=None, detector=None, start_pulse_id=Non
 
     path_to_dap_files = f'/sf/{beamline}/data/{pgroup}/res/jungfrau/output/'
     if not os.path.exists(path_to_dap_files):
-        _logger.error(f"dap output is not reachable, may be dap is not working path: {path_to_dap_files}")
+        _logger.error(f"dap output is not reachable, may be dap is not working, path: {path_to_dap_files}")
         return
 
     dap_ending = set([p//10000*10000 for p in range(start_pulse_id, stop_pulse_id+1)])

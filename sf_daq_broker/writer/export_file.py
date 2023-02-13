@@ -46,6 +46,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
             factor               = None
         selected_pulse_ids = data.get("selected_pulse_ids", [])
         save_ppicker_events_only = detector_params.get("save_ppicker_events_only", False)
+        roi = detector_params.get("roi", None)
 
     files_to_remove = set()
 
@@ -97,7 +98,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
                     file_out,
                     disabled_modules=disabled_modules,
                     index=good_frames,
-                    roi=None,
+                    roi=roi,
                     downsample=downsample,
                     compression=compression,
                     factor=factor,
@@ -130,6 +131,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
     _logger.info(f"compression         : {compression}")
     _logger.info(f"factor              : {factor}")
     _logger.info(f"downsample          : {downsample}")
+    _logger.info(f"roi                 : {roi}")
     _logger.info(f"reduce pulseids     : {len(selected_pulse_ids)>0} {len(selected_pulse_ids)}")
     _logger.info(f"save ppicker events : {save_ppicker_events_only}")
 
