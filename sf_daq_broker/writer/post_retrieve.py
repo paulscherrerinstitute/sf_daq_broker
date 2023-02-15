@@ -1,11 +1,13 @@
 import argparse
 import os
 import json
+from glob import glob
+import logging
+from datetime import datetime
+
 from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_from_databuffer_api3
 from sf_daq_broker.utils import get_data_api_request
-import logging
 from sf_daq_broker import config
-from datetime import datetime
 
 #logger = logging.getLogger("data_api3")
 logger = logging.getLogger("broker_writer")
@@ -64,25 +66,27 @@ data_request["channels"] = [{'name': ch, 'backend': config.IMAGE_BACKEND if ch.e
 
 run_number = run_info.get("run_number", 0)
 acquisition_number = run_info.get("acquisition_number", 0)
-user_tag = run_info.get("user_tag_cleaned", None)
 
 parameters = None
 
-if user_tag is not None:
-    run_dir_name = f'run{run_number:04}-{user_tag}'
+list_data_directories_run = glob(f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}*')
+if len(list_data_directories_run) != 1:
+    print(f"Ambiguous data directries : {list_data_directories_run}")
+    exit()
+data_directory=list_data_directories_run[0]
 
 if source == "image":
-    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/{run_dir_name}/data/acq{acquisition_number:04}.CAMERAS.h5.2'
+    output_file = f'{data_directory}/data/acq{acquisition_number:04}.CAMERAS.h5.2'
 
     write_from_imagebuffer(data_request, output_file, parameters)
 
 elif source == "data_api3":
-    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/{run_dir_name}/data/acq{acquisition_number:04}.BSDATA.h5.2'
+    output_file = f'{data_directory}/data/acq{acquisition_number:04}.BSDATA.h5.2'
 
     write_from_databuffer_api3(data_request, output_file, parameters)
 
 else:
-    output_file = f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}/data/acq{acquisition_number:04}.PVCHANNELS.h5'
+    output_file = f'{data_directory}/data/acq{acquisition_number:04}.PVCHANNELS.h5'
 
     metadata = {
                  "general/user": run_info["pgroup"],

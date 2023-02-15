@@ -90,8 +90,7 @@ def detector_retrieve(request, output_file_detector):
     _logger.info("Finished retrieve from the buffer")
 
     if pedestal_run:
-        # sleep, to make sure h5 file is readable (strange but got problem rarely trying to read it)
-        sleep(60)
+        sleep(5)
 
         time_start = time()
         if detector in PEDESTAL_SPECIFIC:
