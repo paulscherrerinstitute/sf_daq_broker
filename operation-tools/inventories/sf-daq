@@ -123,7 +123,7 @@ JF05_initial_udp_port=50050
 
 #JF06
 JF06_detector_short_name=JF06
-JF06_detector_full_name=JF06T32V03
+JF06_detector_full_name=JF06T32V04
 JF06_visualisation_incoming_data_port=9006
 JF06_visualisation_port=5006
 JF06_visualisation_view=large
@@ -133,7 +133,7 @@ JF06_initial_udp_port=50060
 
 #JF06_4M
 JF06_4M_detector_short_name=JF06
-JF06_4M_detector_full_name=JF06T08V03
+JF06_4M_detector_full_name=JF06T08V04
 JF06_4M_visualisation_incoming_data_port=9006
 JF06_4M_visualisation_port=5006
 JF06_4M_visualisation_view=large
