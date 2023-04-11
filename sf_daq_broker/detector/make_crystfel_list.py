@@ -3,6 +3,7 @@ import os
 import h5py
 import json
 import logging
+from time import sleep
 
 _logger = logging.getLogger("broker_writer")
 
@@ -90,6 +91,9 @@ def store_dap_info(beamline=None, pgroup=None, detector=None, start_pulse_id=Non
         return
 
     dap_ending = set([p//10000*10000 for p in range(start_pulse_id, stop_pulse_id+1)])
+
+
+    sleep(10)
 
     n_lines_out = 0
 

@@ -354,7 +354,7 @@ class BrokerManager(object):
                             "start_pulse_id": 0,
                             "stop_pulse_id": 100,
                             "output_file": None,
-                            "run_log_file": f'{run_info_directory}/{pedestal_name}.PEDESTAL.log',
+                            "run_log_file": f'{run_info_directory}/{pedestal_name}.log',
                             "metadata": None,
                             "timestamp": None,
                             "run_file_json" : run_file_json,
