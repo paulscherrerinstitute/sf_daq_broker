@@ -31,7 +31,14 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
         conversion       = detector_params.get("adc_to_energy", False)
         disabled_modules = detector_params.get("disabled_modules", [])
         remove_raw_files = detector_params.get("remove_raw_files", False)
-        downsample       = detector_params.get("downsample", False)
+        downsample       = detector_params.get("downsample", None)
+        if downsample is not None:
+            if type(downsample) is list:
+                downsample = tuple(downsample)
+            if not (type(downsample) is tuple and len(downsample) == 2 and type(downsample[0]) is int and type(downsample[1]) is int):
+                _logger.error(f"Bad option for the downsample parameter : {downsample}. Ignoring it.")
+                downsample = None
+
         if conversion:
             mask                 = detector_params.get("mask", True)
             double_pixels_action = detector_params.get("double_pixels_action", "mask")
