@@ -85,7 +85,8 @@ def store_dap_info(beamline=None, pgroup=None, detector=None, start_pulse_id=Non
         _logger.error(f"input parameters to store_dap_info is not complete {beamline} {pgroup} {detector} {start_pulse_id} {stop_pulse_id} {file_name_out}")
         return
 
-    path_to_dap_files = f'/sf/{beamline}/data/{pgroup}/res/jungfrau/output/'
+#    path_to_dap_files = f'/sf/{beamline}/data/{pgroup}/res/jungfrau/output/'
+    path_to_dap_files = f'/gpfs/photonics/swissfel/buffer/dap/data/{detector}'
     if not os.path.exists(path_to_dap_files):
         _logger.error(f"dap output is not reachable, may be dap is not working, path: {path_to_dap_files}")
         return
@@ -99,7 +100,8 @@ def store_dap_info(beamline=None, pgroup=None, detector=None, start_pulse_id=Non
 
     with open(file_name_out, "w") as file_out:
         for dap_f_ending in dap_ending:
-            dap_file_name = f'{path_to_dap_files}/{dap_f_ending}.{detector}.dap'
+#            dap_file_name = f'{path_to_dap_files}/{dap_f_ending}.{detector}.dap'
+            dap_file_name = f'{path_to_dap_files}/{dap_f_ending}.dap'
             if not os.path.exists(dap_file_name):
                 continue
             with open(dap_file_name, "r") as dap_file:

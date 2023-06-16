@@ -121,6 +121,11 @@ def detector_retrieve(request, output_file_detector):
         if crystfel_lists:
            make_crystfel_list(output_file_detector, run_file_json, detector) 
 
+    if not pedestal_run and det_save_dap_results:
+        file_name_out = output_file_detector[:-3]+".dap"
+        store_dap_info(beamline=beamline, pgroup=pgroup, detector=detector, start_pulse_id=det_start_pulse_id, stop_pulse_id=det_stop_pulse_id, file_name_out=file_name_out)
+
+
 
 def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0, nFramesPede=1000, 
                          number_frames=10000, frames_average=1000, 

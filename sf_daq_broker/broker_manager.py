@@ -451,7 +451,7 @@ class BrokerManager(object):
         if "user_tag_cleaned" in request:
             del request["user_tag_cleaned"]
 
-        if "user_tag" in request:
+        if "user_tag" in request and request["user_tag"] is not None:
             user_tag = unidecode(request["user_tag"])
             if "/" in user_tag:
                 user_tag = os.path.basename(user_tag)

@@ -12,7 +12,10 @@ AUDIT_FILE_TIME_FORMAT = "%Y%m%d-%H%M%S"
 DEFAULT_AUDIT_FILENAME = "/var/log/sf_databuffer_audit.log"
 
 DATA_API_QUERY_ADDRESS = "https://data-api.psi.ch/sf-archiverappliance/query"
-IMAGE_API_QUERY_ADDRESS = ["http://172.27.0.14:8380/api/1/query", "http://172.27.0.15:8380/api/1/query"]
+# sf-daq-5/6
+#IMAGE_API_QUERY_ADDRESS = ["http://172.27.0.14:8380/api/1/query", "http://172.27.0.15:8380/api/1/query"]
+# sf-daq-14/15
+IMAGE_API_QUERY_ADDRESS = ["http://172.27.0.26:8380/api/1/query", "http://172.27.0.27:8380/api/1/query"]
 #DATA_API3_QUERY_ADDRESS = "http://sf-daqbuf-33:8371/api/1"
 DATA_API3_QUERY_ADDRESS = "https://data-api.psi.ch/api/1"
 EPICS_QUERY_ADDRESS = "https://data-api.psi.ch/sf"

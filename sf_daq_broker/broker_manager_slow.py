@@ -10,6 +10,7 @@ import json
 from glob import glob
 import os
 import shutil
+from datetime import datetime
 
 import epics
 
@@ -41,6 +42,14 @@ def register_rest_interface(app, manager):
     @app.post("/copy_user_files")
     def copy_user_files():
         return manager.copy_user_files(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
+
+    @app.post("/get_dap_settings")
+    def get_dap_settings():
+        return manager.get_dap_settings(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
+
+    @app.post("/set_dap_settings")
+    def set_dap_settings():
+        return manager.set_dap_settings(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
 
     @app.error(500)
     def error_handler_500(error):
@@ -236,6 +245,101 @@ class DetectorManager(object):
                 error_files.append(file_to_copy)
 
         return {"status" : "ok", "message" : "user file copy finished, check error_files list", "error_files" : error_files, "destination_file_path" : destination_file_path}
+
+    def get_dap_settings(self, request=None, remote_ip=None):
+
+        if not request:
+            return {"status" : "failed", "message" : "request parameters are empty"}
+
+        if not remote_ip:
+            return {"status" : "failed", "message" : "can not identify from which machine request were made"}
+
+        beamline = ip_to_console(remote_ip)
+
+        if not beamline:
+            return {"status" : "failed", "message" : "can not determine from which console request came, rejected"}
+
+        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        if len(allowed_detectors_beamline) == 0:
+            return {"status" : "failed", "message" : "request is made from beamline which doesnt have detectors"}
+
+        detector_name = request.get("detector_name", None)
+        if not detector_name:
+            return {"status" : "failed", "message" : "no detector name in the request"}
+
+        if detector_name not in allowed_detectors_beamline:
+                return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
+
+        dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
+
+        if not os.path.exists(dap_parameters_file):
+            return {"status" : "failed", "message" : f'dap parameters file is not existing, contact support'}
+
+        with open(dap_parameters_file) as json_file:
+            dap_config = json.load(json_file)
+
+        return {"status": "ok", "message" : dap_config} 
+
+    def set_dap_settings(self, request=None, remote_ip=None):
+
+        if not request:
+            return {"status" : "failed", "message" : "request parameters are empty"}
+
+        if not remote_ip:
+            return {"status" : "failed", "message" : "can not identify from which machine request were made"}
+
+        beamline = ip_to_console(remote_ip)
+
+        if not beamline:
+            return {"status" : "failed", "message" : "can not determine from which console request came, rejected"}
+
+        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        if len(allowed_detectors_beamline) == 0:
+            return {"status" : "failed", "message" : "request is made from beamline which doesnt have detectors"}
+
+        detector_name = request.get("detector_name", None)
+        if not detector_name:
+            return {"status" : "failed", "message" : "no detector name in the request"}
+
+        if detector_name not in allowed_detectors_beamline:
+                return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
+
+        dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
+
+        if not os.path.exists(dap_parameters_file):
+            return {"status" : "failed", "message" : f'dap parameters file is not existing, contact support'}
+
+        new_parameters = request.get("parameters", {})
+
+        with open(dap_parameters_file) as json_file:
+            dap_config = json.load(json_file)
+
+        changed = False
+        changed_parameters = {}
+
+        for k in new_parameters:
+            if k not in dap_config or new_parameters[k] != dap_config[k]:
+                old_value = dap_config.get(k, None)
+                changed_parameters[k] = [old_value, new_parameters[k]]
+                dap_config[k] = new_parameters[k]
+                changed = True
+            
+        if changed:
+            date_now = datetime.now()
+            date_now_str = date_now.strftime("%d-%b-%Y_%H:%M:%S")
+            backup_directory = f'/gpfs/photonics/swissfel/buffer/dap/config/backup'
+            if not os.path.exists(backup_directory):
+                os.mkdir(backup_directory)
+            shutil.copyfile(dap_parameters_file, f'{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}')
+
+            try:
+                with open(dap_parameters_file, "w") as json_file:
+                    json.dump(dap_config, json_file, indent=4)
+            except:
+                shutil.copyfile(f'{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}', dap_parameters_file)
+                return {"status": "failed", "message": "problem to update dap configuration, try again and inform responsible"}
+ 
+        return {"status": "ok", "message" : changed_parameters}
 
 
 def start_server(rest_port):
