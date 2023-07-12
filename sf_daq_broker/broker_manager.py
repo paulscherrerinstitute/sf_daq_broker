@@ -18,7 +18,7 @@ DIR_NAME_RUN_INFO = "run_info"
 
 _logger = logging.getLogger(__name__)
 
-allowed_user_tag_characters = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' + "-")
+allowed_user_tag_characters = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' + "-" + ".")
 
 def check_for_allowed_user_tag_character(user_tag):
     return set(user_tag) <= allowed_user_tag_characters
