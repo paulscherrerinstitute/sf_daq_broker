@@ -1,21 +1,14 @@
 from datetime import datetime
 import logging
 import json
-from sf_daq_broker import config
-import sf_daq_broker.rabbitmq.config as broker_config
-from sf_daq_broker.utils import get_writer_request
-
 import os
-from subprocess import Popen
-
-from threading import Thread
-from time import sleep
-
 from shutil import copyfile
 from glob import glob
 import string
-from unidecode import unidecode
-from re import sub
+
+from sf_daq_broker import config
+import sf_daq_broker.rabbitmq.config as broker_config
+from sf_daq_broker.utils import get_writer_request
 
 from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline, detector_human_names, get_streamvis_address
 
@@ -29,6 +22,10 @@ allowed_user_tag_characters = set(string.ascii_lowercase + string.ascii_uppercas
 
 def check_for_allowed_user_tag_character(user_tag):
     return set(user_tag) <= allowed_user_tag_characters
+
+def clean_user_tag(user_tag, replacement_character="_"):
+    #return ''.join(char for char in user_tag if char in allowed_user_tag_characters) # don't replace but remove bad characters. In this case resulting string may be empty
+    return ''.join(char if char in allowed_user_tag_characters else replacement_character for char in user_tag) # replace bad characters, so if initital user_tag contained at least one character, it will not be empty (but may be "___")
 
 def ip_to_console(remote_ip):
     beamline = None
@@ -448,26 +445,16 @@ class BrokerManager(object):
         run_number = request.get("run_number")
         output_run_directory = f'run{run_number:04}'
 
-        if "user_tag_cleaned" in request:
-            del request["user_tag_cleaned"]
-
-        if "user_tag" in request and request["user_tag"] is not None:
-            user_tag = unidecode(request["user_tag"])
-            if "/" in user_tag:
-                user_tag = os.path.basename(user_tag)
-            user_tag = user_tag.replace(" ","_")
-            user_tag = user_tag.replace("..","_")
-            # limit user_tag to letters, digits, _ and - signs
-            user_tag = sub('[^a-zA-Z0-9\_\-]', '_', user_tag)
-            user_tag = user_tag[:50]
-            request["user_tag_cleaned"] = user_tag
-
         append_user_tag = request.get("append_user_tag_to_data_dir", False)
         user_tag = request.get("user_tag", None)
 
-        if append_user_tag and user_tag is not None and check_for_allowed_user_tag_character(user_tag):
-
-            output_run_directory = f'run{run_number:04}-{user_tag}'
+        if append_user_tag and user_tag is not None:
+            cleaned_user_tag = clean_user_tag(user_tag)
+            output_run_directory = f'run{run_number:04}-{cleaned_user_tag}'
+            #if check_for_allowed_user_tag_character(user_tag):
+            #    output_run_directory = f'run{run_number:04}-{user_tag}'
+            #else:
+            #    return {"status" : "failed", "messages": f"user_tag {user_tag} was asked to be added to directory name, but contains not supported characters"}
 
         list_data_directories_run = glob(f'{path_to_pgroup}/run{run_number:04}*')
         if len(list_data_directories_run) > 0:
@@ -664,22 +651,6 @@ class BrokerManager(object):
 
         with open(scan_info_file, 'w') as json_file:
             json.dump(scan_info, json_file, indent=4)
-
-#        if "run_number" in request and "user_tag_cleaned" in request:
-#
-#            user_tag = request["user_tag_cleaned"]
-#
-#            catalog_directory = f'{path_to_pgroup}catalog'
-#            try:
-#                if not os.path.exists(catalog_directory):
-#                    os.mkdir(catalog_directory)
-#                tag_file = f'{catalog_directory}/{user_tag}.run{request["run_number"]:04}'
-#                if not os.path.exists(tag_file):
-#                    os.symlink(f'../{output_run_directory}', tag_file)
-#                    _logger.info(f'Creating user tag for run {request["run_number"]}, tag {user_tag}')
-#            except:
-#                _logger.info(f'Can not create user tag for run {request["run_number"]}, tag {user_tag}')
-
 
         return {"status" : "ok", "message" : "OK", 
                                  "run_number" : str(run_number), 
