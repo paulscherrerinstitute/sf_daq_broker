@@ -450,6 +450,9 @@ class BrokerManager(object):
 
         if append_user_tag and user_tag is not None:
             cleaned_user_tag = clean_user_tag(user_tag)
+            cleaned_user_tag = cleaned_user_tag[:50] # may be this is not needed anymore - cross check with archival team
+            request["appended_directory_suffix"] = cleaned_user_tag
+            request["user_tag_cleaned"] = cleaned_user_tag
             output_run_directory = f'run{run_number:04}-{cleaned_user_tag}'
             #if check_for_allowed_user_tag_character(user_tag):
             #    output_run_directory = f'run{run_number:04}-{user_tag}'
