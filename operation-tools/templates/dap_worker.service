@@ -1,0 +1,13 @@
+[Unit]
+Description=dap worker for {{ detector }} detector
+
+[Service]
+User=root
+ExecStart=/bin/bash ./home/dbe/service_scripts/{{ detector }}-dap_worker.sh %i
+TimeoutStartSec=2
+Restart=on-failure
+RestartSec=4
+
+[Install]
+WantedBy=multi-user.target
+

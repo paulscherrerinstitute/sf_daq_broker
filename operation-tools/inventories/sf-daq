@@ -60,6 +60,9 @@ sf-daq-12.psi.ch
 [daq13]
 sf-daq-13.psi.ch
 
+[cn22]
+sf-cn-22.psi.ch
+
 [sf_daq_receivers:children]
 daq1
 daq3
@@ -69,6 +72,7 @@ daq9
 daq10
 daq12
 daq13
+cn22
 
 [sf_daq_receivers:vars]
 #JF01
@@ -80,6 +84,10 @@ JF01_visualisation_view=bernina
 JF01_visualisation_title=1p5M
 JF01_last_module_number=02
 JF01_initial_udp_port=50010
+JF01_dap_data_stream=tcp://192.168.30.38:9101
+JF01_dap_accumulator_port=13001
+JF01_dap_to_visualisation=12001
+JF01_visualisation_port_dap=5101
 
 #JF02
 JF02_detector_short_name=JF02
@@ -90,6 +98,11 @@ JF02_visualisation_view=von_hamos
 JF02_visualisation_title=4p5M_Alvra
 JF02_last_module_number=08
 JF02_initial_udp_port=50020
+JF02_dap_data_stream=tcp://192.168.30.38:9102
+JF02_dap_accumulator_port=13002
+JF02_dap_to_visualisation=12002
+JF02_visualisation_port_dap=5102
+
 
 #JF03
 JF03_detector_short_name=JF03
@@ -100,6 +113,10 @@ JF03_visualisation_view=module
 JF03_visualisation_title=I0
 JF03_last_module_number=00
 JF03_initial_udp_port=50030
+JF03_dap_data_stream=tcp://192.168.30.38:9103
+JF03_dap_accumulator_port=13003
+JF03_dap_to_visualisation=12003
+JF03_visualisation_port_dap=5103
 
 #JF04
 JF04_detector_short_name=JF04
@@ -130,9 +147,13 @@ JF06_visualisation_view=large
 JF06_visualisation_title=16M_Jungfrau_Alvra
 JF06_last_module_number=31
 JF06_initial_udp_port=50060
+JF06_dap_data_stream=tcp://192.168.30.38:9106
+JF06_dap_accumulator_port=13006
+JF06_dap_to_visualisation=12006
+JF06_visualisation_port_dap=5106
 
 #JF06_4M
-JF06_4M_detector_short_name=JF06
+JF06_4M_detector_short_name=JF06_4M
 JF06_4M_detector_full_name=JF06T08V04
 JF06_4M_visualisation_incoming_data_port=9006
 JF06_4M_visualisation_port=5006
@@ -140,16 +161,24 @@ JF06_4M_visualisation_view=large
 JF06_4M_visualisation_title=16M_4M_center_Alvra
 JF06_4M_last_module_number=7
 JF06_4M_initial_udp_port=50060
+JF06_4M_dap_data_stream=tcp://192.168.30.39:9106
+JF06_4M_dap_accumulator_port=13006
+JF06_4M_dap_to_visualisation=12006
+JF06_4M_visualisation_port_dap=5106
 
 #JF07
 JF07_detector_short_name=JF07
-JF07_detector_full_name=JF07T32V01
+JF07_detector_full_name=JF07T32V02
 JF07_visualisation_incoming_data_port=9007
 JF07_visualisation_port=5007
 JF07_visualisation_view=large
 JF07_visualisation_title=16M_Jungfrau_Bernina
 JF07_last_module_number=31
 JF07_initial_udp_port=50100
+JF07_dap_data_stream=tcp://192.168.30.39:9107
+JF07_dap_accumulator_port=13007
+JF07_dap_to_visualisation=12007
+JF07_visualisation_port_dap=5107
 
 #JF07_3m
 JF07_3m_detector_short_name=JF07
@@ -240,6 +269,10 @@ JF16_visualisation_view=bernina
 JF16_visualisation_title=Cristallina-Q1
 JF16_last_module_number=02
 JF16_initial_udp_port=50200
+JF16_dap_data_stream=tcp://192.168.30.11:9116
+JF16_dap_accumulator_port=13016
+JF16_dap_to_visualisation=12016
+JF16_visualisation_port_dap=5116
 
 #JF17
 JF17_detector_short_name=JF17
@@ -250,4 +283,8 @@ JF17_visualisation_view=large
 JF17_visualisation_title=Cristallina-MX
 JF17_last_module_number=15
 JF17_initial_udp_port=50203
+JF17_dap_data_stream=tcp://192.168.30.11:9117
+JF17_dap_accumulator_port=13017
+JF17_dap_to_visualisation=12017
+JF17_visualisation_port_dap=5117
 

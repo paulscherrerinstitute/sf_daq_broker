@@ -1,0 +1,39 @@
+- name: install dap services 
+  hosts: '{{ host }}'
+  become: true
+
+  vars:
+      detector_full_name: "{{ vars[detector + '_detector_full_name'] }}"
+      visualisation_view: "{{ vars[detector + '_visualisation_view'] }}"
+      visualisation_port: "{{ vars[detector + '_visualisation_port_dap'] }}"
+      visualisation_title: "{{ vars[detector + '_visualisation_title'] }}"
+      dap_data_stream: "{{ vars[detector + '_dap_data_stream'] }}"
+      dap_accumulator_port: "{{ vars[detector + '_dap_accumulator_port'] }}"
+      dap_to_visualisation: "{{ vars[detector + '_dap_to_visualisation'] }}"
+      dap_parameters_file: "/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{{ detector_full_name }}.json"
+
+  tasks:
+    - name: install execution scripts
+      become_user: dbe
+      template: src={{item.src}} dest={{item.dest}}
+      with_items:
+      - { src: 'templates/dap_vis.sh',               dest: '/home/dbe/service_scripts/{{ detector }}-dap_vis.sh' }
+      - { src: 'templates/dap_accumulator.sh',       dest: '/home/dbe/service_scripts/{{ detector }}-dap_accumulator.sh' }
+      - { src: 'templates/dap_worker.sh',            dest: '/home/dbe/service_scripts/{{ detector }}-dap_worker.sh' }
+
+    - name: install service files for all services
+      become_user: root
+      template: src={{item.src}} dest={{item.dest}}
+      with_items:
+      - { src: 'templates/dap_vis.service',             dest: '/etc/systemd/system/{{ detector }}-dap_vis.service' }
+      - { src: 'templates/dap_worker.service',          dest: '/etc/systemd/system/{{ detector }}-dap_worker@.service' }
+      - { src: 'templates/dap_workers.service',         dest: '/etc/systemd/system/{{ detector }}-dap_workers.service' }
+      - { src: 'templates/dap_accumulator.service',     dest: '/etc/systemd/system/{{ detector }}-dap_accumulator.service' }
+
+    - name: start dap services
+      systemd: state=started name={{item.name}} daemon_reload=yes
+      with_items:
+      - { name: '{{ detector }}-dap_vis' }
+      - { name: '{{ detector }}-dap_workers' }
+      - { name: '{{ detector }}-dap_accumulator' }
+

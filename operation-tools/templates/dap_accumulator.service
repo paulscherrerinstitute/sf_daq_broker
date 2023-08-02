@@ -1,0 +1,13 @@
+[Unit]
+Description=dap accumulator for {{ detector }} detector
+
+[Service]
+User=root
+TimeoutStartSec=2
+ExecStart=/usr/bin/sh /home/dbe/service_scripts/{{ detector }}-dap_accumulator.sh
+Restart=on-failure
+RestartSec=4
+
+[Install]
+WantedBy=multi-user.target
+
