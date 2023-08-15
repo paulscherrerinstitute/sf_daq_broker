@@ -18,8 +18,13 @@ DIR_NAME_RUN_INFO = "run_info"
 
 _logger = logging.getLogger(__name__)
 
-allowed_user_tag_characters = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' + "-" + ".")
+# SciCat allow following characters: letters digits _ - . % # + : = @ space(not tab)
+# : is bad to have in directory name, since it's forbidden symbol in windows for file/directory names
+# # and space are bad to have for directory names on linux, needs a special trailing characters
+# so allowing (letters digits _ - . % + =)
+allowed_user_tag_characters = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' + '-' + '.' + '%' + '+' + '=')
 
+# not needed anymore, we replace bad characters with "_"
 def check_for_allowed_user_tag_character(user_tag):
     return set(user_tag) <= allowed_user_tag_characters
 
@@ -27,19 +32,17 @@ def clean_user_tag(user_tag, replacement_character="_"):
     #return ''.join(char for char in user_tag if char in allowed_user_tag_characters) # don't replace but remove bad characters. In this case resulting string may be empty
     return ''.join(char if char in allowed_user_tag_characters else replacement_character for char in user_tag) # replace bad characters, so if initital user_tag contained at least one character, it will not be empty (but may be "___")
 
+def clean_last_character_user_tag(user_tag, replacement_character="_"):
+   if not user_tag[-1].isalnum():
+       user_tag = user_tag[:-1] + replacement_character
+   return user_tag 
+
+subnet_to_beamline = { "129.129.242" : "alvra", "129.129.243" : "bernina", "129.129.244": "cristallina", "129.129.247" : "furka", "129.129.246" : "maloja" }
+
 def ip_to_console(remote_ip):
     beamline = None
     if len(remote_ip) > 11:
-        if remote_ip[:11] == "129.129.242":
-            beamline = "alvra"
-        elif remote_ip[:11] == "129.129.243":
-            beamline = "bernina"
-        elif remote_ip[:11] == "129.129.244":
-            beamline = "cristallina"
-        elif remote_ip[:11] == "129.129.247":
-            beamline = "furka"
-        elif remote_ip[:11] == "129.129.246":
-            beamline = "maloja"
+        beamline = subnet_to_beamline.get(remote_ip[:11], None)
     return beamline
 
 def get_current_run_number(daq_directory=None, file_run="LAST_RUN", increment_run_number=True):
@@ -448,16 +451,13 @@ class BrokerManager(object):
         append_user_tag = request.get("append_user_tag_to_data_dir", False)
         user_tag = request.get("user_tag", None)
 
-        if append_user_tag and user_tag is not None:
+        if append_user_tag and user_tag is not None and len(user_tag) > 0:
             cleaned_user_tag = clean_user_tag(user_tag)
-            cleaned_user_tag = cleaned_user_tag[:50] # may be this is not needed anymore - cross check with archival team
+            cleaned_user_tag = cleaned_user_tag[:50] # may be this is will not be needed in future
+            cleaned_user_tag = clean_last_character_user_tag(cleaned_user_tag) # replace last character if it's not digit or letter
             request["appended_directory_suffix"] = cleaned_user_tag
-            request["user_tag_cleaned"] = cleaned_user_tag
+            request["user_tag_cleaned"] = cleaned_user_tag # may be not needed to store this field -> check with archival team
             output_run_directory = f'run{run_number:04}-{cleaned_user_tag}'
-            #if check_for_allowed_user_tag_character(user_tag):
-            #    output_run_directory = f'run{run_number:04}-{user_tag}'
-            #else:
-            #    return {"status" : "failed", "messages": f"user_tag {user_tag} was asked to be added to directory name, but contains not supported characters"}
 
         list_data_directories_run = glob(f'{path_to_pgroup}/run{run_number:04}*')
         if len(list_data_directories_run) > 0:
