@@ -21,12 +21,15 @@ envtest=$(conda env list | grep ${CONDA_ENV_NAME})
 
 if [ $? != 0 ]; then
   echo "Creating the ${CONDA_ENV_NAME} environment"
-  conda create -y -n ${CONDA_ENV_NAME} -c paulscherrerinstitute -c conda-forge data_api jungfrau_utils bitshuffle=0.3.5
+  conda install -n base conda-libmamba-solver -y
+  conda config --set channel_priority disabled
+  conda config --set solver libmamba 
+  conda create -y -n ${CONDA_ENV_NAME} -c paulscherrerinstitute -c conda-forge data_api jungfrau_utils
 
   conda deactivate
   conda activate ${CONDA_ENV_NAME}
 
-  conda install -y -c conda-forge bottle pika ujson unidecode
+  conda install -y -c conda-forge bottle pika ujson
   conda install -y -c slsdetectorgroup -c conda-forge slsdet=6.1.1
   conda install -y -c paulscherrerinstitute -c conda-forge pyepics
 else
