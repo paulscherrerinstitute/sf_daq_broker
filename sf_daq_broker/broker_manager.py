@@ -20,9 +20,10 @@ _logger = logging.getLogger(__name__)
 
 # SciCat allow following characters: letters digits _ - . % # + : = @ space(not tab)
 # : is bad to have in directory name, since it's forbidden symbol in windows for file/directory names
-# # and space are bad to have for directory names on linux, needs a special trailing characters
-# so allowing (letters digits _ - . % + =)
-allowed_user_tag_characters = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' + '-' + '.' + '%' + '+' + '=')
+# #, @ or space are bad to have for directory names on linux, needs a special trailing characters
+# to be on safe side, also characters "=" "%" are not allowed (if there will be request from users, can enable them)
+# so allowing (letters digits _ - + .)
+allowed_user_tag_characters = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' + '-' + '+' + '.')
 
 # not needed anymore, we replace bad characters with "_"
 def check_for_allowed_user_tag_character(user_tag):
