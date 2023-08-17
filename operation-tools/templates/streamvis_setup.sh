@@ -20,8 +20,10 @@ envtest=$(conda env list | grep vis)
 
 if [ $? != 0 ]; then
   echo "Creating the vis environment"
+  conda install -n base conda-libmamba-solver -y
   conda config --append channels conda-forge
   conda config --append channels paulscherrerinstitute
-  conda config --set channel_priority strict
+  conda config --set channel_priority disabled
+  conda config --set solver libmamba
   conda create -n vis -y streamvis={{ streamvis_version }}
 fi
