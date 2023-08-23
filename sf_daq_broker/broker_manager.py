@@ -457,7 +457,6 @@ class BrokerManager(object):
             cleaned_user_tag = cleaned_user_tag[:50] # may be this is will not be needed in future
             cleaned_user_tag = clean_last_character_user_tag(cleaned_user_tag) # replace last character if it's not digit or letter
             request["appended_directory_suffix"] = cleaned_user_tag
-            request["user_tag_cleaned"] = cleaned_user_tag # may be not needed to store this field -> check with archival team
             output_run_directory = f'run{run_number:04}-{cleaned_user_tag}'
 
         list_data_directories_run = glob(f'{path_to_pgroup}/run{run_number:04}*')
