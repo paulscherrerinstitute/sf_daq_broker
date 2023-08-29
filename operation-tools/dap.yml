@@ -54,17 +54,6 @@
 - import_playbook: dap_service.yml
   vars:
       host: daq7
-      detector: "{{ JF16_detector_short_name }}"
-      dap_skip_frames: 1
-      visualisation_cores: 4
-      dap_worker_cores: "0 1 2"
-      dap_accumulator_cores: 3
-      dap_accumulator_host: sf-daq-7
-      dap_visualisation_host: sf-daq-7
-
-- import_playbook: dap_service.yml
-  vars:
-      host: daq7
       detector: "{{ JF03_detector_short_name }}"
       dap_skip_frames: 1
       visualisation_cores: 5 
@@ -87,11 +76,45 @@
 - import_playbook: dap_service.yml
   vars:
       host: daq7
+      detector: "{{ JF04_detector_short_name }}"
+      dap_skip_frames: 1
+      visualisation_cores: 8
+      dap_worker_cores: "9 10"
+      dap_accumulator_cores: 8
+      dap_accumulator_host: sf-daq-7
+      dap_visualisation_host: sf-daq-7
+
+- import_playbook: dap_service.yml
+  vars:
+      host: daq7
+      detector: "{{ JF05_detector_short_name }}"
+      dap_skip_frames: 1
+      visualisation_cores: 11
+      dap_worker_cores: "12 13"
+      dap_accumulator_cores: 11
+      dap_accumulator_host: sf-daq-7
+      dap_visualisation_host: sf-daq-7
+
+
+- import_playbook: dap_service.yml
+  vars:
+      host: daq7
+      detector: "{{ JF16_detector_short_name }}"
+      dap_skip_frames: 1
+      visualisation_cores: 30
+      dap_worker_cores: "27 28 29"
+      dap_accumulator_cores: 31
+      dap_accumulator_host: sf-daq-7
+      dap_visualisation_host: sf-daq-7
+
+- import_playbook: dap_service.yml
+  vars:
+      host: daq7
       detector: "{{ JF17_detector_short_name }}"
       dap_skip_frames: 10
-      visualisation_cores: 8,9
-      dap_worker_cores: "11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31"
-      dap_accumulator_cores: 10
+      visualisation_cores: 14,15
+      dap_worker_cores: "17 18 19 20 21 22 23 24 25 26"
+      dap_accumulator_cores: 16
       dap_accumulator_host: sf-daq-7
       dap_visualisation_host: sf-daq-7
 
@@ -145,20 +168,20 @@
       dap_visualisation_host: sf-daq-7
 
 
-#- import_playbook: install_streamvis.yml
-#  vars:
-#      host: daq1
+- import_playbook: install_streamvis.yml
+  vars:
+      host: daq1
 
-#- import_playbook: dap_service.yml
-#  vars:
-#      host: daq1
-#      detector: "{{ JF17_detector_short_name }}"
-#      dap_skip_frames: 10
-#      visualisation_cores: 10
-#      dap_worker_cores: "0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55"
-#      dap_accumulator_cores: 10
-#      dap_accumulator_host: sf-daq-7
-#      dap_visualisation_host: sf-daq-7
+- import_playbook: dap_service.yml
+  vars:
+      host: daq1
+      detector: "{{ JF17_detector_short_name }}"
+      dap_skip_frames: 10
+      visualisation_cores: 10
+      dap_worker_cores: "0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55"
+      dap_accumulator_cores: 10
+      dap_accumulator_host: sf-daq-7
+      dap_visualisation_host: sf-daq-7
 
 
 #- import_playbook: install_streamvis.yml

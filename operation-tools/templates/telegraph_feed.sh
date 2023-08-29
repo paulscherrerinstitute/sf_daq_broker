@@ -9,6 +9,12 @@ fi
 
 DETECTOR=$1
 DS=`echo ${DETECTOR} | cut -c 3-4`
+
+if [ ${DETECTOR} == JF06T08V04 ]
+then
+    DS=06_4M
+fi
+
 NM=`echo ${DETECTOR} | cut -c 6-7`
 
 NM=`expr ${NM} - 1`

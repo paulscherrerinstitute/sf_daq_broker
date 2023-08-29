@@ -127,6 +127,10 @@ JF04_visualisation_view=module
 JF04_visualisation_title=Fluorescence
 JF04_last_module_number=00
 JF04_initial_udp_port=50040
+JF04_dap_data_stream=tcp://192.168.30.38:9104
+JF04_dap_accumulator_port=13004
+JF04_dap_to_visualisation=12004
+JF04_visualisation_port_dap=5104
 
 #JF05
 JF05_detector_short_name=JF05
@@ -137,6 +141,10 @@ JF05_visualisation_view=module
 JF05_visualisation_title=stripsel
 JF05_last_module_number=00
 JF05_initial_udp_port=50050
+JF05_dap_data_stream=tcp://192.168.30.38:9105
+JF05_dap_accumulator_port=13005
+JF05_dap_to_visualisation=12005
+JF05_visualisation_port_dap=5105
 
 #JF06
 JF06_detector_short_name=JF06
