@@ -1,2 +1,0 @@
-Defaults:telegraf !requiretty
-telegraf ALL=(root) NOPASSWD: /usr/local/bin/telegraph_feed.sh
