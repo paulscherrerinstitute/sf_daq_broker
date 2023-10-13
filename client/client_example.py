@@ -7,14 +7,16 @@ import os
 import daq_client 
 
 pulseid = {
-  "alvra"   : "SLAAR11-LTIM01-EVR0:RX-PULSEID",
-  "bernina" : "SLAAR21-LTIM01-EVR0:RX-PULSEID",
-  "maloja"  : "SLAAR11-LTIM01-EVR0:RX-PULSEID"
+  "alvra"       : "SLAAR11-LTIM01-EVR0:RX-PULSEID",
+  "bernina"     : "SLAAR21-LTIM01-EVR0:RX-PULSEID",
+  "cristallina" : "SLAAR21-LTIM01-EVR0:RX-PULSEID",
+  "maloja"      : "SLAAR11-LTIM01-EVR0:RX-PULSEID",
+  "furka"       : "SLAAR11-LTIM01-EVR0:RX-PULSEID"
 }
 
 def get_beamline():
     import socket
-    ip2beamlines = {"129.129.242": "alvra", "129.129.243": "bernina", "129.129.246": "maloja"}
+    ip2beamlines = {"129.129.242": "alvra", "129.129.243": "bernina", "129.129.244": "cristallina", "129.129.246": "maloja", "129.129.247": "furka"}
     ip=socket.gethostbyname(socket.gethostname())
     beamline = None
     if ip[:11] in ip2beamlines:
@@ -53,7 +55,6 @@ class BrokerClient:
 
         self.rate_multiplicator = 1
 
-        self.output_directory = None
         self.channels_file = None
         self.epics_file = None
         self.detectors_file = None
@@ -66,12 +67,11 @@ class BrokerClient:
         if not os.path.isdir(raw_directory):
             raise NameError(f'{raw_directory} doesnt exist or accessible')
 
-    def configure(self, output_directory=None, 
+    def configure(self,
                   channels_file=None, epics_file=None, 
                   detectors_file=None, scan_step_info_file=None,
                   rate_multiplicator=1):
 
-        self.output_directory = output_directory
         self.channels_file    = channels_file
         self.epics_file       = epics_file
         self.detectors_file   = detectors_file
@@ -96,7 +96,7 @@ class BrokerClient:
             if stop_pulseid is None:
                 stop_pulseid = get_current_pulseid()
             last_run_previous = self.last_run
-            self.last_run = daq_client.retrieve_data_from_buffer_files(pgroup=self.pgroup, output_directory=self.output_directory,
+            self.last_run = daq_client.retrieve_data_from_buffer_files(pgroup=self.pgroup,
                         channels_file=self.channels_file, epics_file=self.epics_file,
                         detectors_file=self.detectors_file,
                         start_pulseid=self.start_pulseid, stop_pulseid=stop_pulseid,

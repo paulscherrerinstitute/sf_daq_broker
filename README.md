@@ -33,7 +33,7 @@ r = requests.post(f'{broker_address}/retrieve_from_buffers',json=parameters, tim
 ```
 
 return object `r` is a dictionary with at least two keys: `'status'` and `'message'`. In case of no problem with the request to retrieve data (so request is accepted to be processed
-by broker), `'status'` is 'ok', `'message'` is 'OK' and there are additional fields in reply : `run_number`, `acquisition_number` and `unique_acquistition_number` and list of `'files'` which sf-daq will produce in corresponding data/ directory 
+by broker), `'status'` is 'ok', `'message'` is 'OK' and there are additional fields in reply : `run_number`, `acquisition_number` and `unique_acquisition_number` and list of `'files'` which sf-daq will produce in corresponding data/ directory 
 ```python
 r.json()
 {'status': 'ok', 'message': 'OK', 'run_number': '10', 'acquisition_number': '1', 'unique_acquisition_number': '101', 'files': ['/sf/alvra/data/p17502/raw/run0010/data/acq0001.PVDATA.h5']}
@@ -235,23 +235,18 @@ Example of log files above shows that there are missing pulseid's for some of th
  Command line example how to use broker to request a retireve of data is daq_client.py. To run is enough to have python > 3.6 and standard packages (requests, os, json)
 (so standard PSI python environment is good for this purpose):
 ```bash
-$ module load psi-python36/4.4.0 
-$ python daq_client.py -h
-usage: daq_client.py [-h] [-p PGROUP] [-d OUTPUT_DIRECTORY] [-c CHANNELS_FILE]
-                     [-e EPICS_FILE] [-f FILE_DETECTORS]
-                     [-r RATE_MULTIPLICATOR] [-s SCAN_STEP_FILE]
-                     [--start_pulseid START_PULSEID]
-                     [--stop_pulseid STOP_PULSEID]
+$ module load psi-python39/2021.11 
 
-test broker
+$ python daq_client.py --help
+usage: daq_client.py [-h] [-p PGROUP] [-c CHANNELS_FILE] [-e EPICS_FILE] [-f FILE_DETECTORS] [-r RATE_MULTIPLICATOR]
+                     [-s SCAN_STEP_FILE] [--start_pulseid START_PULSEID] [--stop_pulseid STOP_PULSEID]
+
+simple daq client example
 
 optional arguments:
   -h, --help            show this help message and exit
   -p PGROUP, --pgroup PGROUP
                         pgroup, example p12345
-  -d OUTPUT_DIRECTORY, --output_directory OUTPUT_DIRECTORY
-                        output directory for the data, relative path to the
-                        raw directory in the pgroup
   -c CHANNELS_FILE, --channels_file CHANNELS_FILE
                         TXT file with list channels
   -e EPICS_FILE, --epics_file EPICS_FILE
@@ -276,17 +271,14 @@ optional arguments:
 It can also run in a standard PSI environment, but the pulse_id's would be wrong (the proper way to get a pulse_id is to use one of the channel which provide them
 effectively, see client_example.py). So in case one run this example in environment without pyepics, the guessed, fake pulseid would be approximately ok (due to the lock to the 50Hz electricity frequency for accelerator, our 100Hz is not an ideal 100Hz, so it's impossible to make a 100% accurate prediction from time to pulse_id)
 ```bash
-. /opt/gfa/python 3.7 # this loads proper environment with pyepics in it
+. /opt/gfa/python 3.9 # this loads proper environment with pyepics in it
 $ ipython
-Python 3.7.5 (default, Oct 25 2019, 15:51:11)
-Type 'copyright', 'credits' or 'license' for more information
-IPython 7.2.0 -- An enhanced Interactive Python. Type '?' for help.
 
 In [1]: import client_example as client                                                                                                                                   
 
 In [2]: daq_client = client.BrokerClient(pgroup="p12345")                                                                                                                 
 
-In [3]: daq_client.configure(output_directory="test/daq", channels_file="channel_list", rate_multiplicator=2, detectors_file="jf_jf01.json")                              
+In [3]: daq_client.configure(channels_file="channel_list", rate_multiplicator=2, detectors_file="jf_jf01.json")                              
 
 In [4]: daq_client.run(1000)                                                                                                                                              
 [####################] 99% Run: 2

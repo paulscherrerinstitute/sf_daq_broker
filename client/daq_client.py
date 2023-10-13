@@ -7,10 +7,9 @@ TIMEOUT_DAQ = 10
 
 def run():
 
-    parser = argparse.ArgumentParser(description='test broker')
+    parser = argparse.ArgumentParser(description='simple daq client example')
 
     parser.add_argument("-p", "--pgroup", help="pgroup, example p12345", default="p18493")
-    parser.add_argument("-d", "--output_directory", help="output directory for the data, relative path to the raw directory in the pgroup", default="covid/test1")
 
     parser.add_argument("-c", "--channels_file", help="TXT file with list channels", default=None)
     
@@ -27,14 +26,14 @@ def run():
 
     args = parser.parse_args()
 
-    retrieve_data_from_buffer_files(pgroup=args.pgroup, output_directory=args.output_directory, 
+    retrieve_data_from_buffer_files(pgroup=args.pgroup, 
                               channels_file=args.channels_file, epics_file=args.epics_file,
                               detectors_file=args.file_detectors,
                               start_pulseid=args.start_pulseid, stop_pulseid=args.stop_pulseid,
                               rate_multiplicator=args.rate_multiplicator,
                               scan_step_info_file=args.scan_step_file)
 
-def retrieve_data_from_buffer_files(pgroup=None, output_directory=None,
+def retrieve_data_from_buffer_files(pgroup=None,
                               channels_file=None, epics_file=None,
                               detectors_file=None,
                               start_pulseid=None, stop_pulseid=None,
@@ -83,7 +82,7 @@ def retrieve_data_from_buffer_files(pgroup=None, output_directory=None,
             return None
 
 
-    run_number = retrieve_data_from_buffer(pgroup=pgroup, output_directory=output_directory,
+    run_number = retrieve_data_from_buffer(pgroup=pgroup,
                                      camera_channels=camera_channels, bsread_channels=bsread_channels,
                                      epics_channels=epics_channels,
                                      detectors=detectors,
@@ -92,7 +91,7 @@ def retrieve_data_from_buffer_files(pgroup=None, output_directory=None,
                                      scan_step_info=scan_step_info)
     return run_number
 
-def retrieve_data_from_buffer(pgroup=None, output_directory=None,
+def retrieve_data_from_buffer(pgroup=None,
                               camera_channels=[], bsread_channels=[], epics_channels=[],
                               detectors=None,
                               start_pulseid=None, stop_pulseid=None,
@@ -107,8 +106,6 @@ def retrieve_data_from_buffer(pgroup=None, output_directory=None,
         
     parameters = {}
     parameters["pgroup"]   = pgroup
-
-    parameters["directory_name"] = output_directory
 
     parameters["start_pulseid"] = start_pulseid
     parameters["stop_pulseid"]  = stop_pulseid
@@ -139,13 +136,22 @@ def retrieve_data_from_buffer(pgroup=None, output_directory=None,
     responce = r.json()
     if "status" in responce:
         if responce["status"] == "ok":
-            run_number = (responce["message"])
-            print(f'success: run number(request_id) is {run_number}')
-        else:
-            if "message" in responce:
-                print(f' Error, reason : {responce["message"]}')
+            message = responce.get("message", None)
+            run_number = responce.get("run_number", None)
+            if run_number is not None:
+                run_number = int(run_number)
+                run_number_print = f'{run_number:04}'
             else:
-                print(f'responce is not standard : {responce}')
+                run_number_print = None
+            acq_number = responce.get("acquisition_number", None)
+            unq_acq_number = responce.get("unique_acquisition_number", None)
+            files_daq = responce.get("files", [])
+            print(f'success: {message=} {run_number=} {acq_number=} {unq_acq_number=}')
+            print(f' these files to expect in raw/{pgroup}/run{run_number_print}/data/ directory : {files_daq}')
+        else:
+            message = responce.get("message", None)
+            print(f' Error, reason : {message=}')
+            print(f'    whole responce : {responce=}')
     else:
         print("Bad responce from request")
 
