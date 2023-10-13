@@ -66,7 +66,7 @@ parameters["stop_pulseid"]  = 2000
 - "detectors" : python dictionary, containing name of jungfrau detector (e.g. JF01T03V01) as key and a dictionary with parameters as a value, see [Detector parameters](#detector_parameters) for available options
 - "scan_info" : python dictionary to specify that this request belongs to a particular scan (if proper information is provided (for example see scan_step.json in this directory), the appropriate scan_info json file will be created inside run directory)
 
- Successful request needs to have at least one list non-empty in request (otherwise there is nothing to ask to retrieve)
+  Any other fields/values included in the parameters dictionary will be ignored by the broker, but saved in the metadata file(in meta/ directory, see [directory structure](#directory_structure)), so this way one can propagate some usefull parameters, to be used after online processing (example is using `cell_name` parameter, used to propagate information from daq to [automatic processing tool](https://gitlab.psi.ch/sf-daq/ap))
 
 <a id="detector_parameters"></a>
 #### Detector parameters
