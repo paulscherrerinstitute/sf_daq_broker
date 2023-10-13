@@ -227,7 +227,7 @@ Finished retrieve from the buffer
 Finished. Took 0.3386099338531494 seconds to complete request.
 ```
 
-Example of log files above shows that there are missing pulseid's for some of the requested BS sources (SAROP31-PBPS149:YPOS), some BS sources are not available completely (SAR-CVME-TIFALL6:EvtSet); for Epics sources an information is displayed how many data points (N1) is retrieved and how do they distributed in respect to requested start/stop_pulseid interval - (N2[N3)N4), where N1=N2+N3+N4, N2/N4 are numbers of points before and after requested interval, N3 is within the pulseid interval. 
+Example of log files above shows that there are missing pulseid's for some of the requested BS sources (SAROP31-PBPS149:YPOS), some BS sources are not available completely (SAR-CVME-TIFALL6:EvtSet); for Epics sources an information is displayed(N1 (N2[N3)N4)) how many data points (N1) are retrieved and how do they distributed in respect to the requested start/stop_pulseid interval, where N1=N2+N3+N4, N2,N4 are numbers of points before and after requested interval, N3 is within the interval. 
 
 <a id="Example1"></a>
 ## Example1
