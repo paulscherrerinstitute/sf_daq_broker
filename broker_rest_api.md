@@ -74,18 +74,141 @@ print(json.dumps(r.json(), indent=4))
 
 <a id="get_pvlist"></a>
 ## Get list of recorded by sf-daq EPICS channels 
+sf-daq runs separate CA channels (EPICS) buffer for each of the beamline. Only configured channels are recorded in the buffer and can be retrieved and be written to the data files. This call allows to get list of currently configured channels in the epics buffer.
+
+Example of the call (two epics channels are monitored by epics buffer in this beamline):
+```
+r = requests.get(f'{broker_address}/get_pvlist')
+print(json.dumps(r.json(), indent=4))
+{
+    "pv_list": [
+        "ELCOMAT:X",
+        "ELCOMAT:Y"
+    ]
+}
+```
+The only possible failure for the call can only be that there is no epics buffer configured/running for the beamline, in this case output will be:
+```
+print(json.dumps(r.json(), indent=4))
+{
+    "status": "failure, epics config file not exist for this beamline {beamline_name}"
+}
+```
 
 <a id="set_pvlist"></a>
 ## Update list of recorded by sf-daq EPICS channels
+With this call it's possible to setup/replace list of the monitored by epics buffer channels. To get current list of the channel, use [get_pvlist](#get_pvlist) call.
+
+Example of the call:
+```
+pv_list = ["ELCOMAT:X", "ELCOMAT:Y", "SLAAR21-LSCP1-FNS:CH7:WFM"]
+r = requests.post(f'{broker_address}/set_pvlist', json={'pv_list': pv_list})
+ print(json.dumps(r.json(), indent=4))
+{
+    "status": "ok",
+    "message": [
+        "ELCOMAT:X",
+        "ELCOMAT:Y",
+        "SLAAR21-LSCP1-FNS:CH7:WFM"
+    ]
+}
+```
+Please note that updating list of channel cause a restart of epics buffer for 10-40 seconds (so during that time, no recording to the buffer is happening). Do an update of epics setup only during pause in data taking.
 
 <a id="close_pgroup_writing"></a>
 ## Close permanently pgroup for writing by sf-daq
+To prevent accidental writing files to the wrong pgroup it's possible to *close pgroup* for further adding/writing files by sf-daq. Since this closing triggers also automatic archival of existing data, procedure is permanent (once pgroup is closed, it shouldn't be re-opened). In best practice, it's good to close pgroup when beamtime is over and it's known that there will be no new data collected with sf-daq. Preventing writing to pgroup affects only writing to ../raw/.. storage space of pgroup, so it's possible to add/modify files in ../res/.. or ../work/.. after closing. 
+
+Example call to close pgroup for writing:
+```
+pgroup = "p17534"
+r = requests.post(f'{broker_address}/close_pgroup_writing', json={'pgroup': pgroup} )
+```
+In case of success `(responce["status"] == "ok")`:
+```
+print(json.dumps(r.json(), indent=4))
+{
+    "status": "ok",
+    "message": "p17534 closed for writing"
+}
+```
+
+In case of failure(here a second attempt is made for already closed pgroup):
+```
+print(json.dumps(r.json(), indent=4))
+{
+    "status": "failed",
+    "message": "/sf/bernina/data/p17534/raw/ is already closed for writing"
+}
+```
 
 <a id="get_detector_settings"></a>
 ## Get detectors settings
+Get detector settings (exposure time, delay, gain_mode ("dynamic", "fixed_gain1", "fixed_gain2"), gain settings("normal" or "low_noise")). 
+
+Example of the call:
+```
+detector_name = "JF03T01V02"
+r = requests.post(f'{broker_slow_address}/get_detector_settings', json={'detector_name': detector_name} )
+```
+In case of successful responce from broker `(responce["status"] == "ok")`:
+```
+print(json.dumps(r.json(), indent=4))
+{
+    "status": "ok",
+    "exptime": 5e-06,
+    "detector_mode": "normal",
+    "delay": 0.00089,
+    "gain_mode": "dynamic"
+}
+```
+Example of the failed request (wrong name of detector):
+```
+detector_name = "JF03T01V01"
+r = requests.post(f'{broker_slow_address}/get_detector_settings', json={'detector_name': detector_name} )
+print(json.dumps(r.json(), indent=4))
+{
+    "status": "failed",
+    "message": "JF03T01V01 not belongs to the bernina"
+}
+```
 
 <a id="set_detector_settings"></a>
 ## Set detector settings 
+Change detector parameter (**should be used with care and best to consult responsible for daq and detector people first. Highly experimental feature at the moment**). Detector parameters obtained with [get_detector_settings](#get_detector_settings) can be changed with this call.
+
+Example how to change detector delay (which may cause mis-sinchronisation with the xfel pulse):
+```
+detector_name = "JF03T01V02"
+r = requests.post(f'{broker_slow_address}/set_detector_settings', json={'detector_name': detector_name, "delay": 0.00088} )
+```
+Check in responce that operation was made by the broker:
+```
+print(json.dumps(r.json(), indent=4))
+{
+    "status": "ok"
+}
+```
+but in addition, cross check with [get_detector_settings](#get_detector_settings) that changes did really happened:
+```
+r = requests.post(f'{broker_slow_address}/get_detector_settings', json={'detector_name': detector_name} )
+print(json.dumps(r.json(), indent=4))
+{
+    "status": "ok",
+    "exptime": 5e-06,
+    "detector_mode": "normal",
+    "delay": 0.00088,
+    "gain_mode": "dynamic"
+}
+```
+In case broker can't make an operation, `failed` status will be returned with the message explaining the failure(in this example, problem with the timing system occured, preventing to stop detector to change settings):
+```
+print(json.dumps(r.json(), indent=4))
+{
+    "status": "failed",
+    "message": "tried to stop detector trigger but failed"
+}
+```
 
 <a id="copy_user_files"></a>
 ## Saving files using sf-daq  
@@ -132,7 +255,6 @@ Example of the call:
 ```
 detector_name = "JF06T08V04"
 r = requests.post(f'{broker_slow_address}/get_dap_settings', json={'detector_name': detector_name} )
-responce = r.json()
 ```
 Example of succesfull (`responce["status"] == "ok"`) return of dap parameters:
 ```
