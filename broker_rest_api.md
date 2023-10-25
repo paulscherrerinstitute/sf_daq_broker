@@ -4,7 +4,7 @@
 0. [General remarks](#general_remarks)
 1. [/retrieve_from_buffers](#retrieve_from_buffers)
 2. [/take_pedestal](#take_pedestal)
-3. [/get_allowed_detector_list](#get_allowed_detector_list)
+3. [/get_allowed_detectors_list](#get_allowed_detectors_list)
 4. [/get_running_detectors_list](#get_running_detectors_list)
 5. [/power_on_detector](#power_on_detector)
 6. [/get_next_run_number](#get_next_run_number)
@@ -33,7 +33,9 @@ r = requests.get(f{broker_address}/{api_call}'
 if r.status_code != 200:
     raise Exception(f'bad responce for daq {r.status_code} {r.text}')
 # Got Status Code 0k (200), so can analyse reply from daq
-
+```
+for the pretty print of json output from the call, do not forget to import json module
+```
 import json # for the pretty print of json output
 responce = r.json()
 print(json.dumps(responce, indent=4))
@@ -42,7 +44,8 @@ print(json.dumps(responce, indent=4))
     "message": explanation_message_in_case_of_failure
 }
 ```
-In case of successful call (Status Code 200), return message contains `status` field with possible values : `ok` or `failed`. An explanation for the `failed` cases is given in the `message` field. Example of failed call (for the case when request is made without providing necessary information (`detector_name`) in the call):
+For almost all calls to broker described below (exceptions are : 
+[/get_allowed_detectors_list](#get_allowed_detectors_list) and [/get_running_detectors_list](#get_running_detectors_list) ) - for the case of successful call (Status Code 200), return message contains `status` field with possible values : `ok` or `failed`. An explanation for the `failed` cases is given in the `message` field. Example of failed call (for the case when request is made without providing necessary information (`detector_name`) in the call):
 ```
 print(json.dumps(r.json(), indent=4))
 {
@@ -56,21 +59,183 @@ print(json.dumps(r.json(), indent=4))
 
 <a id="take_pedestal"></a>
 ## Take pedestal  
+Use this call to take pedestal(dark) run for the detectors. Please check that the beam/laser are off during pedestal data taking, to be able to collect real dark data, without influences from the sources. Pedestal run should be taken at same conditions (pressure/temperature) as the data runs, for which this pedestal run will be applied. 
 
-<a id="get_allowed_detector_list"></a>
+ It's possible and recommended to make one single pedestal run for several detectors, but include in the call only detectors which are "running" at that moment (list of running detector one can get with [/get_running_detectors_list](#get_running_detectors_list) call).
+
+Example call for the pedestal run:
+```
+detectors = {"JF01T03V01": {}, "JF03T01V02": {} }
+pgroup = "p17534"
+rate_multiplicator = 1 # with which rate detectors are triggering at this moment (1-100Hz, 2-50Hz....). Default (if not provided - 1(100Hz))
+r = requests.post(f'{broker_address}/take_pedestal', json={'pgroup': pgroup, 'detectors': detectors, 'rate_multiplicator': rate_multiplicator} )
+```
+Succesfull return of the call looks like this:
+```
+print(json.dumps(r.json(), indent=4))
+{
+    "status": "ok",
+    "message": "will do a pedestal now, wait at least 40.0 seconds",
+    "run_number": "0",
+    "acquisition_number": "0",
+    "unique_acquisition_number": "0"
+}
+```
+While if there are problems with the call `(responce["status"] == "failed")`, check message field of the responce. Example for the case when detector not belonging/configured to the beamline is specified in the call:
+```
+print(json.dumps(r.json(), indent=4))
+{
+    "status": "failed",
+    "message": "JF03T01V01 not belongs to the bernina"
+}
+```
+
+<a id="get_allowed_detectors_list"></a>
 ## Get list of allowed detectors for the beamline
+With this call one can get list of all the detectors which are configured for this beamline, as well as some detectors/daq parameters defined for that detectors. Example output for the Bernina beamline:
+```
+r = requests.get(f'{broker_address}/get_allowed_detectors_list' )
+responce = r.json()
+print(json.dumps(responce, indent=4))
+{
+    "detectors": [
+        "JF01T03V01",
+        "JF03T01V02",
+        "JF04T01V01",
+        "JF05T01V01",
+        "JF07T32V02",
+        "JF13T01V01",
+        "JF14T01V01"
+    ],
+    "names": [
+        "1p5M Bernina detector",
+        "Bernina I0, 1 module",
+        "Fluorescence, 1 module",
+        "Stripsel, 1 module",
+        "16M detector",
+        "Vacuum detector",
+        "RIXS detector"
+    ],
+    "visualisation_address": [
+        "sf-daq-12:5001",
+        "sf-daq-12:5003",
+        "sf-daq-12:5004",
+        "sf-daq-12:5005",
+        "sf-daq-13:5007",
+        "sf-daq-13:5013",
+        "sf-daq-13:5014"
+    ]
+}
+```
+In the example above - 7 detectors `(responce.get('detectors', None))` are configured/known at the Bernina. Their "human names" are listed in the field `"names"` (so, for example, JF05T01V01 has name "Stripsel, 1 module") and `"visualisation_address"` contains location of [detector visualisation](https://github.com/paulscherrerinstitute/streamvis) (for JF05T01V01 visualisation runs on http://sf-daq-12:5005, as seen from example output above). 
 
 <a id="get_running_detectors_list"></a>
 ## Get list of currently running detectors 
+Result of this call will be a list of currently running detectors at the beamline. Example call (only one detector is running, JF03T01V02, as seen in this example):
+```
+r = requests.get(f'{broker_address}/get_running_detectors_list' )
+responce = r.json()
+print(json.dumps(responce, indent=4))
+{
+    "detectors": [
+        "JF03T01V02"
+    ]
+}
+running_detectors = responce.get("detectors", None)
+```
+Technically, this call runs through the list of [all configured detectors](/get_allowed_detectors_list) for the beamline and checks if there are fresh data available for the detector in the detector buffer (so in fact, this call checks the whole sequence that the detector is producing data and sf-daq writes that data to the detector buffer). In case of problems, check that detector is connected hardware wise (cooling, power, network, trigger...) and that [/power_on_detector](#power_on_detector) call is made already to apply HV to detector sensors and start detector triggering.
 
 <a id="power_on_detector"></a>
 ## Power ON detector
+This call is used to configure, apply HV to the sensors and start triggering of the detector. Before doing this call, make sure that detector is connected to cooling system, power, network and trigger (so hardware-wise detector is ready). Procedure may take up to few minutes (depending on number of modules in detector), so best is to wait sometime before trying to make another [power_on](#power_on_detector) request. To check if detector is running (so, procedure was succesfull) - use [/get_running_detectors_list](#get_running_detectors_list) call. 
+```
+detector_name = "JF03T01V02"
+r = requests.post(f'{broker_address}/power_on_detector', json={'detector_name': detector_name} )
+print(json.dumps(r.json(), indent=4))
+{
+    "status": "ok",
+    "message": "request to power on detector is sent, wait few minutes"
+}
+```
+Example output in case of failure in the call (here request is made to power on detector which doesn't belong to the beamline):
+```
+detector_name = "JF11T04V01"
+r = requests.post(f'{broker_address}/power_on_detector', json={'detector_name': detector_name} )
+print(json.dumps(r.json(), indent=4))
+{
+    "status": "failed",
+    "message": "JF11T04V01 not belongs to the bernina"
+}
+```
 
 <a id="get_next_run_number"></a>
 ## Get next acquisition run number
+This call allows to generate a run number, which can be used in [/retrieve_from_buffers](#retrieve_from_buffers) request. The usual case of using this call is before the first acquisition step of the run to get such number and use it for all subsequent steps in that run(scan).
+
+Example of call:
+```
+pgroup = "p17534"
+r = requests.get(f'{broker_address}/get_next_run_number', json={'pgroup': pgroup} )
+responce = r.json()
+print(json.dumps(responce, indent=4))
+{
+    "status": "ok",
+    "message": "22"
+}
+next_run_number = int(responce.get("message")) if responce["status"] == "ok" else None
+```
+
+Example of failed request to get next run number (pgroup is closed for writing, see [close_pgroup_writing](#close_pgroup_writing)):
+```
+print(json.dumps(r.json(), indent=4))
+{
+    "status": "failed",
+    "message": "/sf/bernina/data/p19318/raw/ is closed for writing"
+}
+```
+
+**Note**: each call to [/get_next_run_number](#get_next_run_number) generates a new number. If it's not used in corresponding [/retrieve_from_buffers](#retrieve_from_buffers) requests - that number are *lost*, there will be no data written for that run numbers.
+
+Every call generates a new number:
+```
+for i in range(3):
+    r = requests.get(f'{broker_address}/get_next_run_number', json={'pgroup': pgroup} )
+    responce = r.json()
+    next_run_number = int(responce.get("message")) if responce["status"] == "ok" else None
+    print(f'call {i}: generated {next_run_number=}')
+
+call 0: generated next_run_number=8
+call 1: generated next_run_number=9
+call 2: generated next_run_number=10
+```
+In case of need to know current run_number (so not generating/reserving a new one), use [/get_last_run_number](#get_last_run_number) call
 
 <a id="get_last_run_number"></a>
 ## Get last acquisition run number
+This call is to get a current run_number (illustrative case: to continue with the current run(scan) for the next acquisition steps):
+```
+pgroup = "p17534"
+r = requests.get(f'{broker_address}/get_last_run_number', json={'pgroup': pgroup} )
+responce = r.json()
+print(json.dumps(responce, indent=4))
+{
+    "status": "ok",
+    "message": "10"
+}
+last_run_number = int(responce.get("message")) if responce["status"] == "ok" else None
+```
+Comparing to [/get_next_run_number] - this call doesn't generate a new number each time, but returns a currently known to sf-daq (highest) run_number:
+```
+for i in range(3):
+    r = requests.get(f'{broker_address}/get_last_run_number', json={'pgroup': pgroup} )
+    responce = r.json()
+    last_run_number = int(responce.get("message")) if responce["status"] == "ok" else None
+    print(f'call {i}: generated {last_run_number=}')
+
+call 0: generated last_run_number=10
+call 1: generated last_run_number=10
+call 2: generated last_run_number=10
+```
 
 <a id="get_pvlist"></a>
 ## Get list of recorded by sf-daq EPICS channels 
@@ -103,7 +268,7 @@ Example of the call:
 ```
 pv_list = ["ELCOMAT:X", "ELCOMAT:Y", "SLAAR21-LSCP1-FNS:CH7:WFM"]
 r = requests.post(f'{broker_address}/set_pvlist', json={'pv_list': pv_list})
- print(json.dumps(r.json(), indent=4))
+print(json.dumps(r.json(), indent=4))
 {
     "status": "ok",
     "message": [
