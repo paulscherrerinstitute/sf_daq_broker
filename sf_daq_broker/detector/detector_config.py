@@ -64,7 +64,8 @@ _detector_hostname = { "JF01T03V01" : ["JF1M5B-01", "JF1M5B-02", "JF1M5B-03"],
                        "JF14T01V01" : ["JF14T01"],
                        "JF15T08V01" : ["JF4MG-0", "JF4MG-1", "JF4MG-2", "JF4MG-3", "JF4MG-4", "JF4MG-5", "JF4MG-6", "JF4MG-7"],
                        "JF16T03V01" : ["JF16T03-0", "JF16T03-1", "JF16T03-2"],
-                       "JF17T16V01" : ["jf8MA-00", "jf8MA-01", "jf8MA-02", "jf8MA-03", "jf8MA-04", "jf8MA-05", "jf8MA-06", "jf8MA-07", "jf8MA-08", "jf8MA-09", "jf8MA-10", "jf8MA-11", "jf8MA-12", "jf8MA-13", "jf8MA-14", "jf8MA-15"]
+                       "JF17T16V01" : ["jf8MA-00", "jf8MA-01", "jf8MA-02", "jf8MA-03", "jf8MA-04", "jf8MA-05", "jf8MA-06", "jf8MA-07", "jf8MA-08", "jf8MA-09", "jf8MA-10", "jf8MA-11", "jf8MA-12", "jf8MA-13", "jf8MA-14", "jf8MA-15"],
+                       "JF18T01V01" : ["jf18t01-00"]
                      }
 
 _detector_names = { "JF01T03V01" : "1p5M Bernina detector",
@@ -83,7 +84,8 @@ _detector_names = { "JF01T03V01" : "1p5M Bernina detector",
                     "JF14T01V01" : "RIXS detector",
                     "JF15T08V01" : "Maloja, 8 modules detector, 4M",
                     "JF16T03V01" : "Cristallina-Q, 3 modules detector, 1p5M",
-                    "JF17T16V01" : "Cristallina-MX, 16 modules detector, 8M"
+                    "JF17T16V01" : "Cristallina-MX, 16 modules detector, 8M",
+                    "JF18T01V01" : "Furka, RIXS detector"
                  }
 
 _detector_daq = { "JF01T03V01" : { "daq" : 12, "port": 1},
@@ -103,6 +105,7 @@ _detector_daq = { "JF01T03V01" : { "daq" : 12, "port": 1},
                   "JF15T08V01" : { "daq" : 9,  "port": 0},
                   "JF16T03V01" : { "daq" : 10, "port": 1},
                   "JF17T16V01" : { "daq" : 10, "port": 1},
+                  "JF18T01V01" : { "daq" : 9,  "port": 1}
                 }
 
 _detector_port = { "JF01T03V01" : 50010,
@@ -121,7 +124,8 @@ _detector_port = { "JF01T03V01" : 50010,
                    "JF14T01V01" : 50191,
                    "JF15T08V01" : 50192,
                    "JF16T03V01" : 50200,
-                   "JF17T16V01" : 50203
+                   "JF17T16V01" : 50203,
+                   "JF18T01V01" : 50219
                  }
 
 _detector_udp_srcip = { "JF01T03V01" : 60,
@@ -140,7 +144,8 @@ _detector_udp_srcip = { "JF01T03V01" : 60,
                         "JF14T01V01" : 141,
                         "JF15T08V01" : 142,
                         "JF16T03V01" : 150,
-                        "JF17T16V01" : 155
+                        "JF17T16V01" : 155,
+                        "JF18T01V01" : 171
                       }
 
 _detector_udp_srcmac = { "JF01T03V01" : 16,
@@ -159,7 +164,8 @@ _detector_udp_srcmac = { "JF01T03V01" : 16,
                          "JF14T01V01" : 132,
                          "JF15T08V01" : 133,
                          "JF16T03V01" : 143,
-                         "JF17T16V01" : 148
+                         "JF17T16V01" : 148,
+                         "JF18T01V01" : 164
                        }
 
 _detector_txndelay_frame = { "JF01T03V01" : [9, 9, 9],
@@ -178,7 +184,8 @@ _detector_txndelay_frame = { "JF01T03V01" : [9, 9, 9],
                              "JF14T01V01" : [8],
                              "JF15T08V01" : [0, 0, 1, 1, 2, 2, 3, 3],
                              "JF16T03V01" : [4, 5, 6],
-                             "JF17T16V01" : [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4]
+                             "JF17T16V01" : [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4],
+                             "JF18T01V01" : [0]
                            }
 
 _detector_temp_threshold = { "JF01T03V01" : 55,
@@ -197,7 +204,8 @@ _detector_temp_threshold = { "JF01T03V01" : 55,
                              "JF14T01V01" : 55,
                              "JF15T08V01" : 55,
                              "JF16T03V01" : 55,
-                             "JF17T16V01" : 55
+                             "JF17T16V01" : 55,
+                             "JF18T01V01" : 55
                            }
 
 def detector_human_names():
