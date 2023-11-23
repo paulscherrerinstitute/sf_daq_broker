@@ -1,105 +1,140 @@
-# SwissFEL DAQ Broker Component of SF_DAQ
-
-This is part of [SF_DAQ](https://github.com/paulscherrerinstitute/sf_daq_buffer)
-
-With move of detector to a buffer solution, the whole concept of data acquisition 
-is reduced to reitrieve request from the buffers (data buffer for BS, image buffer for
-the camera images, detector buffer for Jungfrau and epics PV's from epics service of std-daq)
-
 # Table of content
-1. [Call to broker](#call_broker)
-    1. [Call](#call)
-    2. [Parameters](#parameters)
-    3. [Bookkeeping](#bookkeeping)
-2. [Example1](#example1)
-3. [Example2](#example2)
-5. [Deployment](#deployment)
+- [Table of content](#table-of-content)
+- [SwissFEL DAQ Broker: SF-DAQ Component Overview](#swissfel-daq-broker-sf-daq-component-overview)
+  - [Components of SF-DAQ](#components-of-sf-daq)
+  - [Functionalities of sf-daq\_broker](#functionalities-of-sf-daq_broker)
+- [Deployment](#deployment)
+- [Communication with sf-daq\_broker](#communication-with-sf-daq_broker)
+  - [Example1](#example1)
+  - [Example2](#example2)
+- [Directory Structure](#directory-structure)
+- [Bookkeeping](#bookkeeping)
+  
+# SwissFEL DAQ Broker: SF-DAQ Component Overview
 
-<a id="call_broker"></a>
-## Call to broker
+The SwissFEL DAQ Broker Component, (**sf-daq_broker**, serves as the primary user entry point into SF-DAQ (**sf-daq**). SF-DAQ consists of several integral components, including:
 
-Current broker is running on single sf-daq server and serves for the whole Swissfel (Alva, Bernina, Cristallina, Furka, Maloja). 
+## Components of SF-DAQ
 
-<a id="call"></a>
-### Call
+1. [sf_daq_buffer](https://github.com/paulscherrerinstitute/sf_daq_buffer)
 
-The following code is enough to make a call to current broker:
-```python
-import requests
-broker_address = "http://sf-daq:10002"
-TIMEOUT_DAQ = 10
+   Responsible for writing/reading to/from the DetectorBuffer for Jungfrau detectors.
 
-r = requests.post(f'{broker_address}/retrieve_from_buffers',json=parameters, timeout=TIMEOUT_DAQ)
+2. [data_api](https://github.com/paulscherrerinstitute/data_api_python)
+
+    Retrieves data from Data-/Image- buffers, catering to BS- and Camera sources respectively.
+
+3. [epics-buffer](https://github.com/paulscherrerinstitute/std_daq_service/tree/master/std_daq_service/epics) 
+
+    Manages storing/retrieving Epics data.
+
+
+## Functionalities of sf-daq_broker
+
+The sf-daq_broker offers a range of functionalities that include:
+
+  1. Data Retrieval
+     * Accesses data from various buffers: data, image, detector, and Epics.
+
+  2. Data Validation
+     * Ensures retrieved data aligns with requested parameters.
+
+  3. Configuration of Epics Buffers
+     * Facilitates individual Epics buffer configuration for each beamline.
+
+  4. Detector Power-On and Configuration
+     * Manages the activation and setup of detectors associated with a specific beamline.
+
+  5. Pedestal (Dark Run) Operations
+     * Handles pedestal data acquisition and processing procedures.
+
+  6. Provides ZeroMQ streams 
+     * Offers ZeroMQ streams for [detector visualization](https://github.com/paulscherrerinstitute/streamvis) and the [Detector Analysis Pipeline(DAP)](https://gitlab.psi.ch/sf-daq/dap).
+
+  7. Interface to [DAP](https://gitlab.psi.ch/sf-daq/dap) Configuration
+     * Provides an interface to configure the Detector Analysis Pipeline(DAP).
+
+
+The utilization of sf_daq_broker grants users access to a comprehensive suite of functionalities within SF-DAQ, empowering efficient data retrieval, configuration, and management for experiments conducted at SwissFEL.
+
+# Deployment
+
+The current deployment of sf_daq_broker at SwissFEL is executed using [ansible](https://git.psi.ch/swissfel/sf-daq_install).
+
+# Communication with sf-daq_broker
+
+Interaction with sf_daq_broker occurs through REST API calls, extensively detailed [here](broker_rest_api.md).
+
+## Example1
+
+A command-line example showcasing the usage of the broker to request data retrieval is [daq_client.py](client/daq_client.py). To execute, Python > 3.6 and standard packages (requests, os, json) are required. Utilizing the standard PSI Python environment suffices for this purpose:
+```bash
+$ module load psi-python39/2021.11 
+
+$ python daq_client.py --help
+usage: daq_client.py [-h] [-p PGROUP] [-c CHANNELS_FILE] [-e EPICS_FILE] [-f FILE_DETECTORS] [-r RATE_MULTIPLICATOR]
+                     [-s SCAN_STEP_FILE] [--start_pulseid START_PULSEID] [--stop_pulseid STOP_PULSEID]
+
+simple daq client example
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PGROUP, --pgroup PGROUP
+                        pgroup, example p12345
+  -c CHANNELS_FILE, --channels_file CHANNELS_FILE
+                        TXT file with list channels
+  -e EPICS_FILE, --epics_file EPICS_FILE
+                        TXT file with list of epics channels to save
+  -f FILE_DETECTORS, --file_detectors FILE_DETECTORS
+                        JSON file with the detector list
+  -r RATE_MULTIPLICATOR, --rate_multiplicator RATE_MULTIPLICATOR
+                        rate multiplicator (1(default): 100Hz, 2: 50Hz,)
+  -s SCAN_STEP_FILE, --scan_step_file SCAN_STEP_FILE
+                        JSON file with the scan step information
+  --start_pulseid START_PULSEID
+                        start pulseid
+  --stop_pulseid STOP_PULSEID
+                        stop pulseid
+
+``` 
+
+## Example2
+
+Another example presents a more start/stop-oriented data acquisition process. Alongside [daq_config.py](client/daq_client.py), the script [client_example.py](client/client_example.py) is required to run this example.
+```bash
+. /opt/gfa/python 3.9 # this loads proper environment with pyepics in it
+$ ipython
+
+In [1]: import client_example as client                                                                                                
+In [2]: daq_client = client.BrokerClient(pgroup="p12345")                                                                                     
+In [3]: daq_client.configure(channels_file="channel_list", rate_multiplicator=2, detectors_file="jf_jf01.json")                              
+
+In [4]: daq_client.run(1000)                                                                                                
+[####################] 99% Run: 2
+success: run number(request_id) is 2
 ```
 
-return object `r` is a dictionary with at least two keys: `'status'` and `'message'`. In case of no problem with the request to retrieve data (so request is accepted to be processed
-by broker), `'status'` is 'ok', `'message'` is 'OK' and there are additional fields in reply : `run_number`, `acquisition_number` and `unique_acquisition_number` and list of `'files'` which sf-daq will produce in corresponding data/ directory 
-```python
-r.json()
-{'status': 'ok', 'message': 'OK', 'run_number': '10', 'acquisition_number': '1', 'unique_acquisition_number': '101', 'files': ['/sf/alvra/data/p17502/raw/run0010/data/acq0001.PVDATA.h5']}
-```
-In case of problem with the request or internal problems of sf-daq, `'status'` will be 'failed' and `'message'` field will contain an error description. 
-``` python
-r.json()
-{'status': 'failed', 'message': 'pgroup directory /sf/alvra/data/p17500/raw/ not reachable'}
-```
+# Directory Structure
 
-<a id="parameters"></a>
-### Parameters
-'parameters' passed in request is a dictionary.
-There are very little number of mandatory key/values which needs to be present in the 'parameters' request, namely:
-```
-parameters["pgroup"] = "p12345"
-parameters["start_pulseid"] = 1000 
-parameters["stop_pulseid"]  = 2000 
-```
- Failure to not provide one of these parameters will result in decline of the broker to retrieve data
+The structure where **sf-daq** stores data resides primarily in the **`/sf/{beamline}/data/{pgroup}/raw/`** directory. This structure adheres to a specific format:
 
- And number of optional parameters:
-- "run_number" : integer positive number, indicates that current acquisition is a part of the scan. If not provided - new run_number is generated and returned (so can be used in following calls to sf-daq, if that was a first scan step)
-- "append_user_tag_to_data_dir" : bool, append "user_tag" to run directory name, defaults False
-- "user_tag" : string, with the user defined name to append to run directory (allowed characters are ascii symbols(lower/upper), digits and few special characters: "\_", "-", "+" and ".". In case "user_tag" contains other characters, they will be replaced by underscore symbol "_")
-- "rate_multiplicator" : integer number, indicating what is the beam rate (or expectation for the source rate delivery), default is 1(means 100Hz), (2 - 50Hz, 4 - 25Hz; 10 - 10Hz, 20 - 5Hz, 100 - 1Hz). Currently setting or not this variable doesn't change anything in retrieve, but helps with the checks of the retrieve, see below
-- "channels_list" : python list with the source name from data buffer (not CAMERA's images, theuy go to "camera_list")
-- "camera_list" : python list with name of CAMERA's (complete name, with :FPICTURE at the end)
-- "pv_list" : python list with name of epics PV to retrieve from archiver by cadump
-- "detectors" : python dictionary, containing name of jungfrau detector (e.g. JF01T03V01) as key and a dictionary with parameters as a value, see [Detector parameters](#detector_parameters) for available options
-- "scan_info" : python dictionary to specify that this request belongs to a particular scan (if proper information is provided (for example see scan_step.json in this directory), the appropriate scan_info json file will be created inside run directory)
+* JF_pedestals/
+  Contains Jungfrau pedestal files, both in raw and converted formats, along with gainMaps files for experiment-utilized detectors.
 
-  Any other fields/values included in the parameters dictionary will be ignored by the broker, but saved in the metadata file(in meta/ directory, see [directory structure](#directory_structure)), so this way one can propagate some usefull parameters, to be used after online processing (example is using `cell_name` parameter, used to propagate information from daq to [automatic processing tool](https://gitlab.psi.ch/sf-daq/ap))
+* runXXXX/
+  Corresponds to the run (or scan) directory. In cases where a "user_tag" is added, the directory is named runXXXX-{user_tag}/.
+  * data/
+    Contains files formatted based on the sf-daq request.
+  * meta/
+    Holds JSON files with the request details for each acquisition step and a scan.json file that encapsulates the entire run/scan information.
+  * logs/
+    Houses log files from sf-daq writers, providing information regarding corresponding data retrieval actions.
+  * raw_data/ (optional)
+    Contains raw Jungfrau files, especially if different formats from raw files were requested by sf-daq.
+  * aux/ (optional)
+    Contains additional files.
 
-<a id="detector_parameters"></a>
-#### Detector parameters
-- `compression (bool)`: apply bitshuffle+lz4 compression, defaults to False
-- `adc_to_energy (bool)`: apply gain and pedestal corrections, converting raw detector values into energy, defaults to False
-
-The following parameters apply only when `conversion = True`, otherwise they are ignored:
-- `mask (bool)`: perform masking of bad pixels (assign them to 0), defaults to True
-- `double_pixels_action (str)`: what to do with double pixels at chip inner edges - "keep", "mask" or "interp" ("interp" is only possible when `gap_pixels = True` and not supported for 'factor'), defaults to "mask"
-- `geometry (bool)`: apply geometry correction, defaults to False
-- `gap_pixels (bool)`: add gap pixels between detector chips, defaults to True
-- `factor (float, None)`: divide all pixel values by a factor and round the result, saving them as int32, keep the original values and type if None, defaults to None
-- `disabled_modules (list(int))`: list of modules to disabled (not output) for the detector, defaults to empty list
-- `roi (tuple or dictionary)`: roi's to output from the detector image; format is either tuple of tuples with roi coordinates (bottom, top, left, right) or dictionary with roi name and tuple of roi coordinates, defaults to None
-- `downsample (tuple(int N,int M))`: reduce image using NxM pixels block, summing up pixels intensity, defaults to None or (1,1)
-- `save_dap_results (bool)`: save results from dap processing(in case dap is running for that detector), defaults to False
-- `selected_pulse_ids (list(int))`: output only pulseids present in the list (within the start_pulseid/stop_pulseid region), defaults to empty list(all pulseids)
-- `save_ppicker_events_only (bool)`: within the start_pulseid/stop_pulsid region output only detector frames with pulse picker open, default to False
-
-<a id="directory_structure"></a>
-### Directory structure
-
-sf-daq outputs data in raw/ folder of corresponding beamline and pgroup (/sf/{beamline}/data/{pgroup}/raw).
-Directory structure is fixed to the following format:
-* `JF_pedestals/` directory containing Jungfrau pedestal files (raw/ and converted to the pedestal values) as well as gainMaps files for the detectors used in experiment
-* `runXXXX/` directory containing files related to the run(scan), where XXXX is the `run_number`. In case of "user_tag" addition, this directory wil be named `runXXXX-{user_tag}/`
-* `runXXXX/data/` directory contains files in the format specified in request to sf-daq
-* `runXXXX/meta/` directory contains json files with the request to sf-daq for each of the acquisition step and scan.json file which describes the whole run/scan
-* `runXXXX/logs/` directory contains logs files from sf-daq with information from corresponding sf-daq writers
-* `runXXXX/raw_data/` (optional) directory contains raw Jungfrau files, in case if different from raw format files were requested to sf-daq
-* `runXXXX/aux/` (optional) directory contains additional files related to the scan  
-
- Files from each acquisition step will be named according to acquisition step number inside a scan, so file name starts with `acqYYYY.` Example below is a run/scan (number 10) with 2 acquistion steps in it and with the request to output BS (.BSDATA.h5 files), EPICS(.PVDATA.h5 files) and two Jungfrau detectors (JF01T03V01 and JF03T01V02) for both of them - make a conversion from raw format, but keep raw files in addition (so raw_data/ directory is filled) and save results of dap pipeline:
+File names within each acquisition step are prefixed with acqYYYY. to denote the acquisition step number. An example directory structure for a scan with multiple acquisition steps is provided below.
 ```bash
 run0010/
 ├── data
@@ -133,11 +168,10 @@ run0010/
     ├── acq0002.JF03T01V02.h5
 ```
 
+# Bookkeeping
+Upon a successful request accepted by the broker, all parameters utilized are saved within a `meta/` subdirectory related to the corresponding run/scan. These files are named `acqYYYY.json`.
 
-<a id="bookkeeping"></a>
-### Bookkeeping
-
- In case of successful (accepted by broker) request, complete parameters used for it will be saved in a `meta/` subdirectory of corresponding run/scan with name acqYYYY.json
+ For instance:
 ```bash
 $ pwd
 /sf/cristallina/data/p21528/raw/run0001/meta
@@ -176,21 +210,13 @@ $ cat acq0010.json
   "unique_acquisition_run_number": 10
 }
 ``` 
- In addition we log in `logs/` directory the output of the retrieve actions by corresponding writers
-```
+ Additionally, logs within the logs/ directory capture the output of retrieve actions by corresponding writers:
+```bash
 $ pwd
 /sf/cristallina/data/p21528/raw/run0001/logs
 $ ls
 acq0001.BSDATA.log      acq0004.JF16T03V01.log  acq0007.PVDATA.log      acq0011.BSDATA.log
-acq0001.JF16T03V01.log  acq0004.PVDATA.log      acq0008.BSDATA.log      acq0011.JF16T03V01.log
-acq0001.PVDATA.log      acq0005.BSDATA.log      acq0008.JF16T03V01.log  acq0011.PVDATA.log
-acq0002.BSDATA.log      acq0005.JF16T03V01.log  acq0008.PVDATA.log      acq0012.BSDATA.log
-acq0002.JF16T03V01.log  acq0005.PVDATA.log      acq0009.BSDATA.log      acq0012.JF16T03V01.log
-acq0002.PVDATA.log      acq0006.BSDATA.log      acq0009.JF16T03V01.log  acq0012.PVDATA.log
-acq0003.BSDATA.log      acq0006.JF16T03V01.log  acq0009.PVDATA.log      acq0013.BSDATA.log
-acq0003.JF16T03V01.log  acq0006.PVDATA.log      acq0010.BSDATA.log      acq0013.JF16T03V01.log
-acq0003.PVDATA.log      acq0007.BSDATA.log      acq0010.JF16T03V01.log  acq0013.PVDATA.log
-acq0004.BSDATA.log      acq0007.JF16T03V01.log  acq0010.PVDATA.log
+...
 
 $ cat acq0010.BSDATA.log 
 Request for data3buffer : output_file /sf/cristallina/data/p21528/raw/run0001/data/acq0010.BSDATA.h5 from pulse_id 18940426916 to 18940427116
@@ -227,70 +253,4 @@ Finished retrieve from the buffer
 Finished. Took 0.3386099338531494 seconds to complete request.
 ```
 
-Example of log files above shows that there are missing pulseid's for some of the requested BS sources (SAROP31-PBPS149:YPOS), some BS sources are not available completely (SAR-CVME-TIFALL6:EvtSet); for Epics sources an information is displayed(N1 (N2[N3)N4)) how many data points (N1) are retrieved and how do they distributed in respect to the requested start/stop_pulseid interval, where N1=N2+N3+N4, N2,N4 are numbers of points before and after requested interval, N3 is within the interval. 
-
-<a id="Example1"></a>
-## Example1
-
- Command line example how to use broker to request a retireve of data is daq_client.py. To run is enough to have python > 3.6 and standard packages (requests, os, json)
-(so standard PSI python environment is good for this purpose):
-```bash
-$ module load psi-python39/2021.11 
-
-$ python daq_client.py --help
-usage: daq_client.py [-h] [-p PGROUP] [-c CHANNELS_FILE] [-e EPICS_FILE] [-f FILE_DETECTORS] [-r RATE_MULTIPLICATOR]
-                     [-s SCAN_STEP_FILE] [--start_pulseid START_PULSEID] [--stop_pulseid STOP_PULSEID]
-
-simple daq client example
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -p PGROUP, --pgroup PGROUP
-                        pgroup, example p12345
-  -c CHANNELS_FILE, --channels_file CHANNELS_FILE
-                        TXT file with list channels
-  -e EPICS_FILE, --epics_file EPICS_FILE
-                        TXT file with list of epics channels to save
-  -f FILE_DETECTORS, --file_detectors FILE_DETECTORS
-                        JSON file with the detector list
-  -r RATE_MULTIPLICATOR, --rate_multiplicator RATE_MULTIPLICATOR
-                        rate multiplicator (1(default): 100Hz, 2: 50Hz,)
-  -s SCAN_STEP_FILE, --scan_step_file SCAN_STEP_FILE
-                        JSON file with the scan step information
-  --start_pulseid START_PULSEID
-                        start pulseid
-  --stop_pulseid STOP_PULSEID
-                        stop pulseid
-
-``` 
-
-<a id="Example2"></a>
-## Example2
-
- Another example is more "start/stop" oriented way of doing data acquistion. To run this example one needs, in addition to daq_config.py, script client_example.py.
-It can also run in a standard PSI environment, but the pulse_id's would be wrong (the proper way to get a pulse_id is to use one of the channel which provide them
-effectively, see client_example.py). So in case one run this example in environment without pyepics, the guessed, fake pulseid would be approximately ok (due to the lock to the 50Hz electricity frequency for accelerator, our 100Hz is not an ideal 100Hz, so it's impossible to make a 100% accurate prediction from time to pulse_id)
-```bash
-. /opt/gfa/python 3.9 # this loads proper environment with pyepics in it
-$ ipython
-
-In [1]: import client_example as client                                                                                                                                   
-
-In [2]: daq_client = client.BrokerClient(pgroup="p12345")                                                                                                                 
-
-In [3]: daq_client.configure(channels_file="channel_list", rate_multiplicator=2, detectors_file="jf_jf01.json")                              
-
-In [4]: daq_client.run(1000)                                                                                                                                              
-[####################] 99% Run: 2
-success: run number(request_id) is 2
-```
-
- Note that you can "Ctrl-C" during "run" execution, with it you'll be asked do you want to "record" data which you took from start till pressing "Ctrl-C"
-which is an illustration of the principle of the retrieve-based daq strategy - run(with RUN_NUMBER) will exist only when request to retrieve data is made.
-Data are already recorded and present in buffers.
-
-<a id="deployment"></a>
-## Deployment
-
-Current deployment of sf-daq_broker is done with [ansible](https://git.psi.ch/swissfel/sf-daq_install)
-
+These logs provide insights such as missing pulseid, incomplete data for certain sources, and details about the consistency of the acquired data.
