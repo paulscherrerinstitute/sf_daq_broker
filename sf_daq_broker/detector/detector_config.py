@@ -44,7 +44,7 @@ _daq_data_ip = { 3  : "192.168.30.29",
 _beamline_delay = { "alvra"       : 0.000889,
                     "bernina"     : 0.000890,
                     "cristallina" : 0.000888,
-                    "furka"       : 0.004000,
+                    "furka"       : 0.004444,
                     "maloja"      : 0.004444
                   }
 
@@ -65,7 +65,7 @@ _detector_hostname = { "JF01T03V01" : ["JF1M5B-01", "JF1M5B-02", "JF1M5B-03"],
                        "JF15T08V01" : ["JF4MG-0", "JF4MG-1", "JF4MG-2", "JF4MG-3", "JF4MG-4", "JF4MG-5", "JF4MG-6", "JF4MG-7"],
                        "JF16T03V01" : ["JF16T03-0", "JF16T03-1", "JF16T03-2"],
                        "JF17T16V01" : ["jf8MA-00", "jf8MA-01", "jf8MA-02", "jf8MA-03", "jf8MA-04", "jf8MA-05", "jf8MA-06", "jf8MA-07", "jf8MA-08", "jf8MA-09", "jf8MA-10", "jf8MA-11", "jf8MA-12", "jf8MA-13", "jf8MA-14", "jf8MA-15"],
-                       "JF18T01V01" : ["jf18t01-00"]
+                       "JF18T01V01" : ["jf18T01-00"]
                      }
 
 _detector_names = { "JF01T03V01" : "1p5M Bernina detector",

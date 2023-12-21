@@ -57,12 +57,17 @@ def load_detector_config(detector_name=None):
 
     if detector_number == 2:
         detector.dacs.vb_comp = 1420
+ 
+    if detector_number == 18:
+        detector.dacs.vb_comp = 1320
 
     detector.temp_threshold = detector_configuration.get_detector_temp_threshold()
     detector.temp_control = 1
 
     detector.powerchip = True
     detector.highvoltage = 120
+    if detector_number == 18:
+        detector.highvoltage = 0
 
     detector.timing = timingMode.TRIGGER_EXPOSURE
     detector.triggers = 500000000

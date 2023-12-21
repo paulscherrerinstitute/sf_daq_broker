@@ -28,7 +28,8 @@ PEDESTAL_SPECIFIC = { "JF02T09V02" : {"number_bad_modules" : 1},
                       "JF06T32V02" : {"number_bad_modules" : 1},
                       "JF07T32V01" : {"add_pixel_mask" : "/sf/bernina/config/jungfrau/pixel_mask/JF07T32V01/pixel_mask_13_full.h5"},
                       "JF10T01V01" : {"number_bad_modules" : 1},
-                      "JF11T04V01" : {"number_bad_modules" : 2} }
+                      "JF11T04V01" : {"number_bad_modules" : 2},
+                      "JF18T01V01" : {"number_bad_modules" : 1} }
 
 # "JF03T01V02" : {"add_pixel_mask" : "/sf/bernina/config/jungfrau/pixel_mask/JF03T01V02/pixel_mask_half_chip.h5"},
 
