@@ -258,8 +258,8 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
                 pixelMask[additional_pixel_mask == 1] |= (1 << 5)
             else:
                 _logger.error(" shape of additional pixel mask ({}) doesn't match current ({})".format( additional_pixel_mask.shape, pixelMask.shape))
-       else:
-           _logger.error(" Specified addition file with pixel mask not found or not reachable {}".format( add_pixel_mask))
+        else:
+            _logger.error(" Specified addition file with pixel mask not found or not reachable {}".format( add_pixel_mask))
 
     fileNameIn = os.path.splitext(os.path.basename(filename))[0]
     full_fileNameOut = directory + "/" + fileNameIn + ".res.h5"
