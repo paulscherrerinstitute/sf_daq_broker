@@ -89,11 +89,7 @@ class DetectorManager:
         detector = Jungfrau(detector_number)
 
         exptime = detector.exptime
-        detector_mode_raw = detector.settings
-        if detector_mode_raw in conv_detector_settings:
-            detector_mode = conv_detector_settings[detector_mode_raw]
-        else:
-            detector_mode = "unknown"
+        detector_mode = conv_detector_settings.get(detector.settings, "unknown")
         delay = detector.delay
         gain_mode = conv_detector_gain_settings.get(detector.gainmode, "Error")
 
