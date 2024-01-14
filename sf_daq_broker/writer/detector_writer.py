@@ -15,8 +15,6 @@ except:
     _logger.warning("There is no ujson in this environment. Performance will suffer.")
     import json
 
-from sf_daq_broker import config, utils
-
 from sf_daq_broker.writer.export_file import convert_file
 from sf_daq_broker.detector.make_crystfel_list import make_crystfel_list, store_dap_info
 

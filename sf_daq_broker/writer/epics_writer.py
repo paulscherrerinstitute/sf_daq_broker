@@ -1,7 +1,6 @@
 import logging
 from time import time, sleep
 
-import dateutil.parser
 import h5py
 import requests
 import numpy

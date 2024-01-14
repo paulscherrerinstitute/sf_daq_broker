@@ -3,8 +3,6 @@ import json
 import bottle
 import logging
 
-import os
-
 _logger = logging.getLogger(__name__)
 
 
