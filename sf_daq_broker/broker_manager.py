@@ -82,7 +82,7 @@ def get_current_step_in_scan(meta_directory=None):
 
     return current_step
 
-class BrokerManager(object):
+class BrokerManager:
     REQUIRED_PARAMETERS = ["output_file"]
 
     def __init__(self, broker_client):

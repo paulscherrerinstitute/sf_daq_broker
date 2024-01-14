@@ -7,7 +7,7 @@ from pika import BlockingConnection, ConnectionParameters, BasicProperties
 
 from time import sleep
 
-class RabbitMqClient(object):
+class RabbitMqClient:
 
     def __init__(self, broker_url=broker_config.DEFAULT_BROKER_URL):
         self.broker_url = broker_url

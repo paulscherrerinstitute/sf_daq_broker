@@ -63,7 +63,7 @@ def register_rest_interface(app, manager):
         return json.dumps({"state": "error",
                            "status": error_text})
 
-class DetectorManager(object):
+class DetectorManager:
 
     def get_detector_settings(self, request=None, remote_ip=None):
 
