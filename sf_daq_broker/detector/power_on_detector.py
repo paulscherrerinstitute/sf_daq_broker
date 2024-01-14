@@ -12,7 +12,7 @@ from sf_daq_broker.detector.detector_config import DetectorConfig
 _logger = logging.getLogger("broker_writer")
 
 beamline_event_code = { "alvra"       : "SAR-CVME-TIFALL4-EVG0:SoftEvt-EvtCode-SP",
-                        "bernina"     : "SAR-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP", 
+                        "bernina"     : "SAR-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP",
                         "cristallina" : "SAR-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP",
                         "furka"       : "SAT-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP",
                         "maloja"      : "SAT-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP"
@@ -57,7 +57,7 @@ def load_detector_config(detector_name=None):
 
     if detector_number == 2:
         detector.dacs.vb_comp = 1420
- 
+
     if detector_number == 18:
         detector.dacs.vb_comp = 1320
 
@@ -84,7 +84,7 @@ def load_detector_config(detector_name=None):
 
 def power_on_detector(detector_name=None, beamline=None):
 
-    _logger.info(f'request to power on detector {detector_name}') 
+    _logger.info(f'request to power on detector {detector_name}')
 
     if detector_name is None:
         _logger.error("No detector name given")
@@ -113,7 +113,7 @@ def power_on_detector(detector_name=None, beamline=None):
 
     # stop triggering of the beamline detectors
     try:
-        event_code_pv.put(255) 
+        event_code_pv.put(255)
     except Exception as e:
         _logger.error(f"can not stop detector triggering : {e}")
         return
@@ -127,7 +127,7 @@ def power_on_detector(detector_name=None, beamline=None):
         return
 
     detector = Jungfrau(detector_number)
-    
+
     try:
         detector.stopDetector()
     except:

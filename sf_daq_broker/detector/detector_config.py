@@ -254,7 +254,7 @@ def compare_buffer_config_file(detector_name=None, overwrite_config=False):
 
     with open(config_file) as json_file:
         parameters_file = json.load(json_file)
-    
+
     parameters_current = { "detector_name": detector_configuration.get_detector_name(),
                            "n_modules": detector_configuration.get_number_modules(),
                            "streamvis_stream": f"tcp://{detector_configuration.get_detector_daq_public_ip()}:{detector_configuration.get_detector_daq_public_port()}",
@@ -279,7 +279,7 @@ def compare_buffer_config_file(detector_name=None, overwrite_config=False):
             parameters_file.update(parameters_current)
             with open(config_file, "w") as json_file:
                 json.dump(parameters_file, json_file, indent=4)
-   
+
 
 class DetectorConfig():
 
@@ -349,11 +349,11 @@ class DetectorConfig():
 
     def get_number_modules(self):
         return int(self._detector_name[5:7])
- 
-    def get_detector_size(self):
-        return [1024, self.get_number_modules()*512]   
 
-    def get_detector_hostname(self): 
+    def get_detector_size(self):
+        return [1024, self.get_number_modules()*512]
+
+    def get_detector_hostname(self):
         return _detector_hostname[self._detector_name]
 
     def get_detector_udp_dstmac(self):

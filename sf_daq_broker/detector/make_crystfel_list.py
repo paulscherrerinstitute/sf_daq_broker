@@ -109,7 +109,7 @@ def store_dap_info(beamline=None, pgroup=None, detector=None, start_pulse_id=Non
                 for line in all_lines:
                     pulse_id = int(line.split()[0])
                     if pulse_id >= start_pulse_id and pulse_id <= stop_pulse_id:
-                        print(line, file=file_out)     
+                        print(line, file=file_out)
                         n_lines_out += 1
 
     _logger.info(f"{n_lines_out} lines of dap output is stored in file {file_name_out}")
