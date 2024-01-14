@@ -27,30 +27,25 @@ elif args.source == "epics":
     source = "epics"
 
 if args.run_info is None:
-    print("provide run info file")
-    exit(1)
+    raise SystemExit("provide run info file")
 
 if not os.path.exists(args.run_info):
-    print(f'{args.run_info} is not reachable or available')
-    exit(1)
+    raise SystemExit(f'{args.run_info} is not reachable or available')
 
 with open(args.run_info, "r") as read_file:
     run_info = json.load(read_file)
 
 if source == "image":
     if "camera_list" not in run_info:
-        print("No cameras defined in run_info file")
-        exit(1)
+        raise SystemExit("No cameras defined in run_info file")
     channels = run_info.get("camera_list", [])
 elif source == "data_api3":
     if "channels_list" not in run_info:
-        print("No BS channels defined in run_info file")
-        exit(1)
+        raise SystemExit("No BS channels defined in run_info file")
     channels = run_info.get("channels_list", [])
 else:
     if "pv_list" not in run_info:
-        print("No PV channels defined in run_info file")
-        exit(1)
+        raise SystemExit("No PV channels defined in run_info file")
     channels = run_info.get("pv_list", [])
 
 start_pulse_id = run_info["start_pulseid"]
@@ -70,8 +65,7 @@ parameters = None
 
 list_data_directories_run = glob(f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}*')
 if len(list_data_directories_run) != 1:
-    print(f"Ambiguous data directries : {list_data_directories_run}")
-    exit()
+    raise SystemExit(f"Ambiguous data directries : {list_data_directories_run}")
 data_directory=list_data_directories_run[0]
 
 if source == "image":
