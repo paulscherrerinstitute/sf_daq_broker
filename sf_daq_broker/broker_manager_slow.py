@@ -140,7 +140,7 @@ class DetectorManager(object):
 
         # stop triggering of the beamline detectors
         try:
-            event_code_pv.put(255) 
+            event_code_pv.put(255)
         except Exception as e:
             return  {"status" : "failed", "message" : "can not stop detector trigger"}
 
@@ -174,7 +174,7 @@ class DetectorManager(object):
 
         # start triggering
         event_code_pv.put(254)
-       
+
         event_code_pv.disconnect()
 
         return {"status" : "ok"}
@@ -278,7 +278,7 @@ class DetectorManager(object):
         with open(dap_parameters_file) as json_file:
             dap_config = json.load(json_file)
 
-        return {"status": "ok", "message" : dap_config} 
+        return {"status": "ok", "message" : dap_config}
 
     def set_dap_settings(self, request=None, remote_ip=None):
 
@@ -323,7 +323,7 @@ class DetectorManager(object):
                 changed_parameters[k] = [old_value, new_parameters[k]]
                 dap_config[k] = new_parameters[k]
                 changed = True
-            
+
         if changed:
             date_now = datetime.now()
             date_now_str = date_now.strftime("%d-%b-%Y_%H:%M:%S")
@@ -338,7 +338,7 @@ class DetectorManager(object):
             except:
                 shutil.copyfile(f'{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}', dap_parameters_file)
                 return {"status": "failed", "message": "problem to update dap configuration, try again and inform responsible"}
- 
+
         return {"status": "ok", "message" : changed_parameters}
 
 

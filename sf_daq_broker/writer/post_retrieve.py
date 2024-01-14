@@ -26,7 +26,7 @@ elif args.source == "data_api3":
     source = "data_api3"
 elif args.source == "epics":
     source = "epics"
- 
+
 if args.run_info is None:
     print("provide run info file")
     exit(1)

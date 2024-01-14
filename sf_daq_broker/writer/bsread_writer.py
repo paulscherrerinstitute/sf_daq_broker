@@ -120,7 +120,7 @@ def write_from_imagebuffer(data_api_request, output_file, parameters):
                   (query, output_file, image_buffer_url))
 
     start_time = time()
-  
+
     try:
         _logger.debug(f"query request : {query} {output_file} {image_buffer_url}")
         h5.request(query, output_file, url=image_buffer_url)
@@ -128,7 +128,7 @@ def write_from_imagebuffer(data_api_request, output_file, parameters):
     except Exception as e:
         _logger.error("Got exception from data_api3")
         _logger.error(e)
-        
+
     check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, channels, output_file)
 
 def write_from_databuffer_api3(data_api_request, output_file, parameters):

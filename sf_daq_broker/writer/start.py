@@ -137,7 +137,7 @@ def process_request(request, broker_client):
                 with open(run_file_json, "w") as request_json_file:
                     json.dump(run_info, request_json_file, indent=2)
 
-            request_det_retrieve = { 
+            request_det_retrieve = {
                                      "det_start_pulse_id" : det_start_pulse_id,
                                      "det_stop_pulse_id"  : det_stop_pulse_id,
                                      "rate_multiplicator" : request.get("rate_multiplicator", 1),
@@ -147,9 +147,9 @@ def process_request(request, broker_client):
                                      "directory_name"     : request.get("directory_name"),
                                      "request_time"       : request.get("request_time", str(datetime.now()))
                                    }
-           
+
             broker_client.open()
- 
+
             for detector in detectors:
                 request_det_retrieve["detector_name"] = detector
                 request_det_retrieve["detectors"] = {}
@@ -166,7 +166,7 @@ def process_request(request, broker_client):
                                                    stop_pulse_id=det_start_pulse_id,
                                                    run_log_file=run_log_file_det)
 
-                broker_client.send(write_request, broker_config.TAG_DETECTOR_RETRIEVE) 
+                broker_client.send(write_request, broker_config.TAG_DETECTOR_RETRIEVE)
 
             broker_client.close()
 
@@ -281,7 +281,7 @@ def start_service(broker_url, writer_type=0):
     if writer_type == 3:
         routing_key   = broker_config.DETECTOR_PEDESTAL_ROUTE
         request_queue = broker_config.DETECTOR_PEDESTAL_QUEUE
- 
+
     channel.queue_declare(queue=request_queue, auto_delete=True)
     channel.queue_bind(queue=request_queue,
                        exchange=broker_config.REQUEST_EXCHANGE,
@@ -327,7 +327,7 @@ def run():
     _logger.addHandler(stream_handler)
 
     for logger_name in ["data_api", "data_api3"]:
-        logger_data_api = logging.getLogger(logger_name)    
+        logger_data_api = logging.getLogger(logger_name)
         logger_data_api.setLevel(args.log_level)
         logger_data_api.addHandler(stream_handler)
 

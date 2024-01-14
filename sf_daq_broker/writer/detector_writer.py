@@ -73,7 +73,7 @@ def detector_retrieve(request, output_file_detector):
     if det_conversion or det_compression or det_number_disabled_modules>0 or det_number_selected_pulse_ids>0 or det_save_ppicker_events_only or det_number_roi>0:
         convert_ju_file = True
 
-    raw_file_name = output_file_detector 
+    raw_file_name = output_file_detector
     if convert_ju_file:
         detector_filename = os.path.basename(raw_file_name)
         detector_dir = os.path.dirname(os.path.dirname(raw_file_name))
@@ -120,7 +120,7 @@ def detector_retrieve(request, output_file_detector):
 
         crystfel_lists = request["detectors"][detector].get("crystfel_lists_laser", False)
         if crystfel_lists:
-           make_crystfel_list(output_file_detector, run_file_json, detector) 
+           make_crystfel_list(output_file_detector, run_file_json, detector)
 
     if not pedestal_run and det_save_dap_results:
         file_name_out = output_file_detector[:-3]+".dap"
@@ -128,8 +128,8 @@ def detector_retrieve(request, output_file_detector):
 
 
 
-def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0, nFramesPede=1000, 
-                         number_frames=10000, frames_average=1000, 
+def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0, nFramesPede=1000,
+                         number_frames=10000, frames_average=1000,
                          directory="./", gain_check=1, add_pixel_mask=None, number_bad_modules=0):
 
     if not (os.path.isfile(filename) and os.access(filename, os.R_OK)):
@@ -209,7 +209,7 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
 #                _logger.info(" {} : Jungfrau is in the high G0 mode ({}), but gain settings is strange: {}".format( detector_name, highG0, trueGain))
 
             nFramesGain = np.sum(gainData==(trueGain))
-            if nFramesGain < (nModules - 0.5 - n_bad_modules) * (1024 * 512):  # make sure that most are the modules are in correct gain 
+            if nFramesGain < (nModules - 0.5 - n_bad_modules) * (1024 * 512):  # make sure that most are the modules are in correct gain
                 gainGoodAllModules = False
                 _logger.debug(" {} : Too many bad pixels, skip the frame {}, true gain: {}(highG0: {}) ({});  gain0 : {}; gain1 : {}; gain2 : {}; undefined gain : {}".format( detector_name, n, trueGain, highG0, nFramesGain, np.sum(gainData==0), np.sum(gainData==1), np.sum(gainData==3), np.sum(gainData==2)))
 
@@ -237,7 +237,7 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
                 pixelMask[gainData != trueGain] |= (1 << (trueGain+4*highG0))
 
                 #trueGain += 4 * highG0
-        
+
                 nMgain[trueGain] += 1
 
                 if nMgain[trueGain] > averagePedestalFrames:
@@ -335,13 +335,13 @@ def copy_calibration_files(pedestal_file, detector_config_file):
     pixel_mask_directory = f'{pedestal_directory}/pixel_mask'
 
     gain_file = det_config.get("gain_file", None)
- 
+
     if gain_file is not None:
         if not os.path.isdir(gain_directory):
             os.makedirs(gain_directory)
         gain_file_copy = f'{gain_directory}/{detector}.h5'
         if not os.path.exists(gain_file_copy):
-            copyfile(gain_file, gain_file_copy)    
+            copyfile(gain_file, gain_file_copy)
 
     pixel_mask_file = None
     if detector in PEDESTAL_SPECIFIC:
@@ -354,5 +354,5 @@ def copy_calibration_files(pedestal_file, detector_config_file):
         if not os.path.exists(pixel_mask_file_copy):
             copyfile(pixel_mask_file, pixel_mask_file_copy)
 
-        
+
 

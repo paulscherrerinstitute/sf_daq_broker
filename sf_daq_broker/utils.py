@@ -127,7 +127,7 @@ def transform_range_from_pulse_id_to_timestamp_new(data_api_request):
             new_data_api_request["range"]["endTS"] = stop_ts
         else:
             _logger.error(f'Convertion pulse_id to time failed {start_ts} {stop_ts}')
-            
+
     except Exception as e:
         _logger.error(e)
         raise RuntimeError("Failed to convert pulse_id to time")

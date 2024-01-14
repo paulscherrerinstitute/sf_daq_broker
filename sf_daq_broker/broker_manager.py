@@ -13,7 +13,7 @@ from sf_daq_broker.utils import get_writer_request
 from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline, detector_human_names, get_streamvis_address
 
 PEDESTAL_FRAMES=3000
-# TODO : put in in config            
+# TODO : put in in config
 DIR_NAME_RUN_INFO = "run_info"
 
 _logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ def clean_user_tag(user_tag, replacement_character="_"):
 def clean_last_character_user_tag(user_tag, replacement_character="_"):
    if not user_tag[-1].isalnum():
        user_tag = user_tag[:-1] + replacement_character
-   return user_tag 
+   return user_tag
 
 subnet_to_beamline = { "129.129.242" : "alvra", "129.129.243" : "bernina", "129.129.244": "cristallina", "129.129.247" : "furka", "129.129.246" : "maloja" }
 
@@ -75,7 +75,7 @@ def get_current_step_in_scan(meta_directory=None):
     if meta_directory is None:
         return None
 
-    list = os.listdir(meta_directory) 
+    list = os.listdir(meta_directory)
     number_files = len(list)
 
     current_step = 1 if number_files==0 else number_files
@@ -137,7 +137,7 @@ class BrokerManager(object):
         with open(config_file) as json_file:
             config_info = json.load(json_file)
 
-        return {"pv_list": config_info["pv_list"]} 
+        return {"pv_list": config_info["pv_list"]}
 
     def set_pvlist(self, request=None, remote_ip=None):
 
@@ -168,7 +168,7 @@ class BrokerManager(object):
         date_now_str = date_now.strftime("%d-%b-%Y_%H:%M:%S")
         copyfile(config_file, f'{config_file}.{date_now_str}')
 
-        return {"status" : "ok", "message" : config_epics["pv_list"] } 
+        return {"status" : "ok", "message" : config_epics["pv_list"] }
 
     def get_next_run_number(self, request=None, remote_ip=None, increment_run_number=True):
 
@@ -245,7 +245,7 @@ class BrokerManager(object):
         beamline = ip_to_console(remote_ip)
         detectors = configured_detectors_for_beamline(beamline)
 
-        time_now = datetime.now()   
+        time_now = datetime.now()
         running_detectors = []
         buffer_location = "/gpfs/photonics/swissfel/buffer"
         for detector in detectors:
@@ -254,7 +254,7 @@ class BrokerManager(object):
                 time_file = datetime.fromtimestamp(os.path.getmtime(detector_buffer_file))
                 if (time_file-time_now).total_seconds() > -30:
                     running_detectors.append(detector)
- 
+
         return {"detectors" : running_detectors}
 
 
@@ -272,7 +272,7 @@ class BrokerManager(object):
         for d in detectors_visualisation_address:
             if d in detectors:
                 address.append(detectors_visualisation_address[d])
-        return {"detectors" : detectors, "names" : names, "visualisation_address" : address}  
+        return {"detectors" : detectors, "names" : names, "visualisation_address" : address}
 
     def take_pedestal(self, request=None, remote_ip=None):
 
@@ -337,7 +337,7 @@ class BrokerManager(object):
         if "request_time" not in request:
             request["request_time"] = str(datetime.now())
 
-        request_time=datetime.now() 
+        request_time=datetime.now()
 
         pedestal_name = f'{request_time.strftime("%Y%m%d_%H%M%S")}'
 
@@ -348,10 +348,10 @@ class BrokerManager(object):
         with open(run_file_json, "w") as request_json_file:
             json.dump(request, request_json_file, indent=2)
 
-        pedestal_request = {"detectors": detectors, 
+        pedestal_request = {"detectors": detectors,
                             "rate_multiplicator": rate_multiplicator,
-                            "writer_type": broker_config.TAG_PEDESTAL, 
-                            "channels": None, 
+                            "writer_type": broker_config.TAG_PEDESTAL,
+                            "channels": None,
                             "start_pulse_id": 0,
                             "stop_pulse_id": 100,
                             "output_file": None,
@@ -371,7 +371,7 @@ class BrokerManager(object):
 
         time_to_wait = PEDESTAL_FRAMES/100*rate_multiplicator+10
 
-        return {"status" : "ok", "message" : f"will do a pedestal now, wait at least {time_to_wait} seconds", 
+        return {"status" : "ok", "message" : f"will do a pedestal now, wait at least {time_to_wait} seconds",
                                  "run_number" : str(0),
                                  "acquisition_number": str(0),
                                  "unique_acquisition_number": str(0) }
@@ -402,7 +402,7 @@ class BrokerManager(object):
             request["start_pulseid"] = int(request["start_pulseid"])
             request["stop_pulseid"] = int(request["stop_pulseid"])
         except:
-            return {"status" : "failed", "message" : "bad start or stop pluseid provided in request parameters"} 
+            return {"status" : "failed", "message" : "bad start or stop pluseid provided in request parameters"}
         start_pulse_id = request["start_pulseid"]
         stop_pulse_id  = request["stop_pulseid"]
 
@@ -429,7 +429,7 @@ class BrokerManager(object):
         path_to_pgroup = f'/sf/{beamline}/data/{pgroup}/raw/'
         if not os.path.exists(path_to_pgroup):
             return {"status" : "failed", "message" : f'pgroup directory {path_to_pgroup} not reachable'}
-  
+
         daq_directory = f'{path_to_pgroup}{DIR_NAME_RUN_INFO}'
 
         if not os.path.exists(daq_directory):
@@ -477,7 +477,7 @@ class BrokerManager(object):
             return {"status" : "pass", "message" : "everything fine but no request to write any data"}
 
         if "detectors" in request and type(request["detectors"]) is not dict:
-            return {"status" : "failed", "message" : f'{request["detectors"]} is not dictionary'}        
+            return {"status" : "failed", "message" : f'{request["detectors"]} is not dictionary'}
 
         detectors = []
         if "detectors" in request:
@@ -498,7 +498,7 @@ class BrokerManager(object):
 
         if "pv_list" in request:
             request["pv_list"] = list(dict.fromkeys(request["pv_list"]))
- 
+
         if not os.path.exists(full_path):
             try:
                 os.makedirs(full_path)
@@ -598,7 +598,7 @@ class BrokerManager(object):
                         det_start_pulse_id = p
             request_detector["det_start_pulse_id"] = det_start_pulse_id
             request_detector["det_stop_pulse_id"]  = det_stop_pulse_id
- 
+
             request_detector["path_to_pgroup"]     = path_to_pgroup
             request_detector["rate_multiplicator"] = rate_multiplicator
             request_detector["run_file_json"]      = run_file_json
@@ -625,9 +625,9 @@ class BrokerManager(object):
 
         each_scan_fields = ["scan_readbacks", "scan_step_info", "scan_values", "scan_readbacks_raw"]
 
-        request_scan_info = request.get("scan_info", {"scan_name": "dummy", 
-                                                      "Id": ["dummy"], 
-                                                      "name": ["dummy"], 
+        request_scan_info = request.get("scan_info", {"scan_name": "dummy",
+                                                      "Id": ["dummy"],
+                                                      "name": ["dummy"],
                                                       "offset": [0],
                                                       "conversion_factor": [1.0],
                                                       "scan_readbacks": [0],
@@ -641,7 +641,7 @@ class BrokerManager(object):
                 if scan_key not in each_scan_fields:
                     scan_info["scan_parameters"][scan_key] = request_scan_info[scan_key]
             for scan_step_field in each_scan_fields:
-                scan_info[scan_step_field] = [] 
+                scan_info[scan_step_field] = []
         else:
             with open(scan_info_file) as json_file:
                 scan_info = json.load(json_file)
@@ -655,8 +655,8 @@ class BrokerManager(object):
         with open(scan_info_file, 'w') as json_file:
             json.dump(scan_info, json_file, indent=4)
 
-        return {"status" : "ok", "message" : "OK", 
-                                 "run_number" : str(run_number), 
-                                 "acquisition_number": str(current_acq), 
+        return {"status" : "ok", "message" : "OK",
+                                 "run_number" : str(run_number),
+                                 "acquisition_number": str(current_acq),
                                  "unique_acquisition_number": str(unique_acq),
                                  "files" : output_files_list }

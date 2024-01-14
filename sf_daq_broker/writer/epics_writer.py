@@ -89,7 +89,7 @@ class EpicsH5Writer(BsreadH5Writer):
 
             timestamp_data = [int(float(x["globalSeconds"]) * (10 ** 9)) for x in channel_data["data"]]
             value_data = [x["value"] for x in channel_data["data"]]
-          
+
 #            type_data = [x["type"] for x in channel_data["data"]]
 #            shape_data = [x["shape"] for x in channel_data["data"]]
 
