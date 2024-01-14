@@ -6,7 +6,6 @@ import logging
 from datetime import datetime
 
 from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_from_databuffer_api3
-from sf_daq_broker.utils import get_data_api_request
 from sf_daq_broker import config
 
 #logger = logging.getLogger("data_api3")

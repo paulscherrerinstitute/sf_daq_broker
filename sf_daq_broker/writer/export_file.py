@@ -5,9 +5,6 @@ import numpy as np
 
 import jungfrau_utils as ju
 
-import sys
-from sf_daq_broker.writer.postprocess_raw import postprocess_raw
-
 import os
 
 import logging

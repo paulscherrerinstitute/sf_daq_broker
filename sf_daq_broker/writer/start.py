@@ -8,7 +8,7 @@ from threading import Thread
 from time import time, sleep
 from pika import BlockingConnection, ConnectionParameters, BasicProperties
 
-from sf_daq_broker import config, utils
+from sf_daq_broker import config
 import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker.rabbitmq.msg_broker_client import RabbitMqClient
 from sf_daq_broker.utils import get_data_api_request, get_writer_request

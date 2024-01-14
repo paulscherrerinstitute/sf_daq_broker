@@ -1,24 +1,16 @@
 import logging
-import os
 from datetime import datetime
 from time import time
 import pytz
 
 import h5py
 import numpy
-import requests
 from random import randrange
-from copy import deepcopy
 
 from sf_daq_broker import config, utils
 
 _logger = logging.getLogger("broker_writer")
 
-try:
-    import ujson as json
-except:
-    _logger.warning("There is no ujson in this environment. Performance will suffer.")
-    import json
 
 def tsfmt(ts):
     ts = ts // 1000
