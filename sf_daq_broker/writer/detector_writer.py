@@ -118,7 +118,7 @@ def detector_retrieve(request, output_file_detector):
 
         crystfel_lists = request["detectors"][detector].get("crystfel_lists_laser", False)
         if crystfel_lists:
-           make_crystfel_list(output_file_detector, run_file_json, detector)
+            make_crystfel_list(output_file_detector, run_file_json, detector)
 
     if not pedestal_run and det_save_dap_results:
         file_name_out = output_file_detector[:-3]+".dap"
@@ -249,15 +249,15 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
     _logger.info(" {} : {} frames analyzed, {} good frames, {} frames without settings mismatch. Gain frames distribution (0,1,2,3,HG0) : ({})".format( detector_name, analyzeFrames, nGoodFrames, nGoodFramesGain, nMgain))
 
     if add_pixel_mask != None:
-       if (os.path.isfile(add_pixel_mask) and os.access(add_pixel_mask, os.R_OK)):
-           additional_pixel_mask = np.zeros((2,2))
-           with h5py.File(add_pixel_mask, "r") as additional_pixel_mask_file:
-               additional_pixel_mask = np.array(additional_pixel_mask_file["pixel_mask"])
-           _logger.info("Will add additional masked pixels from file %s , number %d " % (add_pixel_mask, np.sum(additional_pixel_mask == 1)))
-           if additional_pixel_mask.shape == pixelMask.shape:
-               pixelMask[additional_pixel_mask == 1] |= (1 << 5)
-           else:
-               _logger.error(" shape of additional pixel mask ({}) doesn't match current ({})".format( additional_pixel_mask.shape, pixelMask.shape))
+        if (os.path.isfile(add_pixel_mask) and os.access(add_pixel_mask, os.R_OK)):
+            additional_pixel_mask = np.zeros((2,2))
+            with h5py.File(add_pixel_mask, "r") as additional_pixel_mask_file:
+                additional_pixel_mask = np.array(additional_pixel_mask_file["pixel_mask"])
+            _logger.info("Will add additional masked pixels from file %s , number %d " % (add_pixel_mask, np.sum(additional_pixel_mask == 1)))
+            if additional_pixel_mask.shape == pixelMask.shape:
+                pixelMask[additional_pixel_mask == 1] |= (1 << 5)
+            else:
+                _logger.error(" shape of additional pixel mask ({}) doesn't match current ({})".format( additional_pixel_mask.shape, pixelMask.shape))
        else:
            _logger.error(" Specified addition file with pixel mask not found or not reachable {}".format( add_pixel_mask))
 

@@ -75,8 +75,8 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
                 is_good_frames = juf["is_good_frame"]
                 det_pulse_ids = juf["pulse_id"]
                 for pulse_index in range(n_input_frames):
-                   if is_good_frames[pulse_index] != 0 and det_pulse_ids[pulse_index][0] in selected_pulse_ids:
-                       good_frames.append(pulse_index)
+                    if is_good_frames[pulse_index] != 0 and det_pulse_ids[pulse_index][0] in selected_pulse_ids:
+                        good_frames.append(pulse_index)
 
             if save_ppicker_events_only:
                 good_frames_filtered = []
