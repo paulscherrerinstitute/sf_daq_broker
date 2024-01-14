@@ -87,7 +87,7 @@ class DetectorManager(object):
             return {"status" : "failed", "message" : "no detector name in the request"}
 
         if detector_name not in allowed_detectors_beamline:
-                return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
+            return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
 
         detector_number = int(detector_name[2:4])
         detector = Jungfrau(detector_number)
@@ -125,7 +125,7 @@ class DetectorManager(object):
             return {"status" : "failed", "message" : "no detector name in the request"}
 
         if detector_name not in allowed_detectors_beamline:
-                return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
+            return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
 
         exptime       = request.get("exptime", None)
         detector_mode = request.get("detector_mode", None)
@@ -268,7 +268,7 @@ class DetectorManager(object):
             return {"status" : "failed", "message" : "no detector name in the request"}
 
         if detector_name not in allowed_detectors_beamline:
-                return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
+            return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
 
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
 
@@ -302,7 +302,7 @@ class DetectorManager(object):
             return {"status" : "failed", "message" : "no detector name in the request"}
 
         if detector_name not in allowed_detectors_beamline:
-                return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
+            return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
 
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
 

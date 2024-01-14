@@ -34,9 +34,9 @@ def clean_user_tag(user_tag, replacement_character="_"):
     return ''.join(char if char in allowed_user_tag_characters else replacement_character for char in user_tag) # replace bad characters, so if initital user_tag contained at least one character, it will not be empty (but may be "___")
 
 def clean_last_character_user_tag(user_tag, replacement_character="_"):
-   if not user_tag[-1].isalnum():
-       user_tag = user_tag[:-1] + replacement_character
-   return user_tag
+    if not user_tag[-1].isalnum():
+        user_tag = user_tag[:-1] + replacement_character
+    return user_tag
 
 subnet_to_beamline = { "129.129.242" : "alvra", "129.129.243" : "bernina", "129.129.244": "cristallina", "129.129.247" : "furka", "129.129.246" : "maloja" }
 
@@ -227,7 +227,7 @@ class BrokerManager(object):
             return {"status" : "failed", "message" : "no detector name in the request"}
 
         if detector_name not in allowed_detectors_beamline:
-                return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
+            return {"status" : "failed", "message" : f"{detector_name} not belongs to the {beamline}"}
 
         request_power_on = {"detector_name" : detector_name,
                             "beamline" : beamline,
