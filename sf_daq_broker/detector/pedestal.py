@@ -1,9 +1,8 @@
-from slsdet import Jungfrau, gainMode
+import logging
 from time import sleep
 
 import epics
-
-import logging
+from slsdet import Jungfrau, gainMode
 
 _logger = logging.getLogger("broker_writer")
 

@@ -1,12 +1,12 @@
 import argparse
-import os
 import json
-from glob import glob
 import logging
+import os
 from datetime import datetime
+from glob import glob
 
-from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_from_databuffer_api3
 from sf_daq_broker import config
+from sf_daq_broker.writer.bsread_writer import write_from_databuffer_api3, write_from_imagebuffer
 
 #logger = logging.getLogger("data_api3")
 logger = logging.getLogger("broker_writer")

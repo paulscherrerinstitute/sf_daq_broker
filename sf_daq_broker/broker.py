@@ -1,11 +1,11 @@
 import argparse
 import logging
-
-import bottle
 import socket
 
-from sf_daq_broker import config
+import bottle
+
 import sf_daq_broker.rabbitmq.config as broker_config
+from sf_daq_broker import config
 from sf_daq_broker.broker_manager import BrokerManager
 from sf_daq_broker.rabbitmq.msg_broker_client import RabbitMqClient
 from sf_daq_broker.rest_api import register_rest_interface

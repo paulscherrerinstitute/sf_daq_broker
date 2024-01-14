@@ -1,7 +1,7 @@
 import json
+import logging
 
 import bottle
-import logging
 
 _logger = logging.getLogger(__name__)
 

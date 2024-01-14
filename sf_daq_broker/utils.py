@@ -1,7 +1,7 @@
 from copy import deepcopy
 from logging import getLogger
-from time import time, sleep
 from random import randint
+from time import sleep, time
 
 import requests
 
