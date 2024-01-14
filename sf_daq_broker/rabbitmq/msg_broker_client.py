@@ -1,11 +1,11 @@
 import json
 import uuid
+from time import sleep
+
+from pika import BasicProperties, BlockingConnection, ConnectionParameters
 
 import sf_daq_broker.rabbitmq.config as broker_config
 
-from pika import BlockingConnection, ConnectionParameters, BasicProperties
-
-from time import sleep
 
 class RabbitMqClient:
 

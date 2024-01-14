@@ -1,11 +1,11 @@
 import logging
 from datetime import datetime
+from random import randrange
 from time import time
-import pytz
 
 import h5py
 import numpy
-from random import randrange
+import pytz
 
 from sf_daq_broker import config, utils
 

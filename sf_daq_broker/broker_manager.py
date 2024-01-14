@@ -1,16 +1,15 @@
-from datetime import datetime
-import logging
 import json
+import logging
 import os
-from shutil import copyfile
-from glob import glob
 import string
+from datetime import datetime
+from glob import glob
+from shutil import copyfile
 
-from sf_daq_broker import config
 import sf_daq_broker.rabbitmq.config as broker_config
-from sf_daq_broker.utils import get_writer_request
-
+from sf_daq_broker import config
 from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline, detector_human_names, get_streamvis_address
+from sf_daq_broker.utils import get_writer_request
 
 PEDESTAL_FRAMES=3000
 # TODO : put in in config

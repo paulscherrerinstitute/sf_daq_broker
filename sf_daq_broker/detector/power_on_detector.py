@@ -1,11 +1,9 @@
-from slsdet import Jungfrau
-from slsdet.enums import timingMode, detectorSettings
-
-import epics
-
+import logging
 from time import sleep
 
-import logging
+import epics
+from slsdet import Jungfrau
+from slsdet.enums import detectorSettings, timingMode
 
 from sf_daq_broker.detector.detector_config import DetectorConfig
 

@@ -1,21 +1,21 @@
 import argparse
 import json
 import logging
-
 from datetime import datetime
 from functools import partial
 from threading import Thread
-from time import time, sleep
-from pika import BlockingConnection, ConnectionParameters, BasicProperties
+from time import sleep, time
 
-from sf_daq_broker import config
+from pika import BasicProperties, BlockingConnection, ConnectionParameters
+
 import sf_daq_broker.rabbitmq.config as broker_config
+from sf_daq_broker import config
+from sf_daq_broker.detector.pedestal import take_pedestal
+from sf_daq_broker.detector.power_on_detector import power_on_detector
 from sf_daq_broker.rabbitmq.msg_broker_client import RabbitMqClient
 from sf_daq_broker.utils import get_data_api_request, get_writer_request
-from sf_daq_broker.writer.bsread_writer import write_from_imagebuffer, write_from_databuffer_api3
-from sf_daq_broker.detector.pedestal import take_pedestal
+from sf_daq_broker.writer.bsread_writer import write_from_databuffer_api3, write_from_imagebuffer
 from sf_daq_broker.writer.detector_writer import detector_retrieve
-from sf_daq_broker.detector.power_on_detector import power_on_detector
 
 _logger = logging.getLogger("broker_writer")
 

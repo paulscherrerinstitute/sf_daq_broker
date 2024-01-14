@@ -1,25 +1,21 @@
 import argparse
-import logging
-
-import bottle
-import socket
-
-from time import sleep
-
 import json
-from glob import glob
+import logging
 import os
 import shutil
+import socket
 from datetime import datetime
+from glob import glob
+from time import sleep
 
+import bottle
 import epics
-
 from slsdet import Jungfrau, gainMode
 from slsdet.enums import detectorSettings
 
 from sf_daq_broker.broker_manager import ip_to_console
-from sf_daq_broker.detector.power_on_detector import beamline_event_code
 from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline
+from sf_daq_broker.detector.power_on_detector import beamline_event_code
 
 _logger = logging.getLogger(__name__)
 

@@ -1,9 +1,9 @@
 import logging
-from time import time, sleep
+from time import sleep, time
 
 import h5py
-import requests
 import numpy
+import requests
 
 from sf_daq_broker.config import DATA_API_QUERY_ADDRESS
 from sf_daq_broker.utils import pulse_id_to_seconds

@@ -1,13 +1,12 @@
 import logging
 import os
-from datetime import datetime
-from time import time, sleep
-
-import numpy as np
-import h5py
 import subprocess
-
+from datetime import datetime
 from shutil import copyfile
+from time import sleep, time
+
+import h5py
+import numpy as np
 
 try:
     import ujson as json
@@ -15,8 +14,8 @@ except:
     _logger.warning("There is no ujson in this environment. Performance will suffer.")
     import json
 
-from sf_daq_broker.writer.export_file import convert_file
 from sf_daq_broker.detector.make_crystfel_list import make_crystfel_list, store_dap_info
+from sf_daq_broker.writer.export_file import convert_file
 
 _logger = logging.getLogger("broker_writer")
 

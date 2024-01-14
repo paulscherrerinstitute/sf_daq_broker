@@ -1,8 +1,9 @@
-from datetime import datetime
-import sf_daq_broker.rabbitmq.config as broker_config
 import json
+from datetime import datetime
 
 from pika import BlockingConnection, ConnectionParameters
+
+import sf_daq_broker.rabbitmq.config as broker_config
 
 COLOR_END_MARKER = '\x1b[0m'
 

@@ -1,9 +1,10 @@
-import numpy as np
-import os
-import h5py
 import json
 import logging
+import os
 from time import sleep
+
+import h5py
+import numpy as np
 
 _logger = logging.getLogger("broker_writer")
 

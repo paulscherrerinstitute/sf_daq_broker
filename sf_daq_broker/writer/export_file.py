@@ -1,13 +1,10 @@
 import json
-
-import h5py
-import numpy as np
-
-import jungfrau_utils as ju
-
+import logging
 import os
 
-import logging
+import h5py
+import jungfrau_utils as ju
+import numpy as np
 
 _logger = logging.getLogger("broker_writer")
 
