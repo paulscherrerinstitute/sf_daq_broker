@@ -126,7 +126,7 @@ class BrokerClient:
             print(f"what do you want me to do with already collected up to now frames (pulseids: {self.start_pulseid}-{current_pulseid})")
             answer=input("[s]-save them into; any other key - discard : ")
             if answer == "s":
-               self.stop(stop_pulseid=current_pulseid)
+                self.stop(stop_pulseid=current_pulseid)
             raise NameError("Ctrl-c is called")
         signal.signal(signal.SIGINT, signal_handler)
         try:
