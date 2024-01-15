@@ -56,8 +56,7 @@ def wait_for_delay(request_timestamp, writer_type):
     # sleep time = target sleep time - time that has already passed.
     adjusted_retrieval_delay = time_to_wait - (current_timestamp - request_timestamp)
 
-    if adjusted_retrieval_delay < 0:
-        adjusted_retrieval_delay = 0
+    adjusted_retrieval_delay = max(adjusted_retrieval_delay, 0)
 
     _logger.debug(f"Request timestamp={request_timestamp}, current_timestamp={current_timestamp}, adjusted_retrieval_delay={adjusted_retrieval_delay}.")
 
@@ -102,7 +101,7 @@ def process_request(request, broker_client):
             _logger.info("Output file set to /dev/null. Skipping request.")
             return
 
-        if not channels and ( writer_type != broker_config.TAG_PEDESTAL and writer_type != broker_config.TAG_POWER_ON):
+        if not channels and writer_type not in (broker_config.TAG_PEDESTAL, broker_config.TAG_POWER_ON):
             _logger.info("No channels requested. Skipping request.")
             return
 

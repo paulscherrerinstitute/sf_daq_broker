@@ -6,6 +6,7 @@ from time import time
 import h5py
 import numpy
 import pytz
+import data_api3 as dapi3
 
 from sf_daq_broker import config, utils
 
@@ -79,8 +80,6 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
 
 
 def write_from_imagebuffer(data_api_request, output_file, _parameters):
-    import data_api3.h5 as h5
-
     start_pulse_id = data_api_request["range"]["startPulseId"]
     stop_pulse_id  = data_api_request["range"]["endPulseId"]
     rate_multiplicator = data_api_request.get("rate_multiplicator", 1)
@@ -115,7 +114,7 @@ def write_from_imagebuffer(data_api_request, output_file, _parameters):
 
     try:
         _logger.debug(f"query request : {query} {output_file} {image_buffer_url}")
-        h5.request(query, output_file, url=image_buffer_url)
+        dapi3.h5.request(query, output_file, url=image_buffer_url)
         delta_time = time() - start_time
         _logger.info(f"Image download and writing took {delta_time} seconds.")
     except Exception as e:
@@ -125,8 +124,6 @@ def write_from_imagebuffer(data_api_request, output_file, _parameters):
     check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, channels, output_file)
 
 def write_from_databuffer_api3(data_api_request, output_file, _parameters):
-    import data_api3.h5 as h5
-
     _logger.debug(f"Data3 API request: {data_api_request}")
 
     start_pulse_id = data_api_request["range"]["startPulseId"]
@@ -160,7 +157,7 @@ def write_from_databuffer_api3(data_api_request, output_file, _parameters):
     start_time = time()
 
     try:
-        h5.request(query, filename=output_file, baseurl=data_buffer_url, default_backend=config.DATA_BACKEND)
+        dapi3.h5.request(query, filename=output_file, baseurl=data_buffer_url, default_backend=config.DATA_BACKEND)
         delta_time = time() - start_time
         _logger.info(f"Data download and writing took {delta_time} seconds.")
     except Exception as e:

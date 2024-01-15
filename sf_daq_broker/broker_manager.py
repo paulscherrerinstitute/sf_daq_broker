@@ -51,22 +51,19 @@ def get_current_run_number(daq_directory=None, file_run="LAST_RUN", increment_ru
 
     last_run_file = daq_directory + "/" + file_run
     if not os.path.exists(last_run_file):
-        run_file = open(last_run_file, "w")
-        run_file.write("0")
-        run_file.close()
+        with open(last_run_file, "w") as run_file:
+            run_file.write("0")
 
-    run_file = open(last_run_file, "r")
-    last_run = int(run_file.read())
-    run_file.close()
+    with open(last_run_file, "r") as run_file:
+        last_run = int(run_file.read())
 
     if not increment_run_number:
         current_run = last_run
     else:
         current_run = last_run + 1
 
-        run_file = open(last_run_file, "w")
-        run_file.write(str(current_run))
-        run_file.close()
+        with open(last_run_file, "w") as run_file:
+            run_file.write(str(current_run))
 
     return current_run
 
@@ -74,8 +71,8 @@ def get_current_step_in_scan(meta_directory=None):
     if meta_directory is None:
         return None
 
-    list = os.listdir(meta_directory)
-    number_files = len(list)
+    dirlist = os.listdir(meta_directory)
+    number_files = len(dirlist)
 
     current_step = 1 if number_files==0 else number_files
 
@@ -263,14 +260,14 @@ class BrokerManager:
         detectors = configured_detectors_for_beamline(beamline)
         detector_names = detector_human_names()
         names = []
-        for d in detector_names:
-            if d in detectors:
-                names.append(detector_names[d])
+        for k, v in detector_names.items():
+            if k in detectors:
+                names.append(v)
         detectors_visualisation_address = get_streamvis_address()
         address = []
-        for d in detectors_visualisation_address:
-            if d in detectors:
-                address.append(detectors_visualisation_address[d])
+        for k, v in detectors_visualisation_address.items():
+            if k in detectors:
+                address.append(v)
         return {"detectors" : detectors, "names" : names, "visualisation_address" : address}
 
     def take_pedestal(self, request=None, remote_ip=None):
@@ -475,7 +472,7 @@ class BrokerManager:
         if not write_data:
             return {"status" : "pass", "message" : "everything fine but no request to write any data"}
 
-        if "detectors" in request and type(request["detectors"]) is not dict:
+        if "detectors" in request and not isinstance(request["detectors"], dict):
             request_detectors = request["detectors"]
             return {"status" : "failed", "message" : f"{request_detectors} is not dictionary"}
 
@@ -567,9 +564,8 @@ class BrokerManager:
             try:
                 self.broker_client.send(write_request, tag)
             except Exception as e:
-                log_file = open(write_request["run_log_file"], "a")
-                log_file.write(f"Can not contact writer due to: {e}")
-                log_file.close()
+                with open(write_request["run_log_file"], "a") as log_file:
+                    log_file.write(f"Can not contact writer due to: {e}")
                 raise
 
         self.broker_client.open()
