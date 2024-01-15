@@ -64,7 +64,7 @@ def check_consistency(run_file=None, rate_multiplicator=0):
         directory_name = parameters["directory_name"]
         full_directory = f"{full_directory}{directory_name}"
 
-# todo make this check possible for different from 100Hz case (not straitforward - start_pulse_id can be not alligned properly with the rate)
+#TODO: make this check possible for different from 100Hz case (not straitforward - start_pulse_id can be not alligned properly with the rate)
 # this is case for 100Hz:
     expected_pulse_id = []
     for p in range(start_pulse_id,stop_pulse_id+1):
@@ -101,7 +101,7 @@ def check_consistency(run_file=None, rate_multiplicator=0):
                             else:
                                 if pulse_id[0] != expected_pulse_id[0] or pulse_id[-1] != expected_pulse_id[-1]:
                                     problems.append(f"{channel} start/stop pulse_id are not the one which are requested (requested : {expected_pulse_id[0]},{expected_pulse_id[-1]}, got: {pulse_id[0]},{pulse_id[-1]}) ")
-                                pulse_id_check = True # this is for 100Hz only, todo: to make for different rate
+                                pulse_id_check = True # this is for 100Hz only #TODO: to make for different rate
                                 for i in range(n_pulse_id):
                                     if pulse_id[i] != expected_pulse_id[i]:
                                         pulse_id_check = False
@@ -132,7 +132,7 @@ def check_consistency(run_file=None, rate_multiplicator=0):
                         else:
                             if expected_pulse_id[0] != pulse_id[0] or expected_pulse_id[-1] != pulse_id[-1]:
                                 problems.append(f"{camera} start/stop pulse_id are not the one which are requested")
-                            pulse_id_check = True # this is for 100Hz only, todo: to make for different rate
+                            pulse_id_check = True # this is for 100Hz only #TODO: to make for different rate
                             for i in range(n_pulse_id):
                                 if pulse_id[i] != expected_pulse_id[i]:
                                     pulse_id_check = False
@@ -183,10 +183,10 @@ def check_consistency(run_file=None, rate_multiplicator=0):
                     else:
                         if expected_pulse_id[0] != pulse_id[0] or expected_pulse_id[-1] != pulse_id[-1]:
                             problems.append(f"{detector} start/stop pulse_id are not the one which are requested")
-                    # todo: check on NANs for pulse_ids
+                    #TODO: check on NANs for pulse_ids
                         frame_index_check = True
                         n_frames_bad   = 0
-                        pulse_id_check = True # this is for 100Hz only, todo: to make for different rate
+                        pulse_id_check = True # this is for 100Hz only #TODO: to make for different rate
                         for i in range(n_pulse_id):
                             if is_good_frame[i] != 1:
                                 n_frames_bad += 1
