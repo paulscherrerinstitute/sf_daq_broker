@@ -12,7 +12,7 @@ from sf_daq_broker.detector.detector_config import configured_detectors_for_beam
 from sf_daq_broker.utils import get_writer_request
 
 PEDESTAL_FRAMES=3000
-# TODO : put in in config
+#TODO: put in in config
 DIR_NAME_RUN_INFO = "run_info"
 
 _logger = logging.getLogger(__name__)
