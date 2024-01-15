@@ -126,7 +126,7 @@ def process_request(request, broker_client):
             detectors = request.get("detectors", [])
             det_start_pulse_id, det_stop_pulse_id = take_pedestal(detectors_name=detectors, rate=request.get("rate_multiplicator", 1))
 
-            # overwrite start/stop pulse_id's in run_info json file
+            # overwrite start/stop pulse_ids in run_info json file
             run_file_json = request.get("run_file_json", None)
             if run_file_json is not None:
                 with open(run_file_json, "r") as request_json_file:

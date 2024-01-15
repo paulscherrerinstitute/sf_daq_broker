@@ -48,7 +48,7 @@ def postprocess_raw(
         else:
             raise TypeError(f"Unknown h5py object type {obj}")
 
-        # copy group/dataset attributes if it's not a dataset with the actual data
+        # copy group/dataset attributes if it is not a dataset with the actual data
         if name != data_dset:
             for key, value in h5_source[name].attrs.items():
                 h5_dest[name].attrs[key] = value
