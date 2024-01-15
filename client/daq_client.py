@@ -12,7 +12,7 @@ def run():
     parser.add_argument("-p", "--pgroup", help="pgroup, example p12345", default="p18493")
 
     parser.add_argument("-c", "--channels_file", help="TXT file with list channels", default=None)
-    
+
     parser.add_argument("-e", "--epics_file", help="TXT file with list of epics channels to save", default=None)
 
     parser.add_argument("-f", "--file_detectors", help="JSON file with the detector list", default=None)
@@ -26,7 +26,7 @@ def run():
 
     args = parser.parse_args()
 
-    retrieve_data_from_buffer_files(pgroup=args.pgroup, 
+    retrieve_data_from_buffer_files(pgroup=args.pgroup,
                               channels_file=args.channels_file, epics_file=args.epics_file,
                               detectors_file=args.file_detectors,
                               start_pulseid=args.start_pulseid, stop_pulseid=args.stop_pulseid,
@@ -103,7 +103,7 @@ def retrieve_data_from_buffer(pgroup=None,
 
     if start_pulseid is None or stop_pulseid is None:
         raise NameError("Provide stop/start pulseid")
-        
+
     parameters = {}
     parameters["pgroup"]   = pgroup
 
@@ -126,12 +126,12 @@ def retrieve_data_from_buffer(pgroup=None,
 
     if scan_step_info is not None:
         parameters["scan_info"] = scan_step_info
- 
+
     try:
         r = requests.post(f'{broker_address}/retrieve_from_buffers',json=parameters, timeout=TIMEOUT_DAQ)
     except:
         raise NameError("Cant connect to daq")
-         
+
     run_number = None
     responce = r.json()
     if "status" in responce:
