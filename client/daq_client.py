@@ -130,8 +130,8 @@ def retrieve_data_from_buffer(pgroup=None,
 
     try:
         r = requests.post(f"{broker_address}/retrieve_from_buffers",json=parameters, timeout=TIMEOUT_DAQ)
-    except:
-        raise NameError("Cant connect to daq")
+    except Exception as e:
+        raise NameError("Cant connect to daq") from e
 
     run_number = None
     responce = r.json()
