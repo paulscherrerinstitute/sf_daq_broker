@@ -43,7 +43,7 @@ def check_consistency(run_file=None, rate_multiplicator=0):
         with open(run_file) as json_file:
             parameters = json.load(json_file)
     except:
-        problems.append("Can't read provided run file, may be not json?")
+        problems.append("Cannot read provided run file, may be not json?")
         return {"check" : False, "reason" : problems}
 
     start_pulse_id = parameters["start_pulseid"]
@@ -62,7 +62,8 @@ def check_consistency(run_file=None, rate_multiplicator=0):
 
     full_directory = f"/sf/{beamline}/data/{pgroup}/raw/"
     if "directory_name" in parameters:
-        full_directory = f'{full_directory}{parameters["directory_name"]}'
+        directory_name = parameters["directory_name"]
+        full_directory = f"{full_directory}{directory_name}"
 
 # todo make this check possible for different from 100Hz case (not straitforward - start_pulse_id can be not alligned properly with the rate)
 # this is case for 100Hz:
@@ -183,7 +184,7 @@ def check_consistency(run_file=None, rate_multiplicator=0):
                     else:
                         if expected_pulse_id[0] != pulse_id[0] or expected_pulse_id[-1] != pulse_id[-1]:
                             problems.append(f"{detector} start/stop pulse_id are not the one which are requested")
-                    # todo: check on nan's for pulse_id's
+                    # todo: check on NANs for pulse_ids
                         frame_index_check = True
                         n_frames_bad   = 0
                         pulse_id_check = True # this is for 100Hz only, todo: to make for different rate
