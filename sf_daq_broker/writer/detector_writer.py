@@ -125,7 +125,7 @@ def detector_retrieve(request, output_file_detector):
 
 
 
-def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0, nFramesPede=1000,
+def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0, _nFramesPede=1000, #TODO: what is nFramesPede for?
                          number_frames=10000, frames_average=1000,
                          directory="./", gain_check=1, add_pixel_mask=None, number_bad_modules=0):
 

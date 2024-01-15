@@ -229,7 +229,7 @@ def reject_request(channel, method_frame, body, output_file, e):
     update_status(channel, body, "write_rejected", output_file, str(e))
 
 
-def on_broker_message(channel, method_frame, header_frame, body, connection, broker_client):
+def on_broker_message(channel, method_frame, _header_frame, body, connection, broker_client):
 
     try:
         request = json.loads(body.decode())

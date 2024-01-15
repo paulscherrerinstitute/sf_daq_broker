@@ -21,7 +21,7 @@ def verify_data(pv_list, processed_data):
             _logger.error(f"PV {pv} not present.")
 
 
-def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_pvs):
+def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, _metadata, epics_pvs): #TODO: what is _metadata for?
     _logger.info(f"Writing {output_file} from start_pulse_id {start_pulse_id} to stop_pulse_id {stop_pulse_id}.")
     _logger.debug(f"Requesting PVs: {epics_pvs}")
 
