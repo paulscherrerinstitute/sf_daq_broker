@@ -93,11 +93,15 @@ def retrieve_data_from_buffer_files(pgroup=None,
     return run_number
 
 def retrieve_data_from_buffer(pgroup=None,
-                              camera_channels=[], bsread_channels=[], epics_channels=[],
+                              camera_channels=None, bsread_channels=None, epics_channels=None,
                               detectors=None,
                               start_pulseid=None, stop_pulseid=None,
                               rate_multiplicator=1,
                               scan_step_info=None):
+
+    camera_channels = camera_channels or []
+    bsread_channels = bsread_channels or []
+    epics_channels  = epics_channels  or []
 
     if pgroup is None:
         raise NameError("Provide pgroup")
