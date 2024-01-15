@@ -126,20 +126,18 @@ class BrokerClient:
                 self.stop(stop_pulseid=current_pulseid)
             raise NameError("Ctrl-c is called")
         signal.signal(signal.SIGINT, signal_handler)
-        try:
-            while True:
-                current_pulseid = get_current_pulseid()
-                if current_pulseid >= stop_pulseid:
-                    break
-                time.sleep(0.1)
-                progress = (current_pulseid-self.start_pulseid) / (stop_pulseid-self.start_pulseid)
-                block = int(round(20*progress))
-                text = "\r[{0}] {1}% Run: {2}".format( "#"*block + "-"*(20-block), int(progress*100), last_known_run+1)
-                sys.stdout.write(text)
-                sys.stdout.flush()
-            print()
 
-            self.stop(stop_pulseid=stop_pulseid)
-        except:
-            raise
+        while True:
+            current_pulseid = get_current_pulseid()
+            if current_pulseid >= stop_pulseid:
+                break
+            time.sleep(0.1)
+            progress = (current_pulseid-self.start_pulseid) / (stop_pulseid-self.start_pulseid)
+            block = int(round(20*progress))
+            text = "\r[{0}] {1}% Run: {2}".format( "#"*block + "-"*(20-block), int(progress*100), last_known_run+1)
+            sys.stdout.write(text)
+            sys.stdout.flush()
+        print()
+
+        self.stop(stop_pulseid=stop_pulseid)
 
