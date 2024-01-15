@@ -1,8 +1,8 @@
-import time
-import sys
-import signal
 import datetime
 import os
+import signal
+import sys
+import time
 
 import daq_client
 

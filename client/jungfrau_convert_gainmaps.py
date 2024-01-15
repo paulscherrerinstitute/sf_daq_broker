@@ -1,8 +1,9 @@
-import h5py
-import numpy as np
 import argparse
 import os
 from datetime import datetime
+
+import h5py
+import numpy as np
 
 # a = np.fromfile("gainMaps_M022.bin", np.double)
 

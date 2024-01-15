@@ -1,6 +1,7 @@
-import requests
 import argparse
 import json
+
+import requests
 
 broker_address = "http://sf-daq:10002"
 TIMEOUT_DAQ = 10
