@@ -237,7 +237,7 @@ class BrokerManager:
         self.broker_client.send(request_power_on, broker_config.TAG_POWER_ON)
         self.broker_client.close()
 
-        return {"status" : "ok", "message" : f"request to power on detector is sent, wait few minutes"}
+        return {"status" : "ok", "message" : "request to power on detector is sent, wait few minutes"}
 
     def get_list_running_detectors(self, remote_ip=None):
 
@@ -406,7 +406,7 @@ class BrokerManager:
         stop_pulse_id  = request["stop_pulseid"]
 
         if (stop_pulse_id-start_pulse_id) > 60001 or (stop_pulse_id-start_pulse_id) < 0:
-            return {"status" : "failed", "message" : f"number of pulse_id problem: too large or negative request"}
+            return {"status" : "failed", "message" : "number of pulse_id problem: too large or negative request"}
 
         rate_multiplicator = 1
         if "rate_multiplicator" in request:

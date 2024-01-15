@@ -71,7 +71,7 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
                                 _logger.error(f"check {channel} pulse_id are not monotonic")
 
     except Exception as e:
-        _logger.error(f"check failed")
+        _logger.error("check failed")
         _logger.error(e)
 
     time_delta = time() - start_check_time
