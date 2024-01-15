@@ -78,7 +78,7 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
     _logger.info(f"Check of data consistency took {time_delta} seconds.")
 
 
-def write_from_imagebuffer(data_api_request, output_file, parameters):
+def write_from_imagebuffer(data_api_request, output_file, _parameters):
     import data_api3.h5 as h5
 
     start_pulse_id = data_api_request["range"]["startPulseId"]
@@ -124,7 +124,7 @@ def write_from_imagebuffer(data_api_request, output_file, parameters):
 
     check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, channels, output_file)
 
-def write_from_databuffer_api3(data_api_request, output_file, parameters):
+def write_from_databuffer_api3(data_api_request, output_file, _parameters):
     import data_api3.h5 as h5
 
     _logger.debug(f"Data3 API request: {data_api_request}")

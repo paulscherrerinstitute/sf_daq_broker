@@ -19,7 +19,7 @@ def get_color_for_action(action):
     return color_mapping.get(action, "")
 
 
-def on_status(channel, method_frame, header_frame, body):
+def on_status(_channel, _method_frame, header_frame, body):
     header = header_frame.headers
     request = json.loads(body.decode())
 
