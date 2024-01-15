@@ -1,10 +1,9 @@
 import argparse
-import datetime
+#import datetime
 import json
 import os
 
 import h5py
-import numpy as np
 
 
 def run():
