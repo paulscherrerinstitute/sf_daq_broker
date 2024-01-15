@@ -1,6 +1,7 @@
 import datetime
 import os
 import signal
+import socket
 import sys
 import time
 
@@ -15,7 +16,6 @@ pulseid = {
 }
 
 def get_beamline():
-    import socket
     ip2beamlines = {"129.129.242": "alvra", "129.129.243": "bernina", "129.129.244": "cristallina", "129.129.246": "maloja", "129.129.247": "furka"}
     ip=socket.gethostbyname(socket.gethostname())
     if ip[:11] in ip2beamlines:
