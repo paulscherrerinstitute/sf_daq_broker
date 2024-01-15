@@ -63,7 +63,7 @@ def get_data(channel_list, start_seconds=None, stop_seconds=None):
 
     _logger.debug(f"Data-api query: {query}")
 
-    for i in range(N_RETRY_LIMIT):
+    for _ in range(N_RETRY_LIMIT):
         response = requests.post(DATA_API_QUERY_ADDRESS, json=query)
 
         # Check for successful return of data.
@@ -96,8 +96,8 @@ class EpicsH5Writer(BsreadH5Writer):
                 _logger.error(f"Data for PV {channel_name} does not exist.")
                 timestamp_data = []
                 value_data = [float("nan")]
-                type_data = ["float64"]
-                shape_data = [[1]]
+#                type_data = ["float64"]
+#                shape_data = [[1]]
 
 #            channel_type = type_data[0]
 #            channel_shape = shape_data[0]

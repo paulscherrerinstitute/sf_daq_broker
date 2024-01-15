@@ -134,7 +134,7 @@ class DetectorManager:
         try:
             event_code_pv.put(255)
         except Exception as e:
-            return  {"status" : "failed", "message" : "can not stop detector trigger"}
+            return  {"status" : "failed", "message" : f"can not stop detector trigger due to: {e}"}
 
         #sleep few second to give epics a chance to switch code
         sleep(4)

@@ -118,7 +118,7 @@ class BrokerManager:
         if os.path.exists(f"{daq_directory}/CLOSED"):
             return {"status" : "failed", "message" : f"{path_to_pgroup} is already closed for writing"}
 
-        with open(f"{daq_directory}/CLOSED", "x") as fp:
+        with open(f"{daq_directory}/CLOSED", "x"):
             pass
 
         return {"status" : "ok", "message" : f"{pgroup} closed for writing" }
