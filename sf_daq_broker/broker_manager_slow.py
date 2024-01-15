@@ -214,7 +214,7 @@ class DetectorManager:
             try:
                 os.mkdir(target_directory)
             except Exception as e:
-                return {"status" : "failed", "message" : "no permission or possibility to make aux sub-directory in pgroup space due to: {e}"}
+                return {"status" : "failed", "message" : f"no permission or possibility to make aux sub-directory in pgroup space due to: {e}"}
 
         group_to_copy = (os.stat(target_directory)).st_gid
 
@@ -329,7 +329,7 @@ class DetectorManager:
                     json.dump(dap_config, json_file, indent=4)
             except Exception as e:
                 shutil.copyfile(f"{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}", dap_parameters_file)
-                return {"status": "failed", "message": "problem to update dap configuration, try again and inform responsible due to: {e}"}
+                return {"status": "failed", "message": f"problem to update dap configuration, try again and inform responsible due to: {e}"}
 
         return {"status": "ok", "message" : changed_parameters}
 
