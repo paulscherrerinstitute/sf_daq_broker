@@ -93,7 +93,7 @@ def power_on_detector(detector_name=None, beamline=None):
         return
 
     if beamline not in beamline_event_code:
-        _logger.error(f"Dont know how to stop event code for this beamline {beamline}")
+        _logger.error(f"Do not know how to stop event code for this beamline {beamline}")
         return
 
     event_code_pv_name = beamline_event_code[beamline]
@@ -137,7 +137,7 @@ def power_on_detector(detector_name=None, beamline=None):
         load_detector_config(detector_name)
 
     except Exception as e:
-        _logger.error(f"cant configure detector : {e}")
+        _logger.error(f"cannot configure detector : {e}")
 
     # start triggering
     event_code_pv.put(254)
