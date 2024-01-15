@@ -41,7 +41,7 @@ def get_current_pulseid():
 
 def get_fake_pulseid():
     #2020-05-08 08:29:52.742737 : 11718049010
-    # 28.05.2020 - checked compared to "real" pulse-id:  2380 pulse's difference
+    # 28.05.2020 - checked compared to "real" pulse-id:  2380 pulses difference
     reference_date = datetime.datetime(2020, 5, 8, 8, 29, 52)
     now = datetime.datetime.utcnow()
     delta = (datetime.datetime.utcnow()-reference_date).total_seconds()*1000

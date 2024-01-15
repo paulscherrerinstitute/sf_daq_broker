@@ -1,4 +1,4 @@
-#PULSE_ID's beam synchronous
+#PULSE_IDs beam synchronous
 SLAAR11-LTIM01-EVR0:RX-PULSEID
 #BUNCH-OK, beam synchronous, but not changing every pulse
 SIN-CVME-TIFGUN-EVR0:BUNCH-1-OK
