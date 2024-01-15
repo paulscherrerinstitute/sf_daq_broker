@@ -58,7 +58,7 @@ def check_consistency(run_file=None, rate_multiplicator=0):
     pgroup = parameters["pgroup"]
     beamline = parameters["beamline"]
     run_number = parameters["run_number"]
-    request_time = datetime.datetime.strptime(parameters["request_time"], "%Y-%m-%d %H:%M:%S.%f")
+#    request_time = datetime.datetime.strptime(parameters["request_time"], "%Y-%m-%d %H:%M:%S.%f")
 
     full_directory = f"/sf/{beamline}/data/{pgroup}/raw/"
     if "directory_name" in parameters:
@@ -143,7 +143,7 @@ def check_consistency(run_file=None, rate_multiplicator=0):
                         image_data = cameras_h5py[f"/{camera}/data"]
                         for i_image in range(n_pulse_id):
                             try:
-                                image_try = image_data[i_image]
+                                image_data[i_image]
                             except:
                                 n_images_corrupted += 1
                         if n_images_corrupted != 0:
