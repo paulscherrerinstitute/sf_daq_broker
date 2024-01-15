@@ -27,9 +27,9 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
         remove_raw_files = detector_params.get("remove_raw_files", False)
         downsample       = detector_params.get("downsample", None)
         if downsample is not None:
-            if type(downsample) is list:
+            if isinstance(downsample, list):
                 downsample = tuple(downsample)
-            if not (type(downsample) is tuple and len(downsample) == 2 and type(downsample[0]) is int and type(downsample[1]) is int):
+            if not (isinstance(downsample, tuple) and len(downsample) == 2 and isinstance(downsample[0], int) and isinstance(downsample[1], int)):
                 _logger.error(f"Bad option for the downsample parameter : {downsample}. Ignoring it.")
                 downsample = None
 

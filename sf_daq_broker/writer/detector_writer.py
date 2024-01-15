@@ -8,6 +8,8 @@ from time import sleep, time
 import h5py
 import numpy as np
 
+_logger = logging.getLogger("broker_writer")
+
 try:
     import ujson as json
 except ImportError:
@@ -17,7 +19,6 @@ except ImportError:
 from sf_daq_broker.detector.make_crystfel_list import make_crystfel_list, store_dap_info
 from sf_daq_broker.writer.export_file import convert_file
 
-_logger = logging.getLogger("broker_writer")
 
 PEDESTAL_SPECIFIC = { "JF02T09V02" : {"number_bad_modules" : 1},
                       "JF05T01V01" : {"number_bad_modules" : 1},
@@ -190,17 +191,17 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
             daq_rec = (f[daq_recs_location][n])[0]
 
             image = f[data_location][n][:]
-            frameData = (np.bitwise_and(image, 0b0011111111111111))
+            frameData = np.bitwise_and(image, 0b0011111111111111)
             gainData = np.bitwise_and(image, 0b1100000000000000) >> 14
 
-            trueGain = ( (daq_rec & 0b11000000000000) >> 12 )
-            highG0 = (daq_rec & 0b1)
+            trueGain = (daq_rec & 0b11000000000000) >> 12
+            highG0 = daq_rec & 0b1
 
             gainGoodAllModules = True
             if gain_check > 0:
                 daq_recs = f[daq_recs_location][n]
-                for i in range(len(daq_recs)):
-                    if trueGain != ((daq_recs[i] & 0b11000000000000) >> 12) or highG0 != (daq_recs[i] & 0b1):
+                for dr in daq_recs:
+                    if trueGain != ((dr & 0b11000000000000) >> 12) or highG0 != (dr & 0b1):
                         gainGoodAllModules = False
 
 #            if highG0 == 1 and trueGain != 0:
@@ -253,7 +254,7 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
 
     _logger.info(f" {detector_name} : {analyzeFrames} frames analyzed, {nGoodFrames} good frames, {nGoodFramesGain} frames without settings mismatch. Gain frames distribution (0,1,2,3,HG0) : ({nMgain})")
 
-    if add_pixel_mask != None:
+    if add_pixel_mask is not None:
         if (os.path.isfile(add_pixel_mask) and os.access(add_pixel_mask, os.R_OK)):
             additional_pixel_mask = np.zeros((2,2))
             with h5py.File(add_pixel_mask, "r") as additional_pixel_mask_file:

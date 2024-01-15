@@ -1,4 +1,5 @@
 import logging
+from math import isnan
 from time import sleep, time
 
 import h5py
@@ -7,7 +8,7 @@ import requests
 
 from sf_daq_broker.config import DATA_API_QUERY_ADDRESS
 from sf_daq_broker.utils import pulse_id_to_seconds
-from sf_daq_broker.writer.bsread_writer import BsreadH5Writer
+from sf_daq_broker.writer.bsread_writer import BsreadH5Writer #TODO: this does not exist!
 
 _logger = logging.getLogger("broker_writer")
 
@@ -146,7 +147,7 @@ class EpicsH5Writer(BsreadH5Writer):
         for channel_name, channel_data in data.items():
             dataset_type = channel_data[0]
 
-            if dataset_type == "string" or dataset_type == "object":
+            if dataset_type in ("string", "object"):
                 dataset_type = h5py.special_dtype(vlen=str)
                 _logger.warning(f"Writing of string data not supported. Channel {channel_name} omitted.")
                 continue
@@ -155,8 +156,8 @@ class EpicsH5Writer(BsreadH5Writer):
 
             values = numpy.array(channel_data[3], dtype=dataset_type)
 
-            # x == x is False for NaN values. Nan values are marked as not changed.
-            change_in_interval = [x > start_seconds if x == x else False for x in timestamps]
+            # Nan values are marked as False, i.e., not changed.
+            change_in_interval = [False if isnan(x) else x > start_seconds for x in timestamps]
 
             # TODO: Ugly, fix.
             if change_in_interval:

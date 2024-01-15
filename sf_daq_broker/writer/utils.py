@@ -9,8 +9,8 @@ def deserialize_number(numpy_array):
 
     if len(numpy_array) == 1:
         return numpy_array[0]
-    else:
-        return numpy_array
+
+    return numpy_array
 
 
 def deserialize_string(numpy_array):
