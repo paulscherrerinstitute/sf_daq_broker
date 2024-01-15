@@ -63,7 +63,7 @@ def postprocess_raw(
         # now process the raw data
         dset = h5_source[data_dset]
 
-        args = dict()
+        args = {}
         if index is None:
             n_images = dset.shape[0]
         else:
