@@ -143,8 +143,8 @@ class DetectorManager:
             event_code = int(event_code_pv.get())
             if event_code != 255:
                 return {"status" : "failed", "message" : "tried to stop detector trigger but failed"}
-        except:
-            return {"status" : "failed", "message" : f"getting strange return from timing system {event_code_pv.get()} {event_code_pv_name} {beamline}"}
+        except Exception as e:
+            return {"status" : "failed", "message" : f"getting strange return from timing system {event_code_pv.get()} {event_code_pv_name} {beamline} due to: {e}"}
 
         if exptime:
             detector.exptime = exptime
@@ -213,8 +213,8 @@ class DetectorManager:
         if not os.path.exists(target_directory):
             try:
                 os.mkdir(target_directory)
-            except:
-                return {"status" : "failed", "message" : "no permission or possibility to make aux sub-directory in pgroup space"}
+            except Exception as e:
+                return {"status" : "failed", "message" : "no permission or possibility to make aux sub-directory in pgroup space due to: {e}"}
 
         group_to_copy = (os.stat(target_directory)).st_gid
 
@@ -229,7 +229,7 @@ class DetectorManager:
                     try:
                         dest = shutil.copy2(file_to_copy, target_directory)
                         destination_file_path.append(dest)
-                    except:
+                    except Exception:
                         error_files.append(file_to_copy)
                 else:
                     error_files.append(file_to_copy)
@@ -327,9 +327,9 @@ class DetectorManager:
             try:
                 with open(dap_parameters_file, "w") as json_file:
                     json.dump(dap_config, json_file, indent=4)
-            except:
+            except Exception as e:
                 shutil.copyfile(f"{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}", dap_parameters_file)
-                return {"status": "failed", "message": "problem to update dap configuration, try again and inform responsible"}
+                return {"status": "failed", "message": "problem to update dap configuration, try again and inform responsible due to: {e}"}
 
         return {"status": "ok", "message" : changed_parameters}
 

@@ -18,7 +18,7 @@ class RabbitMqClient:
     def open(self):
         try:
             self.connection = BlockingConnection(ConnectionParameters(self.broker_url))
-        except:
+        except Exception:
             sleep(1)
             self.connection = BlockingConnection(ConnectionParameters(self.broker_url))
 
