@@ -393,7 +393,8 @@ class DetectorConfig():
     def get_detector_udp_mac(self):
         udp_mac = {}
         for i in range(self.get_number_modules()):
-            udp_mac[i] = "00:aa:bb:cc:dd:{}".format(hex(_detector_udp_srcmac[self._detector_name]+i)[2:])
+            ee = hex(_detector_udp_srcmac[self._detector_name] + i)[2:]
+            udp_mac[i] = f"00:aa:bb:cc:dd:{ee}"
         return udp_mac
 
     def get_detector_txndelay(self):

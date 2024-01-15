@@ -53,7 +53,7 @@ def transform_range_from_pulse_id_to_timestamp(data_api_request):
 
 
         mapping_response = requests.post(url=config.DATA_API_QUERY_ADDRESS + "/mapping", json=mapping_request, timeout=10).json()
-        _logger.info("Response to mapping request: %s", mapping_response)
+        _logger.info(f"Response to mapping request: {mapping_response}")
 
         del new_data_api_request["range"]["startPulseId"]
         new_data_api_request["range"]["startSeconds"] = mapping_response[0]["start"]["globalSeconds"]
@@ -61,7 +61,7 @@ def transform_range_from_pulse_id_to_timestamp(data_api_request):
         del new_data_api_request["range"]["endPulseId"]
         new_data_api_request["range"]["endSeconds"] = mapping_response[0]["end"]["globalSeconds"]
 
-        #_logger.info("Transformed request to startSeconds and endSeconds. %s" % new_data_api_request)
+#        _logger.info(f"Transformed request to startSeconds and endSeconds. {new_data_api_request}")
 
     except Exception as e:
         _logger.error(e)

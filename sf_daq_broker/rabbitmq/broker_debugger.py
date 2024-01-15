@@ -29,7 +29,7 @@ def on_status(channel, method_frame, header_frame, body):
     action_output = get_color_for_action(action) + action + COLOR_END_MARKER
     time_output = datetime.utcnow().strftime("%Y%m%d-%H:%M:%S.%f")
 
-    print("[%s] %s %s" % (time_output, action_output, source))
+    print(f"[{time_output}] {action_output} {source}")
     print(request)
 
 

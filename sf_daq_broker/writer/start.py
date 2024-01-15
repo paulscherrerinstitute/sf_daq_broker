@@ -32,10 +32,11 @@ def audit_failed_write_request(write_request):
         current_time = datetime.now().strftime(config.AUDIT_FILE_TIME_FORMAT)
 
         with open(output_file, "w") as audit_file:
-            audit_file.write("[%s] %s" % (current_time, json.dumps(write_request)))
+            pretty_write_request = json.dumps(write_request)
+            audit_file.write(f"[{current_time}] {pretty_write_request}")
 
     except Exception:
-        _logger.exception("Error while trying to write request %s to file %s." % (write_request, output_file))
+        _logger.exception(f"Error while trying to write request {write_request} to file {output_file}.")
 
 
 def wait_for_delay(request_timestamp, writer_type):
@@ -58,10 +59,9 @@ def wait_for_delay(request_timestamp, writer_type):
     if adjusted_retrieval_delay < 0:
         adjusted_retrieval_delay = 0
 
-    _logger.debug("Request timestamp=%s, current_timestamp=%s, adjusted_retrieval_delay=%s." %
-                  (request_timestamp, current_timestamp, adjusted_retrieval_delay))
+    _logger.debug(f"Request timestamp={request_timestamp}, current_timestamp={current_timestamp}, adjusted_retrieval_delay={adjusted_retrieval_delay}.")
 
-    _logger.info("Sleeping for %s seconds before continuing." % adjusted_retrieval_delay)
+    _logger.info(f"Sleeping for {adjusted_retrieval_delay} seconds before continuing.")
     sleep(adjusted_retrieval_delay)
 
 
@@ -96,8 +96,7 @@ def process_request(request, broker_client):
             logger_data_api.addHandler(file_handler)
 
     try:
-        _logger.info("Request for %s : output_file %s from pulse_id %s to %s" %
-                     (writer_type, output_file, start_pulse_id, stop_pulse_id))
+        _logger.info(f"Request for {writer_type} : output_file {output_file} from pulse_id {start_pulse_id} to {stop_pulse_id}")
 
         if output_file == "/dev/null":
             _logger.info("Output file set to /dev/null. Skipping request.")
@@ -181,7 +180,8 @@ def process_request(request, broker_client):
         elif writer_type == broker_config.TAG_DETECTOR_CONVERT:
             _logger.info("Using detector convert writer.")
 
-        _logger.info("Finished. Took %s seconds to complete request." % (time() - start_time))
+        delta_time = time() - start_time
+        _logger.info(f"Finished. Took {delta_time} seconds to complete request.")
 
         if file_handler:
             _logger.removeHandler(file_handler)

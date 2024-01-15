@@ -81,7 +81,7 @@ def detector_retrieve(request, output_file_detector):
 
     number_modules = int(detector[5:7])
     retrieve_command_from_buffer = f'/home/dbe/bin/sf_writer {raw_file_name} /gpfs/photonics/swissfel/buffer/{detector} {number_modules} {det_start_pulse_id} {det_stop_pulse_id} {rate_multiplicator}'
-    _logger.info("Starting detector retrieve from buffer %s " % retrieve_command_from_buffer)
+    _logger.info(f"Starting detector retrieve from buffer {retrieve_command_from_buffer} ")
     time_start = time()
     process=subprocess.run(retrieve_command_from_buffer.split(), capture_output=True)
     _logger.info(f"Retrieve Time : {time()-time_start}")
@@ -130,7 +130,7 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
                          directory="./", gain_check=1, add_pixel_mask=None, number_bad_modules=0):
 
     if not (os.path.isfile(filename) and os.access(filename, os.R_OK)):
-        _logger.info("Pedestal file {} not found, exit".format(filename))
+        _logger.info(f"Pedestal file {filename} not found, exit")
         return
 
     with h5py.File(filename, "r") as f:
@@ -147,7 +147,7 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
         (sh_y, sh_x) = f[data_location][0].shape
         nModules = (sh_x * sh_y) // (1024 * 512)
         if (nModules * 1024 * 512) != (sh_x * sh_y):
-            _logger.error(" {} : Something very strange in the data, Jungfrau consists of (1024x512) modules, while data has {}x{}".format(detector_name, sh_x, sh_y))
+            _logger.error(f" {detector_name} : Something very strange in the data, Jungfrau consists of (1024x512) modules, while data has {sh_x}x{sh_y}")
             return
 
         (tX, tY) = (X_test_pixel, Y_test_pixel)
@@ -156,9 +156,11 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
         if tY < 0 or tY > (sh_y - 1):
             tY = 0
 
-        _logger.debug(" {} : test pixel is ( x y ): {}x{}".format(detector_name, tX, tY))
-        _logger.info(" {} : In pedestal file {} there are {} frames".format(detector_name, filename, numberOfFrames + 1))
-        _logger.debug(" {} :   data has the following shape: {}, type: {}, {} modules ({} bad modules)".format(detector_name, f[data_location][0].shape, f[data_location][0].dtype, nModules, n_bad_modules))
+        _logger.debug(f" {detector_name} : test pixel is ( x y ): {tX}x{tY}")
+        _logger.info(f" {detector_name} : In pedestal file {filename} there are {numberOfFrames + 1} frames")
+        data_shape = f[data_location][0].shape
+        data_dtype = f[data_location][0].dtype
+        _logger.debug(f" {detector_name} :   data has the following shape: {data_shape}, type: {data_dtype}, {nModules} modules ({n_bad_modules} bad modules)")
 
         pixelMask = np.zeros((sh_y, sh_x), dtype=int)
 
@@ -208,24 +210,28 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
             nFramesGain = np.sum(gainData==(trueGain))
             if nFramesGain < (nModules - 0.5 - n_bad_modules) * (1024 * 512):  # make sure that most are the modules are in correct gain
                 gainGoodAllModules = False
-                _logger.debug(" {} : Too many bad pixels, skip the frame {}, true gain: {}(highG0: {}) ({});  gain0 : {}; gain1 : {}; gain2 : {}; undefined gain : {}".format( detector_name, n, trueGain, highG0, nFramesGain, np.sum(gainData==0), np.sum(gainData==1), np.sum(gainData==3), np.sum(gainData==2)))
+                gain0 = np.sum(gainData == 0)
+                gain1 = np.sum(gainData == 1)
+                gain2 = np.sum(gainData == 3)
+                gain_undefined = np.sum(gainData == 2)
+                _logger.debug(f" {detector_name} : Too many bad pixels, skip the frame {n}, true gain: {trueGain}(highG0: {highG0}) ({nFramesGain});  gain0 : {gain0}; gain1 : {gain1}; gain2 : {gain2}; undefined gain : {gain_undefined}")
 
             if not gainGoodAllModules:
-                _logger.debug(" {} : In Frame Number {} : mismatch in modules and general settings, Gain: {} vs {}; HighG0: {} vs {} (or too many bad pixels)".format( detector_name, n, trueGain, ((daq_recs & 0b11000000000000) >> 12), highG0, (daq_recs & 0b1)))
+                _logger.debug(f" {detector_name} : In Frame Number {n} : mismatch in modules and general settings, Gain: {trueGain} vs {(daq_recs & 0b11000000000000) >> 12}; HighG0: {highG0} vs {daq_recs & 0b1} (or too many bad pixels)")
                 continue
             nGoodFramesGain += 1
 
             if gainData[tY][tX] != trueGain:
                 if not printFalseGain:
-                    _logger.info(" {} : Gain wrong for channel ({}x{}) should be {}, but {}. Frame {}. {} {}".format( detector_name, tX, tY, trueGain, gainData[tY][tX], n, trueGain, daq_rec))
+                    _logger.info(f" {detector_name} : Gain wrong for channel ({tX}x{tY}) should be {trueGain}, but {gainData[tY][tX]}. Frame {n}. {trueGain} {daq_rec}")
                     printFalseGain = True
             else:
                 if gainCheck != -1 and printFalseGain:
-                    _logger.info(" {} : Gain was wrong for channel ({}x{}) in previous frames, but now correct : {}. Frame {}.".format( detector_name, tX, tY, gainData[tY, tX], n))
+                    _logger.info(f" {detector_name} : Gain was wrong for channel ({tX}x{tY}) in previous frames, but now correct : {gainData[tY, tX]}. Frame {n}.")
                 printFalseGain = False
 
             if gainData[tY][tX] != gainCheck or highG0Check != highG0:
-                _logger.info(" {} : Gain changed for ({}x{}) channel {} -> {} (highG0 setting: {} -> {}), frame number {}, match: {}".format( detector_name, tX, tY, gainCheck, gainData[tY][tX], highG0Check, highG0, n, gainData[tY][tX] == trueGain))
+                _logger.info(f" {detector_name} : Gain changed for ({tX}x{tY}) channel {gainCheck} -> {gainData[tY][tX]} (highG0 setting: {highG0Check} -> {highG0}), frame number {n}, match: {gainData[tY][tX] == trueGain}")
                 gainCheck = gainData[tY][tX]
                 highG0Check = highG0
 
@@ -245,24 +251,25 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
                 adcValuesNN[trueGain] += np.float_power(frameData, 2)
 
 
-    _logger.info(" {} : {} frames analyzed, {} good frames, {} frames without settings mismatch. Gain frames distribution (0,1,2,3,HG0) : ({})".format( detector_name, analyzeFrames, nGoodFrames, nGoodFramesGain, nMgain))
+    _logger.info(f" {detector_name} : {analyzeFrames} frames analyzed, {nGoodFrames} good frames, {nGoodFramesGain} frames without settings mismatch. Gain frames distribution (0,1,2,3,HG0) : ({nMgain})")
 
     if add_pixel_mask != None:
         if (os.path.isfile(add_pixel_mask) and os.access(add_pixel_mask, os.R_OK)):
             additional_pixel_mask = np.zeros((2,2))
             with h5py.File(add_pixel_mask, "r") as additional_pixel_mask_file:
                 additional_pixel_mask = np.array(additional_pixel_mask_file["pixel_mask"])
-            _logger.info("Will add additional masked pixels from file %s , number %d " % (add_pixel_mask, np.sum(additional_pixel_mask == 1)))
+            number = np.sum(additional_pixel_mask == 1)
+            _logger.info(f"Will add additional masked pixels from file {add_pixel_mask} , number {number} ")
             if additional_pixel_mask.shape == pixelMask.shape:
                 pixelMask[additional_pixel_mask == 1] |= (1 << 5)
             else:
-                _logger.error(" shape of additional pixel mask ({}) doesn't match current ({})".format( additional_pixel_mask.shape, pixelMask.shape))
+                _logger.error(f" shape of additional pixel mask ({additional_pixel_mask.shape}) doesn't match current ({pixelMask.shape})")
         else:
-            _logger.error(" Specified addition file with pixel mask not found or not reachable {}".format( add_pixel_mask))
+            _logger.error(f" Specified addition file with pixel mask not found or not reachable {add_pixel_mask}")
 
     fileNameIn = os.path.splitext(os.path.basename(filename))[0]
     full_fileNameOut = directory + "/" + fileNameIn + ".res.h5"
-    _logger.info(" {} : Output file with pedestal corrections in: {}".format( detector_name, full_fileNameOut))
+    _logger.info(f" {detector_name} : Output file with pedestal corrections in: {full_fileNameOut}")
 
     with h5py.File(full_fileNameOut, "w") as outFile:
 
@@ -278,7 +285,7 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
             mean2 = adcValuesNN[gain] / float(numberFramesAverage)
             variance = mean2 - np.float_power(mean, 2)
             stdDeviation = np.sqrt(variance)
-            _logger.debug(" {} : gain {} values results (pixel ({},{}) : {} {}".format( detector_name, gain, tY, tX, mean[tY][tX], stdDeviation[tY][tX]))
+            _logger.debug(f" {detector_name} : gain {gain} values results (pixel ({tY},{tX}) : {mean[tY][tX]} {stdDeviation[tY][tX]}")
             gains[g] = mean
             gainsRMS[g] = stdDeviation
 
@@ -288,7 +295,10 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
         dset = outFile.create_dataset('gains', data=gains)
         dset = outFile.create_dataset('gainsRMS', data=gainsRMS)
 
-    _logger.info(" {} : Number of good pixels: {} from {} in total ({} bad pixels)".format( detector_name, np.sum(pixelMask == 0), sh_x * sh_y, (sh_x * sh_y - np.sum(pixelMask == 0))))
+    ngood = np.sum(pixelMask == 0)
+    ntotal = sh_x * sh_y
+    nbad = ntotal - ngood
+    _logger.info(f" {detector_name} : Number of good pixels: {ngood} from {ntotal} in total ({nbad} bad pixels)")
 
 
 def copy_pedestal_file(request_time, file_pedestal, detector, detector_config_file):

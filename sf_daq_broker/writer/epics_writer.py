@@ -22,9 +22,8 @@ def verify_data(pv_list, processed_data):
 
 
 def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_pvs):
-    _logger.info("Writing %s from start_pulse_id %s to stop_pulse_id %s."
-                 % (output_file, start_pulse_id, stop_pulse_id))
-    _logger.debug("Requesting PVs: %s" % epics_pvs)
+    _logger.info(f"Writing {output_file} from start_pulse_id {start_pulse_id} to stop_pulse_id {stop_pulse_id}.")
+    _logger.debug(f"Requesting PVs: {epics_pvs}")
 
     start_time = time()
 
@@ -33,7 +32,8 @@ def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_
 
     data = get_data(epics_pvs, start_seconds=start_seconds, stop_seconds=stop_seconds)
 
-    _logger.info("Data download took %s seconds." % (time() - start_time))
+    delta_time = time() - start_time
+    _logger.info(f"Data download took {delta_time} seconds.")
 
     if len(data) == 0:
         raise RuntimeError("No data received for requested channels.")
@@ -43,14 +43,14 @@ def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, metadata, epics_
     with EpicsH5Writer(output_file) as writer:
         processed_data = writer.write_data(data, start_seconds)
 
-    _logger.info("Data writing took %s seconds." % (time() - start_time))
+    delta_time = time() - start_time
+    _logger.info(f"Data writing took {delta_time} seconds.")
 
     verify_data(epics_pvs, processed_data)
 
 
 def get_data(channel_list, start_seconds=None, stop_seconds=None):
-    _logger.info("Requesting range %s to %s for channels: %s" %
-                 (start_seconds, stop_seconds, channel_list))
+    _logger.info(f"Requesting range {start_seconds} to {stop_seconds} for channels: {channel_list}")
 
     clean_channel_list = [c for c in channel_list if ".EGU" not in c]
 
@@ -61,19 +61,19 @@ def get_data(channel_list, start_seconds=None, stop_seconds=None):
              "channels": clean_channel_list,
              "fields": ["globalSeconds", "value", "type", "shape"]}
 
-    _logger.debug("Data-api query: %s" % query)
+    _logger.debug(f"Data-api query: {query}")
 
     for i in range(N_RETRY_LIMIT):
         response = requests.post(DATA_API_QUERY_ADDRESS, json=query)
 
         # Check for successful return of data.
         if response.status_code != 200:
-            _logger.warning("Data retrieval failed."
-                            " Trying again after %s seconds." % N_RETRY_TIMEOUT)
+            _logger.warning(f"Data retrieval failed. Trying again after {N_RETRY_TIMEOUT} seconds.")
             sleep(N_RETRY_TIMEOUT)
             continue
 
-        _logger.info("Downloaded %d bytes." % len(response.content))
+        nbytes = len(response.content)
+        _logger.info(f"Downloaded {nbytes} bytes.")
         return response.json()
 
     raise RuntimeError("Unable to retrieve data from server: ", response)
@@ -103,10 +103,10 @@ class EpicsH5Writer(BsreadH5Writer):
 #            channel_shape = shape_data[0]
 
 #            if any((x != channel_type for x in type_data)):
-#                raise RuntimeError("Channel %s data type changed during scan." % channel_name)
+#                raise RuntimeError(f"Channel {channel_name} data type changed during scan.")
 
 #            if any((x != channel_shape for x in shape_data)):
-#                raise RuntimeError("Channel %s data shape changed during scan" % channel_name)
+#                raise RuntimeError(f"Channel {channel_name} data shape changed during scan")
 
             response = requests.post("https://data-api.psi.ch/sf-archiverappliance/channels/config", json={"regex": channel_name})
             if response.status_code != 200:
@@ -148,7 +148,7 @@ class EpicsH5Writer(BsreadH5Writer):
 
             if dataset_type == "string" or dataset_type == "object":
                 dataset_type = h5py.special_dtype(vlen=str)
-                _logger.warning("Writing of string data not supported. Channel %s omitted." % channel_name)
+                _logger.warning(f"Writing of string data not supported. Channel {channel_name} omitted.")
                 continue
 
             timestamps = numpy.array(channel_data[2], dtype="int64")
