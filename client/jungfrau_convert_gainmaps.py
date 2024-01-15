@@ -36,9 +36,6 @@ Utility to read binary Jungfrau gain maps from PSI Detectors Group and save them
     parser.add_argument("--shape", type=int, nargs=2, help="Dimension of the final image, in modules. For example, a 1.5 Jungfrau with three modules one on top of each other is [3,1].", default=[-1, -1])
     args = parser.parse_args()
 
-    files = args.files
-    shape = args.shape
-
     dst_name = "gains"
     module_shape = (6, 512, 1024)
 

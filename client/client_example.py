@@ -18,7 +18,6 @@ def get_beamline():
     import socket
     ip2beamlines = {"129.129.242": "alvra", "129.129.243": "bernina", "129.129.244": "cristallina", "129.129.246": "maloja", "129.129.247": "furka"}
     ip=socket.gethostbyname(socket.gethostname())
-    beamline = None
     if ip[:11] in ip2beamlines:
         return ip2beamlines[ip[:11]]
 
@@ -44,7 +43,7 @@ def get_fake_pulseid():
     # 28.05.2020 - checked compared to "real" pulse-id:  2380 pulses difference
     reference_date = datetime.datetime(2020, 5, 8, 8, 29, 52)
     now = datetime.datetime.utcnow()
-    delta = (datetime.datetime.utcnow()-reference_date).total_seconds()*1000
+    delta = (now-reference_date).total_seconds()*1000
     return int(delta/10)+11718049010 + 2361
 
 class BrokerClient:
