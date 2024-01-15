@@ -11,7 +11,7 @@ GAINS = ["G0", "G1", "G2", "HG0", "HG1", "HG2"]
 
 def merge_gainmaps(maps, shape, module_shape):
     if maps[0].shape != module_shape:
-        print("[ERROR]: shape of the provided maps is not correct. Provided shape: %s, required shape: %s" % (maps[0].shape, module_shape))
+        print(f"[ERROR]: shape of the provided maps is not correct. Provided shape: {maps[0].shape}, required shape: {module_shape}")
     res = np.zeros([module_shape[0], shape[0] * module_shape[1], shape[1] * module_shape[2]], dtype=np.float)
     for i in range(shape[0]):
         for j in range(shape[1]):
@@ -71,13 +71,13 @@ Utility to read binary Jungfrau gain maps from PSI Detectors Group and save them
             continue
         dst.attrs[kv.split("=")[0]] = kv.split("=")[1]
 
-    print("File %s written, size of %s dataset: %s" % (args.outfile, dst_name, dst.shape))
+    print(f"File {args.outfile} written, size of {dst_name} dataset: {dst.shape}")
     print("Written attributes:")
     for k, v in dst.attrs.items():
-        print("\t %s = %s" % (k, str(v)))
+        print(f"\t {k} = {v}")
     print("Gain averages:")
     for i in range(module_shape[0]):
-        print("\t %s = %.2f +- %.2f" % (GAINS[i], dst[i].mean(), dst[i].std()))
+        print(f"\t {GAINS[i]} = {dst[i].mean():.2f} +- {dst[i].std():.2f}")
     f.close()
 
 
