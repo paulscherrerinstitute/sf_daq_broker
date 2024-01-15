@@ -265,7 +265,7 @@ class DetectorManager:
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
 
         if not os.path.exists(dap_parameters_file):
-            return {"status" : "failed", "message" : f"dap parameters file is not existing, contact support"}
+            return {"status" : "failed", "message" : "dap parameters file is not existing, contact support"}
 
         with open(dap_parameters_file) as json_file:
             dap_config = json.load(json_file)
@@ -299,7 +299,7 @@ class DetectorManager:
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
 
         if not os.path.exists(dap_parameters_file):
-            return {"status" : "failed", "message" : f"dap parameters file is not existing, contact support"}
+            return {"status" : "failed", "message" : "dap parameters file is not existing, contact support"}
 
         new_parameters = request.get("parameters", {})
 
@@ -319,7 +319,7 @@ class DetectorManager:
         if changed:
             date_now = datetime.now()
             date_now_str = date_now.strftime("%d-%b-%Y_%H:%M:%S")
-            backup_directory = f"/gpfs/photonics/swissfel/buffer/dap/config/backup"
+            backup_directory = "/gpfs/photonics/swissfel/buffer/dap/config/backup"
             if not os.path.exists(backup_directory):
                 os.mkdir(backup_directory)
             shutil.copyfile(dap_parameters_file, f"{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}")

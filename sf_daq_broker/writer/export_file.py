@@ -107,7 +107,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
                     batch_size=35,
                 )
             else:
-                _logger.info(f"No output frames selected, no jungfrau file producedi. Will keep raw_data file")
+                _logger.info("No output frames selected, no jungfrau file produced. Will keep raw_data file")
                 remove_raw_files = False
 
     else:
