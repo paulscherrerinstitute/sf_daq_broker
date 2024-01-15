@@ -31,12 +31,11 @@ except:
 def get_current_pulseid():
     if not epics_available:
         return get_fake_pulseid()
-    else:
-        try:
-            p = int(PV_pulseid.get())
-        except:
-            p = get_fake_pulseid()
-        return p
+    try:
+        p = int(PV_pulseid.get())
+    except:
+        p = get_fake_pulseid()
+    return p
 
 def get_fake_pulseid():
     #2020-05-08 08:29:52.742737 : 11718049010
