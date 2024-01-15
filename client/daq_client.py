@@ -8,7 +8,7 @@ TIMEOUT_DAQ = 10
 
 def run():
 
-    parser = argparse.ArgumentParser(description='simple daq client example')
+    parser = argparse.ArgumentParser(description="simple daq client example")
 
     parser.add_argument("-p", "--pgroup", help="pgroup, example p12345", default="p18493")
 
@@ -129,7 +129,7 @@ def retrieve_data_from_buffer(pgroup=None,
         parameters["scan_info"] = scan_step_info
 
     try:
-        r = requests.post(f'{broker_address}/retrieve_from_buffers',json=parameters, timeout=TIMEOUT_DAQ)
+        r = requests.post(f"{broker_address}/retrieve_from_buffers",json=parameters, timeout=TIMEOUT_DAQ)
     except:
         raise NameError("Cant connect to daq")
 
@@ -141,18 +141,18 @@ def retrieve_data_from_buffer(pgroup=None,
             run_number = responce.get("run_number", None)
             if run_number is not None:
                 run_number = int(run_number)
-                run_number_print = f'{run_number:04}'
+                run_number_print = f"{run_number:04}"
             else:
                 run_number_print = None
             acq_number = responce.get("acquisition_number", None)
             unq_acq_number = responce.get("unique_acquisition_number", None)
             files_daq = responce.get("files", [])
-            print(f'success: {message=} {run_number=} {acq_number=} {unq_acq_number=}')
-            print(f' these files to expect in raw/{pgroup}/run{run_number_print}/data/ directory : {files_daq}')
+            print(f"success: {message=} {run_number=} {acq_number=} {unq_acq_number=}")
+            print(f" these files to expect in raw/{pgroup}/run{run_number_print}/data/ directory : {files_daq}")
         else:
             message = responce.get("message", None)
-            print(f' Error, reason : {message=}')
-            print(f'    whole responce : {responce=}')
+            print(f" Error, reason : {message=}")
+            print(f"    whole responce : {responce=}")
     else:
         print("Bad responce from request")
 
