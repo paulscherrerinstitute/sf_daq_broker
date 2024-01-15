@@ -10,7 +10,7 @@ import numpy as np
 
 try:
     import ujson as json
-except:
+except ImportError:
     _logger.warning("There is no ujson in this environment. Performance will suffer.")
     import json
 

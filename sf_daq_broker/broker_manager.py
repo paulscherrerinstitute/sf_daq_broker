@@ -112,8 +112,8 @@ class BrokerManager:
         if not os.path.exists(daq_directory):
             try:
                 os.mkdir(daq_directory)
-            except:
-                return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space"}
+            except Exception as e:
+                return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space due to: {e}"}
 
         if os.path.exists(f"{daq_directory}/CLOSED"):
             return {"status" : "failed", "message" : f"{path_to_pgroup} is already closed for writing"}
@@ -194,8 +194,8 @@ class BrokerManager:
         if not os.path.exists(daq_directory):
             try:
                 os.mkdir(daq_directory)
-            except:
-                return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space"}
+            except Exception as e:
+                return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space due to: {e}"}
 
         if os.path.exists(f"{daq_directory}/CLOSED"):
             return {"status" : "failed", "message" : f"{path_to_pgroup} is closed for writing"}
@@ -320,15 +320,15 @@ class BrokerManager:
         if not os.path.exists(full_path):
             try:
                 os.makedirs(full_path)
-            except:
-                return {"status" : "failed", "message" : f"no permission or possibility to make directory in pgroup space {full_path}"}
+            except Exception as e:
+                return {"status" : "failed", "message" : f"no permission or possibility to make directory in pgroup space {full_path} due to: {e}"}
 
         daq_directory = f"{path_to_pgroup}{DIR_NAME_RUN_INFO}"
         if not os.path.exists(daq_directory):
             try:
                 os.mkdir(daq_directory)
-            except:
-                return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space"}
+            except Exception as e:
+                return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space due to: {e}"}
 
         if os.path.exists(f"{daq_directory}/CLOSED"):
             return {"status" : "failed", "message" : f"{path_to_pgroup} is closed for writing"}
@@ -400,8 +400,8 @@ class BrokerManager:
         try:
             request["start_pulseid"] = int(request["start_pulseid"])
             request["stop_pulseid"] = int(request["stop_pulseid"])
-        except:
-            return {"status" : "failed", "message" : "bad start or stop pluseid provided in request parameters"}
+        except Exception as e:
+            return {"status" : "failed", "message" : "bad start or stop pluseid provided in request parameters due to: {e}"}
         start_pulse_id = request["start_pulseid"]
         stop_pulse_id  = request["stop_pulseid"]
 
@@ -434,8 +434,8 @@ class BrokerManager:
         if not os.path.exists(daq_directory):
             try:
                 os.mkdir(daq_directory)
-            except:
-                return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space"}
+            except Exception as e:
+                return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space due to: {e}"}
 
         if "run_number" not in request:
             request["run_number"] = get_current_run_number(daq_directory, file_run="LAST_RUN")
@@ -502,8 +502,8 @@ class BrokerManager:
         if not os.path.exists(full_path):
             try:
                 os.makedirs(full_path)
-            except:
-                return {"status" : "failed", "message" : f"no permission or possibility to make directory in pgroup space {full_path}"}
+            except Exception as e:
+                return {"status" : "failed", "message" : f"no permission or possibility to make directory in pgroup space {full_path} due to: {e}"}
 
         run_info_directory =    f"{full_path}/logs"
         meta_directory =        f"{full_path}/meta"
@@ -516,9 +516,9 @@ class BrokerManager:
                 os.mkdir(meta_directory)
             if not os.path.exists(output_data_directory):
                 os.mkdir(output_data_directory)
-        except:
+        except Exception as e:
             # should not come here, directory should already exists (either made few lines above or in the previous data taking to that directory)
-            return {"status" : "failed", "message" : f"no permission or possibility to make directories in pgroup space {full_path} (meta,logs,data)"}
+            return {"status" : "failed", "message" : f"no permission or possibility to make directories in pgroup space {full_path} (meta,logs,data) due to: {e}"}
 
         current_acq = get_current_step_in_scan(meta_directory)
         unique_acq = get_current_run_number(daq_directory, file_run="LAST_ARUN")
@@ -566,9 +566,9 @@ class BrokerManager:
 
             try:
                 self.broker_client.send(write_request, tag)
-            except:
+            except Exception as e:
                 log_file = open(write_request["run_log_file"], "a")
-                log_file.write("Can not contact writer")
+                log_file.write("Can not contact writer due to: {e}")
                 log_file.close()
                 raise
 

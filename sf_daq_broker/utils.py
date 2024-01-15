@@ -87,7 +87,7 @@ def pulse_id_to_seconds(pulse_id):
                 _logger.error(f"Problem(second time) to convert {pulse_id} to timestamp. return code {request.status_code}")
     except Exception as e:
         _logger.error(e)
-        raise RuntimeError("Cannot convert pulse_id to time")
+        raise RuntimeError("Cannot convert pulse_id to time") from e
     return sec
 
 def pulse_id_to_timestamp(pulse_id):
@@ -109,7 +109,7 @@ def pulse_id_to_timestamp(pulse_id):
                 _logger.error(f"Problem(second time) to convert {pulse_id} to timestamp. return code {request.status_code}")
     except Exception as e:
         _logger.error(e)
-        raise RuntimeError("Cannot convert pulse_id to time")
+        raise RuntimeError("Cannot convert pulse_id to time") from e
     return ts
 
 def transform_range_from_pulse_id_to_timestamp_new(data_api_request):
@@ -130,6 +130,6 @@ def transform_range_from_pulse_id_to_timestamp_new(data_api_request):
 
     except Exception as e:
         _logger.error(e)
-        raise RuntimeError("Failed to convert pulse_id to time")
+        raise RuntimeError("Failed to convert pulse_id to time") from e
 
     return new_data_api_request
