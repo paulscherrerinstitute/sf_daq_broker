@@ -53,7 +53,7 @@ Utility to read binary Jungfrau gain maps from PSI Detectors Group and save them
             maps[i] = np.append(maps[i], maps[i][:3 * 512 * 1024])
         if maps[i].shape[0] == 4 * 512 * 1024:
             print(f'{i}-module gain coefficients are only for G0,G1,G2,HG0. Expanding them to HG1,HG2 (copy G1,G2)')
-            maps[i] = np.append(maps[i], maps[i][1024*512:3*1024*512])   
+            maps[i] = np.append(maps[i], maps[i][1024*512:3*1024*512])
             print(maps[i].shape[0])
     maps = [i.reshape(module_shape) for i in maps]
 

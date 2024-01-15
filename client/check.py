@@ -12,10 +12,10 @@ def run():
     parser.add_argument("-r", "--run_file", help="JSON file from the retrieve process", default=None)
     parser.add_argument("--frequency_reduction_factor", help="beam rate, default 1 means 100Hz (2: 50Hz, 4: 25Hz....) (overwrites one from json file)", default=0, type=int)
 
-    args = parser.parse_args() 
+    args = parser.parse_args()
 
     result = check_consistency(run_file=args.run_file, rate_multiplicator=args.frequency_reduction_factor)
-      
+
     print("Result of consistency check (summary) : %s " % result["check"])
     if result["check"]:
         print("    OK : %s" % result["reason"])
@@ -41,7 +41,7 @@ def check_consistency(run_file=None, rate_multiplicator=0):
     except:
         problems.append("Can't read provided run file, may be not json?")
         return {"check" : False, "reason" : problems}
-      
+
     start_pulse_id = parameters["start_pulseid"]
     stop_pulse_id  = parameters["stop_pulseid"]
 
@@ -59,7 +59,7 @@ def check_consistency(run_file=None, rate_multiplicator=0):
     full_directory = f'/sf/{beamline}/data/{pgroup}/raw/'
     if "directory_name" in parameters:
         full_directory = f'{full_directory}{parameters["directory_name"]}'
-   
+
 # todo make this check possible for different from 100Hz case (not straitforward - start_pulse_id can be not alligned properly with the rate)
 # this is case for 100Hz:
     expected_pulse_id = []
@@ -121,7 +121,7 @@ def check_consistency(run_file=None, rate_multiplicator=0):
                     if camera not in cameras_inside_file:
                         problems.append(f'camera {camera} requested but not present in cameras file')
                     else:
-                        pulse_id      = cameras_h5py[f'/{camera}/pulse_id'][:] 
+                        pulse_id      = cameras_h5py[f'/{camera}/pulse_id'][:]
                         n_pulse_id = len(pulse_id)
                         if n_pulse_id != expected_number_measurements:
                             problems.append(f'{camera} number of pulse_id is different from expected : {n_pulse_id} vs {expected_number_measurements}')
@@ -152,7 +152,7 @@ def check_consistency(run_file=None, rate_multiplicator=0):
 
             detector_file = f'{full_directory}/run_{run_number:06}.{detector}.h5'
             if not os.path.exists(detector_file):
-                problems.append(f'detector file {detector_file} does not exist') 
+                problems.append(f'detector file {detector_file} does not exist')
             else:
                 try:
                     detector_h5py = h5py.File(detector_file,"r")
@@ -194,18 +194,18 @@ def check_consistency(run_file=None, rate_multiplicator=0):
                         if not frame_index_check:
                             problems.append(f'{detector} frame_index is not monotonic')
                         if n_frames_bad != 0:
-                            problems.append(f'{detector} there are bad frames : {n_frames_bad} out of {n_pulse_id}') 
+                            problems.append(f'{detector} there are bad frames : {n_frames_bad} out of {n_pulse_id}')
                         if not pulse_id_check:
                             problems.append(f'{detector} pulse_id are not monotonic')
                     detector_h5py.close()
                 except:
                     problems.append(f'Can not read from detector file {detector_file} may be too early')
-       
- 
+
+
     if len(problems) > 0:
         return {"check" : False, "reason" : problems}
     else:
-        return {"check" : True, "reason" : "all tests passed"} 
+        return {"check" : True, "reason" : "all tests passed"}
 
 if __name__ == "__main__":
     run()

@@ -4,7 +4,7 @@ import signal
 import datetime
 import os
 
-import daq_client 
+import daq_client
 
 pulseid = {
   "alvra"       : "SLAAR11-LTIM01-EVR0:RX-PULSEID",
@@ -45,7 +45,7 @@ def get_fake_pulseid():
     reference_date = datetime.datetime(2020, 5, 8, 8, 29, 52)
     now = datetime.datetime.utcnow()
     delta = (datetime.datetime.utcnow()-reference_date).total_seconds()*1000
-    return int(delta/10)+11718049010 + 2361 
+    return int(delta/10)+11718049010 + 2361
 
 class BrokerClient:
 
@@ -68,7 +68,7 @@ class BrokerClient:
             raise NameError(f'{raw_directory} doesnt exist or accessible')
 
     def configure(self,
-                  channels_file=None, epics_file=None, 
+                  channels_file=None, epics_file=None,
                   detectors_file=None, scan_step_info_file=None,
                   rate_multiplicator=1):
 
@@ -126,12 +126,12 @@ class BrokerClient:
             print(f'what do you want me to do with already collected up to now frames (pulseids: {self.start_pulseid}-{current_pulseid})')
             answer=input('[s]-save them into; any other key - discard : ')
             if answer == 's':
-               self.stop(stop_pulseid=current_pulseid)  
+               self.stop(stop_pulseid=current_pulseid)
             raise NameError("Ctrl-c is called")
         signal.signal(signal.SIGINT, signal_handler)
         try:
             while True:
-                current_pulseid = get_current_pulseid() 
+                current_pulseid = get_current_pulseid()
                 if current_pulseid >= stop_pulseid:
                     break
                 time.sleep(0.1)
@@ -145,4 +145,4 @@ class BrokerClient:
             self.stop(stop_pulseid=stop_pulseid)
         except:
             raise
-            
+
