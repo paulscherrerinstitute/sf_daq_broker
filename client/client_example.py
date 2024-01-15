@@ -63,9 +63,9 @@ class BrokerClient:
         self.start_pulseid = None
 
         beamline=get_beamline()
-        raw_directory = f'/sf/{beamline}/data/{self.pgroup}/raw/'
+        raw_directory = f"/sf/{beamline}/data/{self.pgroup}/raw/"
         if not os.path.isdir(raw_directory):
-            raise NameError(f'{raw_directory} doesnt exist or accessible')
+            raise NameError(f"{raw_directory} doesnt exist or accessible")
 
     def configure(self,
                   channels_file=None, epics_file=None,
@@ -80,7 +80,7 @@ class BrokerClient:
 
         try:
             beamline=get_beamline()
-            last_run_file = f'/sf/{beamline}/data/{self.pgroup}/raw/run_info/LAST_RUN'
+            last_run_file = f"/sf/{beamline}/data/{self.pgroup}/raw/run_info/LAST_RUN"
             if os.path.exists(last_run_file):
                 run_file = open(last_run_file, "r")
                 self.last_run = int(run_file.read())
@@ -122,10 +122,10 @@ class BrokerClient:
         last_known_run = int(self.last_run) if self.last_run is not None else -1
         def signal_handler(sig, frame):
             current_pulseid = get_current_pulseid()
-            print('\nYou pressed Ctrl+C!')
-            print(f'what do you want me to do with already collected up to now frames (pulseids: {self.start_pulseid}-{current_pulseid})')
-            answer=input('[s]-save them into; any other key - discard : ')
-            if answer == 's':
+            print("\nYou pressed Ctrl+C!")
+            print(f"what do you want me to do with already collected up to now frames (pulseids: {self.start_pulseid}-{current_pulseid})")
+            answer=input("[s]-save them into; any other key - discard : ")
+            if answer == "s":
                self.stop(stop_pulseid=current_pulseid)
             raise NameError("Ctrl-c is called")
         signal.signal(signal.SIGINT, signal_handler)
