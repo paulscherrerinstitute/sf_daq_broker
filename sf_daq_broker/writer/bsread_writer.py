@@ -74,7 +74,8 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
         _logger.error(f'check failed')
         _logger.error(e)
 
-    _logger.info("Check of data consistency took %s seconds." % (time() - start_check_time))
+    time_delta = time() - start_check_time
+    _logger.info(f"Check of data consistency took {time_delta} seconds.")
 
 
 def write_from_imagebuffer(data_api_request, output_file, parameters):
@@ -84,7 +85,7 @@ def write_from_imagebuffer(data_api_request, output_file, parameters):
     stop_pulse_id  = data_api_request["range"]["endPulseId"]
     rate_multiplicator = data_api_request.get("rate_multiplicator", 1)
 
-    _logger.debug("Data API request: %s", data_api_request)
+    _logger.debug(f"Data API request: {data_api_request}")
 
     data_api_request_timestamp = utils.transform_range_from_pulse_id_to_timestamp_new(data_api_request)
 
@@ -108,15 +109,15 @@ def write_from_imagebuffer(data_api_request, output_file, parameters):
 
     image_buffer_url = config.IMAGE_API_QUERY_ADDRESS[randrange(len(config.IMAGE_API_QUERY_ADDRESS))]
 
-    _logger.debug("Requesting '%s' to output_file %s from %s " %
-                  (query, output_file, image_buffer_url))
+    _logger.debug(f"Requesting '{query}' to output_file {output_file} from {image_buffer_url}")
 
     start_time = time()
 
     try:
         _logger.debug(f"query request : {query} {output_file} {image_buffer_url}")
         h5.request(query, output_file, url=image_buffer_url)
-        _logger.info("Image download and writing took %s seconds." % (time() - start_time))
+        delta_time = time() - start_time
+        _logger.info(f"Image download and writing took {delta_time} seconds.")
     except Exception as e:
         _logger.error("Got exception from data_api3")
         _logger.error(e)
@@ -126,7 +127,7 @@ def write_from_imagebuffer(data_api_request, output_file, parameters):
 def write_from_databuffer_api3(data_api_request, output_file, parameters):
     import data_api3.h5 as h5
 
-    _logger.debug("Data3 API request: %s", data_api_request)
+    _logger.debug(f"Data3 API request: {data_api_request}")
 
     start_pulse_id = data_api_request["range"]["startPulseId"]
     stop_pulse_id  = data_api_request["range"]["endPulseId"]
@@ -154,14 +155,14 @@ def write_from_databuffer_api3(data_api_request, output_file, parameters):
 
     data_buffer_url = config.DATA_API3_QUERY_ADDRESS
 
-    _logger.debug("Requesting '%s' to output_file %s from %s " %
-                  (query, output_file, data_buffer_url))
+    _logger.debug(f"Requesting '{query}' to output_file {output_file} from {data_buffer_url}")
 
     start_time = time()
 
     try:
         h5.request(query, filename=output_file, baseurl=data_buffer_url, default_backend=config.DATA_BACKEND)
-        _logger.info("Data download and writing took %s seconds." % (time() - start_time))
+        delta_time = time() - start_time
+        _logger.info(f"Data download and writing took {delta_time} seconds.")
     except Exception as e:
         _logger.error("Got exception from data_api3")
         _logger.error(e)

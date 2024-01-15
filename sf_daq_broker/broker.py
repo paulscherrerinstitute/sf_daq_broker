@@ -15,7 +15,7 @@ _logger = logging.getLogger(__name__)
 
 def start_server(broker_url, rest_port):
 
-    _logger.info("Starting sf_daq_broker on port %s (rest-api) with broker_url(message-broker) %s" % (rest_port, broker_url))
+    _logger.info(f"Starting sf_daq_broker on port {rest_port} (rest-api) with broker_url(message-broker) {broker_url}")
 
     app = bottle.Bottle()
 
@@ -30,7 +30,7 @@ def start_server(broker_url, rest_port):
 
     try:
         hostname = socket.gethostname()
-        _logger.info("Starting rest API on port %s host %s" % (rest_port, hostname) )
+        _logger.info(f"Starting rest API on port {rest_port} host {hostname}" )
         bottle.run(app=app, host=hostname, port=rest_port)
     finally:
         pass

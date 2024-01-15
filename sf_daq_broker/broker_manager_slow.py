@@ -350,7 +350,7 @@ def start_server(rest_port):
 
     try:
         hostname = socket.gethostname()
-        _logger.info("Starting rest API on port %s host %s" % (rest_port, hostname) )
+        _logger.info(f"Starting rest API on port {rest_port} host {hostname}" )
         bottle.run(app=app, host=hostname, port=rest_port)
     finally:
         pass
