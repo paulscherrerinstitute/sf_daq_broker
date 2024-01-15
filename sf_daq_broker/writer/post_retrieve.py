@@ -63,7 +63,9 @@ acquisition_number = run_info.get("acquisition_number", 0)
 
 parameters = None
 
-list_data_directories_run = glob(f'/sf/{run_info["beamline"]}/data/{run_info["pgroup"]}/raw/run{run_number:04}*')
+ri_beamline = run_info["beamline"]
+ri_pgroup = run_info["pgroup"]
+list_data_directories_run = glob(f"/sf/{ri_beamline}/data/{ri_pgroup}/raw/run{run_number:04}*")
 if len(list_data_directories_run) != 1:
     raise SystemExit(f"Ambiguous data directries : {list_data_directories_run}")
 data_directory=list_data_directories_run[0]

@@ -23,7 +23,7 @@ MODULE_SIZE_Y = 512
 def postprocess_raw(
     source, dest, disabled_modules=(), index=None, compression=False, batch_size=100
 ):
-    # a function for 'visititems' should have the args (name, object)
+    # a function for "visititems" should have the args (name, object)
     def _visititems(name, obj):
         if isinstance(obj, h5py.Group):
             h5_dest.create_group(name)

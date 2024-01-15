@@ -113,7 +113,7 @@ class EpicsH5Writer(BsreadH5Writer):
                 _logger.warning(f"Channel {channel_name} request config failed. {response}")
                 continue
             response_data = response.json()
-            #_logger.warning(f'Channel {channel_name} config : {response_data}')
+            #_logger.warning(f"Channel {channel_name} config : {response_data}")
             if len(response_data[0]["channels"]) == 0:
                 _logger.error(f"Config for PV {channel_name} does not exist. Reason 1")
                 timestamp_data = []
@@ -134,7 +134,7 @@ class EpicsH5Writer(BsreadH5Writer):
                     channel_type = "float64"
                     channel_shape = [1]
 
-            #_logger.warning(f'{channel_name} {channel_type} {channel_shape} {timestamp_data} {value_data}')
+            #_logger.warning(f"{channel_name} {channel_type} {channel_shape} {timestamp_data} {value_data}")
 
             data[channel_name] = [channel_type, channel_shape, timestamp_data, value_data]
 

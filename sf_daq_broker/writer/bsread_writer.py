@@ -109,7 +109,7 @@ def write_from_imagebuffer(data_api_request, output_file, parameters):
 
     image_buffer_url = config.IMAGE_API_QUERY_ADDRESS[randrange(len(config.IMAGE_API_QUERY_ADDRESS))]
 
-    _logger.debug(f"Requesting '{query}' to output_file {output_file} from {image_buffer_url}")
+    _logger.debug(f'Requesting "{query}" to output_file {output_file} from {image_buffer_url}')
 
     start_time = time()
 
@@ -155,7 +155,7 @@ def write_from_databuffer_api3(data_api_request, output_file, parameters):
 
     data_buffer_url = config.DATA_API3_QUERY_ADDRESS
 
-    _logger.debug(f"Requesting '{query}' to output_file {output_file} from {data_buffer_url}")
+    _logger.debug(f'Requesting "{query}" to output_file {output_file} from {data_buffer_url}')
 
     start_time = time()
 

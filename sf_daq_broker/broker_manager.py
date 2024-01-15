@@ -29,7 +29,7 @@ def check_for_allowed_user_tag_character(user_tag):
     return set(user_tag) <= allowed_user_tag_characters
 
 def clean_user_tag(user_tag, replacement_character="_"):
-    #return ''.join(char for char in user_tag if char in allowed_user_tag_characters) # don't replace but remove bad characters. In this case resulting string may be empty
+    #return "".join(char for char in user_tag if char in allowed_user_tag_characters) # don't replace but remove bad characters. In this case resulting string may be empty
     return "".join(char if char in allowed_user_tag_characters else replacement_character for char in user_tag) # replace bad characters, so if initital user_tag contained at least one character, it will not be empty (but may be "___")
 
 def clean_last_character_user_tag(user_tag, replacement_character="_"):
@@ -476,7 +476,8 @@ class BrokerManager:
             return {"status" : "pass", "message" : "everything fine but no request to write any data"}
 
         if "detectors" in request and type(request["detectors"]) is not dict:
-            return {"status" : "failed", "message" : f'{request["detectors"]} is not dictionary'}
+            request_detectors = request["detectors"]
+            return {"status" : "failed", "message" : f"{request_detectors} is not dictionary"}
 
         detectors = []
         if "detectors" in request:
