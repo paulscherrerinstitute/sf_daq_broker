@@ -310,7 +310,8 @@ def copy_pedestal_file(request_time, file_pedestal, detector, detector_config_fi
     if not os.path.isdir(f"{PEDESTAL_DIRECTORY}/{detector}"):
         os.mkdir(f"{PEDESTAL_DIRECTORY}/{detector}")
 
-    out_name = f'{PEDESTAL_DIRECTORY}/{detector}/{request_time.strftime("%Y%m%d_%H%M%S")}.h5'
+    request_time_formatted = request_time.strftime("%Y%m%d_%H%M%S")
+    out_name = f"{PEDESTAL_DIRECTORY}/{detector}/{request_time_formatted}.h5"
     copyfile(file_pedestal, out_name)
 
     _logger.info(f"Copied resulting pedestal file {file_pedestal} to {out_name}")
@@ -322,7 +323,8 @@ def copy_pedestal_file(request_time, file_pedestal, detector, detector_config_fi
     with open(detector_config_file, "r") as stream_file:
         det = json.load(stream_file)
 
-    print(f'Changing in stream file {detector_config_file} pedestal from {det["pedestal_file"]} to {out_name}')
+    old_pedestal_file = det["pedestal_file"]
+    print(f"Changing in stream file {detector_config_file} pedestal from {old_pedestal_file} to {out_name}")
 
     det["pedestal_file"] = out_name
 

@@ -215,7 +215,8 @@ def get_streamvis_address():
     address = {}
     for d in _detector_daq:
         detector_number = int(d[2:4])
-        address[d] = f'sf-daq-{_detector_daq[d]["daq"]}:{5000+detector_number}'
+        daq = _detector_daq[d]["daq"]
+        address[d] = f"sf-daq-{daq}:{5000+detector_number}"
     return address
 
 def configured_detectors_for_beamline(beamline=None):
