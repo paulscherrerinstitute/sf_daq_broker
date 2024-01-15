@@ -38,8 +38,8 @@ def detector_retrieve(request, output_file_detector):
     det_stop_pulse_id  = request["det_stop_pulse_id"]
     rate_multiplicator = request["rate_multiplicator"]
     run_file_json      = request["run_file_json"]
-    path_to_pgroup     = request["path_to_pgroup"]
-    run_info_directory = request["run_info_directory"]
+#    path_to_pgroup     = request["path_to_pgroup"]
+#    run_info_directory = request["run_info_directory"]
 
     detector_config_file = f"/gpfs/photonics/swissfel/buffer/config/{detector}.json"
 
@@ -83,7 +83,7 @@ def detector_retrieve(request, output_file_detector):
     retrieve_command_from_buffer = f"/home/dbe/bin/sf_writer {raw_file_name} /gpfs/photonics/swissfel/buffer/{detector} {number_modules} {det_start_pulse_id} {det_stop_pulse_id} {rate_multiplicator}"
     _logger.info(f"Starting detector retrieve from buffer {retrieve_command_from_buffer} ")
     time_start = time()
-    process=subprocess.run(retrieve_command_from_buffer.split(), capture_output=True)
+    _process = subprocess.run(retrieve_command_from_buffer.split(), capture_output=True)
     _logger.info(f"Retrieve Time : {time()-time_start}")
     _logger.info("Finished retrieve from the buffer")
 
@@ -291,9 +291,9 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
 
             pixelMask[np.isclose(stdDeviation,0)] |= (1 << (6 + g))
 
-        dset = outFile.create_dataset("pixel_mask", data=pixelMask)
-        dset = outFile.create_dataset("gains", data=gains)
-        dset = outFile.create_dataset("gainsRMS", data=gainsRMS)
+        outFile.create_dataset("pixel_mask", data=pixelMask)
+        outFile.create_dataset("gains", data=gains)
+        outFile.create_dataset("gainsRMS", data=gainsRMS)
 
     ngood = np.sum(pixelMask == 0)
     ntotal = sh_x * sh_y

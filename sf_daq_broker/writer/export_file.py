@@ -80,7 +80,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
                 daq_recs = juf["daq_rec"]
                 for pulse_index in good_frames:
                     daq_rec = daq_recs[pulse_index][0]
-                    event_fel      = bool((daq_rec>>18)&1)
+#                    event_fel      = bool((daq_rec>>18)&1)
                     event_ppicker  = bool((daq_rec>>19)&1)
 #                    if event_fel and event_ppicker:
                     if event_ppicker:
