@@ -37,7 +37,7 @@ def start_server(broker_url, rest_port):
 
 
 def run():
-    parser = argparse.ArgumentParser(description='sf_daq_broker')
+    parser = argparse.ArgumentParser(description="sf_daq_broker")
 
     parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL,
                         help="Address of the message broker")
@@ -45,13 +45,13 @@ def run():
     parser.add_argument("--rest_port", type=int, help="Port for REST api.", default=config.DEFAULT_BROKER_REST_PORT)
 
     parser.add_argument("--log_level", default=config.DEFAULT_LOG_LEVEL,
-                        choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'],
+                        choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"],
                         help="Log level to use.")
 
     arguments = parser.parse_args()
 
     # Setup the logging level.
-    logging.basicConfig(level=arguments.log_level, format='[%(levelname)s] %(message)s')
+    logging.basicConfig(level=arguments.log_level, format="[%(levelname)s] %(message)s")
 
     start_server(broker_url=arguments.broker_url,
                  rest_port=arguments.rest_port)

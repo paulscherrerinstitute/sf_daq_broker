@@ -12,7 +12,7 @@ _logger = getLogger("broker_writer")
 
 def get_data_api_request(channels, start_pulse_id, stop_pulse_id):
     return {
-        "channels": [{'name': ch, 'backend': config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND}
+        "channels": [{"name": ch, "backend": config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND}
                      for ch in channels],
         "range": {
             "startPulseId": start_pulse_id,
@@ -48,8 +48,8 @@ def transform_range_from_pulse_id_to_timestamp(data_api_request):
 
     try:
 
-        mapping_request = {'range': {'startPulseId': data_api_request["range"]["startPulseId"],
-                                     'endPulseId': data_api_request["range"]["endPulseId"]+1}}
+        mapping_request = {"range": {"startPulseId": data_api_request["range"]["startPulseId"],
+                                     "endPulseId": data_api_request["range"]["endPulseId"]+1}}
 
 
         mapping_response = requests.post(url=config.DATA_API_QUERY_ADDRESS + "/mapping", json=mapping_request, timeout=10).json()
@@ -73,18 +73,18 @@ def pulse_id_to_seconds(pulse_id):
 
     sec = 0
     try:
-        request = requests.get(f'{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}')
+        request = requests.get(f"{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}")
         if request.status_code == 200:
             sec = float(request.json())/1000000000.
         else:
-            _logger.error(f'Problem to convert {pulse_id} to timestamp. return code {request.status_code}')
-            _logger.error(f'Trying second time')
+            _logger.error(f"Problem to convert {pulse_id} to timestamp. return code {request.status_code}")
+            _logger.error(f"Trying second time")
             sleep(30)
-            request = requests.get(f'{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}')
+            request = requests.get(f"{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}")
             if request.status_code == 200:
                 sec = float(request.json())/1000000000.
             else:
-                _logger.error(f'Problem(second time) to convert {pulse_id} to timestamp. return code {request.status_code}')
+                _logger.error(f"Problem(second time) to convert {pulse_id} to timestamp. return code {request.status_code}")
     except Exception as e:
         _logger.error(e)
         raise RuntimeError("Cannot convert pulse_id to time")
@@ -95,18 +95,18 @@ def pulse_id_to_timestamp(pulse_id):
     ts = 0
     try:
         sleep(randint(1,10))
-        request = requests.get(f'{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}')
+        request = requests.get(f"{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}")
         if request.status_code == 200:
             ts = request.json()
         else:
-            _logger.error(f'Problem to convert {pulse_id} to timestamp. return code {request.status_code}')
-            _logger.error(f'Trying second time')
+            _logger.error(f"Problem to convert {pulse_id} to timestamp. return code {request.status_code}")
+            _logger.error(f"Trying second time")
             sleep(randint(1,10))
-            request = requests.get(f'{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}')
+            request = requests.get(f"{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}")
             if request.status_code == 200:
                 ts = request.json()
             else:
-                _logger.error(f'Problem(second time) to convert {pulse_id} to timestamp. return code {request.status_code}')
+                _logger.error(f"Problem(second time) to convert {pulse_id} to timestamp. return code {request.status_code}")
     except Exception as e:
         _logger.error(e)
         raise RuntimeError("Cannot convert pulse_id to time")
@@ -126,7 +126,7 @@ def transform_range_from_pulse_id_to_timestamp_new(data_api_request):
             del new_data_api_request["range"]["endPulseId"]
             new_data_api_request["range"]["endTS"] = stop_ts
         else:
-            _logger.error(f'Convertion pulse_id to time failed {start_ts} {stop_ts}')
+            _logger.error(f"Convertion pulse_id to time failed {start_ts} {stop_ts}")
 
     except Exception as e:
         _logger.error(e)

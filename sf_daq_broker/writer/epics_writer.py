@@ -110,7 +110,7 @@ class EpicsH5Writer(BsreadH5Writer):
 
             response = requests.post("https://data-api.psi.ch/sf-archiverappliance/channels/config", json={"regex": channel_name})
             if response.status_code != 200:
-                _logger.warning(f'Channel {channel_name} request config failed. {response}')
+                _logger.warning(f"Channel {channel_name} request config failed. {response}")
                 continue
             response_data = response.json()
             #_logger.warning(f'Channel {channel_name} config : {response_data}')
@@ -123,7 +123,7 @@ class EpicsH5Writer(BsreadH5Writer):
             else:
                 found_channel_config = False
                 for ich in range(len(response_data[0]["channels"])):
-                    if response_data[0]["channels"][ich]['name'] == channel_name:
+                    if response_data[0]["channels"][ich]["name"] == channel_name:
                         found_channel_config = True
                         channel_type  = response_data[0]["channels"][ich]["type"]
                         channel_shape = response_data[0]["channels"][ich]["shape"]

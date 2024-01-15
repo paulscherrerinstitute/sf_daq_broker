@@ -154,7 +154,7 @@ def process_request(request, broker_client):
                 request_det_retrieve["detectors"] = {}
                 request_det_retrieve["detectors"][detector] = {}
                 output_file_prefix = request.get("output_file_prefix", "/tmp/error")
-                output_file_det = f'{output_file_prefix}.{detector}.h5'
+                output_file_det = f"{output_file_prefix}.{detector}.h5"
                 run_log_file_det = run_log_file[:-4] + "." + detector + ".log"
 
                 write_request = get_writer_request(writer_type=broker_config.TAG_DETECTOR_RETRIEVE,
@@ -301,12 +301,12 @@ def start_service(broker_url, writer_type=0):
 
 
 def run():
-    parser = argparse.ArgumentParser(description='data writer')
+    parser = argparse.ArgumentParser(description="data writer")
 
     parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL,
                         help="Address of the broker to connect to.")
     parser.add_argument("--log_level", default="INFO",
-                        choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'],
+                        choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"],
                         help="Log level to use.")
     parser.add_argument("--writer_id", default=1, type=int,
                         help="Id of the writer")
@@ -320,7 +320,7 @@ def run():
 
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(args.log_level)
-    formatter = logging.Formatter(f'[%(levelname)s] (broker_writer_{args.writer_id}_{args.writer_type}) %(message)s')
+    formatter = logging.Formatter(f"[%(levelname)s] (broker_writer_{args.writer_id}_{args.writer_type}) %(message)s")
     stream_handler.setFormatter(formatter)
 
     _logger.setLevel(args.log_level)

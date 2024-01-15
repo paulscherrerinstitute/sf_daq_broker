@@ -30,7 +30,7 @@ if args.run_info is None:
     raise SystemExit("provide run info file")
 
 if not os.path.exists(args.run_info):
-    raise SystemExit(f'{args.run_info} is not reachable or available')
+    raise SystemExit(f"{args.run_info} is not reachable or available")
 
 with open(args.run_info, "r") as read_file:
     run_info = json.load(read_file)
@@ -55,7 +55,7 @@ data_request = {}
 data_request["range"] = {}
 data_request["range"]["startPulseId"] = run_info["start_pulseid"]
 data_request["range"]["endPulseId"] = run_info["stop_pulseid"]
-data_request["channels"] = [{'name': ch, 'backend': config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND}
+data_request["channels"] = [{"name": ch, "backend": config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND}
                      for ch in channels]
 
 run_number = run_info.get("run_number", 0)
@@ -69,17 +69,17 @@ if len(list_data_directories_run) != 1:
 data_directory=list_data_directories_run[0]
 
 if source == "image":
-    output_file = f'{data_directory}/data/acq{acquisition_number:04}.CAMERAS.h5.2'
+    output_file = f"{data_directory}/data/acq{acquisition_number:04}.CAMERAS.h5.2"
 
     write_from_imagebuffer(data_request, output_file, parameters)
 
 elif source == "data_api3":
-    output_file = f'{data_directory}/data/acq{acquisition_number:04}.BSDATA.h5.2'
+    output_file = f"{data_directory}/data/acq{acquisition_number:04}.BSDATA.h5.2"
 
     write_from_databuffer_api3(data_request, output_file, parameters)
 
 else:
-    output_file = f'{data_directory}/data/acq{acquisition_number:04}.PVCHANNELS.h5'
+    output_file = f"{data_directory}/data/acq{acquisition_number:04}.PVCHANNELS.h5"
 
     metadata = {
                  "general/user": run_info["pgroup"],
