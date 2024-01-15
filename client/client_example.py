@@ -25,7 +25,7 @@ try:
     import epics
     epics_available=True
     PV_pulseid=epics.PV(pulseid[get_beamline()])
-except:
+except ImportError:
     epics_available=False
 
 def get_current_pulseid():
@@ -33,7 +33,7 @@ def get_current_pulseid():
         return get_fake_pulseid()
     try:
         p = int(PV_pulseid.get())
-    except:
+    except Exception:
         p = get_fake_pulseid()
     return p
 
@@ -82,7 +82,7 @@ class BrokerClient:
             if os.path.exists(last_run_file):
                 with open(last_run_file, "r") as run_file:
                     self.last_run = int(run_file.read())
-        except:
+        except Exception:
             pass
 
     def start(self):

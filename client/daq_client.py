@@ -69,8 +69,8 @@ def retrieve_data_from_buffer_files(pgroup=None,
         try:
             with open(detectors_file) as json_file:
                 detectors = json.load(json_file)
-        except:
-            print("Cannot read provided detector file, may be not json?")
+        except Exception as e:
+            print("Cannot read provided detector file, may be not json? due to {e}")
             return None
 
     scan_step_info = None
@@ -78,8 +78,8 @@ def retrieve_data_from_buffer_files(pgroup=None,
         try:
             with open(scan_step_info_file) as json_file:
                 scan_step_info = json.load(json_file)
-        except:
-            print("Cannot read provided scan step info file, may be not json?")
+        except Exception as e:
+            print("Cannot read provided scan step info file, may be not json? due to {e}")
             return None
 
 

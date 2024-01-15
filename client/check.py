@@ -41,8 +41,8 @@ def check_consistency(run_file=None, rate_multiplicator=0):
     try:
         with open(run_file) as json_file:
             parameters = json.load(json_file)
-    except:
-        problems.append("Cannot read provided run file, may be not json?")
+    except Exception as e:
+        problems.append(f"Cannot read provided run file, may be not json? due to {e}")
         return {"check" : False, "reason" : problems}
 
     start_pulse_id = parameters["start_pulseid"]
@@ -109,8 +109,8 @@ def check_consistency(run_file=None, rate_multiplicator=0):
                                 if not pulse_id_check:
                                     problems.append(f"{channel} pulse_id are not monotonic")
                 bsread_h5py.close()
-            except:
-                problems.append(f"Can not read from BSREAD file {bsread_file} may be too early")
+            except Exception as e:
+                problems.append(f"Can not read from BSREAD file {bsread_file} may be too early due to {e}")
 
 
     if "camera_list" in parameters:
@@ -143,13 +143,13 @@ def check_consistency(run_file=None, rate_multiplicator=0):
                         for i_image in range(n_pulse_id):
                             try:
                                 image_data[i_image]
-                            except:
+                            except Exception:
                                 n_images_corrupted += 1
                         if n_images_corrupted != 0:
                             problems.append(f"{camera} {n_images_corrupted} images (from {n_pulse_id}) corrupted, can not read them")
                 cameras_h5py.close()
-            except:
-                problems.append(f"Can not read from cameras file {cameras_file} may be too early")
+            except Exception as e:
+                problems.append(f"Can not read from cameras file {cameras_file} may be too early due to {e}")
 
     if "detectors" in parameters:
         for detector in parameters["detectors"]:
@@ -202,8 +202,8 @@ def check_consistency(run_file=None, rate_multiplicator=0):
                         if not pulse_id_check:
                             problems.append(f"{detector} pulse_id are not monotonic")
                     detector_h5py.close()
-                except:
-                    problems.append(f"Can not read from detector file {detector_file} may be too early")
+                except Exception as e:
+                    problems.append(f"Can not read from detector file {detector_file} may be too early due to {e}")
 
 
     if len(problems) > 0:
