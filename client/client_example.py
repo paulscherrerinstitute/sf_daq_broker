@@ -119,7 +119,7 @@ class BrokerClient:
         stop_pulseid = int(self.start_pulseid + number_frames*self.rate_multiplicator-1)
 
         last_known_run = int(self.last_run) if self.last_run is not None else -1
-        def signal_handler(sig, frame):
+        def signal_handler(_sig, _frame):
             current_pulseid = get_current_pulseid()
             print("\nYou pressed Ctrl+C!")
             print(f"what do you want me to do with already collected up to now frames (pulseids: {self.start_pulseid}-{current_pulseid})")
