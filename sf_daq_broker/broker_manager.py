@@ -113,7 +113,7 @@ class BrokerManager:
             try:
                 os.mkdir(daq_directory)
             except Exception as e:
-                return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space due to: {e}"}
+                return {"status" : "failed", "message" : f"no permission or possibility to make run_info directory in pgroup space due to: {e}"}
 
         if os.path.exists(f"{daq_directory}/CLOSED"):
             return {"status" : "failed", "message" : f"{path_to_pgroup} is already closed for writing"}
@@ -195,7 +195,7 @@ class BrokerManager:
             try:
                 os.mkdir(daq_directory)
             except Exception as e:
-                return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space due to: {e}"}
+                return {"status" : "failed", "message" : f"no permission or possibility to make run_info directory in pgroup space due to: {e}"}
 
         if os.path.exists(f"{daq_directory}/CLOSED"):
             return {"status" : "failed", "message" : f"{path_to_pgroup} is closed for writing"}
@@ -328,7 +328,7 @@ class BrokerManager:
             try:
                 os.mkdir(daq_directory)
             except Exception as e:
-                return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space due to: {e}"}
+                return {"status" : "failed", "message" : f"no permission or possibility to make run_info directory in pgroup space due to: {e}"}
 
         if os.path.exists(f"{daq_directory}/CLOSED"):
             return {"status" : "failed", "message" : f"{path_to_pgroup} is closed for writing"}
@@ -401,7 +401,7 @@ class BrokerManager:
             request["start_pulseid"] = int(request["start_pulseid"])
             request["stop_pulseid"] = int(request["stop_pulseid"])
         except Exception as e:
-            return {"status" : "failed", "message" : "bad start or stop pluseid provided in request parameters due to: {e}"}
+            return {"status" : "failed", "message" : f"bad start or stop pluseid provided in request parameters due to: {e}"}
         start_pulse_id = request["start_pulseid"]
         stop_pulse_id  = request["stop_pulseid"]
 
@@ -435,7 +435,7 @@ class BrokerManager:
             try:
                 os.mkdir(daq_directory)
             except Exception as e:
-                return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space due to: {e}"}
+                return {"status" : "failed", "message" : f"no permission or possibility to make run_info directory in pgroup space due to: {e}"}
 
         if "run_number" not in request:
             request["run_number"] = get_current_run_number(daq_directory, file_run="LAST_RUN")
@@ -568,7 +568,7 @@ class BrokerManager:
                 self.broker_client.send(write_request, tag)
             except Exception as e:
                 log_file = open(write_request["run_log_file"], "a")
-                log_file.write("Can not contact writer due to: {e}")
+                log_file.write(f"Can not contact writer due to: {e}")
                 log_file.close()
                 raise
 
