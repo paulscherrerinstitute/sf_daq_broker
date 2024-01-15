@@ -41,7 +41,7 @@ def detector_retrieve(request, output_file_detector):
     path_to_pgroup     = request["path_to_pgroup"]
     run_info_directory = request["run_info_directory"]
 
-    detector_config_file = f'/gpfs/photonics/swissfel/buffer/config/{detector}.json'
+    detector_config_file = f"/gpfs/photonics/swissfel/buffer/config/{detector}.json"
 
     det_conversion  = request["detectors"][detector].get("adc_to_energy", False)
     det_compression = request["detectors"][detector].get("compression", False)
@@ -74,13 +74,13 @@ def detector_retrieve(request, output_file_detector):
     if convert_ju_file:
         detector_filename = os.path.basename(raw_file_name)
         detector_dir = os.path.dirname(os.path.dirname(raw_file_name))
-        raw_file_name = f'{detector_dir}/raw_data/{detector_filename}'
+        raw_file_name = f"{detector_dir}/raw_data/{detector_filename}"
         raw_dir = os.path.dirname(raw_file_name)
         if not os.path.isdir(raw_dir):
             os.makedirs(raw_dir, exist_ok=True)
 
     number_modules = int(detector[5:7])
-    retrieve_command_from_buffer = f'/home/dbe/bin/sf_writer {raw_file_name} /gpfs/photonics/swissfel/buffer/{detector} {number_modules} {det_start_pulse_id} {det_stop_pulse_id} {rate_multiplicator}'
+    retrieve_command_from_buffer = f"/home/dbe/bin/sf_writer {raw_file_name} /gpfs/photonics/swissfel/buffer/{detector} {number_modules} {det_start_pulse_id} {det_stop_pulse_id} {rate_multiplicator}"
     _logger.info(f"Starting detector retrieve from buffer {retrieve_command_from_buffer} ")
     time_start = time()
     process=subprocess.run(retrieve_command_from_buffer.split(), capture_output=True)
@@ -97,7 +97,7 @@ def detector_retrieve(request, output_file_detector):
             create_pedestal_file(filename=raw_file_name, directory=os.path.dirname(raw_file_name))
         _logger.info(f"Pedestal Time : {time()-time_start}")
         request_time = request["request_time"]
-        detector_config_file = f'/gpfs/photonics/swissfel/buffer/config/{detector}.json'
+        detector_config_file = f"/gpfs/photonics/swissfel/buffer/config/{detector}.json"
         res_file_name = raw_file_name[:-3]+".res.h5"
         copy_pedestal_file(request_time, res_file_name, detector, detector_config_file)
         copy_calibration_files(res_file_name, detector_config_file)
@@ -106,7 +106,7 @@ def detector_retrieve(request, output_file_detector):
         output_dir = os.path.dirname(output_file_detector)
         if not os.path.isdir(output_dir):
             os.makedirs(output_dir, exist_ok=True)
-        _logger.info(f'Will do file conversion {raw_file_name} {output_file_detector} {run_file_json} {detector_config_file}')
+        _logger.info(f"Will do file conversion {raw_file_name} {output_file_detector} {run_file_json} {detector_config_file}")
         time_start = time()
         try:
             convert_file(raw_file_name, output_file_detector, run_file_json, detector_config_file)
@@ -135,7 +135,7 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
 
     with h5py.File(filename, "r") as f:
 
-        detector_name = (f.get("general/detector_name")[()]).decode('UTF-8')
+        detector_name = (f.get("general/detector_name")[()]).decode("UTF-8")
         n_bad_modules = number_bad_modules
 
         data_location = "data/" + detector_name + "/data"
@@ -291,9 +291,9 @@ def create_pedestal_file(filename="pedestal.h5", X_test_pixel=0, Y_test_pixel=0,
 
             pixelMask[np.isclose(stdDeviation,0)] |= (1 << (6 + g))
 
-        dset = outFile.create_dataset('pixel_mask', data=pixelMask)
-        dset = outFile.create_dataset('gains', data=gains)
-        dset = outFile.create_dataset('gainsRMS', data=gainsRMS)
+        dset = outFile.create_dataset("pixel_mask", data=pixelMask)
+        dset = outFile.create_dataset("gains", data=gains)
+        dset = outFile.create_dataset("gainsRMS", data=gainsRMS)
 
     ngood = np.sum(pixelMask == 0)
     ntotal = sh_x * sh_y
@@ -305,18 +305,18 @@ def copy_pedestal_file(request_time, file_pedestal, detector, detector_config_fi
 
     PEDESTAL_DIRECTORY="/sf/jungfrau/data/pedestal"
 
-    request_time=datetime.strptime(request_time, '%Y-%m-%d %H:%M:%S.%f')
+    request_time=datetime.strptime(request_time, "%Y-%m-%d %H:%M:%S.%f")
 
-    if not os.path.isdir(f'{PEDESTAL_DIRECTORY}/{detector}'):
-        os.mkdir(f'{PEDESTAL_DIRECTORY}/{detector}')
+    if not os.path.isdir(f"{PEDESTAL_DIRECTORY}/{detector}"):
+        os.mkdir(f"{PEDESTAL_DIRECTORY}/{detector}")
 
     out_name = f'{PEDESTAL_DIRECTORY}/{detector}/{request_time.strftime("%Y%m%d_%H%M%S")}.h5'
     copyfile(file_pedestal, out_name)
 
-    _logger.info(f'Copied resulting pedestal file {file_pedestal} to {out_name}')
+    _logger.info(f"Copied resulting pedestal file {file_pedestal} to {out_name}")
 
     if not os.path.exists(detector_config_file):
-        _logger.error(f'stream file {detector_config_file} does not exists, exiting')
+        _logger.error(f"stream file {detector_config_file} does not exists, exiting")
         return
 
     with open(detector_config_file, "r") as stream_file:
@@ -338,15 +338,15 @@ def copy_calibration_files(pedestal_file, detector_config_file):
     detector = det_config["detector_name"]
 
     pedestal_directory = os.path.dirname(pedestal_file)
-    gain_directory = f'{pedestal_directory}/gainMaps'
-    pixel_mask_directory = f'{pedestal_directory}/pixel_mask'
+    gain_directory = f"{pedestal_directory}/gainMaps"
+    pixel_mask_directory = f"{pedestal_directory}/pixel_mask"
 
     gain_file = det_config.get("gain_file", None)
 
     if gain_file is not None:
         if not os.path.isdir(gain_directory):
             os.makedirs(gain_directory)
-        gain_file_copy = f'{gain_directory}/{detector}.h5'
+        gain_file_copy = f"{gain_directory}/{detector}.h5"
         if not os.path.exists(gain_file_copy):
             copyfile(gain_file, gain_file_copy)
 
@@ -357,7 +357,7 @@ def copy_calibration_files(pedestal_file, detector_config_file):
     if pixel_mask_file is not None:
         if not os.path.isdir(pixel_mask_directory):
             os.makedirs(pixel_mask_directory)
-        pixel_mask_file_copy = f'{pixel_mask_directory}/{detector}.h5'
+        pixel_mask_file_copy = f"{pixel_mask_directory}/{detector}.h5"
         if not os.path.exists(pixel_mask_file_copy):
             copyfile(pixel_mask_file, pixel_mask_file_copy)
 

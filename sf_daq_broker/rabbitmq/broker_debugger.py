@@ -5,7 +5,7 @@ from pika import BlockingConnection, ConnectionParameters
 
 import sf_daq_broker.rabbitmq.config as broker_config
 
-COLOR_END_MARKER = '\x1b[0m'
+COLOR_END_MARKER = "\x1b[0m"
 
 
 def get_color_for_action(action):
@@ -56,14 +56,14 @@ def main():
     parser = argparse.ArgumentParser(
         description="Connect and listen to broker events.")
 
-    parser.add_argument('--broker_url', dest='broker_url',
+    parser.add_argument("--broker_url", dest="broker_url",
                         default=broker_config.DEFAULT_BROKER_URL,
-                        help='RabbitMQ broker URL')
+                        help="RabbitMQ broker URL")
 
     args = parser.parse_args()
 
     connect_to_broker(broker_url=args.broker_url)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

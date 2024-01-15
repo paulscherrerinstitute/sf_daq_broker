@@ -246,10 +246,10 @@ def compare_buffer_config_file(detector_name=None, overwrite_config=False):
         _logger.error(f"{detector_name}: No detector configuration present")
         return
 
-    config_file = f'/gpfs/photonics/swissfel/buffer/config/{detector_name}.json'
+    config_file = f"/gpfs/photonics/swissfel/buffer/config/{detector_name}.json"
 
     if not os.path.exists(config_file):
-        _logger.error(f'{config_file} for {detector_name} does not exist')
+        _logger.error(f"{config_file} for {detector_name} does not exist")
         return
 
     with open(config_file) as json_file:

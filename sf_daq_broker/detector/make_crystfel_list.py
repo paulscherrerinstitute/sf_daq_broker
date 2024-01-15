@@ -23,13 +23,13 @@ def make_crystfel_list(data_file, run_info_file, detector):
         _logger.error(f"Can't open {data_file}")
         return
 
-    pulseids = f[f'/data/{detector}/pulse_id'][:]
+    pulseids = f[f"/data/{detector}/pulse_id"][:]
     n_pulse_id = len(pulseids)
-    if f'/data/{detector}/is_good_frame' in f.keys():
-        is_good_frame = f[f'/data/{detector}/is_good_frame'][:]
+    if f"/data/{detector}/is_good_frame" in f.keys():
+        is_good_frame = f[f"/data/{detector}/is_good_frame"][:]
     else:
         is_good_frame = [1] * n_pulse_id
-    daq_recs = f[f'/data/{detector}/daq_rec'][:]
+    daq_recs = f[f"/data/{detector}/daq_rec"][:]
 
     nGoodFrames = 0
     nProcessedFrames = 0
@@ -62,14 +62,14 @@ def make_crystfel_list(data_file, run_info_file, detector):
 
     _logger.info(f"Total number of frames: {len(pulseids)}, number of good frames : {nGoodFrames}, processed frames: {nProcessedFrames}, outputed frames: {len(index_dark)}(dark) {len(index_light)}(light)")
 
-    delim = '//'
+    delim = "//"
 
     if len(index_dark) > 0:
         file_dark = data_file[:-3] + ".dark.lst"
         _logger.info(f"List of dark frames : {file_dark} , {len(index_dark)} frames")
         f_list = open(file_dark, "w")
         for frame_number in index_dark:
-            print(f'{data_file} //{frame_number}', file = f_list)
+            print(f"{data_file} //{frame_number}", file = f_list)
         f_list.close()
 
     if len(index_light) > 0:
@@ -77,7 +77,7 @@ def make_crystfel_list(data_file, run_info_file, detector):
         _logger.info(f"List of light frames : {file_light} , {len(index_light)} frames")
         f_list = open(file_light, "w")
         for frame_number in index_light:
-            print(f'{data_file} {delim}{frame_number}', file = f_list)
+            print(f"{data_file} {delim}{frame_number}", file = f_list)
         f_list.close()
 
 def store_dap_info(beamline=None, pgroup=None, detector=None, start_pulse_id=None, stop_pulse_id=None, file_name_out=None):
@@ -87,7 +87,7 @@ def store_dap_info(beamline=None, pgroup=None, detector=None, start_pulse_id=Non
         return
 
 #    path_to_dap_files = f'/sf/{beamline}/data/{pgroup}/res/jungfrau/output/'
-    path_to_dap_files = f'/gpfs/photonics/swissfel/buffer/dap/data/{detector}'
+    path_to_dap_files = f"/gpfs/photonics/swissfel/buffer/dap/data/{detector}"
     if not os.path.exists(path_to_dap_files):
         _logger.error(f"dap output is not reachable, may be dap is not working, path: {path_to_dap_files}")
         return
@@ -102,7 +102,7 @@ def store_dap_info(beamline=None, pgroup=None, detector=None, start_pulse_id=Non
     with open(file_name_out, "w") as file_out:
         for dap_f_ending in dap_ending:
 #            dap_file_name = f'{path_to_dap_files}/{dap_f_ending}.{detector}.dap'
-            dap_file_name = f'{path_to_dap_files}/{dap_f_ending}.dap'
+            dap_file_name = f"{path_to_dap_files}/{dap_f_ending}.dap"
             if not os.path.exists(dap_file_name):
                 continue
             with open(dap_file_name, "r") as dap_file:

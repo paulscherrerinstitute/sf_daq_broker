@@ -22,7 +22,7 @@ _logger = logging.getLogger(__name__)
 # #, @ or space are bad to have for directory names on linux, needs a special trailing characters
 # to be on safe side, also characters "=" "%" are not allowed (if there will be request from users, can enable them)
 # so allowing (letters digits _ - + .)
-allowed_user_tag_characters = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + '_' + '-' + '+' + '.')
+allowed_user_tag_characters = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + "_" + "-" + "+" + ".")
 
 # not needed anymore, we replace bad characters with "_"
 def check_for_allowed_user_tag_character(user_tag):
@@ -30,7 +30,7 @@ def check_for_allowed_user_tag_character(user_tag):
 
 def clean_user_tag(user_tag, replacement_character="_"):
     #return ''.join(char for char in user_tag if char in allowed_user_tag_characters) # don't replace but remove bad characters. In this case resulting string may be empty
-    return ''.join(char if char in allowed_user_tag_characters else replacement_character for char in user_tag) # replace bad characters, so if initital user_tag contained at least one character, it will not be empty (but may be "___")
+    return "".join(char if char in allowed_user_tag_characters else replacement_character for char in user_tag) # replace bad characters, so if initital user_tag contained at least one character, it will not be empty (but may be "___")
 
 def clean_last_character_user_tag(user_tag, replacement_character="_"):
     if not user_tag[-1].isalnum():
@@ -104,31 +104,31 @@ class BrokerManager:
             return {"status" : "failed", "message" : "no pgroup in request parameters"}
         pgroup = request["pgroup"]
 
-        path_to_pgroup = f'/sf/{beamline}/data/{pgroup}/raw/'
+        path_to_pgroup = f"/sf/{beamline}/data/{pgroup}/raw/"
         if not os.path.exists(path_to_pgroup):
-            return {"status" : "failed", "message" : f'pgroup directory {path_to_pgroup} not reachable'}
+            return {"status" : "failed", "message" : f"pgroup directory {path_to_pgroup} not reachable"}
 
-        daq_directory = f'{path_to_pgroup}{DIR_NAME_RUN_INFO}'
+        daq_directory = f"{path_to_pgroup}{DIR_NAME_RUN_INFO}"
         if not os.path.exists(daq_directory):
             try:
                 os.mkdir(daq_directory)
             except:
                 return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space"}
 
-        if os.path.exists(f'{daq_directory}/CLOSED'):
-            return {"status" : "failed", "message" : f'{path_to_pgroup} is already closed for writing'}
+        if os.path.exists(f"{daq_directory}/CLOSED"):
+            return {"status" : "failed", "message" : f"{path_to_pgroup} is already closed for writing"}
 
-        with open(f'{daq_directory}/CLOSED', 'x') as fp:
+        with open(f"{daq_directory}/CLOSED", "x") as fp:
             pass
 
-        return {"status" : "ok", "message" : f'{pgroup} closed for writing' }
+        return {"status" : "ok", "message" : f"{pgroup} closed for writing" }
 
 
     def get_pvlist(self, remote_ip=None):
 
         beamline = ip_to_console(remote_ip)
 
-        config_file = f'/home/dbe/service_configs/sf.{beamline}.epics_buffer.json'
+        config_file = f"/home/dbe/service_configs/sf.{beamline}.epics_buffer.json"
 
         if not os.path.exists(config_file):
             return {"status" : f"failure, epics config file not exist for this beamline {beamline}"}
@@ -151,7 +151,7 @@ class BrokerManager:
         if not beamline:
             return {"status" : "failed", "message" : "can not determine from which console request came, rejected"}
 
-        config_file = f'/home/dbe/service_configs/sf.{beamline}.epics_buffer.json'
+        config_file = f"/home/dbe/service_configs/sf.{beamline}.epics_buffer.json"
 
         if not os.path.exists(config_file):
             return {"status" : "failed", "message" : f"failure, epics config file not exist for this beamline {beamline}"}
@@ -165,7 +165,7 @@ class BrokerManager:
 
         date_now = datetime.now()
         date_now_str = date_now.strftime("%d-%b-%Y_%H:%M:%S")
-        copyfile(config_file, f'{config_file}.{date_now_str}')
+        copyfile(config_file, f"{config_file}.{date_now_str}")
 
         return {"status" : "ok", "message" : config_epics["pv_list"] }
 
@@ -186,19 +186,19 @@ class BrokerManager:
             return {"status" : "failed", "message" : "no pgroup in request parameters"}
         pgroup = request["pgroup"]
 
-        path_to_pgroup = f'/sf/{beamline}/data/{pgroup}/raw/'
+        path_to_pgroup = f"/sf/{beamline}/data/{pgroup}/raw/"
         if not os.path.exists(path_to_pgroup):
-            return {"status" : "failed", "message" : f'pgroup directory {path_to_pgroup} not reachable'}
+            return {"status" : "failed", "message" : f"pgroup directory {path_to_pgroup} not reachable"}
 
-        daq_directory = f'{path_to_pgroup}{DIR_NAME_RUN_INFO}'
+        daq_directory = f"{path_to_pgroup}{DIR_NAME_RUN_INFO}"
         if not os.path.exists(daq_directory):
             try:
                 os.mkdir(daq_directory)
             except:
                 return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space"}
 
-        if os.path.exists(f'{daq_directory}/CLOSED'):
-            return {"status" : "failed", "message" : f'{path_to_pgroup} is closed for writing'}
+        if os.path.exists(f"{daq_directory}/CLOSED"):
+            return {"status" : "failed", "message" : f"{path_to_pgroup} is closed for writing"}
 
         next_run = get_current_run_number(daq_directory, file_run="LAST_RUN", increment_run_number=increment_run_number)
 
@@ -248,7 +248,7 @@ class BrokerManager:
         running_detectors = []
         buffer_location = "/gpfs/photonics/swissfel/buffer"
         for detector in detectors:
-            detector_buffer_file = f'{buffer_location}/{detector}/M00/LATEST'
+            detector_buffer_file = f"{buffer_location}/{detector}/M00/LATEST"
             if os.path.exists(detector_buffer_file):
                 time_file = datetime.fromtimestamp(os.path.getmtime(detector_buffer_file))
                 if (time_file-time_now).total_seconds() > -30:
@@ -308,9 +308,9 @@ class BrokerManager:
             return {"status" : "failed", "message" : "no pgroup in request parameters"}
         pgroup = request["pgroup"]
 
-        path_to_pgroup = f'/sf/{beamline}/data/{pgroup}/raw/'
+        path_to_pgroup = f"/sf/{beamline}/data/{pgroup}/raw/"
         if not os.path.exists(path_to_pgroup):
-            return {"status" : "failed", "message" : f'pgroup directory {path_to_pgroup} not reachable'}
+            return {"status" : "failed", "message" : f"pgroup directory {path_to_pgroup} not reachable"}
 
         # Force output directory name to be JF_pedestals
         request["directory_name"] = "JF_pedestals"
@@ -321,17 +321,17 @@ class BrokerManager:
             try:
                 os.makedirs(full_path)
             except:
-                return {"status" : "failed", "message" : f'no permission or possibility to make directory in pgroup space {full_path}'}
+                return {"status" : "failed", "message" : f"no permission or possibility to make directory in pgroup space {full_path}"}
 
-        daq_directory = f'{path_to_pgroup}{DIR_NAME_RUN_INFO}'
+        daq_directory = f"{path_to_pgroup}{DIR_NAME_RUN_INFO}"
         if not os.path.exists(daq_directory):
             try:
                 os.mkdir(daq_directory)
             except:
                 return {"status" : "failed", "message" : "no permission or possibility to make run_info directory in pgroup space"}
 
-        if os.path.exists(f'{daq_directory}/CLOSED'):
-            return {"status" : "failed", "message" : f'{path_to_pgroup} is closed for writing'}
+        if os.path.exists(f"{daq_directory}/CLOSED"):
+            return {"status" : "failed", "message" : f"{path_to_pgroup} is closed for writing"}
 
         if "request_time" not in request:
             request["request_time"] = str(datetime.now())
@@ -340,9 +340,9 @@ class BrokerManager:
 
         pedestal_name = f'{request_time.strftime("%Y%m%d_%H%M%S")}'
 
-        run_info_directory = f'{full_path}'
+        run_info_directory = f"{full_path}"
 
-        run_file_json = f'{run_info_directory}/{pedestal_name}.json'
+        run_file_json = f"{run_info_directory}/{pedestal_name}.json"
 
         with open(run_file_json, "w") as request_json_file:
             json.dump(request, request_json_file, indent=2)
@@ -354,13 +354,13 @@ class BrokerManager:
                             "start_pulse_id": 0,
                             "stop_pulse_id": 100,
                             "output_file": None,
-                            "run_log_file": f'{run_info_directory}/{pedestal_name}.log',
+                            "run_log_file": f"{run_info_directory}/{pedestal_name}.log",
                             "metadata": None,
                             "timestamp": None,
                             "run_file_json" : run_file_json,
                             "path_to_pgroup" : path_to_pgroup,
                             "run_info_directory" : run_info_directory,
-                            "output_file_prefix" :f'{full_path}/{pedestal_name}',
+                            "output_file_prefix" :f"{full_path}/{pedestal_name}",
                             "directory_name" : request.get("directory_name"),
                             "request_time" : str(request_time)
                            }
@@ -425,11 +425,11 @@ class BrokerManager:
             if adjusted_stop_pulse_id%rate_multiplicator == 0:
                 adjusted_stop_pulse_id += 1
 
-        path_to_pgroup = f'/sf/{beamline}/data/{pgroup}/raw/'
+        path_to_pgroup = f"/sf/{beamline}/data/{pgroup}/raw/"
         if not os.path.exists(path_to_pgroup):
-            return {"status" : "failed", "message" : f'pgroup directory {path_to_pgroup} not reachable'}
+            return {"status" : "failed", "message" : f"pgroup directory {path_to_pgroup} not reachable"}
 
-        daq_directory = f'{path_to_pgroup}{DIR_NAME_RUN_INFO}'
+        daq_directory = f"{path_to_pgroup}{DIR_NAME_RUN_INFO}"
 
         if not os.path.exists(daq_directory):
             try:
@@ -446,7 +446,7 @@ class BrokerManager:
                 return {"status" : "failed", "message" : f"requested run_number{run_number} generated not by sf-daq"}
 
         run_number = request.get("run_number")
-        output_run_directory = f'run{run_number:04}'
+        output_run_directory = f"run{run_number:04}"
 
         append_user_tag = request.get("append_user_tag_to_data_dir", False)
         user_tag = request.get("user_tag", None)
@@ -456,17 +456,17 @@ class BrokerManager:
             cleaned_user_tag = cleaned_user_tag[:50] # may be this is will not be needed in future
             cleaned_user_tag = clean_last_character_user_tag(cleaned_user_tag) # replace last character if it's not digit or letter
             request["appended_directory_suffix"] = cleaned_user_tag
-            output_run_directory = f'run{run_number:04}-{cleaned_user_tag}'
+            output_run_directory = f"run{run_number:04}-{cleaned_user_tag}"
 
-        list_data_directories_run = glob(f'{path_to_pgroup}/run{run_number:04}*')
+        list_data_directories_run = glob(f"{path_to_pgroup}/run{run_number:04}*")
         if len(list_data_directories_run) > 0:
-            if f'{path_to_pgroup}{output_run_directory}' not in list_data_directories_run:
-                return {"status" : "failed", "message" : f'data directory for this run {run_number:04} already exists with different tag : {list_data_directories_run}, than requested {user_tag}'}
+            if f"{path_to_pgroup}{output_run_directory}" not in list_data_directories_run:
+                return {"status" : "failed", "message" : f"data directory for this run {run_number:04} already exists with different tag : {list_data_directories_run}, than requested {user_tag}"}
 
-        full_path = f'{path_to_pgroup}{output_run_directory}'
+        full_path = f"{path_to_pgroup}{output_run_directory}"
 
-        if os.path.exists(f'{daq_directory}/CLOSED'):
-            return {"status" : "failed", "message" : f'{path_to_pgroup} is closed for writing'}
+        if os.path.exists(f"{daq_directory}/CLOSED"):
+            return {"status" : "failed", "message" : f"{path_to_pgroup} is closed for writing"}
 
         write_data = False
         if "channels_list" in request or "camera_list" in request or "pv_list" in request or "detectors" in request:
@@ -502,11 +502,11 @@ class BrokerManager:
             try:
                 os.makedirs(full_path)
             except:
-                return {"status" : "failed", "message" : f'no permission or possibility to make directory in pgroup space {full_path}'}
+                return {"status" : "failed", "message" : f"no permission or possibility to make directory in pgroup space {full_path}"}
 
-        run_info_directory =    f'{full_path}/logs'
-        meta_directory =        f'{full_path}/meta'
-        output_data_directory = f'{full_path}/data'
+        run_info_directory =    f"{full_path}/logs"
+        meta_directory =        f"{full_path}/meta"
+        output_data_directory = f"{full_path}/data"
 
         try:
             if not os.path.exists(run_info_directory):
@@ -517,7 +517,7 @@ class BrokerManager:
                 os.mkdir(output_data_directory)
         except:
             # should not come here, directory should already exists (either made few lines above or in the previous data taking to that directory)
-            return {"status" : "failed", "message" : f'no permission or possibility to make directories in pgroup space {full_path} (meta,logs,data)'}
+            return {"status" : "failed", "message" : f"no permission or possibility to make directories in pgroup space {full_path} (meta,logs,data)"}
 
         current_acq = get_current_step_in_scan(meta_directory)
         unique_acq = get_current_run_number(daq_directory, file_run="LAST_ARUN")
@@ -527,7 +527,7 @@ class BrokerManager:
         request["request_time"] = str(datetime.now())
         request["unique_acquisition_run_number"] = unique_acq
 
-        run_file_json = f'{meta_directory}/acq{current_acq:04}.json'
+        run_file_json = f"{meta_directory}/acq{current_acq:04}.json"
 
         with open(run_file_json, "w") as request_json_file:
             json.dump(request, request_json_file, indent=2)
@@ -541,7 +541,7 @@ class BrokerManager:
                      "general/instrument": beamline
         }
 
-        output_file_prefix = f'{output_data_directory}/acq{current_acq:04}'
+        output_file_prefix = f"{output_data_directory}/acq{current_acq:04}"
         if not os.path.exists(output_data_directory):
             os.mkdir(output_data_directory)
 
@@ -550,10 +550,10 @@ class BrokerManager:
             if not channels:
                 return
 
-            output_file = f'{output_file_prefix}.{filename_suffix}.h5'
+            output_file = f"{output_file_prefix}.{filename_suffix}.h5"
             output_files_list.append(output_file)
 
-            run_log_file = f'{run_info_directory}/acq{current_acq:04}.{filename_suffix}.log'
+            run_log_file = f"{run_info_directory}/acq{current_acq:04}.{filename_suffix}.log"
 
             write_request = get_writer_request(writer_type=tag,
                                                channels=channels,
@@ -573,7 +573,7 @@ class BrokerManager:
 
         self.broker_client.open()
 
-        send_write_request(f'epics_{beamline}',
+        send_write_request(f"epics_{beamline}",
                            request.get("pv_list"),
                            config.OUTPUT_FILE_SUFFIX_EPICS_BUFFER)
 
@@ -632,7 +632,7 @@ class BrokerManager:
                                                       "scan_readbacks": [0],
                                                       "scan_readbacks_raw": [0],
                                                       "scan_values": [0]})
-        scan_info_file = f'{meta_directory}/scan.json'
+        scan_info_file = f"{meta_directory}/scan.json"
         if not os.path.exists(scan_info_file):
             scan_info = {"scan_files" : [], "pulseIds": []}
             scan_info["scan_parameters"] = {}
@@ -651,7 +651,7 @@ class BrokerManager:
         scan_info["scan_files"].append(output_files_list)
         scan_info["pulseIds"].append([start_pulse_id, stop_pulse_id])
 
-        with open(scan_info_file, 'w') as json_file:
+        with open(scan_info_file, "w") as json_file:
             json.dump(scan_info, json_file, indent=4)
 
         return {"status" : "ok", "message" : "OK",

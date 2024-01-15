@@ -16,7 +16,7 @@ def tsfmt(ts):
     ts = ts // 1000
     n = ts // 1000000
     m = ts % 1000000
-    s = datetime.fromtimestamp(n).astimezone(pytz.timezone('UTC')).strftime("%Y-%m-%dT%H:%M:%S")
+    s = datetime.fromtimestamp(n).astimezone(pytz.timezone("UTC")).strftime("%Y-%m-%dT%H:%M:%S")
     s = f"{s}.{m:06d}Z"
     return s
 
@@ -37,13 +37,13 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
         inside_file = list(data_h5py.keys())
         for channel in channels:
             if channel not in inside_file:
-                _logger.error(f'check {channel} not present in file')
+                _logger.error(f"check {channel} not present in file")
             else:
 
-                pulse_id_raw    = data_h5py[f'/{channel}/pulse_id'][:]
+                pulse_id_raw    = data_h5py[f"/{channel}/pulse_id"][:]
 
                 if numpy.sum(pulse_id_raw < start_pulse_id) or numpy.sum(pulse_id_raw > stop_pulse_id):
-                    _logger.error(f'check {channel} contains pulse_id outside of requested range')
+                    _logger.error(f"check {channel} contains pulse_id outside of requested range")
 
                 n_pulse_id_raw = len(pulse_id_raw)
 
@@ -52,26 +52,26 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
                 duplicated_entries = False
                 if n_pulse_id_raw != n_unique_pulse_id_raw:
                     duplicated_entries = True
-                    _logger.error(f'check {channel} contains duplicated entries. Total entries : {n_pulse_id_raw}, duplicated entries : {n_pulse_id_raw-n_unique_pulse_id_raw} ')
+                    _logger.error(f"check {channel} contains duplicated entries. Total entries : {n_pulse_id_raw}, duplicated entries : {n_pulse_id_raw-n_unique_pulse_id_raw} ")
 
                 pulse_id = numpy.intersect1d(expected_pulse_id, pulse_id_raw)
                 n_pulse_id = len(pulse_id)
 
                 if n_pulse_id != expected_number_measurements:
-                    _logger.error(f'check {channel} number of pulse_id(unique) is different from expected : {n_pulse_id} vs {expected_number_measurements}')
+                    _logger.error(f"check {channel} number of pulse_id(unique) is different from expected : {n_pulse_id} vs {expected_number_measurements}")
                 else:
                     if pulse_id[0] != expected_pulse_id[0] or pulse_id[-1] != expected_pulse_id[-1]:
-                        _logger.error(f'check {channel} start/stop pulse_id are not the one which are requested (requested : {expected_pulse_id[0]},{expected_pulse_id[-1]}, got: {pulse_id[0]},{pulse_id[-1]}) ')
+                        _logger.error(f"check {channel} start/stop pulse_id are not the one which are requested (requested : {expected_pulse_id[0]},{expected_pulse_id[-1]}, got: {pulse_id[0]},{pulse_id[-1]}) ")
                         if not duplicated_entries:
                             pulse_id_check = True
                             for i in range(n_pulse_id):
                                 if pulse_id[i] != expected_pulse_id[i]:
                                     pulse_id_check = False
                             if not pulse_id_check:
-                                _logger.error(f'check {channel} pulse_id are not monotonic')
+                                _logger.error(f"check {channel} pulse_id are not monotonic")
 
     except Exception as e:
-        _logger.error(f'check failed')
+        _logger.error(f"check failed")
         _logger.error(e)
 
     time_delta = time() - start_check_time

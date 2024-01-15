@@ -19,7 +19,7 @@ beamline_event_code = { "alvra"       : "SAR-CVME-TIFALL4-EVG0:SoftEvt-EvtCode-S
 
 def load_detector_config(detector_name=None):
 
-    _logger.info(f'request to load config for detector {detector_name}')
+    _logger.info(f"request to load config for detector {detector_name}")
 
     if detector_name is None:
         _logger.error("No detector name given")
@@ -82,7 +82,7 @@ def load_detector_config(detector_name=None):
 
 def power_on_detector(detector_name=None, beamline=None):
 
-    _logger.info(f'request to power on detector {detector_name}')
+    _logger.info(f"request to power on detector {detector_name}")
 
     if detector_name is None:
         _logger.error("No detector name given")
@@ -100,11 +100,11 @@ def power_on_detector(detector_name=None, beamline=None):
     event_code_pv = epics.PV(event_code_pv_name)
 
     if detector_name[:2] != "JF":
-        _logger.error(f'Not a Jungfrau detector name {detector_name}')
+        _logger.error(f"Not a Jungfrau detector name {detector_name}")
         return
 
     if len(detector_name) != 10:
-        _logger.error(f'Not proper name of detector {detector_name}')
+        _logger.error(f"Not proper name of detector {detector_name}")
         return
 
     detector_number = int(detector_name[2:4])
@@ -129,7 +129,7 @@ def power_on_detector(detector_name=None, beamline=None):
     try:
         detector.stopDetector()
     except:
-        _logger.info(f'{detector_name} (number {detector_number}) can not be stopped, may be was not initialised before')
+        _logger.info(f"{detector_name} (number {detector_number}) can not be stopped, may be was not initialised before")
 
     detector.freeSharedMemory()
 
@@ -137,7 +137,7 @@ def power_on_detector(detector_name=None, beamline=None):
         load_detector_config(detector_name)
 
     except Exception as e:
-        _logger.error(f'cant configure detector : {e}')
+        _logger.error(f"cant configure detector : {e}")
 
     # start triggering
     event_code_pv.put(254)

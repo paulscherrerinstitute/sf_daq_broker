@@ -137,7 +137,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
     _logger.info(f"save ppicker events : {save_ppicker_events_only}")
 
     if remove_raw_files:
-        _logger.info(f'removing raw and temporary files {files_to_remove}')
+        _logger.info(f"removing raw and temporary files {files_to_remove}")
         for file_remove in files_to_remove:
             os.remove(file_remove)
 

@@ -50,7 +50,7 @@ def register_rest_interface(app, manager):
 
     @app.error(500)
     def error_handler_500(error):
-        bottle.response.content_type = 'application/json'
+        bottle.response.content_type = "application/json"
         bottle.response.status = 200
 
         error_text = str(error.exception)

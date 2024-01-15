@@ -49,7 +49,7 @@ def register_rest_interface(app, manager):
 
     @app.error(500)
     def error_handler_500(error):
-        bottle.response.content_type = 'application/json'
+        bottle.response.content_type = "application/json"
         bottle.response.status = 200
 
         error_text = str(error.exception)
@@ -153,7 +153,7 @@ class DetectorManager:
         if detector_mode:
             if detector_mode in conv_detector_settings_reverse:
                 detector.settings = conv_detector_settings_reverse[detector_mode]
-                print(f'settings detector settings to {conv_detector_settings_reverse[detector_mode]} ({detector_mode})')
+                print(f"settings detector settings to {conv_detector_settings_reverse[detector_mode]} ({detector_mode})")
 
         if delay:
             detector.delay = delay
@@ -162,7 +162,7 @@ class DetectorManager:
         if gain_mode:
             if gain_mode in conv_detector_gain_settings_reverse:
                 detector.gainmode = conv_detector_gain_settings_reverse[gain_mode]
-                print(f'settings detector settings to {conv_detector_gain_settings_reverse[gain_mode]} ({gain_mode})')
+                print(f"settings detector settings to {conv_detector_gain_settings_reverse[gain_mode]} ({gain_mode})")
 
         # start triggering
         event_code_pv.put(254)
@@ -192,23 +192,23 @@ class DetectorManager:
             return {"status" : "failed", "message" : "no pgroup in request parameters"}
         pgroup = request["pgroup"]
 
-        path_to_pgroup = f'/sf/{beamline}/data/{pgroup}/raw/'
+        path_to_pgroup = f"/sf/{beamline}/data/{pgroup}/raw/"
 
-        if os.path.exists(f'{path_to_pgroup}/run_info/CLOSED'):
-            return {"status" : "failed", "message" : f'{path_to_pgroup} is closed for writing'}
+        if os.path.exists(f"{path_to_pgroup}/run_info/CLOSED"):
+            return {"status" : "failed", "message" : f"{path_to_pgroup} is closed for writing"}
 
         run_number = request.get("run_number", None)
         if run_number is None:
             return {"status" : "failed", "message" : "no run_number in request parameters"}
 
-        list_data_directories_run = glob(f'{path_to_pgroup}/run{run_number:04}*')
+        list_data_directories_run = glob(f"{path_to_pgroup}/run{run_number:04}*")
 
         if len(list_data_directories_run) == 0:
             return {"status" : "failed", "message" : f"no such run {run_number} in the pgroup"}
 
         full_path = list_data_directories_run[0]
 
-        target_directory = f'{full_path}/aux'
+        target_directory = f"{full_path}/aux"
 
         if not os.path.exists(target_directory):
             try:
@@ -265,7 +265,7 @@ class DetectorManager:
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
 
         if not os.path.exists(dap_parameters_file):
-            return {"status" : "failed", "message" : f'dap parameters file is not existing, contact support'}
+            return {"status" : "failed", "message" : f"dap parameters file is not existing, contact support"}
 
         with open(dap_parameters_file) as json_file:
             dap_config = json.load(json_file)
@@ -299,7 +299,7 @@ class DetectorManager:
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
 
         if not os.path.exists(dap_parameters_file):
-            return {"status" : "failed", "message" : f'dap parameters file is not existing, contact support'}
+            return {"status" : "failed", "message" : f"dap parameters file is not existing, contact support"}
 
         new_parameters = request.get("parameters", {})
 
@@ -319,16 +319,16 @@ class DetectorManager:
         if changed:
             date_now = datetime.now()
             date_now_str = date_now.strftime("%d-%b-%Y_%H:%M:%S")
-            backup_directory = f'/gpfs/photonics/swissfel/buffer/dap/config/backup'
+            backup_directory = f"/gpfs/photonics/swissfel/buffer/dap/config/backup"
             if not os.path.exists(backup_directory):
                 os.mkdir(backup_directory)
-            shutil.copyfile(dap_parameters_file, f'{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}')
+            shutil.copyfile(dap_parameters_file, f"{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}")
 
             try:
                 with open(dap_parameters_file, "w") as json_file:
                     json.dump(dap_config, json_file, indent=4)
             except:
-                shutil.copyfile(f'{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}', dap_parameters_file)
+                shutil.copyfile(f"{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}", dap_parameters_file)
                 return {"status": "failed", "message": "problem to update dap configuration, try again and inform responsible"}
 
         return {"status": "ok", "message" : changed_parameters}
@@ -357,18 +357,18 @@ def start_server(rest_port):
 
 
 def run():
-    parser = argparse.ArgumentParser(description='detector_settings')
+    parser = argparse.ArgumentParser(description="detector_settings")
 
     parser.add_argument("--rest_port", type=int, help="Port for REST api.", default=10003)
 
-    parser.add_argument("--log_level", default='INFO',
-                        choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG'],
+    parser.add_argument("--log_level", default="INFO",
+                        choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"],
                         help="Log level to use.")
 
     arguments = parser.parse_args()
 
     # Setup the logging level.
-    logging.basicConfig(level=arguments.log_level, format='[%(levelname)s] %(message)s')
+    logging.basicConfig(level=arguments.log_level, format="[%(levelname)s] %(message)s")
 
     start_server(rest_port=arguments.rest_port)
 
