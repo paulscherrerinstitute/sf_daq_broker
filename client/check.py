@@ -18,12 +18,14 @@ def run():
 
     result = check_consistency(run_file=args.run_file, rate_multiplicator=args.frequency_reduction_factor)
 
-    print("Result of consistency check (summary) : %s " % result["check"])
-    if result["check"]:
-        print("    OK : %s" % result["reason"])
+    check = result["check"]
+    print(f"Result of consistency check (summary) : {check}")
+    if check:
+        reason = result["reason"]
+        print(f"    OK : {reason}")
     else:
         for reason in result["reason"]:
-            print("    Reason : %s " % reason)
+            print(f"    Reason : {reason}")
 
 def check_consistency(run_file=None, rate_multiplicator=0):
 
