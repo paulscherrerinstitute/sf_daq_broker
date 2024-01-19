@@ -6,7 +6,7 @@ from time import time
 import h5py
 import numpy
 import pytz
-import data_api3 as dapi3
+from data_api3 import h5 as dapi3h5
 
 from sf_daq_broker import config, utils
 
@@ -114,7 +114,7 @@ def write_from_imagebuffer(data_api_request, output_file, _parameters):
 
     try:
         _logger.debug(f"query request : {query} {output_file} {image_buffer_url}")
-        dapi3.h5.request(query, output_file, url=image_buffer_url)
+        dapi3h5.request(query, output_file, url=image_buffer_url)
         delta_time = time() - start_time
         _logger.info(f"Image download and writing took {delta_time} seconds.")
     except Exception as e:
@@ -157,7 +157,7 @@ def write_from_databuffer_api3(data_api_request, output_file, _parameters):
     start_time = time()
 
     try:
-        dapi3.h5.request(query, filename=output_file, baseurl=data_buffer_url, default_backend=config.DATA_BACKEND)
+        dapi3h5.request(query, filename=output_file, baseurl=data_buffer_url, default_backend=config.DATA_BACKEND)
         delta_time = time() - start_time
         _logger.info(f"Data download and writing took {delta_time} seconds.")
     except Exception as e:
