@@ -28,12 +28,9 @@ def start_server(broker_url, rest_port):
 
     _logger.info("SF-DAQ-BROKER started.")
 
-    try:
-        hostname = socket.gethostname()
-        _logger.info(f"Starting rest API on port {rest_port} host {hostname}" )
-        bottle.run(app=app, host=hostname, port=rest_port)
-    finally:
-        pass
+    hostname = socket.gethostname()
+    _logger.info(f"Starting rest API on port {rest_port} host {hostname}" )
+    bottle.run(app=app, host=hostname, port=rest_port)
 
 
 def run():

@@ -24,12 +24,9 @@ def start_server(rest_port):
 
     _logger.info("Detector Server started.")
 
-    try:
-        hostname = socket.gethostname()
-        _logger.info(f"Starting rest API on port {rest_port} host {hostname}" )
-        bottle.run(app=app, host=hostname, port=rest_port)
-    finally:
-        pass
+    hostname = socket.gethostname()
+    _logger.info(f"Starting rest API on port {rest_port} host {hostname}" )
+    bottle.run(app=app, host=hostname, port=rest_port)
 
 
 def run():
