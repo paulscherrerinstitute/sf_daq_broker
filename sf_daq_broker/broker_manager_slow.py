@@ -1,14 +1,11 @@
-import argparse
 import json
 import logging
 import os
 import shutil
-import socket
 from datetime import datetime
 from glob import glob
 from time import sleep
 
-import bottle
 import epics
 from slsdet import Jungfrau, gainMode
 from slsdet.enums import detectorSettings
@@ -25,39 +22,6 @@ conv_detector_settings_reverse = dict(zip(conv_detector_settings.values(), conv_
 conv_detector_gain_settings = { gainMode.DYNAMIC: "dynamic", gainMode.FORCE_SWITCH_G1: "fixed_gain1", gainMode.FORCE_SWITCH_G2: "fixed_gain2" }
 conv_detector_gain_settings_reverse = dict(zip(conv_detector_gain_settings.values(), conv_detector_gain_settings.keys()))
 
-def register_rest_interface(app, manager):
-
-    @app.post("/get_detector_settings")
-    def get_detector_settings():
-        return manager.get_detector_settings(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
-
-    @app.post("/set_detector_settings")
-    def set_detector_settings():
-        return manager.set_detector_settings(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
-
-    @app.post("/copy_user_files")
-    def copy_user_files():
-        return manager.copy_user_files(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
-
-    @app.post("/get_dap_settings")
-    def get_dap_settings():
-        return manager.get_dap_settings(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
-
-    @app.post("/set_dap_settings")
-    def set_dap_settings():
-        return manager.set_dap_settings(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
-
-    @app.error(500)
-    def error_handler_500(error):
-        bottle.response.content_type = "application/json"
-        bottle.response.status = 200
-
-        error_text = str(error.exception)
-
-        _logger.error(error_text)
-
-        return json.dumps({"state": "error",
-                           "status": error_text})
 
 class DetectorManager:
 
@@ -332,46 +296,3 @@ class DetectorManager:
                 return {"status": "failed", "message": f"problem to update dap configuration, try again and inform responsible due to: {e}"}
 
         return {"status": "ok", "message" : changed_parameters}
-
-
-def start_server(rest_port):
-
-    _logger.info(f"Starting detector server on port {rest_port} (rest-api)")
-
-    app = bottle.Bottle()
-
-    manager = DetectorManager()
-
-    logging.getLogger("pika").setLevel(logging.WARNING)
-
-    register_rest_interface(app, manager)
-
-    _logger.info("Detector Server started.")
-
-    try:
-        hostname = socket.gethostname()
-        _logger.info(f"Starting rest API on port {rest_port} host {hostname}" )
-        bottle.run(app=app, host=hostname, port=rest_port)
-    finally:
-        pass
-
-
-def run():
-    parser = argparse.ArgumentParser(description="detector_settings")
-
-    parser.add_argument("--rest_port", type=int, help="Port for REST api.", default=10003)
-
-    parser.add_argument("--log_level", default="INFO",
-                        choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"],
-                        help="Log level to use.")
-
-    arguments = parser.parse_args()
-
-    # Setup the logging level.
-    logging.basicConfig(level=arguments.log_level, format="[%(levelname)s] %(message)s")
-
-    start_server(rest_port=arguments.rest_port)
-
-
-if __name__ == "__main__":
-    run()
