@@ -10,9 +10,10 @@ import epics
 from slsdet import Jungfrau, gainMode
 from slsdet.enums import detectorSettings
 
-from sf_daq_broker.broker_manager import ip_to_console
 from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline
 from sf_daq_broker.detector.power_on_detector import beamline_event_code
+from sf_daq_broker.utils import ip_to_console
+
 
 _logger = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ conv_detector_settings_reverse = dict(zip(conv_detector_settings.values(), conv_
 
 conv_detector_gain_settings = { gainMode.DYNAMIC: "dynamic", gainMode.FORCE_SWITCH_G1: "fixed_gain1", gainMode.FORCE_SWITCH_G2: "fixed_gain2" }
 conv_detector_gain_settings_reverse = dict(zip(conv_detector_gain_settings.values(), conv_detector_gain_settings.keys()))
+
 
 
 class DetectorManager:
@@ -296,3 +298,6 @@ class DetectorManager:
                 return {"status": "failed", "message": f"problem to update dap configuration, try again and inform responsible due to: {e}"}
 
         return {"status": "ok", "message" : changed_parameters}
+
+
+
