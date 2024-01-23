@@ -9,13 +9,14 @@ from shutil import copyfile
 import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker import config
 from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline, detector_human_names, get_streamvis_address
-from sf_daq_broker.utils import get_writer_request
+from sf_daq_broker.utils import get_writer_request, ip_to_console
 
-PEDESTAL_FRAMES=3000
-#TODO: put in in config
-DIR_NAME_RUN_INFO = "run_info"
 
 _logger = logging.getLogger(__name__)
+
+PEDESTAL_FRAMES = 3000
+#TODO: put in in config
+DIR_NAME_RUN_INFO = "run_info"
 
 # SciCat allow following characters: letters digits _ - . % # + : = @ space(not tab)
 # : is bad to have in directory name, since it is forbidden symbol in windows for file/directory names
@@ -24,61 +25,10 @@ _logger = logging.getLogger(__name__)
 # so allowing (letters digits _ - + .)
 allowed_user_tag_characters = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + "_" + "-" + "+" + ".")
 
-# not needed anymore, we replace bad characters with "_"
-def check_for_allowed_user_tag_character(user_tag):
-    return set(user_tag) <= allowed_user_tag_characters
 
-def clean_user_tag(user_tag, replacement_character="_"):
-    #return "".join(char for char in user_tag if char in allowed_user_tag_characters) # do not replace but remove bad characters. In this case resulting string may be empty
-    return "".join(char if char in allowed_user_tag_characters else replacement_character for char in user_tag) # replace bad characters, so if initital user_tag contained at least one character, it will not be empty (but may be "___")
-
-def clean_last_character_user_tag(user_tag, replacement_character="_"):
-    if not user_tag[-1].isalnum():
-        user_tag = user_tag[:-1] + replacement_character
-    return user_tag
-
-subnet_to_beamline = { "129.129.242" : "alvra", "129.129.243" : "bernina", "129.129.244": "cristallina", "129.129.247" : "furka", "129.129.246" : "maloja" }
-
-def ip_to_console(remote_ip):
-    beamline = None
-    if len(remote_ip) > 11:
-        beamline = subnet_to_beamline.get(remote_ip[:11], None)
-    return beamline
-
-def get_current_run_number(daq_directory=None, file_run="LAST_RUN", increment_run_number=True):
-    if daq_directory is None:
-        return None
-
-    last_run_file = daq_directory + "/" + file_run
-    if not os.path.exists(last_run_file):
-        with open(last_run_file, "w") as run_file:
-            run_file.write("0")
-
-    with open(last_run_file, "r") as run_file:
-        last_run = int(run_file.read())
-
-    if not increment_run_number:
-        current_run = last_run
-    else:
-        current_run = last_run + 1
-
-        with open(last_run_file, "w") as run_file:
-            run_file.write(str(current_run))
-
-    return current_run
-
-def get_current_step_in_scan(meta_directory=None):
-    if meta_directory is None:
-        return None
-
-    dirlist = os.listdir(meta_directory)
-    number_files = len(dirlist)
-
-    current_step = 1 if number_files==0 else number_files
-
-    return current_step
 
 class BrokerManager:
+
     REQUIRED_PARAMETERS = ["output_file"]
 
     def __init__(self, broker_client):
@@ -656,3 +606,57 @@ class BrokerManager:
                                  "acquisition_number": str(current_acq),
                                  "unique_acquisition_number": str(unique_acq),
                                  "files" : output_files_list }
+
+
+
+
+
+# not needed anymore, we replace bad characters with "_"
+def check_for_allowed_user_tag_character(user_tag):
+    return set(user_tag) <= allowed_user_tag_characters
+
+def clean_user_tag(user_tag, replacement_character="_"):
+    #return "".join(char for char in user_tag if char in allowed_user_tag_characters) # do not replace but remove bad characters. In this case resulting string may be empty
+    return "".join(char if char in allowed_user_tag_characters else replacement_character for char in user_tag) # replace bad characters, so if initital user_tag contained at least one character, it will not be empty (but may be "___")
+
+def clean_last_character_user_tag(user_tag, replacement_character="_"):
+    if not user_tag[-1].isalnum():
+        user_tag = user_tag[:-1] + replacement_character
+    return user_tag
+
+
+def get_current_run_number(daq_directory=None, file_run="LAST_RUN", increment_run_number=True):
+    if daq_directory is None:
+        return None
+
+    last_run_file = daq_directory + "/" + file_run
+    if not os.path.exists(last_run_file):
+        with open(last_run_file, "w") as run_file:
+            run_file.write("0")
+
+    with open(last_run_file, "r") as run_file:
+        last_run = int(run_file.read())
+
+    if not increment_run_number:
+        current_run = last_run
+    else:
+        current_run = last_run + 1
+
+        with open(last_run_file, "w") as run_file:
+            run_file.write(str(current_run))
+
+    return current_run
+
+def get_current_step_in_scan(meta_directory=None):
+    if meta_directory is None:
+        return None
+
+    dirlist = os.listdir(meta_directory)
+    number_files = len(dirlist)
+
+    current_step = 1 if number_files==0 else number_files
+
+    return current_step
+
+
+

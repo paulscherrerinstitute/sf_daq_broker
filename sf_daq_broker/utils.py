@@ -9,6 +9,21 @@ from sf_daq_broker import config
 
 _logger = getLogger("broker_writer")
 
+subnet_to_beamline = {
+    "129.129.242": "alvra",
+    "129.129.243": "bernina",
+    "129.129.244": "cristallina",
+    "129.129.246": "maloja",
+    "129.129.247": "furka"
+}
+
+
+def ip_to_console(remote_ip):
+    beamline = None
+    if len(remote_ip) > 11:
+        beamline = subnet_to_beamline.get(remote_ip[:11], None)
+    return beamline
+
 
 def get_data_api_request(channels, start_pulse_id, stop_pulse_id):
     return {
@@ -133,3 +148,6 @@ def transform_range_from_pulse_id_to_timestamp_new(data_api_request):
         raise RuntimeError("Failed to convert pulse_id to time") from e
 
     return new_data_api_request
+
+
+
