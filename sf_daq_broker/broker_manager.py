@@ -198,8 +198,18 @@ class BrokerManager:
 
     @return_status
     def get_list_running_detectors(self, remote_ip=None):
-        beamline = ip_to_console(remote_ip) #TODO: fails for None
-        detectors = configured_detectors_for_beamline(beamline)
+        if not remote_ip:
+            raise RuntimeError("can not identify from which machine request were made")
+
+        beamline = ip_to_console(remote_ip)
+        if not beamline:
+            raise RuntimeError("can not determine from which console request came, rejected")
+
+        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        if not allowed_detectors_beamline:
+            raise RuntimeError("request is made from beamline which doesnt have detectors")
+
+        detectors = allowed_detectors_beamline
 
         time_now = datetime.now()
         running_detectors = []
@@ -221,8 +231,18 @@ class BrokerManager:
 
     @return_status
     def get_list_allowed_detectors(self, remote_ip=None):
-        beamline = ip_to_console(remote_ip) #TODO: fails for None
-        detectors = configured_detectors_for_beamline(beamline)
+        if not remote_ip:
+            raise RuntimeError("can not identify from which machine request were made")
+
+        beamline = ip_to_console(remote_ip)
+        if not beamline:
+            raise RuntimeError("can not determine from which console request came, rejected")
+
+        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        if not allowed_detectors_beamline:
+            raise RuntimeError("request is made from beamline which doesnt have detectors")
+
+        detectors = allowed_detectors_beamline
 
         detector_names = detector_human_names()
         names = []
