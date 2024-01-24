@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     assert test_str_works(123) == {"status": "ok",     "message": "test works 123"}
     assert test_str_fails(123) == {"status": "failed", "message": "test fails 123"}
-    assert test_str_works()    == {"status": "failed", "message": "test_str_works() missing 1 required positional argument: 'x'"}
+    assert test_str_works()    == {"status": "failed", "message": "test_str_works() missing 1 required positional argument: 'x'"} # pylint: disable=no-value-for-parameter
 
     assert test_dict_nostatus()       == {"status": "ok",   "message": "already a dict"}
     assert test_dict_status()         == {"status": "stat", "message": "already a dict"}
