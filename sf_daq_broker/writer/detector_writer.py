@@ -325,7 +325,7 @@ def copy_pedestal_file(request_time, file_pedestal, detector, detector_config_fi
         det = json.load(stream_file)
 
     old_pedestal_file = det["pedestal_file"]
-    print(f"Changing in stream file {detector_config_file} pedestal from {old_pedestal_file} to {out_name}")
+    _logger.info(f"Changing in stream file {detector_config_file} pedestal from {old_pedestal_file} to {out_name}")
 
     det["pedestal_file"] = out_name
 
