@@ -7,6 +7,7 @@ import requests
 
 from sf_daq_broker import config
 
+
 _logger = getLogger("broker_writer")
 
 subnet_to_beamline = {
@@ -18,6 +19,7 @@ subnet_to_beamline = {
 }
 
 
+
 def ip_to_console(remote_ip):
     beamline = None
     if len(remote_ip) > 11:
@@ -26,23 +28,31 @@ def ip_to_console(remote_ip):
 
 
 def get_data_api_request(channels, start_pulse_id, stop_pulse_id):
-    return {
-        "channels": [{"name": ch, "backend": config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND}
-                     for ch in channels],
+    channels = [
+        {
+            "name": ch,
+            "backend": config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND
+        }
+        for ch in channels
+    ]
+    res = {
+        "channels": channels,
         "range": {
             "startPulseId": start_pulse_id,
-            "endPulseId": stop_pulse_id},
+            "endPulseId": stop_pulse_id
+        },
         "response": {
             "format": "json",
-            "compression": "none"},
+            "compression": "none"
+        },
         "eventFields": ["channel", "pulseId", "value", "shape", "globalDate"],
         "configFields": ["type", "shape"]
     }
+    return res
 
 
 def get_writer_request(writer_type, channels, output_file, metadata, start_pulse_id, stop_pulse_id, run_log_file):
-
-    return {
+    res = {
         "writer_type": writer_type,
         "channels": channels,
 
@@ -55,17 +65,19 @@ def get_writer_request(writer_type, channels, output_file, metadata, start_pulse
         "metadata": metadata,
         "timestamp": time()
     }
+    return res
 
 
 def transform_range_from_pulse_id_to_timestamp(data_api_request):
-
     new_data_api_request = deepcopy(data_api_request)
 
     try:
-
-        mapping_request = {"range": {"startPulseId": data_api_request["range"]["startPulseId"],
-                                     "endPulseId": data_api_request["range"]["endPulseId"]+1}}
-
+        mapping_request = {
+            "range": {
+                "startPulseId": data_api_request["range"]["startPulseId"],
+                "endPulseId":   data_api_request["range"]["endPulseId"] + 1
+            }
+        }
 
         mapping_response = requests.post(url=config.DATA_API_QUERY_ADDRESS + "/mapping", json=mapping_request, timeout=10).json()
         _logger.info(f"Response to mapping request: {mapping_response}")
@@ -84,56 +96,62 @@ def transform_range_from_pulse_id_to_timestamp(data_api_request):
 
     return new_data_api_request
 
-def pulse_id_to_seconds(pulse_id):
 
+def pulse_id_to_seconds(pulse_id):
     sec = 0
+
     try:
         request = requests.get(f"{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}")
         if request.status_code == 200:
-            sec = float(request.json())/1000000000.
+            sec = float(request.json()) / 1000000000.
         else:
             _logger.error(f"Problem to convert {pulse_id} to timestamp. return code {request.status_code}")
             _logger.error("Trying second time")
             sleep(30)
             request = requests.get(f"{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}")
             if request.status_code == 200:
-                sec = float(request.json())/1000000000.
+                sec = float(request.json()) / 1000000000.
             else:
                 _logger.error(f"Problem(second time) to convert {pulse_id} to timestamp. return code {request.status_code}")
+
     except Exception as e:
         _logger.error(e)
         raise RuntimeError("Cannot convert pulse_id to time") from e
+
     return sec
 
-def pulse_id_to_timestamp(pulse_id):
 
+def pulse_id_to_timestamp(pulse_id):
     ts = 0
+
     try:
-        sleep(randint(1,10))
+        sleep(randint(1, 10))
         request = requests.get(f"{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}")
         if request.status_code == 200:
             ts = request.json()
         else:
             _logger.error(f"Problem to convert {pulse_id} to timestamp. return code {request.status_code}")
             _logger.error("Trying second time")
-            sleep(randint(1,10))
+            sleep(randint(1, 10))
             request = requests.get(f"{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}")
             if request.status_code == 200:
                 ts = request.json()
             else:
                 _logger.error(f"Problem(second time) to convert {pulse_id} to timestamp. return code {request.status_code}")
+
     except Exception as e:
         _logger.error(e)
         raise RuntimeError("Cannot convert pulse_id to time") from e
+
     return ts
 
-def transform_range_from_pulse_id_to_timestamp_new(data_api_request):
 
+def transform_range_from_pulse_id_to_timestamp_new(data_api_request):
     new_data_api_request = deepcopy(data_api_request)
 
     try:
         start_ts = pulse_id_to_timestamp(data_api_request["range"]["startPulseId"])
-        stop_ts  = pulse_id_to_timestamp(data_api_request["range"]["endPulseId"]+1)
+        stop_ts  = pulse_id_to_timestamp(data_api_request["range"]["endPulseId"] + 1)
 
         if start_ts != 0 and stop_ts != 0 and start_ts < stop_ts:
             del new_data_api_request["range"]["startPulseId"]
