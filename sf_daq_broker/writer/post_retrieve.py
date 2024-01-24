@@ -2,92 +2,112 @@ import argparse
 import json
 import logging
 import os
-from datetime import datetime
 from glob import glob
 
 from sf_daq_broker import config
 from sf_daq_broker.writer.bsread_writer import write_from_databuffer_api3, write_from_imagebuffer
+
 
 #logger = logging.getLogger("data_api3")
 logger = logging.getLogger("broker_writer")
 logger.setLevel("INFO")
 #logger.setLevel("DEBUG")
 
+
+ALLOWED_SOURCES = [
+    "image",
+    "data_api3",
+#    "epics"
+]
+
+PRINTABLE_ALLOWED_SOURCES = ", ".join(sorted(ALLOWED_SOURCES))
+
+ENTRY_NAMES = {
+    "image":     "camera_list",
+    "data_api3": "channels_list",
+#    "epics":     "pv_list"
+}
+
+FTYPES = {
+    "image":     "CAMERAS",
+    "data_api3": "BSDATA",
+#    "epics":     "PVCHANNELS"
+}
+
+WRITERS = {
+    "image":     write_from_imagebuffer,
+    "data_api3": write_from_databuffer_api3
+}
+
+
 parser = argparse.ArgumentParser()
-parser.add_argument("--source", default="image", type=str, help="retrieve from image or data buffer (possible values data_api3, image, epics)")
-parser.add_argument("--run_info", default=None, type=str, help="run_info json file")
-args = parser.parse_args()
 
-source = None
-if args.source == "image":
-    source = "image"
-elif args.source == "data_api3":
-    source = "data_api3"
-elif args.source == "epics":
-    source = "epics"
+parser.add_argument("run_info", help="run_info json file")
+parser.add_argument("--source", "-s", default="image", choices=ALLOWED_SOURCES, help=f"retrieve from image or data buffer (possible values: {PRINTABLE_ALLOWED_SOURCES})")
 
-if args.run_info is None:
-    raise SystemExit("provide run info file")
+clargs = parser.parse_args()
 
-if not os.path.exists(args.run_info):
-    raise SystemExit(f"{args.run_info} is not reachable or available")
+source = clargs.source
+fn_run_info = clargs.run_info
 
-with open(args.run_info, "r") as read_file:
+
+if not os.path.exists(fn_run_info):
+    raise SystemExit(f"{fn_run_info} not found")
+
+with open(fn_run_info) as read_file:
     run_info = json.load(read_file)
 
-if source == "image":
-    if "camera_list" not in run_info:
-        raise SystemExit("No cameras defined in run_info file")
-    channels = run_info.get("camera_list", [])
-elif source == "data_api3":
-    if "channels_list" not in run_info:
-        raise SystemExit("No BS channels defined in run_info file")
-    channels = run_info.get("channels_list", [])
-else:
-    if "pv_list" not in run_info:
-        raise SystemExit("No PV channels defined in run_info file")
-    channels = run_info.get("pv_list", [])
+
+entry_name = ENTRY_NAMES[source]
+ftype      = FTYPES[source]
+writer     = WRITERS[source]
+
+
+if entry_name not in run_info:
+    raise SystemExit(f"No {entry_name} defined in run_info file")
+
+channels = run_info[entry_name]
+
 
 start_pulse_id = run_info["start_pulseid"]
-stop_pulse_id = run_info["stop_pulseid"]
+stop_pulse_id  = run_info["stop_pulseid"]
 
 data_request = {}
 data_request["range"] = {}
 data_request["range"]["startPulseId"] = run_info["start_pulseid"]
-data_request["range"]["endPulseId"] = run_info["stop_pulseid"]
-data_request["channels"] = [{"name": ch, "backend": config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND}
-                     for ch in channels]
+data_request["range"]["endPulseId"]   = run_info["stop_pulseid"]
+data_request["channels"] = [
+    {
+        "name": ch,
+        "backend": config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND
+    }
+    for ch in channels
+]
 
-run_number = run_info.get("run_number", 0)
+run_number         = run_info.get("run_number", 0)
 acquisition_number = run_info.get("acquisition_number", 0)
 
-parameters = None
-
 ri_beamline = run_info["beamline"]
-ri_pgroup = run_info["pgroup"]
+ri_pgroup   = run_info["pgroup"]
+
 list_data_directories_run = glob(f"/sf/{ri_beamline}/data/{ri_pgroup}/raw/run{run_number:04}*")
 if len(list_data_directories_run) != 1:
     raise SystemExit(f"Ambiguous data directries : {list_data_directories_run}")
-data_directory=list_data_directories_run[0]
 
-if source == "image":
-    output_file = f"{data_directory}/data/acq{acquisition_number:04}.CAMERAS.h5.2"
+data_directory = list_data_directories_run[0]
 
-    write_from_imagebuffer(data_request, output_file, parameters)
+output_file = f"{data_directory}/data/acq{acquisition_number:04}.{ftype}.h5.2"
 
-elif source == "data_api3":
-    output_file = f"{data_directory}/data/acq{acquisition_number:04}.BSDATA.h5.2"
+parameters = None
+writer(data_request, output_file, parameters)
 
-    write_from_databuffer_api3(data_request, output_file, parameters)
 
-else:
-    output_file = f"{data_directory}/data/acq{acquisition_number:04}.PVCHANNELS.h5"
+#    metadata = {
+#        "general/user": run_info["pgroup"],
+#        "general/process": __name__,
+#        "general/created": str(datetime.now()),
+#        "general/instrument": run_info["beamline"]
+#    }
 
-    metadata = {
-                 "general/user": run_info["pgroup"],
-                 "general/process": __name__,
-                 "general/created": str(datetime.now()),
-                 "general/instrument": run_info["beamline"]
-    }
 
-    print("post-retrieve for EPICS-BUFFER is not implemented")
+
