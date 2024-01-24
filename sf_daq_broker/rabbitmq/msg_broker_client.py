@@ -7,6 +7,17 @@ from pika import BasicProperties, BlockingConnection, ConnectionParameters
 import sf_daq_broker.rabbitmq.config as broker_config
 
 
+ROUTES = {
+#    broker_config.TAG_DATA3BUFFER:       broker_config.DEFAULT_ROUTE,
+#    broker_config.TAG_IMAGEBUFFER:       broker_config.DEFAULT_ROUTE,
+    broker_config.TAG_DETECTOR_RETRIEVE: broker_config.DETECTOR_RETRIEVE_ROUTE,
+    broker_config.TAG_DETECTOR_CONVERT:  broker_config.DETECTOR_CONVERSION_ROUTE,
+    broker_config.TAG_PEDESTAL:          broker_config.DETECTOR_PEDESTAL_ROUTE,
+    broker_config.TAG_POWER_ON:          broker_config.DETECTOR_PEDESTAL_ROUTE,
+}
+
+
+
 class RabbitMqClient:
 
     def __init__(self, broker_url=broker_config.DEFAULT_BROKER_URL):
@@ -45,17 +56,10 @@ class RabbitMqClient:
         if self.channel is None:
             raise RuntimeError("RabbitMqClient not connected.")
 
-        routing_key = broker_config.DEFAULT_ROUTE
-        if tag == broker_config.TAG_DATA3BUFFER or tag == broker_config.TAG_IMAGEBUFFER:
-            routing_key = broker_config.DEFAULT_ROUTE
-        elif tag == broker_config.TAG_DETECTOR_RETRIEVE:
-            routing_key = broker_config.DETECTOR_RETRIEVE_ROUTE
-        elif tag == broker_config.TAG_DETECTOR_CONVERT:
-            routing_key = broker_config.DETECTOR_CONVERSION_ROUTE
-        elif tag == broker_config.TAG_PEDESTAL or tag == broker_config.TAG_POWER_ON:
-            routing_key = broker_config.DETECTOR_PEDESTAL_ROUTE
-        elif tag.startswith("epics_"):
+        if tag.startswith("epics_"):
             routing_key = tag
+        else:
+            routing_key = ROUTES.get(tag, broker_config.DEFAULT_ROUTE)
 
         request_id = str(uuid.uuid4())
         body_bytes = json.dumps(write_request).encode()
