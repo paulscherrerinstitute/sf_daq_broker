@@ -3,22 +3,24 @@ from time import sleep
 
 import epics
 from slsdet import Jungfrau
-from slsdet.enums import detectorSettings, timingMode
+from slsdet.enums import timingMode
 
 from sf_daq_broker.detector.detector_config import DetectorConfig
 
+
 _logger = logging.getLogger("broker_writer")
 
-beamline_event_code = { "alvra"       : "SAR-CVME-TIFALL4-EVG0:SoftEvt-EvtCode-SP",
-                        "bernina"     : "SAR-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP",
-                        "cristallina" : "SAR-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP",
-                        "furka"       : "SAT-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP",
-                        "maloja"      : "SAT-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP"
-                      }
+beamline_event_code = {
+    "alvra"       : "SAR-CVME-TIFALL4-EVG0:SoftEvt-EvtCode-SP",
+    "bernina"     : "SAR-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP",
+    "cristallina" : "SAR-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP",
+    "furka"       : "SAT-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP",
+    "maloja"      : "SAT-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP"
+}
+
 
 
 def load_detector_config(detector_name=None):
-
     _logger.info(f"request to load config for detector {detector_name}")
 
     if detector_name is None:
@@ -32,7 +34,7 @@ def load_detector_config(detector_name=None):
         return
 
     detector_number = detector_configuration.get_detector_number()
-    number_modules = detector_configuration.get_number_modules()
+#    number_modules = detector_configuration.get_number_modules()
 
     detector = Jungfrau(detector_number)
 
@@ -41,16 +43,13 @@ def load_detector_config(detector_name=None):
     detector.setHostname(detector_configuration.get_detector_hostname())
 
     detector.udp_dstmac = detector_configuration.get_detector_udp_dstmac()
-
     detector.udp_dstip  = detector_configuration.get_udp_dstip()
-
     detector.udp_dstport = detector_configuration.get_detector_port_first_module() # will increment port(+1) for each module
 
     detector.udp_srcip = detector_configuration.get_detector_upd_ip()
     detector.udp_srcmac = detector_configuration.get_detector_udp_mac()
 
     detector.txndelay_frame = detector_configuration.get_detector_txndelay()
-
     detector.delay = detector_configuration.get_detector_delay()
 
     if detector_number == 2:
@@ -69,19 +68,18 @@ def load_detector_config(detector_name=None):
 
     detector.timing = timingMode.TRIGGER_EXPOSURE
     detector.triggers = 500000000
+
+    detector.exptime = 5e-06
     if detector_number == 15:
         detector.exptime = 10e-06
-    else:
-        detector.exptime = 5e-06
+
     detector.frames = 1
     detector.dr = 16
 
     detector.startDetector()
 
 
-
 def power_on_detector(detector_name=None, beamline=None):
-
     _logger.info(f"request to power on detector {detector_name}")
 
     if detector_name is None:
@@ -116,7 +114,7 @@ def power_on_detector(detector_name=None, beamline=None):
         _logger.error(f"can not stop detector triggering : {e}")
         return
 
-    #sleep few second to give epics a chance to switch code
+    # sleep few second to give epics a chance to switch code
     sleep(4)
 
     event_code = int(event_code_pv.get())
@@ -128,16 +126,18 @@ def power_on_detector(detector_name=None, beamline=None):
 
     try:
         detector.stopDetector()
-    except:
-        _logger.info(f"{detector_name} (number {detector_number}) can not be stopped, may be was not initialised before")
+    except Exception as e:
+        _logger.info(f"{detector_name} (number {detector_number}) can not be stopped, may be was not initialised before : {e}")
 
     detector.freeSharedMemory()
 
     try:
         load_detector_config(detector_name)
-
     except Exception as e:
         _logger.error(f"cannot configure detector : {e}")
 
     # start triggering
     event_code_pv.put(254)
+
+
+
