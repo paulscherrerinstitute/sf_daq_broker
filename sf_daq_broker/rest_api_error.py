@@ -7,6 +7,7 @@ import bottle
 _logger = logging.getLogger(__name__)
 
 
+
 def register_error_handler(app):
 
     @app.error(500)
@@ -22,3 +23,6 @@ def register_error_handler(app):
             "state": "error",
             "status": error_text
         })
+
+
+
