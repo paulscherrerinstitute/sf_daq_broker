@@ -130,21 +130,21 @@ class DetectorManager:
 
         if exptime:
             detector.exptime = exptime
-            print(f"setting exptime to {exptime}")
+            _logger.info(f"setting exptime to {exptime}")
 
         if detector_mode:
             if detector_mode in conv_detector_settings_reverse:
                 detector.settings = conv_detector_settings_reverse[detector_mode]
-                print(f"settings detector settings to {conv_detector_settings_reverse[detector_mode]} ({detector_mode})")
+                _logger.info(f"settings detector settings to {conv_detector_settings_reverse[detector_mode]} ({detector_mode})")
 
         if delay:
             detector.delay = delay
-            print(f"setting delay to {delay}")
+            _logger.info(f"setting delay to {delay}")
 
         if gain_mode:
             if gain_mode in conv_detector_gain_settings_reverse:
                 detector.gainmode = conv_detector_gain_settings_reverse[gain_mode]
-                print(f"settings detector settings to {conv_detector_gain_settings_reverse[gain_mode]} ({gain_mode})")
+                _logger.info(f"settings detector settings to {conv_detector_gain_settings_reverse[gain_mode]} ({gain_mode})")
 
         # start triggering
         event_code_pv.put(254)
