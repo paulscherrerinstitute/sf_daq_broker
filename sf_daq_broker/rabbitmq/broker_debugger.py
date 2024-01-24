@@ -1,3 +1,4 @@
+import argparse
 import json
 from datetime import datetime
 
@@ -54,8 +55,6 @@ def connect_to_broker(broker_url):
 
 
 def main():
-    import argparse
-
     parser = argparse.ArgumentParser(description="Connect and listen to broker events.")
     parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL, help="RabbitMQ broker URL")
 
