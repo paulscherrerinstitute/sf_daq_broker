@@ -10,7 +10,9 @@ from data_api3 import h5 as dapi3h5
 
 from sf_daq_broker import config, utils
 
+
 _logger = logging.getLogger("broker_writer")
+
 
 
 def tsfmt(ts):
@@ -21,15 +23,16 @@ def tsfmt(ts):
     s = f"{s}.{m:06d}Z"
     return s
 
-def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, channels, output_file):
 
+def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, channels, output_file):
     start_check_time = time()
 
     # run checks
     expected_pulse_id = []
-    for p in range(start_pulse_id,stop_pulse_id+1):
-        if p%rate_multiplicator == 0:
+    for p in range(start_pulse_id, stop_pulse_id + 1):
+        if p % rate_multiplicator == 0:
             expected_pulse_id.append(p)
+
     expected_pulse_id = numpy.array(expected_pulse_id)
     expected_number_measurements = len(expected_pulse_id)
 
@@ -40,14 +43,12 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
             if channel not in inside_file:
                 _logger.error(f"check {channel} not present in file")
             else:
-
-                pulse_id_raw    = data_h5py[f"/{channel}/pulse_id"][:]
+                pulse_id_raw = data_h5py[f"/{channel}/pulse_id"][:]
 
                 if numpy.sum(pulse_id_raw < start_pulse_id) or numpy.sum(pulse_id_raw > stop_pulse_id):
                     _logger.error(f"check {channel} contains pulse_id outside of requested range")
 
                 n_pulse_id_raw = len(pulse_id_raw)
-
                 n_unique_pulse_id_raw = len(set(pulse_id_raw))
 
                 duplicated_entries = False
@@ -123,6 +124,7 @@ def write_from_imagebuffer(data_api_request, output_file, _parameters):
 
     check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, channels, output_file)
 
+
 def write_from_databuffer_api3(data_api_request, output_file, _parameters):
     _logger.debug(f"Data3 API request: {data_api_request}")
 
@@ -165,3 +167,6 @@ def write_from_databuffer_api3(data_api_request, output_file, _parameters):
         _logger.error(e)
 
     check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, channels, output_file)
+
+
+
