@@ -26,3 +26,6 @@ def register_rest_interface(app, manager):
     @app.post("/set_dap_settings")
     def set_dap_settings():
         return manager.set_dap_settings(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
+
+
+

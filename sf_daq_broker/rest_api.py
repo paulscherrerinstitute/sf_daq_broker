@@ -46,3 +46,6 @@ def register_rest_interface(app, manager):
     @app.post("/close_pgroup_writing")
     def close_pgroup_writing():
         return manager.close_pgroup_writing(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
+
+
+
