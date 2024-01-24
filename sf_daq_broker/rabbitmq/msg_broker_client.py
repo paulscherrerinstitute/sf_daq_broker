@@ -11,9 +11,9 @@ class RabbitMqClient:
 
     def __init__(self, broker_url=broker_config.DEFAULT_BROKER_URL):
         self.broker_url = broker_url
-
         self.connection = None
         self.channel = None
+
 
     def open(self):
         try:
@@ -24,20 +24,24 @@ class RabbitMqClient:
 
         self.channel = self.connection.channel()
 
-        self.channel.exchange_declare(exchange=broker_config.REQUEST_EXCHANGE,
-                                      exchange_type="topic")
+        self.channel.exchange_declare(
+            exchange=broker_config.REQUEST_EXCHANGE,
+            exchange_type="topic"
+        )
 
-        self.channel.exchange_declare(exchange=broker_config.STATUS_EXCHANGE,
-                                      exchange_type="fanout")
+        self.channel.exchange_declare(
+            exchange=broker_config.STATUS_EXCHANGE,
+            exchange_type="fanout"
+        )
+
 
     def close(self):
         self.connection.close()
-
         self.connection = None
         self.channel = None
 
-    def send(self, write_request, tag):
 
+    def send(self, write_request, tag):
         if self.channel is None:
             raise RuntimeError("RabbitMqClient not connected.")
 
@@ -55,20 +59,28 @@ class RabbitMqClient:
 
         request_id = str(uuid.uuid4())
         body_bytes = json.dumps(write_request).encode()
+        properties = BasicProperties(correlation_id=request_id)
 
-        self.channel.basic_publish(exchange=broker_config.REQUEST_EXCHANGE,
-                                   routing_key=routing_key,
-                                   properties=BasicProperties(correlation_id=request_id),
-                                   body=body_bytes)
+        self.channel.basic_publish(
+            exchange=broker_config.REQUEST_EXCHANGE,
+            properties=properties,
+            routing_key=routing_key,
+            body=body_bytes
+        )
 
         status_header = {
             "action": "write_request",
             "source": "BrokerClient",
             "routing_key": routing_key
         }
+        properties = BasicProperties(headers=status_header, correlation_id=request_id)
 
-        self.channel.basic_publish(exchange=broker_config.STATUS_EXCHANGE,
-                                   properties=BasicProperties(headers=status_header, correlation_id=request_id),
-                                   routing_key=routing_key,
-                                   body=body_bytes)
+        self.channel.basic_publish(
+            exchange=broker_config.STATUS_EXCHANGE,
+            properties=properties,
+            routing_key=routing_key,
+            body=body_bytes
+        )
+
+
 
