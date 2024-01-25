@@ -68,33 +68,33 @@ def get_writer_request(writer_type, channels, output_file, metadata, start_pulse
     return res
 
 
-def transform_range_from_pulse_id_to_timestamp(data_api_request):
-    new_data_api_request = deepcopy(data_api_request)
+#def transform_range_from_pulse_id_to_timestamp(data_api_request):
+#    new_data_api_request = deepcopy(data_api_request)
 
-    try:
-        mapping_request = {
-            "range": {
-                "startPulseId": data_api_request["range"]["startPulseId"],
-                "endPulseId":   data_api_request["range"]["endPulseId"] + 1
-            }
-        }
+#    try:
+#        mapping_request = {
+#            "range": {
+#                "startPulseId": data_api_request["range"]["startPulseId"],
+#                "endPulseId":   data_api_request["range"]["endPulseId"] + 1
+#            }
+#        }
 
-        mapping_response = requests.post(url=config.DATA_API_QUERY_ADDRESS + "/mapping", json=mapping_request, timeout=10).json()
-        _logger.info(f"Response to mapping request: {mapping_response}")
+#        mapping_response = requests.post(url=config.DATA_API_QUERY_ADDRESS + "/mapping", json=mapping_request, timeout=10).json()
+#        _logger.info(f"Response to mapping request: {mapping_response}")
 
-        del new_data_api_request["range"]["startPulseId"]
-        new_data_api_request["range"]["startSeconds"] = mapping_response[0]["start"]["globalSeconds"]
+#        del new_data_api_request["range"]["startPulseId"]
+#        new_data_api_request["range"]["startSeconds"] = mapping_response[0]["start"]["globalSeconds"]
 
-        del new_data_api_request["range"]["endPulseId"]
-        new_data_api_request["range"]["endSeconds"] = mapping_response[0]["end"]["globalSeconds"]
+#        del new_data_api_request["range"]["endPulseId"]
+#        new_data_api_request["range"]["endSeconds"] = mapping_response[0]["end"]["globalSeconds"]
 
-#        _logger.info(f"Transformed request to startSeconds and endSeconds. {new_data_api_request}")
+##        _logger.info(f"Transformed request to startSeconds and endSeconds. {new_data_api_request}")
 
-    except Exception as e:
-        _logger.error(e)
-        raise RuntimeError("Cannot retrieve the pulse_id to timestamp mapping.") from e
+#    except Exception as e:
+#        _logger.error(e)
+#        raise RuntimeError("Cannot retrieve the pulse_id to timestamp mapping.") from e
 
-    return new_data_api_request
+#    return new_data_api_request
 
 
 def pulse_id_to_seconds(pulse_id):
