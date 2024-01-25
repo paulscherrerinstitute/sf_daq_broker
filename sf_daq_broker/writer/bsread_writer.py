@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from random import randrange
+from random import choice
 from time import time
 
 import h5py
@@ -81,7 +81,7 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
 
 
 def write_from_imagebuffer(data_api_request, output_file, _parameters):
-    buffer_url = config.IMAGE_API_QUERY_ADDRESS[randrange(len(config.IMAGE_API_QUERY_ADDRESS))]
+    buffer_url = choice(config.IMAGE_API_QUERY_ADDRESS)
     requester = lambda *args: dapi3h5.request(*args, url=buffer_url)
     what = "image"
     write_generic(data_api_request, output_file, _parameters, buffer_url, requester, what)
