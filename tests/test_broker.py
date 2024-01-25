@@ -8,7 +8,7 @@ import os
 import requests
 from bsread import source, PULL
 
-from sf_databuffer_writer import config, broker
+from sf_daq_broker import config, broker
 
 
 class TestBroker(unittest.TestCase):
