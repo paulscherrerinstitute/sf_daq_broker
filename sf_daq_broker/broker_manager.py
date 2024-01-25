@@ -687,9 +687,9 @@ class BrokerManager:
 
 
 
-# not needed anymore, we replace bad characters with "_"
-def check_for_allowed_user_tag_character(user_tag):
-    return set(user_tag) <= allowed_user_tag_characters
+## not needed anymore, we replace bad characters with "_"
+#def check_for_allowed_user_tag_character(user_tag):
+#    return set(user_tag) <= allowed_user_tag_characters
 
 def clean_user_tag(user_tag, replacement_character="_"):
     #return "".join(char for char in user_tag if char in allowed_user_tag_characters) # do not replace but remove bad characters. In this case resulting string may be empty

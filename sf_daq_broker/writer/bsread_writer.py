@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from random import randrange
+from random import choice
 from time import time
 
 import h5py
@@ -37,7 +37,7 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
     expected_number_measurements = len(expected_pulse_id)
 
     try:
-        data_h5py = h5py.File(output_file,"r")
+        data_h5py = h5py.File(output_file)
         inside_file = list(data_h5py.keys())
         for channel in channels:
             if channel not in inside_file:
@@ -81,52 +81,21 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
 
 
 def write_from_imagebuffer(data_api_request, output_file, _parameters):
-    start_pulse_id = data_api_request["range"]["startPulseId"]
-    stop_pulse_id  = data_api_request["range"]["endPulseId"]
-    rate_multiplicator = data_api_request.get("rate_multiplicator", 1)
-
-    _logger.debug(f"Data API request: {data_api_request}")
-
-    data_api_request_timestamp = utils.transform_range_from_pulse_id_to_timestamp_new(data_api_request)
-
-    channels = [channel["name"] for channel in data_api_request_timestamp["channels"]]
-
-    if "startTS" not in data_api_request_timestamp["range"]:
-        _logger.info("startTS not present, tranformation of pulseid to timestamp failed")
-        return
-
-    start = tsfmt(data_api_request_timestamp["range"]["startTS"])
-    end = tsfmt(data_api_request_timestamp["range"]["endTS"])
-
-    query = {
-        "channels": channels,
-        "range": {
-            "type": "date",
-            "startDate": start,
-            "endDate": end
-        }
-    }
-
-    image_buffer_url = config.IMAGE_API_QUERY_ADDRESS[randrange(len(config.IMAGE_API_QUERY_ADDRESS))]
-
-    _logger.debug(f'Requesting "{query}" to output_file {output_file} from {image_buffer_url}')
-
-    start_time = time()
-
-    try:
-        _logger.debug(f"query request : {query} {output_file} {image_buffer_url}")
-        dapi3h5.request(query, output_file, url=image_buffer_url)
-        delta_time = time() - start_time
-        _logger.info(f"Image download and writing took {delta_time} seconds.")
-    except Exception as e:
-        _logger.error("Got exception from data_api3")
-        _logger.error(e)
-
-    check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, channels, output_file)
+    buffer_url = choice(config.IMAGE_API_QUERY_ADDRESS)
+    requester = lambda *args: dapi3h5.request(*args, url=buffer_url)
+    what = "image"
+    write_generic(data_api_request, output_file, _parameters, buffer_url, requester, what)
 
 
 def write_from_databuffer_api3(data_api_request, output_file, _parameters):
-    _logger.debug(f"Data3 API request: {data_api_request}")
+    buffer_url = config.DATA_API3_QUERY_ADDRESS
+    requester = lambda *args: dapi3h5.request(*args, baseurl=buffer_url, default_backend=config.DATA_BACKEND)
+    what = "data"
+    write_generic(data_api_request, output_file, _parameters, buffer_url, requester, what)
+
+
+def write_generic(data_api_request, output_file, _parameters, buffer_url, requester, what):
+    _logger.debug(f"Data API 3 ({what} buffer) request: {data_api_request}")
 
     start_pulse_id = data_api_request["range"]["startPulseId"]
     stop_pulse_id  = data_api_request["range"]["endPulseId"]
@@ -152,16 +121,16 @@ def write_from_databuffer_api3(data_api_request, output_file, _parameters):
         }
     }
 
-    data_buffer_url = config.DATA_API3_QUERY_ADDRESS
-
-    _logger.debug(f'Requesting "{query}" to output_file {output_file} from {data_buffer_url}')
+    _logger.debug(f'Requesting "{query}" to output_file {output_file} from {buffer_url}')
 
     start_time = time()
 
     try:
-        dapi3h5.request(query, filename=output_file, baseurl=data_buffer_url, default_backend=config.DATA_BACKEND)
+        _logger.debug(f"query request : {query} {output_file} {buffer_url}")
+        requester(query, output_file)
         delta_time = time() - start_time
-        _logger.info(f"Data download and writing took {delta_time} seconds.")
+        _logger.info(f"{what} download and writing took {delta_time} seconds.")
+
     except Exception as e:
         _logger.error("Got exception from data_api3")
         _logger.error(e)
