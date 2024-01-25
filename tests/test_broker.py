@@ -20,11 +20,9 @@ class TestBroker(unittest.TestCase):
         self.channels = ["Channel1", "Channel2", "Channel3"]
         self.stream_output_port = 10000
         self.rest_port = 11000
+        self.broker_url = "http://localhost"
 
-        self.broker_process = Process(target=broker.start_server, args=(self.channels,
-                                                                        self.stream_output_port,
-                                                                        100,
-                                                                        self.rest_port))
+        self.broker_process = Process(target=broker.start_server, args=(self.broker_url, self.rest_port))
 
         self.broker_process.start()
         sleep(1)

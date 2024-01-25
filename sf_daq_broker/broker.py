@@ -28,6 +28,7 @@ def start_server(broker_url, rest_port):
 
     _logger.info("SF-DAQ-BROKER started.")
 
+    # TODO: this is broken because `hostname` can be completely different from the given broker-url. 
     try:
         hostname = socket.gethostname()
         _logger.info("Starting rest API on port %s host %s" % (rest_port, hostname) )
