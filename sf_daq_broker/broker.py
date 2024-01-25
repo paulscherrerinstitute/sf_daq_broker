@@ -28,6 +28,7 @@ def start_server(broker_url, rest_port):
 
     _logger.info("SF-DAQ-BROKER started.")
 
+    # TODO: bottle server does not use the broker_url but detected hostname which can be different!
     hostname = socket.gethostname()
     _logger.info(f"Starting rest API on port {rest_port} host {hostname}" )
 
