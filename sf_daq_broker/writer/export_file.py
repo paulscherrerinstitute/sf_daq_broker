@@ -12,48 +12,48 @@ _logger = logging.getLogger("broker_writer")
 
 
 def convert_file(file_in, file_out, json_run_file, detector_config_file):
-
     with open(detector_config_file, "r") as detector_file:
         data = json.load(detector_file)
 
-        detector_name = data["detector_name"]
-        gain_file     = data["gain_file"]
-        pedestal_file = data["pedestal_file"]
+    detector_name = data["detector_name"]
+    gain_file     = data["gain_file"]
+    pedestal_file = data["pedestal_file"]
 
 
     with open(json_run_file, "r") as run_file:
         data = json.load(run_file)
-        detector_params = data["detectors"][detector_name]
 
-        compression      = detector_params.get("compression", False)
-        conversion       = detector_params.get("adc_to_energy", False)
-        disabled_modules = detector_params.get("disabled_modules", [])
-        remove_raw_files = detector_params.get("remove_raw_files", False)
-        downsample       = detector_params.get("downsample", None)
+    detector_params = data["detectors"][detector_name]
 
-        if downsample is not None:
-            if isinstance(downsample, list):
-                downsample = tuple(downsample)
-            if not (isinstance(downsample, tuple) and len(downsample) == 2 and isinstance(downsample[0], int) and isinstance(downsample[1], int)):
-                _logger.error(f"Bad option for the downsample parameter : {downsample}. Ignoring it.")
-                downsample = None
+    compression      = detector_params.get("compression", False)
+    conversion       = detector_params.get("adc_to_energy", False)
+    disabled_modules = detector_params.get("disabled_modules", [])
+    remove_raw_files = detector_params.get("remove_raw_files", False)
+    downsample       = detector_params.get("downsample", None)
 
-        if conversion:
-            mask                 = detector_params.get("mask", True)
-            double_pixels_action = detector_params.get("double_pixels_action", "mask")
-            geometry             = detector_params.get("geometry", False)
-            gap_pixels           = detector_params.get("gap_pixels", True)
-            factor               = detector_params.get("factor", None)
-        else:
-            mask                 = False
-            double_pixels_action = "keep"
-            geometry             = False
-            gap_pixels           = False
-            factor               = None
+    if downsample is not None:
+        if isinstance(downsample, list):
+            downsample = tuple(downsample)
+        if not (isinstance(downsample, tuple) and len(downsample) == 2 and isinstance(downsample[0], int) and isinstance(downsample[1], int)):
+            _logger.error(f"Bad option for the downsample parameter : {downsample}. Ignoring it.")
+            downsample = None
 
-        selected_pulse_ids = data.get("selected_pulse_ids", [])
-        save_ppicker_events_only = detector_params.get("save_ppicker_events_only", False)
-        roi = detector_params.get("roi", None)
+    if conversion:
+        mask                 = detector_params.get("mask", True)
+        double_pixels_action = detector_params.get("double_pixels_action", "mask")
+        geometry             = detector_params.get("geometry", False)
+        gap_pixels           = detector_params.get("gap_pixels", True)
+        factor               = detector_params.get("factor", None)
+    else:
+        mask                 = False
+        double_pixels_action = "keep"
+        geometry             = False
+        gap_pixels           = False
+        factor               = None
+
+    selected_pulse_ids = data.get("selected_pulse_ids", [])
+    save_ppicker_events_only = detector_params.get("save_ppicker_events_only", False)
+    roi = detector_params.get("roi", None)
 
 
     files_to_remove = set()
