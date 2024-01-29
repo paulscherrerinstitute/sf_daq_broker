@@ -116,7 +116,7 @@ class BrokerManager:
             "pv_list": list(dict.fromkeys(pv_list))
         }
         with open(config_file, "w") as json_file:
-            json.dump(config_epics, json_file, indent=2)
+            json.dump(config_epics, json_file, indent=4)
 
         date_now = datetime.now()
         date_now_str = date_now.strftime("%d-%b-%Y_%H:%M:%S")
@@ -332,7 +332,7 @@ class BrokerManager:
         run_file_json = f"{run_info_directory}/{pedestal_name}.json"
 
         with open(run_file_json, "w") as request_json_file:
-            json.dump(request, request_json_file, indent=2)
+            json.dump(request, request_json_file, indent=4)
 
         pedestal_request = {
             "detectors": detectors,
@@ -525,7 +525,7 @@ class BrokerManager:
 
         run_file_json = f"{meta_directory}/acq{current_acq:04}.json"
         with open(run_file_json, "w") as request_json_file:
-            json.dump(request, request_json_file, indent=2)
+            json.dump(request, request_json_file, indent=4)
 
         metadata = {
             "general/user": str(pgroup[1:6]),
