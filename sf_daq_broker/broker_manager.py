@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 import string
@@ -9,7 +8,7 @@ from shutil import copyfile
 import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker import config
 from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline, detector_human_names, get_streamvis_address
-from sf_daq_broker.utils import get_writer_request, ip_to_console
+from sf_daq_broker.utils import get_writer_request, ip_to_console, json_save, json_load
 from .return_status import return_status
 
 
@@ -83,8 +82,7 @@ class BrokerManager:
         if not os.path.exists(config_file):
             raise RuntimeError(f"epics config file not exist for this beamline {beamline}")
 
-        with open(config_file) as json_file:
-            config_info = json.load(json_file)
+        config_info = json_load(config_file)
 
         res = {
             "status": "ok",
@@ -115,8 +113,7 @@ class BrokerManager:
             "pulse_id_pv": "SLAAR11-LTIM01-EVR0:RX-PULSEID",
             "pv_list": list(dict.fromkeys(pv_list))
         }
-        with open(config_file, "w") as json_file:
-            json.dump(config_epics, json_file, indent=4)
+        json_save(config_epics, config_file)
 
         date_now = datetime.now()
         date_now_str = date_now.strftime("%d-%b-%Y_%H:%M:%S")
@@ -331,8 +328,7 @@ class BrokerManager:
         run_info_directory = full_path
         run_file_json = f"{run_info_directory}/{pedestal_name}.json"
 
-        with open(run_file_json, "w") as request_json_file:
-            json.dump(request, request_json_file, indent=4)
+        json_save(request, run_file_json)
 
         pedestal_request = {
             "detectors": detectors,
@@ -524,8 +520,7 @@ class BrokerManager:
         request["unique_acquisition_run_number"] = unique_acq
 
         run_file_json = f"{meta_directory}/acq{current_acq:04}.json"
-        with open(run_file_json, "w") as request_json_file:
-            json.dump(request, request_json_file, indent=4)
+        json_save(request, run_file_json)
 
         metadata = {
             "general/user": str(pgroup[1:6]),
@@ -659,8 +654,7 @@ class BrokerManager:
             for scan_step_field in each_scan_fields:
                 scan_info[scan_step_field] = []
         else:
-            with open(scan_info_file) as json_file:
-                scan_info = json.load(json_file)
+            scan_info = json_load(scan_info_file)
 
         for scan_step_field in each_scan_fields:
             scan_info[scan_step_field].append(
@@ -670,8 +664,7 @@ class BrokerManager:
         scan_info["scan_files"].append(output_files_list)
         scan_info["pulseIds"].append([start_pulse_id, stop_pulse_id])
 
-        with open(scan_info_file, "w") as json_file:
-            json.dump(scan_info, json_file, indent=4)
+        json_save(scan_info, scan_info_file)
 
         res = {
             "status": "ok",

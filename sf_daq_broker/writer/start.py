@@ -13,7 +13,7 @@ from sf_daq_broker import config
 from sf_daq_broker.detector.pedestal import take_pedestal
 from sf_daq_broker.detector.power_on_detector import power_on_detector
 from sf_daq_broker.rabbitmq.msg_broker_client import RabbitMqClient
-from sf_daq_broker.utils import get_data_api_request, get_writer_request
+from sf_daq_broker.utils import get_data_api_request, get_writer_request, json_save, json_load
 from sf_daq_broker.writer.bsread_writer import write_from_databuffer_api3, write_from_imagebuffer
 from sf_daq_broker.writer.detector_writer import detector_retrieve
 
@@ -121,14 +121,12 @@ def process_request(request, broker_client):
             # overwrite start/stop pulse_ids in run_info json file
             run_file_json = request.get("run_file_json", None)
             if run_file_json is not None:
-                with open(run_file_json, "r") as request_json_file:
-                    run_info = json.load(request_json_file)
+                run_info = json_load(run_file_json)
 
                 run_info["start_pulseid"] = det_start_pulse_id
                 run_info["stop_pulseid"]  = det_stop_pulse_id
 
-                with open(run_file_json, "w") as request_json_file:
-                    json.dump(run_info, request_json_file, indent=4)
+                json_save(run_info, run_file_json)
 
             request_det_retrieve = {
                 "det_start_pulse_id" : det_start_pulse_id,
