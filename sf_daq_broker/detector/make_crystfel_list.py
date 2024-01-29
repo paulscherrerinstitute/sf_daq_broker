@@ -4,7 +4,6 @@ import os
 from time import sleep
 
 import h5py
-import numpy as np
 
 
 _logger = logging.getLogger("broker_writer")
@@ -14,15 +13,15 @@ _logger = logging.getLogger("broker_writer")
 def make_crystfel_list(data_file, run_info_file, detector):
     try:
         with open(run_info_file) as json_file:
-            parameters = json.load(json_file)
-    except:
-        _logger.error(f"Cannot read provided run file {run_info_file}, may be not json?")
+            _parameters = json.load(json_file)
+    except Exception as e:
+        _logger.error(f"Cannot read provided run file {run_info_file}, may be not json? (due to {e})")
         return
 
     try:
         f = h5py.File(data_file, "r")
-    except:
-        _logger.error(f"Cannot open {data_file}")
+    except Exception as e:
+        _logger.error(f"Cannot open {data_file} (due to {e})")
         return
 
     pulseids = f[f"/data/{detector}/pulse_id"][:]
@@ -46,14 +45,14 @@ def make_crystfel_list(data_file, run_info_file, detector):
             continue
 
         nGoodFrames += 1
-        p = pulseids[i]
+#        p = pulseids[i]
         nProcessedFrames += 1
         daq_rec = daq_recs[i]
 
-        event_laser    = bool((daq_rec>>16)&1)
-        event_darkshot = bool((daq_rec>>17)&1)
-        event_fel      = bool((daq_rec>>18)&1)
-        event_ppicker  = bool((daq_rec>>19)&1)
+        event_laser    = bool((daq_rec>>16) & 1)
+        event_darkshot = bool((daq_rec>>17) & 1)
+#        event_fel      = bool((daq_rec>>18) & 1)
+#        event_ppicker  = bool((daq_rec>>19) & 1)
 
         laser_on = False
         if not event_darkshot:
@@ -96,7 +95,7 @@ def store_dap_info(beamline=None, pgroup=None, detector=None, start_pulse_id=Non
         _logger.error(f"dap output is not reachable, may be dap is not working, path: {path_to_dap_files}")
         return
 
-    dap_ending = set([p // 10000 * 10000 for p in range(start_pulse_id, stop_pulse_id + 1)])
+    dap_ending = set(p // 10000 * 10000 for p in range(start_pulse_id, stop_pulse_id + 1))
 
     sleep(10)
 
