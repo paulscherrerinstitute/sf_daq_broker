@@ -85,7 +85,7 @@ def make_crystfel_list(data_file, run_info_file, detector):
 
 
 def store_dap_info(beamline=None, pgroup=None, detector=None, start_pulse_id=None, stop_pulse_id=None, file_name_out=None):
-    if beamline is None or pgroup is None or detector is None or start_pulse_id is None or stop_pulse_id is None or file_name_out is None:
+    if None in (beamline, pgroup, detector, start_pulse_id, stop_pulse_id, file_name_out):
         _logger.error(f"input parameters to store_dap_info is not complete {beamline} {pgroup} {detector} {start_pulse_id} {stop_pulse_id} {file_name_out}")
         return
 
@@ -111,7 +111,7 @@ def store_dap_info(beamline=None, pgroup=None, detector=None, start_pulse_id=Non
                 all_lines = dap_file.read().splitlines()
                 for line in all_lines:
                     pulse_id = int(line.split()[0])
-                    if pulse_id >= start_pulse_id and pulse_id <= stop_pulse_id:
+                    if start_pulse_id <= pulse_id <= stop_pulse_id:
                         print(line, file=file_out)
                         n_lines_out += 1
 
