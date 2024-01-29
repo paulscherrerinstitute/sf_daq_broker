@@ -11,13 +11,15 @@ import numpy as np
 _logger = logging.getLogger("broker_writer")
 
 try:
-    import ujson as json
+    import ujson
 except ImportError:
     _logger.warning("There is no ujson in this environment. Performance will suffer.")
-    import json
+else:
+    del ujson
 
 from sf_daq_broker.detector.make_crystfel_list import make_crystfel_list, store_dap_info
 from sf_daq_broker.writer.export_file import convert_file
+from sf_daq_broker.utils import json_save, json_load
 
 
 PEDESTAL_SPECIFIC = {
@@ -336,21 +338,18 @@ def copy_pedestal_file(request_time, file_pedestal, detector, detector_config_fi
         _logger.error(f"stream file {detector_config_file} does not exists, exiting")
         return
 
-    with open(detector_config_file, "r") as stream_file:
-        det = json.load(stream_file)
+    det = json_load(detector_config_file)
 
     old_pedestal_file = det["pedestal_file"]
     _logger.info(f"Changing in stream file {detector_config_file} pedestal from {old_pedestal_file} to {out_name}")
 
     det["pedestal_file"] = out_name
 
-    with open(detector_config_file, "w") as write_file:
-        json.dump(det, write_file, indent=4)
+    json_save(det, detector_config_file)
 
 
 def copy_calibration_files(pedestal_file, detector_config_file):
-    with open(detector_config_file, "r") as stream_file:
-        det_config = json.load(stream_file)
+    det_config = json_load(detector_config_file)
 
     detector = det_config["detector_name"]
 

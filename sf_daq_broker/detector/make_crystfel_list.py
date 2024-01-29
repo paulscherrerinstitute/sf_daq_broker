@@ -1,9 +1,10 @@
-import json
 import logging
 import os
 from time import sleep
 
 import h5py
+
+from sf_daq_broker.utils import json_load
 
 
 _logger = logging.getLogger("broker_writer")
@@ -12,8 +13,7 @@ _logger = logging.getLogger("broker_writer")
 
 def make_crystfel_list(data_file, run_info_file, detector):
     try:
-        with open(run_info_file) as json_file:
-            _parameters = json.load(json_file)
+        _parameters = json_load(run_info_file)
     except Exception as e:
         _logger.error(f"Cannot read provided run file {run_info_file}, may be not json? (due to {e})")
         return

@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 import shutil
@@ -12,7 +11,7 @@ from slsdet.enums import detectorSettings
 
 from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline
 from sf_daq_broker.detector.power_on_detector import beamline_event_code
-from sf_daq_broker.utils import ip_to_console
+from sf_daq_broker.utils import ip_to_console, json_save, json_load
 from .return_status import return_status
 
 
@@ -248,8 +247,7 @@ class DetectorManager:
         if not os.path.exists(dap_parameters_file):
             raise RuntimeError("dap parameters file is not existing, contact support")
 
-        with open(dap_parameters_file) as json_file:
-            dap_config = json.load(json_file)
+        dap_config = json_load(dap_parameters_file)
 
         return dap_config
 
@@ -283,8 +281,7 @@ class DetectorManager:
 
         new_parameters = request.get("parameters", {})
 
-        with open(dap_parameters_file) as json_file:
-            dap_config = json.load(json_file)
+        dap_config = json_load(dap_parameters_file)
 
         changed = False
         changed_parameters = {}
@@ -306,8 +303,7 @@ class DetectorManager:
             shutil.copyfile(dap_parameters_file, f"{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}")
 
             try:
-                with open(dap_parameters_file, "w") as json_file:
-                    json.dump(dap_config, json_file, indent=4)
+                json_save(dap_config, dap_parameters_file)
             except Exception as e:
                 shutil.copyfile(f"{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}", dap_parameters_file)
                 raise RuntimeError(f"problem to update dap configuration, try again and inform responsible (due to: {e})") from e

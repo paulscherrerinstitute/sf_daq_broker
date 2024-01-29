@@ -259,8 +259,8 @@ def compare_buffer_config_file_all(overwrite_config=False):
 
 
 def compare_buffer_config_file(detector_name=None, overwrite_config=False):
-    import json
     import os
+    from sf_daq_broker.utils import json_save, json_load
 
     detector_configuration = DetectorConfig(detector_name)
     if not detector_configuration.is_configuration_present():
@@ -273,8 +273,7 @@ def compare_buffer_config_file(detector_name=None, overwrite_config=False):
         _logger.error(f"{config_file} for {detector_name} does not exist")
         return
 
-    with open(config_file) as json_file:
-        parameters_file = json.load(json_file)
+    parameters_file = json_load(config_file)
 
     parameters_current = {
         "detector_name": detector_configuration.get_detector_name(),
@@ -300,8 +299,7 @@ def compare_buffer_config_file(detector_name=None, overwrite_config=False):
         if overwrite_config:
             _logger.warning(f"{detector_name}: config file will be overwritten")
             parameters_file.update(parameters_current)
-            with open(config_file, "w") as json_file:
-                json.dump(parameters_file, json_file, indent=4)
+            json_save(parameters_file, config_file)
 
 
 

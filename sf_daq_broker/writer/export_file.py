@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 
@@ -6,22 +5,22 @@ import h5py
 import jungfrau_utils as ju
 import numpy as np
 
+from sf_daq_broker.utils import json_load
+
 
 _logger = logging.getLogger("broker_writer")
 
 
 
 def convert_file(file_in, file_out, json_run_file, detector_config_file):
-    with open(detector_config_file, "r") as detector_file:
-        data = json.load(detector_file)
+    data = json_load(detector_config_file)
 
     detector_name = data["detector_name"]
     gain_file     = data["gain_file"]
     pedestal_file = data["pedestal_file"]
 
 
-    with open(json_run_file, "r") as run_file:
-        data = json.load(run_file)
+    data = json_load(json_run_file)
 
     detector_params = data["detectors"][detector_name]
 

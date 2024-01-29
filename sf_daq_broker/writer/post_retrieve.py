@@ -1,11 +1,11 @@
 import argparse
-import json
 import logging
 import os
 from glob import glob
 
 from sf_daq_broker import config
 from sf_daq_broker.writer.bsread_writer import write_from_databuffer_api3, write_from_imagebuffer
+from sf_daq_broker.utils import json_load
 
 
 #logger = logging.getLogger("data_api3")
@@ -54,8 +54,7 @@ fn_run_info = clargs.run_info
 if not os.path.exists(fn_run_info):
     raise SystemExit(f"{fn_run_info} not found")
 
-with open(fn_run_info) as read_file:
-    run_info = json.load(read_file)
+run_info = json_load(fn_run_info)
 
 
 entry_name = ENTRY_NAMES[source]
