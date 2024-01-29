@@ -128,7 +128,7 @@ def process_request(request, broker_client):
                 run_info["stop_pulseid"]  = det_stop_pulse_id
 
                 with open(run_file_json, "w") as request_json_file:
-                    json.dump(run_info, request_json_file, indent=2)
+                    json.dump(run_info, request_json_file, indent=4)
 
             request_det_retrieve = {
                 "det_start_pulse_id" : det_start_pulse_id,
