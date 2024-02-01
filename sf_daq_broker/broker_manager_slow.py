@@ -13,6 +13,7 @@ from sf_daq_broker.detector.detector_config import configured_detectors_for_beam
 from sf_daq_broker.detector.power_on_detector import beamline_event_code
 from sf_daq_broker.utils import ip_to_console, json_save, json_load
 from .return_status import return_status
+from . import validate
 
 
 _logger = logging.getLogger(__name__)
@@ -37,26 +38,19 @@ class DetectorManager:
 
     @return_status
     def get_detector_settings(self, request=None, remote_ip=None):
-        if not request:
-            raise RuntimeError("request parameters are empty")
-
-        if not remote_ip:
-            raise RuntimeError("can not identify from which machine request were made")
+        validate.request(request)
+        validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
-        if not beamline:
-            raise RuntimeError("can not determine from which console request came, rejected")
+        validate.beamline(beamline)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        if not allowed_detectors_beamline:
-            raise RuntimeError("request is made from beamline which doesnt have detectors")
+        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         detector_name = request.get("detector_name", None)
-        if not detector_name:
-            raise RuntimeError("no detector name in the request")
+        validate.detector_name(detector_name)
 
-        if detector_name not in allowed_detectors_beamline:
-            raise RuntimeError(f"{detector_name} not belongs to the {beamline}")
+        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline)
 
         detector_number = int(detector_name[2:4])
         detector = Jungfrau(detector_number)
@@ -78,26 +72,19 @@ class DetectorManager:
 
     @return_status
     def set_detector_settings(self, request=None, remote_ip=None):
-        if not request:
-            raise RuntimeError("request parameters are empty")
-
-        if not remote_ip:
-            raise RuntimeError("can not identify from which machine request were made")
+        validate.request(request)
+        validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
-        if not beamline:
-            raise RuntimeError("can not determine from which console request came, rejected")
+        validate.beamline(beamline)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        if not allowed_detectors_beamline:
-            raise RuntimeError("request is made from beamline which doesnt have detectors")
+        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         detector_name = request.get("detector_name", None)
-        if not detector_name:
-            raise RuntimeError("no detector name in the request")
+        validate.detector_name(detector_name)
 
-        if detector_name not in allowed_detectors_beamline:
-            raise RuntimeError(f"{detector_name} not belongs to the {beamline}")
+        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline)
 
         detector_number = int(detector_name[2:4])
         detector = Jungfrau(detector_number)
@@ -154,44 +141,34 @@ class DetectorManager:
 
     @return_status
     def copy_user_files(self, request=None, remote_ip=None):
-        if not request:
-            raise RuntimeError("request parameters are empty")
-
-        if not remote_ip:
-            raise RuntimeError("can not identify from which machine request were made")
+        validate.request(request)
+        validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
-        if not beamline:
-            raise RuntimeError("can not determine from which console request came, rejected")
+        validate.beamline(beamline)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        if len(allowed_detectors_beamline) == 0:
-            raise RuntimeError("request is made from beamline which doesnt have detectors")
+        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
-        if "pgroup" not in request:
-            raise RuntimeError("no pgroup in request parameters")
-
+        validate.request_has_pgroup(request)
         pgroup = request["pgroup"]
+
         path_to_pgroup = f"/sf/{beamline}/data/{pgroup}/raw/"
-        if os.path.exists(f"{path_to_pgroup}/run_info/CLOSED"):
-            raise RuntimeError(f"{path_to_pgroup} is closed for writing")
+        validate.path_to_pgroup_exists(path_to_pgroup)
+
+        daq_directory = f"{path_to_pgroup}/run_info"
+        validate.daq_directory_exists(daq_directory)
+        validate.pgroup_is_not_closed_yet(daq_directory, path_to_pgroup)
 
         run_number = request.get("run_number", None)
-        if run_number is None:
-            raise RuntimeError("no run_number in request parameters")
+        validate.request_has_run_number(run_number)
 
         list_data_directories_run = glob(f"{path_to_pgroup}/run{run_number:04}*")
-
-        if not list_data_directories_run:
-            raise RuntimeError(f"no such run {run_number} in the pgroup")
+        validate.run_dir_exists(list_data_directories_run, run_number)
 
         full_path = list_data_directories_run[0]
         target_directory = f"{full_path}/aux"
-        if not os.path.exists(target_directory):
-            try:
-                os.mkdir(target_directory)
-            except Exception as e:
-                raise RuntimeError(f"no permission or possibility to make aux sub-directory in pgroup space (due to: {e})") from e
+        validate.directory_exists(target_directory)
 
         group_to_copy = os.stat(target_directory).st_gid
         files_to_copy = request.get("files", [])
@@ -222,62 +199,45 @@ class DetectorManager:
 
     @return_status
     def get_dap_settings(self, request=None, remote_ip=None):
-        if not request:
-            raise RuntimeError("request parameters are empty")
-
-        if not remote_ip:
-            raise RuntimeError("can not identify from which machine request were made")
+        validate.request(request)
+        validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
-        if not beamline:
-            raise RuntimeError("can not determine from which console request came, rejected")
+        validate.beamline(beamline)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        if not allowed_detectors_beamline:
-            raise RuntimeError("request is made from beamline which doesnt have detectors")
+        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         detector_name = request.get("detector_name", None)
-        if not detector_name:
-            raise RuntimeError("no detector name in the request")
+        validate.detector_name(detector_name)
 
-        if detector_name not in allowed_detectors_beamline:
-            raise RuntimeError(f"{detector_name} not belongs to the {beamline}")
+        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline)
 
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
-        if not os.path.exists(dap_parameters_file):
-            raise RuntimeError("dap parameters file is not existing, contact support")
+        validate.dap_parameters_file_exists(dap_parameters_file)
 
         dap_config = json_load(dap_parameters_file)
-
         return dap_config
 
 
     @return_status
     def set_dap_settings(self, request=None, remote_ip=None):
-        if not request:
-            raise RuntimeError("request parameters are empty")
-
-        if not remote_ip:
-            raise RuntimeError("can not identify from which machine request were made")
+        validate.request(request)
+        validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
-        if not beamline:
-            raise RuntimeError("can not determine from which console request came, rejected")
+        validate.beamline(beamline)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        if not allowed_detectors_beamline:
-            raise RuntimeError("request is made from beamline which doesnt have detectors")
+        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         detector_name = request.get("detector_name", None)
-        if not detector_name:
-            raise RuntimeError("no detector name in the request")
+        validate.detector_name(detector_name)
 
-        if detector_name not in allowed_detectors_beamline:
-            raise RuntimeError(f"{detector_name} not belongs to the {beamline}")
+        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline)
 
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
-        if not os.path.exists(dap_parameters_file):
-            raise RuntimeError("dap parameters file is not existing, contact support")
+        validate.dap_parameters_file_exists(dap_parameters_file)
 
         new_parameters = request.get("parameters", {})
 
