@@ -306,15 +306,11 @@ class BrokerManager:
 
 
     @return_status
-    def retrieve(self, request=None, remote_ip=None, beamline_force=None):
+    def retrieve(self, request=None, remote_ip=None):
         validate.request(request)
         validate.remote_ip(remote_ip)
 
-        if beamline_force:
-            beamline = beamline_force
-        else:
-            beamline = ip_to_console(remote_ip)
-
+        beamline = ip_to_console(remote_ip)
         validate.beamline(beamline)
 
         validate.request_has_pgroup(request)
