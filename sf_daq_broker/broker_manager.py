@@ -108,6 +108,11 @@ class BrokerManager:
 
 
     @return_status
+    def get_last_run_number(self, request=None, remote_ip=None, increment_run_number=False):
+        return self.get_next_run_number(request=request, remote_ip=remote_ip, increment_run_number=increment_run_number)
+
+
+    @return_status
     def get_next_run_number(self, request=None, remote_ip=None, increment_run_number=True):
         validate.request(request)
         validate.remote_ip(remote_ip)
@@ -161,7 +166,7 @@ class BrokerManager:
 
 
     @return_status
-    def get_list_running_detectors(self, remote_ip=None):
+    def get_running_detectors_list(self, remote_ip=None):
         validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
@@ -189,7 +194,7 @@ class BrokerManager:
 
 
     @return_status
-    def get_list_allowed_detectors(self, remote_ip=None):
+    def get_allowed_detectors_list(self, remote_ip=None):
         validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
@@ -306,7 +311,7 @@ class BrokerManager:
 
 
     @return_status
-    def retrieve(self, request=None, remote_ip=None):
+    def retrieve_from_buffers(self, request=None, remote_ip=None):
         validate.request(request)
         validate.remote_ip(remote_ip)
 

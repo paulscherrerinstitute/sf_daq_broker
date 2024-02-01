@@ -9,7 +9,7 @@ def register_rest_interface(app, manager):
 
     @app.post("/retrieve_from_buffers")
     def retrieve_from_buffers():
-        return manager.retrieve(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
+        return manager.retrieve_from_buffers(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
 
     @app.post("/take_pedestal")
     def take_pedestal():
@@ -17,11 +17,11 @@ def register_rest_interface(app, manager):
 
     @app.get("/get_allowed_detectors_list")
     def get_allowed_detectors_list():
-        return manager.get_list_allowed_detectors(remote_ip=bottle.request.remote_addr)
+        return manager.get_allowed_detectors_list(remote_ip=bottle.request.remote_addr)
 
     @app.get("/get_running_detectors_list")
     def get_running_detectors_list():
-        return manager.get_list_running_detectors(remote_ip=bottle.request.remote_addr)
+        return manager.get_running_detectors_list(remote_ip=bottle.request.remote_addr)
 
     @app.post("/power_on_detector")
     def power_on_detector():
@@ -33,7 +33,7 @@ def register_rest_interface(app, manager):
 
     @app.get("/get_last_run_number")
     def get_last_run_number():
-        return manager.get_next_run_number(request=bottle.request.json, remote_ip=bottle.request.remote_addr, increment_run_number=False)
+        return manager.get_last_run_number(request=bottle.request.json, remote_ip=bottle.request.remote_addr)
 
     @app.get("/get_pvlist")
     def get_pvlist():
