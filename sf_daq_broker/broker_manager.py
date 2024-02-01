@@ -2,7 +2,6 @@ import logging
 import os
 import string
 from datetime import datetime
-from glob import glob
 from shutil import copyfile
 
 import sf_daq_broker.rabbitmq.config as broker_config
@@ -10,6 +9,7 @@ from sf_daq_broker import config
 from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline, detector_human_names, get_streamvis_address
 from sf_daq_broker.utils import get_writer_request, ip_to_console, json_save, json_load
 from .return_status import return_status
+from . import validate
 
 
 _logger = logging.getLogger(__name__)
@@ -35,33 +35,21 @@ class BrokerManager:
 
     @return_status
     def close_pgroup_writing(self, request=None, remote_ip=None):
-        if not request:
-            raise RuntimeError("request parameters are empty")
-
-        if not remote_ip:
-            raise RuntimeError("can not identify from which machine request were made")
+        validate.request(request)
+        validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
-        if not beamline:
-            raise RuntimeError("can not determine from which console request came, rejected")
+        validate.beamline(beamline)
 
-        if "pgroup" not in request:
-            raise RuntimeError("no pgroup in request parameters")
-
+        validate.request_has_pgroup(request)
         pgroup = request["pgroup"]
+
         path_to_pgroup = f"/sf/{beamline}/data/{pgroup}/raw/"
-        if not os.path.exists(path_to_pgroup):
-            raise RuntimeError(f"pgroup directory {path_to_pgroup} not reachable")
+        validate.path_to_pgroup_exists(path_to_pgroup)
 
         daq_directory = f"{path_to_pgroup}{DIR_NAME_RUN_INFO}"
-        if not os.path.exists(daq_directory):
-            try:
-                os.mkdir(daq_directory)
-            except Exception as e:
-                raise RuntimeError(f"no permission or possibility to make run_info directory in pgroup space (due to: {e})") from e
-
-        if os.path.exists(f"{daq_directory}/CLOSED"):
-            raise RuntimeError(f"{path_to_pgroup} is already closed for writing")
+        validate.daq_directory_exists(daq_directory)
+        validate.pgroup_is_not_closed_yet(daq_directory, path_to_pgroup)
 
         with open(f"{daq_directory}/CLOSED", "x"):
             pass
@@ -71,113 +59,92 @@ class BrokerManager:
 
     @return_status
     def get_pvlist(self, remote_ip=None):
-        if not remote_ip:
-            raise RuntimeError("can not identify from which machine request were made")
+        validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
-        if not beamline:
-            raise RuntimeError("can not determine from which console request came, rejected")
+        validate.beamline(beamline)
 
         config_file = f"/home/dbe/service_configs/sf.{beamline}.epics_buffer.json"
-        if not os.path.exists(config_file):
-            raise RuntimeError(f"epics config file not exist for this beamline {beamline}")
+        validate.epics_config_file_exists(config_file, beamline)
 
         config_info = json_load(config_file)
+        pv_list = config_info["pv_list"]
 
         res = {
             "status": "ok",
             "message": "successfully retrieved list of PVs",
-            "pv_list": config_info["pv_list"]
+            "pv_list": pv_list
         }
         return res
 
 
     @return_status
     def set_pvlist(self, request=None, remote_ip=None):
-        if not request:
-            raise RuntimeError("request parameters are empty")
-
-        if not remote_ip:
-            raise RuntimeError("can not identify from which machine request were made")
+        validate.request(request)
+        validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
-        if not beamline:
-            raise RuntimeError("can not determine from which console request came, rejected")
+        validate.beamline(beamline)
 
         config_file = f"/home/dbe/service_configs/sf.{beamline}.epics_buffer.json"
-        if not os.path.exists(config_file):
-            raise RuntimeError(f"epics config file not exist for this beamline {beamline}")
+        validate.epics_config_file_exists(config_file, beamline)
 
         pv_list = request.get("pv_list", [])
+        pv_list = list(dict.fromkeys(pv_list))
+
         config_epics = {
             "pulse_id_pv": "SLAAR11-LTIM01-EVR0:RX-PULSEID",
-            "pv_list": list(dict.fromkeys(pv_list))
+            "pv_list": pv_list
         }
+
         json_save(config_epics, config_file)
 
         date_now = datetime.now()
         date_now_str = date_now.strftime("%d-%b-%Y_%H:%M:%S")
-        copyfile(config_file, f"{config_file}.{date_now_str}")
+        config_file_timestamped = f"{config_file}.{date_now_str}"
+        copyfile(config_file, config_file_timestamped)
 
-        return config_epics["pv_list"]
+        return pv_list
 
 
     @return_status
     def get_next_run_number(self, request=None, remote_ip=None, increment_run_number=True):
-        if not request:
-            raise RuntimeError("request parameters are empty")
-
-        if not remote_ip:
-            raise RuntimeError("can not identify from which machine request were made")
+        validate.request(request)
+        validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
-        if not beamline:
-            raise RuntimeError("can not determine from which console request came, rejected")
+        validate.beamline(beamline)
 
-        if "pgroup" not in request:
-            raise RuntimeError("no pgroup in request parameters")
-
+        validate.request_has_pgroup(request)
         pgroup = request["pgroup"]
+
         path_to_pgroup = f"/sf/{beamline}/data/{pgroup}/raw/"
-        if not os.path.exists(path_to_pgroup):
-            raise RuntimeError(f"pgroup directory {path_to_pgroup} not reachable")
+        validate.path_to_pgroup_exists(path_to_pgroup)
 
         daq_directory = f"{path_to_pgroup}{DIR_NAME_RUN_INFO}"
-        if not os.path.exists(daq_directory):
-            try:
-                os.mkdir(daq_directory)
-            except Exception as e:
-                raise RuntimeError(f"no permission or possibility to make run_info directory in pgroup space (due to: {e})") from e
+        validate.daq_directory_exists(daq_directory)
 
-        if os.path.exists(f"{daq_directory}/CLOSED"):
-            raise RuntimeError(f"{path_to_pgroup} is closed for writing")
+        validate.pgroup_is_not_closed(daq_directory, path_to_pgroup)
 
-        next_run = get_current_run_number(daq_directory, file_run="LAST_RUN", increment_run_number=increment_run_number)
+        next_run = get_current_run_number(daq_directory, increment_run_number=increment_run_number)
         return next_run
 
 
     @return_status
     def power_on_detector(self, request=None, remote_ip=None):
-        if not request:
-            raise RuntimeError("request parameters are empty")
-
-        if not remote_ip:
-            raise RuntimeError("can not identify from which machine request were made")
+        validate.request(request)
+        validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
-        if not beamline:
-            raise RuntimeError("can not determine from which console request came, rejected")
+        validate.beamline(beamline)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        if not allowed_detectors_beamline:
-            raise RuntimeError("request is made from beamline which doesnt have detectors")
+        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         detector_name = request.get("detector_name", None)
-        if not detector_name:
-            raise RuntimeError("no detector name in the request")
+        validate.detector_name(detector_name)
 
-        if detector_name not in allowed_detectors_beamline:
-            raise RuntimeError(f"{detector_name} not belongs to the {beamline}")
+        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline)
 
         request_power_on = {
             "detector_name": detector_name,
@@ -195,23 +162,18 @@ class BrokerManager:
 
     @return_status
     def get_list_running_detectors(self, remote_ip=None):
-        if not remote_ip:
-            raise RuntimeError("can not identify from which machine request were made")
+        validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
-        if not beamline:
-            raise RuntimeError("can not determine from which console request came, rejected")
+        validate.beamline(beamline)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        if not allowed_detectors_beamline:
-            raise RuntimeError("request is made from beamline which doesnt have detectors")
-
-        detectors = allowed_detectors_beamline
+        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         time_now = datetime.now()
         running_detectors = []
         buffer_location = "/gpfs/photonics/swissfel/buffer"
-        for detector in detectors:
+        for detector in allowed_detectors_beamline:
             detector_buffer_file = f"{buffer_location}/{detector}/M00/LATEST"
             if os.path.exists(detector_buffer_file):
                 time_file = datetime.fromtimestamp(os.path.getmtime(detector_buffer_file))
@@ -228,16 +190,13 @@ class BrokerManager:
 
     @return_status
     def get_list_allowed_detectors(self, remote_ip=None):
-        if not remote_ip:
-            raise RuntimeError("can not identify from which machine request were made")
+        validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
-        if not beamline:
-            raise RuntimeError("can not determine from which console request came, rejected")
+        validate.beamline(beamline)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        if not allowed_detectors_beamline:
-            raise RuntimeError("request is made from beamline which doesnt have detectors")
+        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         detectors = allowed_detectors_beamline
 
@@ -265,60 +224,40 @@ class BrokerManager:
 
     @return_status
     def take_pedestal(self, request=None, remote_ip=None):
-        if not request:
-            raise RuntimeError("request parameters are empty")
-
-        if not remote_ip:
-            raise RuntimeError("can not identify from which machine request were made")
+        validate.request(request)
+        validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
-        if not beamline:
-            raise RuntimeError("can not determine from which console request came, rejected")
+        validate.beamline(beamline)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        if not allowed_detectors_beamline:
-            raise RuntimeError("request is made from beamline which doesnt have detectors")
+        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         rate_multiplicator = request.get("rate_multiplicator", 1)
 
-        if "detectors" not in request:
-            raise RuntimeError("no detectors defined")
+        validate.request_has_detectors(request)
 
-        detectors = list(request["detectors"].keys())
-        if not detectors:
-            raise RuntimeError("no detectors defined")
+        detectors = list(request["detectors"])
+        validate.detectors(detectors)
 
-        for det in detectors:
-            if det not in allowed_detectors_beamline:
-                raise RuntimeError(f"{det} not belongs to the {beamline}")
+        validate.all_detector_names_in_allowed_detectors_beamline(detectors, allowed_detectors_beamline)
 
-        if "pgroup" not in request:
-            raise RuntimeError("no pgroup in request parameters")
-
+        validate.request_has_pgroup(request)
         pgroup = request["pgroup"]
+
         path_to_pgroup = f"/sf/{beamline}/data/{pgroup}/raw/"
-        if not os.path.exists(path_to_pgroup):
-            raise RuntimeError(f"pgroup directory {path_to_pgroup} not reachable")
+        validate.path_to_pgroup_exists(path_to_pgroup)
 
         # Force output directory name to be JF_pedestals
         request["directory_name"] = directory_name = "JF_pedestals"
 
         full_path = f"{path_to_pgroup}{directory_name}"
-        if not os.path.exists(full_path):
-            try:
-                os.makedirs(full_path)
-            except Exception as e:
-                raise RuntimeError(f"no permission or possibility to make directory in pgroup space {full_path} (due to: {e})") from e
+        validate.directory_exists(full_path)
 
         daq_directory = f"{path_to_pgroup}{DIR_NAME_RUN_INFO}"
-        if not os.path.exists(daq_directory):
-            try:
-                os.mkdir(daq_directory)
-            except Exception as e:
-                raise RuntimeError(f"no permission or possibility to make run_info directory in pgroup space (due to: {e})") from e
+        validate.daq_directory_exists(daq_directory)
 
-        if os.path.exists(f"{daq_directory}/CLOSED"):
-            raise RuntimeError(f"{path_to_pgroup} is closed for writing")
+        validate.pgroup_is_not_closed(daq_directory, path_to_pgroup)
 
         if "request_time" not in request:
             request["request_time"] = str(datetime.now())
@@ -368,45 +307,29 @@ class BrokerManager:
 
     @return_status
     def retrieve(self, request=None, remote_ip=None, beamline_force=None):
-        if not request:
-            raise RuntimeError("request parameters are empty")
-
-        if not remote_ip:
-            raise RuntimeError("can not identify from which machine request were made")
+        validate.request(request)
+        validate.remote_ip(remote_ip)
 
         if beamline_force:
             beamline = beamline_force
         else:
             beamline = ip_to_console(remote_ip)
 
-        if not beamline:
-            raise RuntimeError("can not determine from which console request came, rejected")
+        validate.beamline(beamline)
 
-        if "pgroup" not in request:
-            raise RuntimeError("no pgroup in request parameters")
-
+        validate.request_has_pgroup(request)
         pgroup = request["pgroup"]
 
-        if "start_pulseid" not in request or "stop_pulseid" not in request:
-            raise RuntimeError("no start or stop pluseid provided in request parameters")
-
-        try:
-            request["start_pulseid"] = int(request["start_pulseid"])
-            request["stop_pulseid"]  = int(request["stop_pulseid"])
-        except Exception as e:
-            raise RuntimeError(f"bad start or stop pluseid provided in request parameters (due to: {e})") from e
+        validate.request_has_pulseids(request)
+        validate.request_has_integer_pulseids(request)
 
         start_pulse_id = request["start_pulseid"]
         stop_pulse_id  = request["stop_pulseid"]
 
-        if (stop_pulse_id-start_pulse_id) > 60001 or (stop_pulse_id-start_pulse_id) < 0:
-            raise RuntimeError("number of pulse_id problem: too large or negative request")
+        validate.allowed_pulseid_range(start_pulse_id, stop_pulse_id)
 
-        rate_multiplicator = 1
-        if "rate_multiplicator" in request:
-            rate_multiplicator = request["rate_multiplicator"]
-            if rate_multiplicator not in [1, 2, 4, 8, 10, 20, 40, 50, 100]:
-                raise RuntimeError("rate_multiplicator is not allowed one")
+        rate_multiplicator = request.get("rate_multiplicator", 1)
+        validate.rate_multiplicator(rate_multiplicator)
 
         # to be sure that interesting (corresponding to beam rate) pulse_id are covered by the request call
         adjusted_start_pulse_id = start_pulse_id
@@ -420,23 +343,17 @@ class BrokerManager:
                 adjusted_stop_pulse_id += 1
 
         path_to_pgroup = f"/sf/{beamline}/data/{pgroup}/raw/"
-        if not os.path.exists(path_to_pgroup):
-            raise RuntimeError(f"pgroup directory {path_to_pgroup} not reachable")
+        validate.path_to_pgroup_exists(path_to_pgroup)
 
         daq_directory = f"{path_to_pgroup}{DIR_NAME_RUN_INFO}"
-        if not os.path.exists(daq_directory):
-            try:
-                os.mkdir(daq_directory)
-            except Exception as e:
-                raise RuntimeError(f"no permission or possibility to make run_info directory in pgroup space (due to: {e})") from e
+        validate.daq_directory_exists(daq_directory)
 
         if "run_number" not in request:
-            request["run_number"] = get_current_run_number(daq_directory, file_run="LAST_RUN")
+            request["run_number"] = get_current_run_number(daq_directory)
         else:
-            current_known_run_number = get_current_run_number(daq_directory, file_run="LAST_RUN", increment_run_number=False)
+            current_known_run_number = get_current_run_number(daq_directory, increment_run_number=False)
             run_number = request.get("run_number")
-            if run_number > current_known_run_number:
-                raise RuntimeError(f"requested run_number{run_number} generated not by sf-daq")
+            validate.allowed_run_number(run_number, current_known_run_number)
 
         run_number = request.get("run_number")
         output_run_directory = f"run{run_number:04}"
@@ -451,13 +368,9 @@ class BrokerManager:
             request["appended_directory_suffix"] = cleaned_user_tag
             output_run_directory = f"run{run_number:04}-{cleaned_user_tag}"
 
-        list_data_directories_run = glob(f"{path_to_pgroup}/run{run_number:04}*")
-        if list_data_directories_run:
-            if f"{path_to_pgroup}{output_run_directory}" not in list_data_directories_run:
-                raise RuntimeError(f"data directory for this run {run_number:04} already exists with different tag: {list_data_directories_run}, than requested {user_tag}")
+        validate.tag_matching_previous(path_to_pgroup, run_number, output_run_directory, user_tag)
 
-        if os.path.exists(f"{daq_directory}/CLOSED"):
-            raise RuntimeError(f"{path_to_pgroup} is closed for writing")
+        validate.pgroup_is_not_closed(daq_directory, path_to_pgroup)
 
         write_data = "channels_list" in request or "camera_list" in request or "pv_list" in request or "detectors" in request
         if not write_data:
@@ -467,21 +380,14 @@ class BrokerManager:
             }
             return res
 
-        detectors = []
-        if "detectors" in request:
-            request_detectors = request["detectors"]
-            if not isinstance(request_detectors, dict):
-                raise RuntimeError(f"{request_detectors} is not dictionary")
-            detectors = list(request_detectors.keys())
+        request_detectors = request.get("detectors", {})
+        validate.request_detectors_is_dict(request_detectors)
 
+        detectors = list(request_detectors)
         if detectors:
             allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-            if not allowed_detectors_beamline:
-                raise RuntimeError("request is made from beamline which doesnt have detectors")
-
-            for det in detectors:
-                if det not in allowed_detectors_beamline:
-                    raise RuntimeError(f"{det} not belongs to the {beamline}")
+            validate.allowed_detectors_beamline(allowed_detectors_beamline)
+            validate.all_detector_names_in_allowed_detectors_beamline(detectors, allowed_detectors_beamline)
 
         if "channels_list" in request:
             request["channels_list"] = list(dict.fromkeys(request["channels_list"]))
@@ -490,29 +396,18 @@ class BrokerManager:
             request["pv_list"] = list(dict.fromkeys(request["pv_list"]))
 
         full_path = f"{path_to_pgroup}{output_run_directory}"
-        if not os.path.exists(full_path):
-            try:
-                os.makedirs(full_path)
-            except Exception as e:
-                raise RuntimeError(f"no permission or possibility to make directory in pgroup space {full_path} (due to: {e})") from e
+        validate.directory_exists(full_path)
 
         run_info_directory =    f"{full_path}/logs"
         meta_directory =        f"{full_path}/meta"
         output_data_directory = f"{full_path}/data"
 
-        try:
-            if not os.path.exists(run_info_directory):
-                os.mkdir(run_info_directory)
-            if not os.path.exists(meta_directory):
-                os.mkdir(meta_directory)
-            if not os.path.exists(output_data_directory):
-                os.mkdir(output_data_directory)
-        except Exception as e:
-            # should not come here, directory should already exists (either made few lines above or in the previous data taking to that directory)
-            raise RuntimeError(f"no permission or possibility to make directories in pgroup space {full_path} (meta,logs,data) (due to: {e})") from e
+        validate.directory_exists(run_info_directory)
+        validate.directory_exists(meta_directory)
+        validate.directory_exists(output_data_directory)
 
         current_acq = get_current_step_in_scan(meta_directory)
-        unique_acq = get_current_run_number(daq_directory, file_run="LAST_ARUN")
+        unique_acq = get_current_run_number(daq_directory)
 
         request["beamline"] = beamline
         request["acquisition_number"] = current_acq
