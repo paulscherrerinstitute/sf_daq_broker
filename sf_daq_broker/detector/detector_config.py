@@ -98,24 +98,24 @@ _detector_names = {
 }
 
 _detector_daq = {
-    "JF01T03V01" : { "daq" : 12, "port": 1},
-    "JF02T09V03" : { "daq" : 12, "port": 0},
-    "JF03T01V02" : { "daq" : 12, "port": 1},
-    "JF04T01V01" : { "daq" : 12, "port": 1},
-    "JF05T01V01" : { "daq" : 12, "port": 1},
-    "JF06T08V04" : { "daq" : 13, "port": 0},
-    "JF06T32V04" : { "daq" : 12, "port": 0},
-    "JF07T32V02" : { "daq" : 13, "port": 1},
-    "JF08T01V01" : { "daq" : 13, "port": 0},
-    "JF09T01V01" : { "daq" : 13, "port": 0},
-    "JF10T01V01" : { "daq" : 13, "port": 0},
-    "JF11T04V01" : { "daq" : 13, "port": 0},
-    "JF13T01V01" : { "daq" : 13, "port": 1},
-    "JF14T01V01" : { "daq" : 13, "port": 1},
-    "JF15T08V01" : { "daq" : 9,  "port": 0},
-    "JF16T03V01" : { "daq" : 10, "port": 1},
-    "JF17T16V01" : { "daq" : 10, "port": 1},
-    "JF18T01V01" : { "daq" : 9,  "port": 1}
+    "JF01T03V01" : {"daq": 12, "port": 1},
+    "JF02T09V03" : {"daq": 12, "port": 0},
+    "JF03T01V02" : {"daq": 12, "port": 1},
+    "JF04T01V01" : {"daq": 12, "port": 1},
+    "JF05T01V01" : {"daq": 12, "port": 1},
+    "JF06T08V04" : {"daq": 13, "port": 0},
+    "JF06T32V04" : {"daq": 12, "port": 0},
+    "JF07T32V02" : {"daq": 13, "port": 1},
+    "JF08T01V01" : {"daq": 13, "port": 0},
+    "JF09T01V01" : {"daq": 13, "port": 0},
+    "JF10T01V01" : {"daq": 13, "port": 0},
+    "JF11T04V01" : {"daq": 13, "port": 0},
+    "JF13T01V01" : {"daq": 13, "port": 1},
+    "JF14T01V01" : {"daq": 13, "port": 1},
+    "JF15T08V01" : {"daq": 9,  "port": 0},
+    "JF16T03V01" : {"daq": 10, "port": 1},
+    "JF17T16V01" : {"daq": 10, "port": 1},
+    "JF18T01V01" : {"daq": 9,  "port": 1}
 }
 
 _detector_port = {
