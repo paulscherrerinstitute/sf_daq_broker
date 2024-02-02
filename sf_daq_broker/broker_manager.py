@@ -149,7 +149,7 @@ class BrokerManager:
         detector_name = request.get("detector_name", None)
         validate.detector_name(detector_name)
 
-        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline)
+        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
         request_power_on = {
             "detector_name": detector_name,
@@ -245,7 +245,7 @@ class BrokerManager:
         detectors = list(request["detectors"])
         validate.detectors(detectors)
 
-        validate.all_detector_names_in_allowed_detectors_beamline(detectors, allowed_detectors_beamline)
+        validate.all_detector_names_in_allowed_detectors_beamline(detectors, allowed_detectors_beamline, beamline)
 
         validate.request_has_pgroup(request)
         pgroup = request["pgroup"]
@@ -388,7 +388,7 @@ class BrokerManager:
         if detectors:
             allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
             validate.allowed_detectors_beamline(allowed_detectors_beamline)
-            validate.all_detector_names_in_allowed_detectors_beamline(detectors, allowed_detectors_beamline)
+            validate.all_detector_names_in_allowed_detectors_beamline(detectors, allowed_detectors_beamline, beamline)
 
         if "channels_list" in request:
             request["channels_list"] = list(dict.fromkeys(request["channels_list"]))
