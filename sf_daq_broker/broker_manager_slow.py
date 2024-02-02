@@ -50,7 +50,7 @@ class DetectorManager:
         detector_name = request.get("detector_name", None)
         validate.detector_name(detector_name)
 
-        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline)
+        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
         detector_number = int(detector_name[2:4])
         detector = Jungfrau(detector_number)
@@ -84,7 +84,7 @@ class DetectorManager:
         detector_name = request.get("detector_name", None)
         validate.detector_name(detector_name)
 
-        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline)
+        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
         detector_number = int(detector_name[2:4])
         detector = Jungfrau(detector_number)
@@ -211,7 +211,7 @@ class DetectorManager:
         detector_name = request.get("detector_name", None)
         validate.detector_name(detector_name)
 
-        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline)
+        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
         validate.dap_parameters_file_exists(dap_parameters_file)
@@ -234,7 +234,7 @@ class DetectorManager:
         detector_name = request.get("detector_name", None)
         validate.detector_name(detector_name)
 
-        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline)
+        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
         validate.dap_parameters_file_exists(dap_parameters_file)

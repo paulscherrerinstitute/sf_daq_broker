@@ -63,13 +63,13 @@ def pgroup_is_not_closed(dd, ptp):
     if os.path.exists(f"{dd}/CLOSED"):
         raise RuntimeError(f"{ptp} is closed for writing")
 
-def detector_name_in_allowed_detectors_beamline(dn, adb):
+def detector_name_in_allowed_detectors_beamline(dn, adb, bl):
     if dn not in adb:
-        raise RuntimeError(f"{dn} not belongs to the {beamline}")
+        raise RuntimeError(f"{dn} not belongs to the {bl}")
 
-def all_detector_names_in_allowed_detectors_beamline(dns, adb):
+def all_detector_names_in_allowed_detectors_beamline(dns, adb, bl):
     for dn in dns:
-        detector_name_in_allowed_detectors_beamline(dn, adb)
+        detector_name_in_allowed_detectors_beamline(dn, adb, bl)
 
 def request_has_detectors(req):
     if "detectors" not in req:
