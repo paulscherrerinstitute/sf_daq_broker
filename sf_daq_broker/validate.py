@@ -2,6 +2,10 @@ import os
 from glob import glob
 
 
+MAX_PULSEID_DELTA = 60001
+ALLOWED_RATE_MULTIPLICATORS = [1, 2, 4, 8, 10, 20, 40, 50, 100]
+
+
 ##TODO: use message templates?
 #TEMPL_MISSING_PARAM = "no {what} provided in the request parameters"
 
@@ -89,16 +93,14 @@ def helper_request_has_pulseid(req, key):
 
 def allowed_pulseid_range(pid_start, pid_stop):
     delta = pid_stop - pid_start
-    max_delta = 60001
-    if delta > max_delta:
-        raise RuntimeError(f"requested number of pulses {delta} too large (max. {max_delta})")
+    if delta > MAX_PULSEID_DELTA:
+        raise RuntimeError(f"requested number of pulses {delta} too large (max. {MAX_PULSEID_DELTA})")
     if delta < 0:
         raise RuntimeError(f"requested number of pulses {delta} negative")
 
 def rate_multiplicator(rm):
-    allowed = [1, 2, 4, 8, 10, 20, 40, 50, 100]
-    if rm not in allowed:
-        raise RuntimeError('"rate_multiplicator" not from allowed values {allowed}')
+    if rm not in ALLOWED_RATE_MULTIPLICATORS:
+        raise RuntimeError('"rate_multiplicator" not from allowed values {ALLOWED_RATE_MULTIPLICATORS}')
 
 def allowed_run_number(rn, ckrn):
     if rn > ckrn:
