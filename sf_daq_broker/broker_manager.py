@@ -48,7 +48,7 @@ class BrokerManager:
         validate.path_to_pgroup_exists(path_to_pgroup)
 
         daq_directory = f"{path_to_pgroup}{DIR_NAME_RUN_INFO}"
-        validate.daq_directory_exists(daq_directory)
+        validate.directory_exists(daq_directory)
         validate.pgroup_is_not_closed_yet(daq_directory, path_to_pgroup)
 
         with open(f"{daq_directory}/CLOSED", "x"):
@@ -127,7 +127,7 @@ class BrokerManager:
         validate.path_to_pgroup_exists(path_to_pgroup)
 
         daq_directory = f"{path_to_pgroup}{DIR_NAME_RUN_INFO}"
-        validate.daq_directory_exists(daq_directory)
+        validate.directory_exists(daq_directory)
 
         validate.pgroup_is_not_closed(daq_directory, path_to_pgroup)
 
@@ -260,7 +260,7 @@ class BrokerManager:
         validate.directory_exists(full_path)
 
         daq_directory = f"{path_to_pgroup}{DIR_NAME_RUN_INFO}"
-        validate.daq_directory_exists(daq_directory)
+        validate.directory_exists(daq_directory)
 
         validate.pgroup_is_not_closed(daq_directory, path_to_pgroup)
 
@@ -347,7 +347,7 @@ class BrokerManager:
         validate.path_to_pgroup_exists(path_to_pgroup)
 
         daq_directory = f"{path_to_pgroup}{DIR_NAME_RUN_INFO}"
-        validate.daq_directory_exists(daq_directory)
+        validate.directory_exists(daq_directory)
 
         if "run_number" not in request:
             request["run_number"] = get_current_run_number(daq_directory)
