@@ -80,10 +80,12 @@ def request_has_detectors(req):
         raise RuntimeError('no "detectors" provided in the request parameters')
 
 def request_has_pulseids(req):
-    if "start_pulseid" not in req:
-        raise RuntimeError('no "start_pulseid" provided in the request parameters')
-    if "stop_pulseid" not in req:
-        raise RuntimeError('no "stop_pulseid" provided in the request parameters')
+    helper_request_has_pulseid(req, "start_pulseid")
+    helper_request_has_pulseid(req, "stop_pulseid")
+
+def helper_request_has_pulseid(req, key):
+    if key not in req:
+        raise RuntimeError(f'no "{key}" provided in the request parameters')
 
 def allowed_pulseid_range(pid_start, pid_stop):
     delta = pid_stop - pid_start
@@ -128,21 +130,22 @@ def run_dir_exists(lddr, rn):
 # checks with side effects -- move somewhere else? refactor logic?
 
 def directory_exists(pd):
-    if not os.path.exists(pd):
-        try:
-            os.makedirs(pd)
-        except Exception as e:
-            raise RuntimeError(f"cannot create directory {pd} (due to: {e})") from e
+    if os.path.exists(pd):
+        return
+    try:
+        os.makedirs(pd)
+    except Exception as e:
+        raise RuntimeError(f"cannot create directory {pd} (due to: {e})") from e
 
 def request_has_integer_pulseids(req):
+    helper_request_has_integer_pulseid(req, "start_pulseid")
+    helper_request_has_integer_pulseid(req, "stop_pulseid")
+
+def helper_request_has_integer_pulseid(req, key):
     try:
-        req["start_pulseid"] = int(req["start_pulseid"])
+        req[key] = int(req[key])
     except Exception as e:
-        raise RuntimeError(f'bad "start_pulseid" provided in the request parameters (due to: {e})') from e
-    try:
-        req["stop_pulseid"]  = int(req["stop_pulseid"])
-    except Exception as e:
-        raise RuntimeError(f'bad "stop_pulseid" provided in the request parameters (due to: {e})') from e
+        raise RuntimeError(f'bad "{key}" provided in the request parameters (due to: {e})') from e
 
 
 
