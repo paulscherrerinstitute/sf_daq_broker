@@ -157,7 +157,7 @@ class DetectorManager:
         validate.path_to_pgroup_exists(path_to_pgroup)
 
         daq_directory = f"{path_to_pgroup}/run_info"
-        validate.daq_directory_exists(daq_directory)
+        validate.directory_exists(daq_directory)
         validate.pgroup_is_not_closed_yet(daq_directory, path_to_pgroup)
 
         run_number = request.get("run_number", None)

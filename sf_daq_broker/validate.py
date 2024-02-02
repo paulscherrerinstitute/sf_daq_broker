@@ -118,13 +118,6 @@ def run_dir_exists(lddr, rn):
 
 # checks with side effects -- move somewhere else? refactor logic?
 
-def daq_directory_exists(dd):
-    if not os.path.exists(dd):
-        try:
-            os.mkdir(dd)
-        except Exception as e:
-            raise RuntimeError(f"no permission or possibility to make run_info directory in pgroup space (due to: {e})") from e
-
 def directory_exists(pd):
     if not os.path.exists(pd):
         try:
