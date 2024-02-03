@@ -37,7 +37,7 @@ conv_detector_gain_settings_reverse = dict(zip(conv_detector_gain_settings.value
 class DetectorManager:
 
     @return_status
-    def get_detector_settings(self, request=None, remote_ip=None):
+    def get_detector_settings(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
 
@@ -71,7 +71,7 @@ class DetectorManager:
 
 
     @return_status
-    def set_detector_settings(self, request=None, remote_ip=None):
+    def set_detector_settings(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
 
@@ -140,7 +140,7 @@ class DetectorManager:
 
 
     @return_status
-    def copy_user_files(self, request=None, remote_ip=None):
+    def copy_user_files(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
 
@@ -198,7 +198,7 @@ class DetectorManager:
 
 
     @return_status
-    def get_dap_settings(self, request=None, remote_ip=None):
+    def get_dap_settings(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
 
@@ -221,7 +221,7 @@ class DetectorManager:
 
 
     @return_status
-    def set_dap_settings(self, request=None, remote_ip=None):
+    def set_dap_settings(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
 

@@ -34,7 +34,7 @@ class BrokerManager:
 
 
     @return_status
-    def close_pgroup_writing(self, request=None, remote_ip=None):
+    def close_pgroup_writing(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
 
@@ -58,7 +58,7 @@ class BrokerManager:
 
 
     @return_status
-    def get_pvlist(self, remote_ip=None):
+    def get_pvlist(self, remote_ip):
         validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
@@ -79,7 +79,7 @@ class BrokerManager:
 
 
     @return_status
-    def set_pvlist(self, request=None, remote_ip=None):
+    def set_pvlist(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
 
@@ -108,12 +108,12 @@ class BrokerManager:
 
 
     @return_status
-    def get_last_run_number(self, request=None, remote_ip=None, increment_run_number=False):
+    def get_last_run_number(self, request, remote_ip, increment_run_number=False):
         return self.get_next_run_number(request=request, remote_ip=remote_ip, increment_run_number=increment_run_number)
 
 
     @return_status
-    def get_next_run_number(self, request=None, remote_ip=None, increment_run_number=True):
+    def get_next_run_number(self, request, remote_ip, increment_run_number=True):
         validate.request(request)
         validate.remote_ip(remote_ip)
 
@@ -136,7 +136,7 @@ class BrokerManager:
 
 
     @return_status
-    def power_on_detector(self, request=None, remote_ip=None):
+    def power_on_detector(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
 
@@ -166,7 +166,7 @@ class BrokerManager:
 
 
     @return_status
-    def get_running_detectors_list(self, remote_ip=None):
+    def get_running_detectors_list(self, remote_ip):
         validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
@@ -194,7 +194,7 @@ class BrokerManager:
 
 
     @return_status
-    def get_allowed_detectors_list(self, remote_ip=None):
+    def get_allowed_detectors_list(self, remote_ip):
         validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
@@ -228,7 +228,7 @@ class BrokerManager:
 
 
     @return_status
-    def take_pedestal(self, request=None, remote_ip=None):
+    def take_pedestal(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
 
@@ -311,7 +311,7 @@ class BrokerManager:
 
 
     @return_status
-    def retrieve_from_buffers(self, request=None, remote_ip=None):
+    def retrieve_from_buffers(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
 
