@@ -13,19 +13,15 @@ _logger = logging.getLogger(__name__)
 
 
 def start_server(rest_port):
-    _logger.info(f"Starting detector server on port {rest_port} (rest-api)")
+    _logger.info("Starting Detector Settings Server")
 
     app = bottle.Bottle()
     manager = DetectorManager()
 
-    logging.getLogger("pika").setLevel(logging.WARNING)
-
     register_rest_interface(app, manager)
 
-    _logger.info("Detector Server started.")
-
     hostname = socket.gethostname()
-    _logger.info(f"Starting rest API on port {rest_port} host {hostname}" )
+    _logger.info(f"Starting Detector Settings Server REST-API on {hostname}:{rest_port}")
 
     bottle.run(app=app, host=hostname, port=rest_port)
 
@@ -33,14 +29,14 @@ def start_server(rest_port):
 def run():
     parser = argparse.ArgumentParser(description="detector_settings")
 
-    parser.add_argument("--rest_port", default=10003, type=int, help="Port for REST api.")
-    parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="Log level to use.")
+    parser.add_argument("--rest_port", default=10003, type=int, help="REST-API port")
+    parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="Log level")
 
     clargs = parser.parse_args()
 
     logging.basicConfig(level=clargs.log_level, format="[%(levelname)s] %(message)s")
 
-    start_server(rest_port=clargs.rest_port)
+    start_server(clargs.rest_port)
 
 
 

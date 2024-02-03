@@ -15,14 +15,14 @@ from . import validate
 _logger = logging.getLogger(__name__)
 
 PEDESTAL_FRAMES = 3000
-#TODO: put in in config
+#TODO: move to config
 DIR_NAME_RUN_INFO = "run_info"
 
-# SciCat allow following characters: letters digits _ - . % # + : = @ space(not tab)
-# : is bad to have in directory name, since it is forbidden symbol in windows for file/directory names
-# #, @ or space are bad to have for directory names on linux, needs a special trailing characters
-# to be on safe side, also characters "=" "%" are not allowed (if there will be request from users, can enable them)
-# so allowing (letters digits _ - + .)
+# SciCat allows the following characters: letters digits _ - . % # + : = @ space (not tab)
+# : may be problematic since it is a forbidden character for file/directory names under Windows
+# #, @ and space may be problematic since these need a special trailing character in directory names under Linux
+# to be on the safe side, the characters = % are also not allowed (but could be enabled upon user request)
+# thus allowing: letters digits _ - + .
 allowed_user_tag_characters = set(string.ascii_lowercase + string.ascii_uppercase + string.digits + "_" + "-" + "+" + ".")
 
 
@@ -163,7 +163,7 @@ class BrokerManager:
         self.broker_client.send(request_power_on, broker_config.TAG_POWER_ON)
         self.broker_client.close()
 
-        return "request to power on detector is sent, wait few minutes"
+        return "request to power on detector sent, wait a few minutes"
 
 
     @return_status
@@ -304,7 +304,7 @@ class BrokerManager:
 
         res = {
             "status": "ok",
-            "message": f"will do a pedestal now, wait at least {time_to_wait} seconds",
+            "message": f"request to take pedestal sent, wait at least {time_to_wait} seconds",
             #TODO: are these needed?
             "run_number": str(0),
             "acquisition_number": str(0),
@@ -335,7 +335,7 @@ class BrokerManager:
         rate_multiplicator = request.get("rate_multiplicator", 1)
         validate.rate_multiplicator(rate_multiplicator)
 
-        # to be sure that interesting (corresponding to beam rate) pulse_id are covered by the request call
+        # align pulse IDs to FEL rep. rate
         adjusted_start_pulse_id = start_pulse_id
         adjusted_stop_pulse_id  = stop_pulse_id
 
@@ -367,8 +367,8 @@ class BrokerManager:
 
         if append_user_tag and user_tag is not None and len(user_tag) > 0:
             cleaned_user_tag = clean_user_tag(user_tag)
-            cleaned_user_tag = cleaned_user_tag[:50] # may be this is will not be needed in future
-            cleaned_user_tag = clean_last_character_user_tag(cleaned_user_tag) # replace last character if it is not digit or letter
+            cleaned_user_tag = cleaned_user_tag[:50]
+            cleaned_user_tag = clean_last_character_user_tag(cleaned_user_tag)
             request["appended_directory_suffix"] = cleaned_user_tag
             output_run_directory = f"run{run_number:04}-{cleaned_user_tag}"
 
@@ -380,7 +380,7 @@ class BrokerManager:
         if not write_data:
             res = {
                 "status": "pass",
-                "message": "everything fine but no request to write any data"
+                "message": "request did not contain any channels to be written to file"
             }
             return res
 
@@ -457,7 +457,7 @@ class BrokerManager:
                 self.broker_client.send(write_request, tag)
             except Exception as e:
                 with open(write_request["run_log_file"], "a") as log_file:
-                    log_file.write(f"Can not contact writer (due to: {e})")
+                    log_file.write(f"Cannot send request to writer (due to: {e})")
                 raise
 
         self.broker_client.open()
@@ -579,13 +579,15 @@ class BrokerManager:
 
 
 
-## not needed anymore, we replace bad characters with "_"
+## not needed anymore, forbidden characters are replaced with "_"
 #def check_for_allowed_user_tag_character(user_tag):
 #    return set(user_tag) <= allowed_user_tag_characters
 
 def clean_user_tag(user_tag, replacement_character="_"):
-    #return "".join(char for char in user_tag if char in allowed_user_tag_characters) # do not replace but remove bad characters. In this case resulting string may be empty
-    return "".join(char if char in allowed_user_tag_characters else replacement_character for char in user_tag) # replace bad characters, so if initital user_tag contained at least one character, it will not be empty (but may be "___")
+    ## do not replace but remove forbidden characters; resulting string may be empty
+    #return "".join(char for char in user_tag if char in allowed_user_tag_characters)
+    # replace forbidden characters; if initital user_tag contained at least one character, it will not be empty (it may be only underscores)
+    return "".join(char if char in allowed_user_tag_characters else replacement_character for char in user_tag)
 
 def clean_last_character_user_tag(user_tag, replacement_character="_"):
     if not user_tag[-1].isalnum():

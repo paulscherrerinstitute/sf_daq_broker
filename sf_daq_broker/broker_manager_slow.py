@@ -101,18 +101,18 @@ class DetectorManager:
         try:
             event_code_pv.put(255)
         except Exception as e:
-            raise RuntimeError(f"can not stop detector trigger (due to: {e})") from e
+            raise RuntimeError(f"could not stop detector trigger {event_code_pv_name} (due to: {e})") from e
 
-        #sleep few second to give epics a chance to switch code
+        # allow epics to process the change
         sleep(4)
 
         try:
             event_code = int(event_code_pv.get())
         except Exception as e:
-            raise RuntimeError(f"getting strange return from timing system {event_code_pv.get()} {event_code_pv_name} {beamline} (due to: {e})") from e
+            raise RuntimeError(f"got unexpected value from detector trigger {event_code_pv_name}: {event_code_pv.get()} (due to: {e})") from e
 
         if event_code != 255:
-            raise RuntimeError("tried to stop detector trigger but failed")
+            raise RuntimeError(f"stopping detector trigger {event_code_pv_name} failed")
 
         if exptime:
             detector.exptime = exptime
@@ -120,8 +120,8 @@ class DetectorManager:
 
         if detector_mode:
             if detector_mode in conv_detector_settings_reverse:
-                detector.settings = conv_detector_settings_reverse[detector_mode]
-                _logger.info(f"settings detector settings to {conv_detector_settings_reverse[detector_mode]} ({detector_mode})")
+                detector.settings = new_settings = conv_detector_settings_reverse[detector_mode]
+                _logger.info(f"setting detector settings to {new_settings} ({detector_mode})")
 
         if delay:
             detector.delay = delay
@@ -129,8 +129,8 @@ class DetectorManager:
 
         if gain_mode:
             if gain_mode in conv_detector_gain_settings_reverse:
-                detector.gainmode = conv_detector_gain_settings_reverse[gain_mode]
-                _logger.info(f"settings detector settings to {conv_detector_gain_settings_reverse[gain_mode]} ({gain_mode})")
+                detector.gainmode = new_settings = conv_detector_gain_settings_reverse[gain_mode]
+                _logger.info(f"setting detector gain settings to {new_settings} ({gain_mode})")
 
         # start triggering
         event_code_pv.put(254)
@@ -190,7 +190,7 @@ class DetectorManager:
 
         res = {
             "status": "ok",
-            "message": "user file copy finished, check error_files list",
+            "message": 'copying user file(s) finished, check "error_files"',
             "error_files": error_files,
             "destination_file_path": destination_file_path
         }
@@ -266,7 +266,7 @@ class DetectorManager:
                 json_save(dap_config, dap_parameters_file)
             except Exception as e:
                 shutil.copyfile(f"{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}", dap_parameters_file)
-                raise RuntimeError(f"problem to update dap configuration, try again and inform responsible (due to: {e})") from e
+                raise RuntimeError(f"could not update DAP configuration (due to: {e})") from e
 
         return changed_parameters
 
