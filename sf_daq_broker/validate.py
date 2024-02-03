@@ -51,6 +51,10 @@ def detectors(ds):
 
 # check more complex things
 
+def request_is_empty(req):
+    if req:
+        raise RuntimeError(f"this endpoint does not accept request parameters but received {req}")
+
 def request_has_pgroup(req):
     if "pgroup" not in req:
         raise RuntimeError('no "pgroup" provided in the request parameters')
