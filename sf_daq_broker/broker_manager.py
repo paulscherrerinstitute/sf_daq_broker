@@ -58,7 +58,8 @@ class BrokerManager:
 
 
     @return_status
-    def get_pvlist(self, remote_ip):
+    def get_pvlist(self, request, remote_ip):
+        validate.request_is_empty(request)
         validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
@@ -166,7 +167,8 @@ class BrokerManager:
 
 
     @return_status
-    def get_running_detectors_list(self, remote_ip):
+    def get_running_detectors_list(self, request, remote_ip):
+        validate.request_is_empty(request)
         validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)
@@ -194,7 +196,8 @@ class BrokerManager:
 
 
     @return_status
-    def get_allowed_detectors_list(self, remote_ip):
+    def get_allowed_detectors_list(self, request, remote_ip):
+        validate.request_is_empty(request)
         validate.remote_ip(remote_ip)
 
         beamline = ip_to_console(remote_ip)

@@ -17,11 +17,11 @@ def register_rest_interface(app, manager):
 
     @app.get("/get_allowed_detectors_list")
     def get_allowed_detectors_list():
-        return manager.get_allowed_detectors_list(bottle.request.remote_addr)
+        return manager.get_allowed_detectors_list(bottle.request.json, bottle.request.remote_addr)
 
     @app.get("/get_running_detectors_list")
     def get_running_detectors_list():
-        return manager.get_running_detectors_list(bottle.request.remote_addr)
+        return manager.get_running_detectors_list(bottle.request.json, bottle.request.remote_addr)
 
     @app.post("/power_on_detector")
     def power_on_detector():
@@ -37,7 +37,7 @@ def register_rest_interface(app, manager):
 
     @app.get("/get_pvlist")
     def get_pvlist():
-        return manager.get_pvlist(bottle.request.remote_addr)
+        return manager.get_pvlist(bottle.request.json, bottle.request.remote_addr)
 
     @app.post("/set_pvlist")
     def set_pvlist():
