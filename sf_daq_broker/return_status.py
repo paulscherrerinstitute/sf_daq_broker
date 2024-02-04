@@ -6,10 +6,11 @@ def return_status(func):
     def wrapper(*args, **kwargs):
         try:
             res = func(*args, **kwargs)
-        except Exception as e: #TODO: also store type(e).__name__ as "exception" ?
+        except Exception as e:
             return {
                 "status": "failed",
-                "message": str(e)
+                "message": str(e),
+                "exception": type(e).__name__
             }
         else:
             if is_message_dict(res):
@@ -58,8 +59,8 @@ if __name__ == "__main__":
 
 
     assert test_str_works(123) == {"status": "ok",     "message": "test works 123"}
-    assert test_str_fails(123) == {"status": "failed", "message": "test fails 123"}
-    assert test_str_works()    == {"status": "failed", "message": "test_str_works() missing 1 required positional argument: 'x'"} # pylint: disable=no-value-for-parameter
+    assert test_str_fails(123) == {"status": "failed", "message": "test fails 123", "exception": "ValueError"}
+    assert test_str_works()    == {"status": "failed", "message": "test_str_works() missing 1 required positional argument: 'x'", "exception": "TypeError"} # pylint: disable=no-value-for-parameter
 
     assert test_dict_nostatus()       == {"status": "ok",   "message": "already a dict"}
     assert test_dict_status()         == {"status": "stat", "message": "already a dict"}
