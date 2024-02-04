@@ -14,6 +14,23 @@ from sf_daq_broker.rest_api import register_rest_interface
 _logger = logging.getLogger(__name__)
 
 
+ENDPOINTS_POST = [
+    "retrieve_from_buffers",
+    "take_pedestal",
+    "power_on_detector",
+    "set_pvlist",
+    "close_pgroup_writing"
+]
+
+ENDPOINTS_GET = [
+    "get_allowed_detectors_list",
+    "get_running_detectors_list",
+    "get_next_run_number",
+    "get_last_run_number",
+    "get_pvlist"
+]
+
+
 
 def start_server(broker_url, rest_port):
     _logger.info(f"Starting sf_daq_broker message broker on {broker_url}")
@@ -26,7 +43,7 @@ def start_server(broker_url, rest_port):
     app = bottle.Bottle()
     manager = BrokerManager(broker_client=broker_client)
 
-    register_rest_interface(app, manager)
+    register_rest_interface(app, manager, endpoints_post=ENDPOINTS_POST, endpoints_get=ENDPOINTS_GET)
 
     hostname = socket.gethostname()
     _logger.info(f"Starting sf_daq_broker REST-API on {hostname}:{rest_port}")
