@@ -8,7 +8,7 @@ import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker import config
 from sf_daq_broker.broker_manager import BrokerManager
 from sf_daq_broker.rabbitmq.msg_broker_client import RabbitMqClient
-from sf_daq_broker.rest_api import register_rest_interface
+from sf_daq_broker.rest_api import register_rest_api
 
 
 _logger = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ def start_server(broker_url, rest_port):
     app = bottle.Bottle()
     manager = BrokerManager(broker_client=broker_client)
 
-    register_rest_interface(app, manager, endpoints_post=ENDPOINTS_POST, endpoints_get=ENDPOINTS_GET)
+    register_rest_api(app, manager, endpoints_post=ENDPOINTS_POST, endpoints_get=ENDPOINTS_GET)
 
     hostname = socket.gethostname()
     _logger.info(f"Starting sf_daq_broker REST-API on {hostname}:{rest_port}")

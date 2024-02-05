@@ -1,8 +1,8 @@
 from .endpoints import register_endpoints
-from .error import register_error_handler
+from .error_handler import register_error_handler
 
 
-def register_rest_interface(app, manager, endpoints_post=None, endpoints_get=None):
+def register_rest_api(app, manager, endpoints_post=None, endpoints_get=None):
     register_error_handler(app)
 
     if endpoints_post:

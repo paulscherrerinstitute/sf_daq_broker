@@ -5,7 +5,7 @@ import socket
 import bottle
 
 from sf_daq_broker.broker_manager_slow import DetectorManager
-from sf_daq_broker.rest_api import register_rest_interface
+from sf_daq_broker.rest_api import register_rest_api
 
 
 _logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ def start_server(rest_port):
     app = bottle.Bottle()
     manager = DetectorManager()
 
-    register_rest_interface(app, manager, endpoints_post=ENDPOINTS_POST)
+    register_rest_api(app, manager, endpoints_post=ENDPOINTS_POST)
 
     hostname = socket.gethostname()
     _logger.info(f"Starting Detector Settings Server REST-API on {hostname}:{rest_port}")

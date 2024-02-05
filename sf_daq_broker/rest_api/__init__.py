@@ -1,4 +1,4 @@
 
-from .rest_api import register_rest_interface
+from .rest_api import register_rest_api
 
 
