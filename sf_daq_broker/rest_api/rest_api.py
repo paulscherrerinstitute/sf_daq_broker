@@ -1,6 +1,6 @@
 from bottle import request
 
-from .rest_api_error import register_error_handler
+from .error import register_error_handler
 
 
 def register_rest_interface(app, manager, endpoints_post=None, endpoints_get=None):
