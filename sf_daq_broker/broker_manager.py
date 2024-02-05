@@ -8,7 +8,6 @@ import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker import config
 from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline, detector_human_names, get_streamvis_address
 from sf_daq_broker.utils import get_writer_request, ip_to_console, json_save, json_load
-from .return_status import return_status
 from . import validate
 
 
@@ -33,7 +32,6 @@ class BrokerManager:
         self.broker_client = broker_client
 
 
-    @return_status
     def close_pgroup_writing(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
@@ -57,7 +55,6 @@ class BrokerManager:
         return f"{pgroup} closed for writing"
 
 
-    @return_status
     def get_pvlist(self, request, remote_ip):
         validate.request_is_empty(request)
         validate.remote_ip(remote_ip)
@@ -79,7 +76,6 @@ class BrokerManager:
         return res
 
 
-    @return_status
     def set_pvlist(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
@@ -108,12 +104,10 @@ class BrokerManager:
         return pv_list
 
 
-    @return_status
     def get_last_run_number(self, request, remote_ip, increment_run_number=False):
         return self.get_next_run_number(request=request, remote_ip=remote_ip, increment_run_number=increment_run_number)
 
 
-    @return_status
     def get_next_run_number(self, request, remote_ip, increment_run_number=True):
         validate.request(request)
         validate.remote_ip(remote_ip)
@@ -136,7 +130,6 @@ class BrokerManager:
         return next_run
 
 
-    @return_status
     def power_on_detector(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
@@ -166,7 +159,6 @@ class BrokerManager:
         return "request to power on detector sent, wait a few minutes"
 
 
-    @return_status
     def get_running_detectors_list(self, request, remote_ip):
         validate.request_is_empty(request)
         validate.remote_ip(remote_ip)
@@ -195,7 +187,6 @@ class BrokerManager:
         return res
 
 
-    @return_status
     def get_allowed_detectors_list(self, request, remote_ip):
         validate.request_is_empty(request)
         validate.remote_ip(remote_ip)
@@ -230,7 +221,6 @@ class BrokerManager:
         return res
 
 
-    @return_status
     def take_pedestal(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
@@ -313,7 +303,6 @@ class BrokerManager:
         return res
 
 
-    @return_status
     def retrieve_from_buffers(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)

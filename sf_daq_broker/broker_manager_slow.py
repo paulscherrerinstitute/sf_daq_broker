@@ -12,7 +12,6 @@ from slsdet.enums import detectorSettings
 from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline
 from sf_daq_broker.detector.power_on_detector import beamline_event_code
 from sf_daq_broker.utils import ip_to_console, json_save, json_load
-from .return_status import return_status
 from . import validate
 
 
@@ -36,7 +35,6 @@ conv_detector_gain_settings_reverse = dict(zip(conv_detector_gain_settings.value
 
 class DetectorManager:
 
-    @return_status
     def get_detector_settings(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
@@ -70,7 +68,6 @@ class DetectorManager:
         return res
 
 
-    @return_status
     def set_detector_settings(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
@@ -139,7 +136,6 @@ class DetectorManager:
         return "detector settings changed successfully"
 
 
-    @return_status
     def copy_user_files(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
@@ -197,7 +193,6 @@ class DetectorManager:
         return res
 
 
-    @return_status
     def get_dap_settings(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
@@ -220,7 +215,6 @@ class DetectorManager:
         return dap_config
 
 
-    @return_status
     def set_dap_settings(self, request, remote_ip):
         validate.request(request)
         validate.remote_ip(remote_ip)
