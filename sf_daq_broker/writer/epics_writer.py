@@ -8,7 +8,8 @@ import requests
 
 from sf_daq_broker.config import DATA_API_QUERY_ADDRESS
 from sf_daq_broker.utils import pulse_id_to_seconds
-from sf_daq_broker.writer.bsread_writer import BsreadH5Writer #TODO: this does not exist!
+#TODO: the following does not exist!
+from sf_daq_broker.writer.bsread_writer import BsreadH5Writer # pylint: disable=no-name-in-module
 
 
 _logger = logging.getLogger("broker_writer")
