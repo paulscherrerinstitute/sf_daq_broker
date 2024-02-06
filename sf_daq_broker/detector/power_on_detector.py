@@ -20,65 +20,6 @@ beamline_event_code = {
 
 
 
-def load_detector_config(detector_name=None):
-    _logger.info(f"request to load config for detector {detector_name}")
-
-    if detector_name is None:
-        _logger.error("No detector name given")
-        return
-
-    detector_configuration = DetectorConfig(detector_name)
-
-    if not detector_configuration.is_configuration_present():
-        _logger.error("No detector configuration present")
-        return
-
-    detector_number = detector_configuration.get_detector_number()
-#    number_modules = detector_configuration.get_number_modules()
-
-    detector = Jungfrau(detector_number)
-
-    detector.detsize = detector_configuration.get_detector_size()
-
-    detector.setHostname(detector_configuration.get_detector_hostname())
-
-    detector.udp_dstmac = detector_configuration.get_detector_udp_dstmac()
-    detector.udp_dstip  = detector_configuration.get_udp_dstip()
-    detector.udp_dstport = detector_configuration.get_detector_port_first_module() # will increment port(+1) for each module
-
-    detector.udp_srcip = detector_configuration.get_detector_upd_ip()
-    detector.udp_srcmac = detector_configuration.get_detector_udp_mac()
-
-    detector.txndelay_frame = detector_configuration.get_detector_txndelay()
-    detector.delay = detector_configuration.get_detector_delay()
-
-    if detector_number == 2:
-        detector.dacs.vb_comp = 1420
-
-    if detector_number == 18:
-        detector.dacs.vb_comp = 1320
-
-    detector.temp_threshold = detector_configuration.get_detector_temp_threshold()
-    detector.temp_control = 1
-
-    detector.powerchip = True
-    detector.highvoltage = 120
-    if detector_number == 18:
-        detector.highvoltage = 0
-
-    detector.timing = timingMode.TRIGGER_EXPOSURE
-    detector.triggers = 500000000
-
-    detector.exptime = 5e-06
-    if detector_number == 15:
-        detector.exptime = 10e-06
-
-    detector.frames = 1
-    detector.dr = 16
-
-    detector.startDetector()
-
-
 def power_on_detector(detector_name=None, beamline=None):
     _logger.info(f"request to power on detector {detector_name}")
 
@@ -138,6 +79,65 @@ def power_on_detector(detector_name=None, beamline=None):
 
     # start triggering
     event_code_pv.put(254)
+
+
+def load_detector_config(detector_name=None):
+    _logger.info(f"request to load config for detector {detector_name}")
+
+    if detector_name is None:
+        _logger.error("No detector name given")
+        return
+
+    detector_configuration = DetectorConfig(detector_name)
+
+    if not detector_configuration.is_configuration_present():
+        _logger.error("No detector configuration present")
+        return
+
+    detector_number = detector_configuration.get_detector_number()
+#    number_modules = detector_configuration.get_number_modules()
+
+    detector = Jungfrau(detector_number)
+
+    detector.detsize = detector_configuration.get_detector_size()
+
+    detector.setHostname(detector_configuration.get_detector_hostname())
+
+    detector.udp_dstmac = detector_configuration.get_detector_udp_dstmac()
+    detector.udp_dstip  = detector_configuration.get_udp_dstip()
+    detector.udp_dstport = detector_configuration.get_detector_port_first_module() # will increment port(+1) for each module
+
+    detector.udp_srcip = detector_configuration.get_detector_upd_ip()
+    detector.udp_srcmac = detector_configuration.get_detector_udp_mac()
+
+    detector.txndelay_frame = detector_configuration.get_detector_txndelay()
+    detector.delay = detector_configuration.get_detector_delay()
+
+    if detector_number == 2:
+        detector.dacs.vb_comp = 1420
+
+    if detector_number == 18:
+        detector.dacs.vb_comp = 1320
+
+    detector.temp_threshold = detector_configuration.get_detector_temp_threshold()
+    detector.temp_control = 1
+
+    detector.powerchip = True
+    detector.highvoltage = 120
+    if detector_number == 18:
+        detector.highvoltage = 0
+
+    detector.timing = timingMode.TRIGGER_EXPOSURE
+    detector.triggers = 500000000
+
+    detector.exptime = 5e-06
+    if detector_number == 15:
+        detector.exptime = 10e-06
+
+    detector.frames = 1
+    detector.dr = 16
+
+    detector.startDetector()
 
 
 
