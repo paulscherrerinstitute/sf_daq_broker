@@ -4,9 +4,9 @@ import string
 from datetime import datetime
 from shutil import copyfile
 
-import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker import config
 from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline, detector_human_names, get_streamvis_address
+from sf_daq_broker.rabbitmq import broker_config
 from sf_daq_broker.utils import get_writer_request, get_beamline, json_save, json_load
 from . import validate
 
