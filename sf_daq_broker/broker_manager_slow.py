@@ -9,7 +9,7 @@ import epics
 from slsdet import Jungfrau, gainMode
 from slsdet.enums import detectorSettings
 
-from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline
+from sf_daq_broker.detector.utils import configured_detectors_for_beamline
 from sf_daq_broker.detector.power_on_detector import beamline_event_code
 from sf_daq_broker.utils import get_beamline, json_save, json_load
 from . import validate
