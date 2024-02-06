@@ -11,7 +11,7 @@ from slsdet.enums import detectorSettings
 
 from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline
 from sf_daq_broker.detector.power_on_detector import beamline_event_code
-from sf_daq_broker.utils import ip_to_console, json_save, json_load
+from sf_daq_broker.utils import get_beamline, json_save, json_load
 from . import validate
 
 
@@ -37,10 +37,8 @@ class DetectorManager:
 
     def get_detector_settings(self, request, remote_ip):
         validate.request(request)
-        validate.remote_ip(remote_ip)
 
-        beamline = ip_to_console(remote_ip)
-        validate.beamline(beamline)
+        beamline = get_beamline(remote_ip)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
         validate.allowed_detectors_beamline(allowed_detectors_beamline)
@@ -70,10 +68,8 @@ class DetectorManager:
 
     def set_detector_settings(self, request, remote_ip):
         validate.request(request)
-        validate.remote_ip(remote_ip)
 
-        beamline = ip_to_console(remote_ip)
-        validate.beamline(beamline)
+        beamline = get_beamline(remote_ip)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
         validate.allowed_detectors_beamline(allowed_detectors_beamline)
@@ -138,10 +134,8 @@ class DetectorManager:
 
     def copy_user_files(self, request, remote_ip):
         validate.request(request)
-        validate.remote_ip(remote_ip)
 
-        beamline = ip_to_console(remote_ip)
-        validate.beamline(beamline)
+        beamline = get_beamline(remote_ip)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
         validate.allowed_detectors_beamline(allowed_detectors_beamline)
@@ -195,10 +189,8 @@ class DetectorManager:
 
     def get_dap_settings(self, request, remote_ip):
         validate.request(request)
-        validate.remote_ip(remote_ip)
 
-        beamline = ip_to_console(remote_ip)
-        validate.beamline(beamline)
+        beamline = get_beamline(remote_ip)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
         validate.allowed_detectors_beamline(allowed_detectors_beamline)
@@ -217,10 +209,8 @@ class DetectorManager:
 
     def set_dap_settings(self, request, remote_ip):
         validate.request(request)
-        validate.remote_ip(remote_ip)
 
-        beamline = ip_to_console(remote_ip)
-        validate.beamline(beamline)
+        beamline = get_beamline(remote_ip)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
         validate.allowed_detectors_beamline(allowed_detectors_beamline)
