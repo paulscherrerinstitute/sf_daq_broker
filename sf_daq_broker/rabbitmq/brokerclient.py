@@ -4,7 +4,7 @@ from time import sleep
 
 from pika import BasicProperties, BlockingConnection, ConnectionParameters
 
-import sf_daq_broker.rabbitmq.config as broker_config
+from . import broker_config
 
 
 ROUTES = {
