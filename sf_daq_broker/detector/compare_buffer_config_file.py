@@ -1,6 +1,9 @@
 import logging
+import os
 
-from .detector_config import _detector_daq, DetectorConfig
+from sf_daq_broker.utils import json_load, json_save
+
+from .detector_config import DetectorConfig, _detector_daq
 
 
 _logger = logging.getLogger("broker_writer")
@@ -13,9 +16,6 @@ def compare_buffer_config_file_all(overwrite_config=False):
 
 
 def compare_buffer_config_file(detector_name=None, overwrite_config=False):
-    import os
-    from sf_daq_broker.utils import json_save, json_load
-
     detector_configuration = DetectorConfig(detector_name)
     if not detector_configuration.is_configuration_present():
         _logger.error(f"{detector_name}: No detector configuration present")
