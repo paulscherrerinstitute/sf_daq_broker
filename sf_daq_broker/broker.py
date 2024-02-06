@@ -7,7 +7,7 @@ import bottle
 import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker import config
 from sf_daq_broker.broker_manager import BrokerManager
-from sf_daq_broker.rabbitmq.msg_broker_client import RabbitMqClient
+from sf_daq_broker.rabbitmq.brokerclient import BrokerClient
 from sf_daq_broker.rest_api import register_rest_api
 
 
@@ -35,7 +35,7 @@ ENDPOINTS_GET = [
 def start_server(broker_url, rest_port):
     _logger.info(f"Starting sf_daq_broker message broker on {broker_url}")
 
-    broker_client = RabbitMqClient(broker_url=broker_url)
+    broker_client = BrokerClient(broker_url=broker_url)
     logging.getLogger("pika").setLevel(logging.WARNING)
 
     _logger.info("sf_daq_broker message broker started")

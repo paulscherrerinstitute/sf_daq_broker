@@ -18,7 +18,7 @@ ROUTES = {
 
 
 
-class RabbitMqClient:
+class BrokerClient:
 
     def __init__(self, broker_url=broker_config.DEFAULT_BROKER_URL):
         self.broker_url = broker_url
@@ -54,7 +54,7 @@ class RabbitMqClient:
 
     def send(self, write_request, tag):
         if self.channel is None:
-            raise RuntimeError("RabbitMqClient not connected.")
+            raise RuntimeError("BrokerClient not connected.")
 
         if tag.startswith("epics_"):
             routing_key = tag

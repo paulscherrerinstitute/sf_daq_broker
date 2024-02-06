@@ -12,7 +12,7 @@ import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker import config
 from sf_daq_broker.detector.pedestal import take_pedestal
 from sf_daq_broker.detector.power_on_detector import power_on_detector
-from sf_daq_broker.rabbitmq.msg_broker_client import RabbitMqClient
+from sf_daq_broker.rabbitmq.brokerclient import BrokerClient
 from sf_daq_broker.utils import get_data_api_request, get_writer_request, json_save, json_load
 from sf_daq_broker.writer.bsread_writer import write_from_databuffer_api3, write_from_imagebuffer
 from sf_daq_broker.writer.detector_writer import detector_retrieve
@@ -283,7 +283,7 @@ def start_service(broker_url, writer_type=0):
     channel.queue_bind(queue=request_queue, exchange=broker_config.REQUEST_EXCHANGE, routing_key=routing_key)
     channel.basic_qos(prefetch_count=1)
 
-    broker_client = RabbitMqClient(broker_url=broker_url)
+    broker_client = BrokerClient(broker_url=broker_url)
 
     on_broker_message_cb = partial(on_broker_message, connection=connection, broker_client=broker_client)
     channel.basic_consume(request_queue, on_broker_message_cb)
