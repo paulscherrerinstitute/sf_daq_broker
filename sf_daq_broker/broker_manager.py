@@ -33,11 +33,10 @@ class BrokerManager:
 
 
     def close_pgroup_writing(self, request, remote_ip):
-        validate.request(request)
+        validate.request_has(request, "pgroup")
 
         beamline = get_beamline(remote_ip)
 
-        validate.request_has_pgroup(request)
         pgroup = request["pgroup"]
 
         path_to_pgroup = f"/sf/{beamline}/data/{pgroup}/raw/"
@@ -73,18 +72,18 @@ class BrokerManager:
 
 
     def set_pvlist(self, request, remote_ip):
-        validate.request(request)
+        validate.request_has(request, "pv_list")
 
         beamline = get_beamline(remote_ip)
 
         config_file = f"/home/dbe/service_configs/sf.{beamline}.epics_buffer.json"
         validate.epics_config_file_exists(config_file, beamline)
 
-        pv_list = request.get("pv_list", [])
+        pv_list = request["pv_list"]
         pv_list = list(dict.fromkeys(pv_list))
 
         config_epics = {
-            "pulse_id_pv": "SLAAR11-LTIM01-EVR0:RX-PULSEID",
+            "pulse_id_pv": "SLAAR11-LTIM01-EVR0:RX-PULSEID", #TODO: this should be matched to the BL
             "pv_list": pv_list
         }
 
@@ -103,11 +102,10 @@ class BrokerManager:
 
 
     def get_next_run_number(self, request, remote_ip, increment_run_number=True):
-        validate.request(request)
+        validate.request_has(request, "pgroup")
 
         beamline = get_beamline(remote_ip)
 
-        validate.request_has_pgroup(request)
         pgroup = request["pgroup"]
 
         path_to_pgroup = f"/sf/{beamline}/data/{pgroup}/raw/"
@@ -123,15 +121,14 @@ class BrokerManager:
 
 
     def power_on_detector(self, request, remote_ip):
-        validate.request(request)
+        validate.request_has(request, "detector_name")
 
         beamline = get_beamline(remote_ip)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
         validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
-        detector_name = request.get("detector_name", None)
-        validate.detector_name(detector_name)
+        detector_name = request["detector_name"]
 
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
@@ -208,7 +205,7 @@ class BrokerManager:
 
 
     def take_pedestal(self, request, remote_ip):
-        validate.request(request)
+        validate.request_has(request, "pgroup", "detectors")
 
         beamline = get_beamline(remote_ip)
 
@@ -217,14 +214,11 @@ class BrokerManager:
 
         rate_multiplicator = request.get("rate_multiplicator", 1)
 
-        validate.request_has_detectors(request)
-
         detectors = list(request["detectors"])
         validate.detectors(detectors)
 
         validate.all_detector_names_in_allowed_detectors_beamline(detectors, allowed_detectors_beamline, beamline)
 
-        validate.request_has_pgroup(request)
         pgroup = request["pgroup"]
 
         path_to_pgroup = f"/sf/{beamline}/data/{pgroup}/raw/"
@@ -266,7 +260,7 @@ class BrokerManager:
             "path_to_pgroup": path_to_pgroup,
             "run_info_directory": run_info_directory,
             "output_file_prefix": f"{full_path}/{pedestal_name}",
-            "directory_name": request.get("directory_name"),
+            "directory_name": directory_name,
             "request_time": str(request_time)
         }
 
@@ -288,14 +282,12 @@ class BrokerManager:
 
 
     def retrieve_from_buffers(self, request, remote_ip):
-        validate.request(request)
+        validate.request_has(request, "pgroup", "start_pulseid", "stop_pulseid")
 
         beamline = get_beamline(remote_ip)
 
-        validate.request_has_pgroup(request)
         pgroup = request["pgroup"]
 
-        validate.request_has_pulseids(request)
         validate.request_has_integer_pulseids(request)
 
         start_pulse_id = request["start_pulseid"]

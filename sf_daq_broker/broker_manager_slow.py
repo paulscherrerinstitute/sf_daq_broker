@@ -36,15 +36,14 @@ conv_detector_gain_settings_reverse = dict(zip(conv_detector_gain_settings.value
 class DetectorManager:
 
     def get_detector_settings(self, request, remote_ip):
-        validate.request(request)
+        validate.request_has(request, "detector_name")
 
         beamline = get_beamline(remote_ip)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
         validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
-        detector_name = request.get("detector_name", None)
-        validate.detector_name(detector_name)
+        detector_name = request["detector_name"]
 
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
@@ -67,15 +66,14 @@ class DetectorManager:
 
 
     def set_detector_settings(self, request, remote_ip):
-        validate.request(request)
+        validate.request_has(request, "detector_name")
 
         beamline = get_beamline(remote_ip)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
         validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
-        detector_name = request.get("detector_name", None)
-        validate.detector_name(detector_name)
+        detector_name = request["detector_name"]
 
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
@@ -133,14 +131,13 @@ class DetectorManager:
 
 
     def copy_user_files(self, request, remote_ip):
-        validate.request(request)
+        validate.request_has(request, "pgroup", "run_number")
 
         beamline = get_beamline(remote_ip)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
         validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
-        validate.request_has_pgroup(request)
         pgroup = request["pgroup"]
 
         path_to_pgroup = f"/sf/{beamline}/data/{pgroup}/raw/"
@@ -150,8 +147,7 @@ class DetectorManager:
         validate.directory_exists(daq_directory)
         validate.pgroup_is_not_closed_yet(daq_directory, path_to_pgroup)
 
-        run_number = request.get("run_number", None)
-        validate.request_has_run_number(run_number)
+        run_number = request["run_number"]
 
         list_data_directories_run = glob(f"{path_to_pgroup}/run{run_number:04}*")
         validate.run_dir_exists(list_data_directories_run, run_number)
@@ -188,15 +184,14 @@ class DetectorManager:
 
 
     def get_dap_settings(self, request, remote_ip):
-        validate.request(request)
+        validate.request_has(request, "detector_name")
 
         beamline = get_beamline(remote_ip)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
         validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
-        detector_name = request.get("detector_name", None)
-        validate.detector_name(detector_name)
+        detector_name = request["detector_name"]
 
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
@@ -208,15 +203,14 @@ class DetectorManager:
 
 
     def set_dap_settings(self, request, remote_ip):
-        validate.request(request)
+        validate.request_has(request, "detector_name")
 
         beamline = get_beamline(remote_ip)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
         validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
-        detector_name = request.get("detector_name", None)
-        validate.detector_name(detector_name)
+        detector_name = request["detector_name"]
 
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
