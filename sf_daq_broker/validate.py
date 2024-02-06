@@ -16,14 +16,6 @@ def request(req):
     if not req:
         raise RuntimeError("no request parameters provided")
 
-def remote_ip(ri):
-    if not ri:
-        raise RuntimeError("no requester network IP provided")
-
-def beamline(bl):
-    if not bl:
-        raise RuntimeError("cannot match requester network IP to beamline")
-
 def allowed_detectors_beamline(adb):
     if not adb:
         raise RuntimeError("no detectors configured for this beamline")

@@ -7,7 +7,7 @@ from shutil import copyfile
 import sf_daq_broker.rabbitmq.config as broker_config
 from sf_daq_broker import config
 from sf_daq_broker.detector.detector_config import configured_detectors_for_beamline, detector_human_names, get_streamvis_address
-from sf_daq_broker.utils import get_writer_request, ip_to_console, json_save, json_load
+from sf_daq_broker.utils import get_writer_request, get_beamline, json_save, json_load
 from . import validate
 
 
@@ -34,10 +34,8 @@ class BrokerManager:
 
     def close_pgroup_writing(self, request, remote_ip):
         validate.request(request)
-        validate.remote_ip(remote_ip)
 
-        beamline = ip_to_console(remote_ip)
-        validate.beamline(beamline)
+        beamline = get_beamline(remote_ip)
 
         validate.request_has_pgroup(request)
         pgroup = request["pgroup"]
@@ -57,10 +55,8 @@ class BrokerManager:
 
     def get_pvlist(self, request, remote_ip):
         validate.request_is_empty(request)
-        validate.remote_ip(remote_ip)
 
-        beamline = ip_to_console(remote_ip)
-        validate.beamline(beamline)
+        beamline = get_beamline(remote_ip)
 
         config_file = f"/home/dbe/service_configs/sf.{beamline}.epics_buffer.json"
         validate.epics_config_file_exists(config_file, beamline)
@@ -78,10 +74,8 @@ class BrokerManager:
 
     def set_pvlist(self, request, remote_ip):
         validate.request(request)
-        validate.remote_ip(remote_ip)
 
-        beamline = ip_to_console(remote_ip)
-        validate.beamline(beamline)
+        beamline = get_beamline(remote_ip)
 
         config_file = f"/home/dbe/service_configs/sf.{beamline}.epics_buffer.json"
         validate.epics_config_file_exists(config_file, beamline)
@@ -110,10 +104,8 @@ class BrokerManager:
 
     def get_next_run_number(self, request, remote_ip, increment_run_number=True):
         validate.request(request)
-        validate.remote_ip(remote_ip)
 
-        beamline = ip_to_console(remote_ip)
-        validate.beamline(beamline)
+        beamline = get_beamline(remote_ip)
 
         validate.request_has_pgroup(request)
         pgroup = request["pgroup"]
@@ -132,10 +124,8 @@ class BrokerManager:
 
     def power_on_detector(self, request, remote_ip):
         validate.request(request)
-        validate.remote_ip(remote_ip)
 
-        beamline = ip_to_console(remote_ip)
-        validate.beamline(beamline)
+        beamline = get_beamline(remote_ip)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
         validate.allowed_detectors_beamline(allowed_detectors_beamline)
@@ -161,10 +151,8 @@ class BrokerManager:
 
     def get_running_detectors_list(self, request, remote_ip):
         validate.request_is_empty(request)
-        validate.remote_ip(remote_ip)
 
-        beamline = ip_to_console(remote_ip)
-        validate.beamline(beamline)
+        beamline = get_beamline(remote_ip)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
         validate.allowed_detectors_beamline(allowed_detectors_beamline)
@@ -189,10 +177,8 @@ class BrokerManager:
 
     def get_allowed_detectors_list(self, request, remote_ip):
         validate.request_is_empty(request)
-        validate.remote_ip(remote_ip)
 
-        beamline = ip_to_console(remote_ip)
-        validate.beamline(beamline)
+        beamline = get_beamline(remote_ip)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
         validate.allowed_detectors_beamline(allowed_detectors_beamline)
@@ -223,10 +209,8 @@ class BrokerManager:
 
     def take_pedestal(self, request, remote_ip):
         validate.request(request)
-        validate.remote_ip(remote_ip)
 
-        beamline = ip_to_console(remote_ip)
-        validate.beamline(beamline)
+        beamline = get_beamline(remote_ip)
 
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
         validate.allowed_detectors_beamline(allowed_detectors_beamline)
@@ -305,10 +289,8 @@ class BrokerManager:
 
     def retrieve_from_buffers(self, request, remote_ip):
         validate.request(request)
-        validate.remote_ip(remote_ip)
 
-        beamline = ip_to_console(remote_ip)
-        validate.beamline(beamline)
+        beamline = get_beamline(remote_ip)
 
         validate.request_has_pgroup(request)
         pgroup = request["pgroup"]
