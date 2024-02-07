@@ -5,7 +5,7 @@ from datetime import datetime
 from shutil import copyfile
 
 from sf_daq_broker import config
-from sf_daq_broker.detector.utils import configured_detectors_for_beamline, detector_human_names, get_streamvis_address
+from sf_daq_broker.detector.utils import get_configured_detectors, detector_human_names, get_streamvis_address
 from sf_daq_broker.rabbitmq import broker_config
 from sf_daq_broker.utils import get_writer_request, get_beamline, json_save, json_load
 from . import validate
@@ -124,7 +124,7 @@ class BrokerManager:
         validate.request_has(request, "detector_name")
 
         beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        allowed_detectors_beamline = get_configured_detectors(beamline)
 
         detector_name = request["detector_name"]
 
@@ -148,7 +148,7 @@ class BrokerManager:
         validate.request_is_empty(request)
 
         beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        allowed_detectors_beamline = get_configured_detectors(beamline)
 
         time_now = datetime.now()
         running_detectors = []
@@ -172,7 +172,7 @@ class BrokerManager:
         validate.request_is_empty(request)
 
         beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        allowed_detectors_beamline = get_configured_detectors(beamline)
 
         detectors = allowed_detectors_beamline
 
@@ -202,7 +202,7 @@ class BrokerManager:
         validate.request_has(request, "pgroup", "detectors")
 
         beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        allowed_detectors_beamline = get_configured_detectors(beamline)
 
         rate_multiplicator = request.get("rate_multiplicator", 1)
 
@@ -344,7 +344,7 @@ class BrokerManager:
 
         detectors = list(request_detectors)
         if detectors:
-            allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+            allowed_detectors_beamline = get_configured_detectors(beamline)
             validate.all_detector_names_in_allowed_detectors_beamline(detectors, allowed_detectors_beamline, beamline)
 
         if "channels_list" in request:
