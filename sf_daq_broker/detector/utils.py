@@ -1,15 +1,15 @@
-from .detector_config import _daq_beamline, _detector_daq, _detector_names
+from .detector_config import DAQ_BEAMLINE, DETECTOR_DAQ, DETECTOR_NAMES
 
 
 def detector_human_names():
-    return _detector_names
+    return DETECTOR_NAMES
 
 
 def get_streamvis_address():
     address = {}
-    for d in _detector_daq:
+    for d in DETECTOR_DAQ:
         detector_number = int(d[2:4])
-        daq = _detector_daq[d]["daq"]
+        daq = DETECTOR_DAQ[d]["daq"]
         address[d] = f"sf-daq-{daq}:{5000 + detector_number}"
     return address
 
@@ -19,11 +19,11 @@ def configured_detectors_for_beamline(beamline=None):
     if beamline is None:
         return detectors
 
-    for detector_name in _detector_daq:
-        daq = _detector_daq[detector_name]["daq"]
-        port = _detector_daq[detector_name]["port"]
-        if daq in _daq_beamline and port in _daq_beamline[daq]:
-            if _daq_beamline[daq][port] == beamline:
+    for detector_name in DETECTOR_DAQ:
+        daq = DETECTOR_DAQ[detector_name]["daq"]
+        port = DETECTOR_DAQ[detector_name]["port"]
+        if daq in DAQ_BEAMLINE and port in DAQ_BEAMLINE[daq]:
+            if DAQ_BEAMLINE[daq][port] == beamline:
                 detectors.append(detector_name)
 
     return detectors
