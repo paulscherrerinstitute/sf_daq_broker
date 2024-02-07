@@ -3,7 +3,7 @@ import os
 
 from sf_daq_broker.utils import json_load, json_save
 
-from .detector_config import DetectorConfig, _detector_daq
+from .detector_config import DetectorConfig, DETECTOR_DAQ
 
 
 _logger = logging.getLogger("broker_writer")
@@ -11,7 +11,7 @@ _logger = logging.getLogger("broker_writer")
 
 
 def compare_buffer_config_file_all(overwrite_config=False):
-    for detector_name in _detector_daq:
+    for detector_name in DETECTOR_DAQ:
         compare_buffer_config_file(detector_name, overwrite_config)
 
 

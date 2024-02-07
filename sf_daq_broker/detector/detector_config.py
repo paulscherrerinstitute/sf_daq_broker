@@ -3,7 +3,7 @@ import logging
 
 _logger = logging.getLogger("broker_writer")
 
-_beamline_vlan = {
+BEAMLINE_VLAN = {
     "alvra"       : "10.3.10",
     "bernina"     : "10.3.20",
     "cristallina" : "10.3.30",
@@ -11,7 +11,7 @@ _beamline_vlan = {
     "furka"       : "10.3.50"
 }
 
-_daq_mac = {
+DAQ_MAC = {
     3  : {0: "98:f2:b3:d4:5f:d0", 1: "98:f2:b3:d4:5f:d1"},
     8  : {0: "b8:83:03:6e:de:9c", 1: "b8:83:03:6e:de:9d"},
     9  : {0: "04:09:73:dc:fa:18", 1: "04:09:73:dc:fa:19"},
@@ -20,7 +20,7 @@ _daq_mac = {
     13 : {0: "88:e9:a4:3b:2c:d4", 1: "88:e9:a4:3b:2c:d5"}
 }
 
-_daq_beamline = {
+DAQ_BEAMLINE = {
     3  : {0: "alvra",   1: "bernina"},
     8  : {0: "alvra",   1: "cristallina"},
     9  : {0: "maloja",  1: "furka"},
@@ -29,7 +29,7 @@ _daq_beamline = {
     13 : {0: "alvra",   1: "bernina"}
 }
 
-_daq_public_ip = {
+DAQ_PUBLIC_IP = {
     3  : "129.129.241.42",
     8  : "129.129.241.46",
     9  : "129.129.241.50",
@@ -38,7 +38,7 @@ _daq_public_ip = {
     13 : "129.129.241.64"
 }
 
-_daq_data_ip = {
+DAQ_DATA_IP = {
     3  : "192.168.30.29",
     8  : "192.168.30.8",
     9  : "192.168.30.25",
@@ -47,7 +47,7 @@ _daq_data_ip = {
     13 : "192.168.30.39"
 }
 
-_beamline_delay = {
+BEAMLINE_DELAY = {
     "alvra"       : 0.000889,
     "bernina"     : 0.000890,
     "cristallina" : 0.000888,
@@ -55,7 +55,7 @@ _beamline_delay = {
     "furka"       : 0.004444
 }
 
-_detector_hostname = {
+DETECTOR_HOSTNAME = {
     "JF01T03V01" : ["JF1M5B-01", "JF1M5B-02", "JF1M5B-03"],
     "JF02T09V03" : ["JF4M5-01", "JF4M5-02", "JF4M5-03", "JF4M5-04", "JF4M5-05", "JF4M5-06", "JF4M5-07", "JF4M5-08", "JF4M5-09"],
     "JF03T01V02" : ["JF0M5B-I0-01"],
@@ -76,7 +76,7 @@ _detector_hostname = {
     "JF18T01V01" : ["jf18T01-00"]
 }
 
-_detector_names = {
+DETECTOR_NAMES = {
     "JF01T03V01" : "1p5M Bernina detector",
     "JF02T09V03" : "von Hamos 4.5M",
     "JF03T01V02" : "Bernina I0, 1 module",
@@ -97,7 +97,7 @@ _detector_names = {
     "JF18T01V01" : "Furka, RIXS detector"
 }
 
-_detector_daq = {
+DETECTOR_DAQ = {
     "JF01T03V01" : {"daq": 12, "port": 1},
     "JF02T09V03" : {"daq": 12, "port": 0},
     "JF03T01V02" : {"daq": 12, "port": 1},
@@ -118,7 +118,7 @@ _detector_daq = {
     "JF18T01V01" : {"daq": 9,  "port": 1}
 }
 
-_detector_port = {
+DETECTOR_PORT = {
     "JF01T03V01" : 50010,
     "JF02T09V03" : 50020,
     "JF03T01V02" : 50030,
@@ -139,7 +139,7 @@ _detector_port = {
     "JF18T01V01" : 50219
 }
 
-_detector_udp_srcip = {
+DETECTOR_UDP_SRCIP = {
     "JF01T03V01" : 60,
     "JF02T09V03" : 65,
     "JF03T01V02" : 75,
@@ -160,7 +160,7 @@ _detector_udp_srcip = {
     "JF18T01V01" : 171
 }
 
-_detector_udp_srcmac = {
+DETECTOR_UDP_SRCMAC = {
     "JF01T03V01" : 16,
     "JF02T09V03" : 32,
     "JF03T01V02" : 42,
@@ -181,7 +181,7 @@ _detector_udp_srcmac = {
     "JF18T01V01" : 164
 }
 
-_detector_txndelay_frame = {
+DETECTOR_TXNDELAY_FRAME = {
     "JF01T03V01" : [9, 9, 9],
     "JF02T09V03" : [7, 7, 7, 7, 8, 8, 8, 8, 9],
     "JF03T01V02" : [9],
@@ -202,7 +202,7 @@ _detector_txndelay_frame = {
     "JF18T01V01" : [0]
 }
 
-_detector_temp_threshold = {
+DETECTOR_TEMP_THRESHOLD = {
     "JF01T03V01" : 55,
     "JF02T09V03" : 45,
     "JF03T01V02" : 55,
@@ -236,41 +236,41 @@ class DetectorConfig():
 
         self._detector_name = detector_name
 
-        if detector_name not in _detector_hostname:
+        if detector_name not in DETECTOR_HOSTNAME:
             _logger.error("hostname is not know for this detector")
             return
 
-        if detector_name not in _detector_daq:
+        if detector_name not in DETECTOR_DAQ:
             _logger.error("daq server is not know for this detector")
             return
 
-        daq  = _detector_daq[self._detector_name]["daq"]
-        port = _detector_daq[self._detector_name]["port"]
-        if daq not in _daq_mac or port not in _daq_mac[daq]:
+        daq  = DETECTOR_DAQ[self._detector_name]["daq"]
+        port = DETECTOR_DAQ[self._detector_name]["port"]
+        if daq not in DAQ_MAC or port not in DAQ_MAC[daq]:
             _logger.error("daq/mac configuration is not known for this detector")
             return
 
-        if daq not in _daq_beamline or port not in _daq_beamline[daq]:
+        if daq not in DAQ_BEAMLINE or port not in DAQ_BEAMLINE[daq]:
             _logger.error("no association between detector and beamline.")
             return
 
-        if daq not in _daq_public_ip or daq not in _daq_data_ip:
+        if daq not in DAQ_PUBLIC_IP or daq not in DAQ_DATA_IP:
             _logger.error("configuration for daq (public or data ip) are missing")
             return
 
-        if detector_name not in _detector_port:
+        if detector_name not in DETECTOR_PORT:
             _logger.error("config port is not know for this detector")
             return
 
-        if detector_name not in _detector_udp_srcip or detector_name not in _detector_udp_srcmac:
+        if detector_name not in DETECTOR_UDP_SRCIP or detector_name not in DETECTOR_UDP_SRCMAC:
             _logger.error("srcip or srcmac configuration is not known for this detector")
             return
 
-        if detector_name not in _detector_txndelay_frame or len(_detector_txndelay_frame[detector_name]) != int(detector_name[5:7]):
+        if detector_name not in DETECTOR_TXNDELAY_FRAME or len(DETECTOR_TXNDELAY_FRAME[detector_name]) != int(detector_name[5:7]):
             _logger.error("txndelay for this detector is not configured or wrong")
             return
 
-        if detector_name not in _detector_temp_threshold:
+        if detector_name not in DETECTOR_TEMP_THRESHOLD:
             _logger.error("temp_threshold is not know for this detector")
             return
 
@@ -284,9 +284,9 @@ class DetectorConfig():
         return self._detector_name
 
     def get_detector_beamline(self):
-        daq  = _detector_daq[self._detector_name]["daq"]
-        port = _detector_daq[self._detector_name]["port"]
-        return _daq_beamline[daq][port]
+        daq  = DETECTOR_DAQ[self._detector_name]["daq"]
+        port = DETECTOR_DAQ[self._detector_name]["port"]
+        return DAQ_BEAMLINE[daq][port]
 
     def get_detector_number(self):
         return int(self._detector_name[2:4])
@@ -298,12 +298,12 @@ class DetectorConfig():
         return [1024, self.get_number_modules()*512]
 
     def get_detector_hostname(self):
-        return _detector_hostname[self._detector_name]
+        return DETECTOR_HOSTNAME[self._detector_name]
 
     def get_detector_udp_dstmac(self):
-        daq  = _detector_daq[self._detector_name]["daq"]
-        port = _detector_daq[self._detector_name]["port"]
-        return _daq_mac[daq][port]
+        daq  = DETECTOR_DAQ[self._detector_name]["daq"]
+        port = DETECTOR_DAQ[self._detector_name]["port"]
+        return DAQ_MAC[daq][port]
 
 
     def get_detector_daq_public_address(self):
@@ -312,8 +312,8 @@ class DetectorConfig():
         return f"tcp://{ip}:{port}"
 
     def get_detector_daq_public_ip(self):
-        daq = _detector_daq[self._detector_name]["daq"]
-        return _daq_public_ip[daq]
+        daq = DETECTOR_DAQ[self._detector_name]["daq"]
+        return DAQ_PUBLIC_IP[daq]
 
     def get_detector_daq_public_port(self):
         return 9000 + self.get_detector_number()
@@ -325,36 +325,36 @@ class DetectorConfig():
         return f"tcp://{ip}:{port}"
 
     def get_detector_daq_data_ip(self):
-        daq = _detector_daq[self._detector_name]["daq"]
-        return _daq_data_ip[daq]
+        daq = DETECTOR_DAQ[self._detector_name]["daq"]
+        return DAQ_DATA_IP[daq]
 
     def get_detector_daq_data_port(self):
         return 9100 + self.get_detector_number()
 
 
     def get_detector_vlan(self):
-        return _beamline_vlan[self.get_detector_beamline()]
+        return BEAMLINE_VLAN[self.get_detector_beamline()]
 
     def get_udp_dstip(self):
         vlan = self.get_detector_vlan()
-        daq = _detector_daq[self._detector_name]["daq"]
+        daq = DETECTOR_DAQ[self._detector_name]["daq"]
         return f"{vlan}.{daq}"
 
     def get_detector_port_first_module(self):
-        return _detector_port[self._detector_name]
+        return DETECTOR_PORT[self._detector_name]
 
     def get_detector_upd_ip(self):
         vlan = self.get_detector_vlan()
         udp_ip = {}
         for i in range(self.get_number_modules()):
-            n = _detector_udp_srcip[self._detector_name] + i
+            n = DETECTOR_UDP_SRCIP[self._detector_name] + i
             udp_ip[i] = f"{vlan}.{n}"
         return udp_ip
 
     def get_detector_udp_mac(self):
         udp_mac = {}
         for i in range(self.get_number_modules()):
-            n = _detector_udp_srcmac[self._detector_name] + i
+            n = DETECTOR_UDP_SRCMAC[self._detector_name] + i
             ee = hex(n)[2:]
             udp_mac[i] = f"00:aa:bb:cc:dd:{ee}"
         return udp_mac
@@ -362,14 +362,14 @@ class DetectorConfig():
     def get_detector_txndelay(self):
         txndelay = {}
         for i in range(self.get_number_modules()):
-            txndelay[i] = _detector_txndelay_frame[self._detector_name][i]
+            txndelay[i] = DETECTOR_TXNDELAY_FRAME[self._detector_name][i]
         return txndelay
 
     def get_detector_delay(self):
-        return _beamline_delay[self.get_detector_beamline()]
+        return BEAMLINE_DELAY[self.get_detector_beamline()]
 
     def get_detector_temp_threshold(self):
-        return _detector_temp_threshold[self._detector_name]
+        return DETECTOR_TEMP_THRESHOLD[self._detector_name]
 
 
 
