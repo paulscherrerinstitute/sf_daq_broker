@@ -130,7 +130,6 @@ class DetectorManager:
         validate.request_has(request, "pgroup", "run_number")
 
         beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = get_configured_detectors(beamline)
 
         pgroup = request["pgroup"]
 
