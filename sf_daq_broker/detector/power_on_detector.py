@@ -14,8 +14,9 @@ beamline_event_code = {
     "alvra"       : "SAR-CVME-TIFALL4-EVG0:SoftEvt-EvtCode-SP",
     "bernina"     : "SAR-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP",
     "cristallina" : "SAR-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP",
-    "furka"       : "SAT-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP",
+    "diavolezza"  : "SAT-CVME-TIFALL4-EVG0:SoftEvt-EvtCode-SP",
     "maloja"      : "SAT-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP"
+    "furka"       : "SAT-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP",
 }
 
 
