@@ -124,9 +124,7 @@ class BrokerManager:
         validate.request_has(request, "detector_name")
 
         beamline = get_beamline(remote_ip)
-
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         detector_name = request["detector_name"]
 
@@ -150,9 +148,7 @@ class BrokerManager:
         validate.request_is_empty(request)
 
         beamline = get_beamline(remote_ip)
-
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         time_now = datetime.now()
         running_detectors = []
@@ -176,9 +172,7 @@ class BrokerManager:
         validate.request_is_empty(request)
 
         beamline = get_beamline(remote_ip)
-
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         detectors = allowed_detectors_beamline
 
@@ -208,9 +202,7 @@ class BrokerManager:
         validate.request_has(request, "pgroup", "detectors")
 
         beamline = get_beamline(remote_ip)
-
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         rate_multiplicator = request.get("rate_multiplicator", 1)
 
@@ -353,7 +345,6 @@ class BrokerManager:
         detectors = list(request_detectors)
         if detectors:
             allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-            validate.allowed_detectors_beamline(allowed_detectors_beamline)
             validate.all_detector_names_in_allowed_detectors_beamline(detectors, allowed_detectors_beamline, beamline)
 
         if "channels_list" in request:
