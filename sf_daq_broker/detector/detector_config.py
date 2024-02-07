@@ -7,8 +7,8 @@ _beamline_vlan = {
     "alvra"       : "10.3.10",
     "bernina"     : "10.3.20",
     "cristallina" : "10.3.30",
-    "furka"       : "10.3.50",
-    "maloja"      : "10.3.40"
+    "maloja"      : "10.3.40",
+    "furka"       : "10.3.50"
 }
 
 _daq_mac = {
@@ -51,8 +51,8 @@ _beamline_delay = {
     "alvra"       : 0.000889,
     "bernina"     : 0.000890,
     "cristallina" : 0.000888,
-    "furka"       : 0.004444,
-    "maloja"      : 0.004444
+    "maloja"      : 0.004444,
+    "furka"       : 0.004444
 }
 
 _detector_hostname = {
@@ -305,12 +305,22 @@ class DetectorConfig():
         port = _detector_daq[self._detector_name]["port"]
         return _daq_mac[daq][port]
 
+    def get_detector_daq_public_address(self):
+        ip   = self.get_detector_daq_public_ip()
+        port = self.get_detector_daq_public_port()
+        return f"tcp://{ip}:{port}"
+
     def get_detector_daq_public_ip(self):
         daq = _detector_daq[self._detector_name]["daq"]
         return _daq_public_ip[daq]
 
     def get_detector_daq_public_port(self):
         return 9000 + self.get_detector_number()
+
+    def get_detector_daq_data_address(self):
+        ip   = self.get_detector_daq_data_ip()
+        port = self.get_detector_daq_data_port()
+        return f"tcp://{ip}:{port}"
 
     def get_detector_daq_data_ip(self):
         daq = _detector_daq[self._detector_name]["daq"]
