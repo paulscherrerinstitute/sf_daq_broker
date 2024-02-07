@@ -244,7 +244,7 @@ class DetectorConfig():
             _logger.error("daq server is not know for this detector")
             return
 
-        daq = _detector_daq[self._detector_name]["daq"]
+        daq  = _detector_daq[self._detector_name]["daq"]
         port = _detector_daq[self._detector_name]["port"]
         if daq not in _daq_mac or port not in _daq_mac[daq]:
             _logger.error("daq/mac configuration is not known for this detector")
@@ -284,7 +284,7 @@ class DetectorConfig():
         return self._detector_name
 
     def get_detector_beamline(self):
-        daq = _detector_daq[self._detector_name]["daq"]
+        daq  = _detector_daq[self._detector_name]["daq"]
         port = _detector_daq[self._detector_name]["port"]
         return _daq_beamline[daq][port]
 
@@ -301,9 +301,10 @@ class DetectorConfig():
         return _detector_hostname[self._detector_name]
 
     def get_detector_udp_dstmac(self):
-        daq = _detector_daq[self._detector_name]["daq"]
+        daq  = _detector_daq[self._detector_name]["daq"]
         port = _detector_daq[self._detector_name]["port"]
         return _daq_mac[daq][port]
+
 
     def get_detector_daq_public_address(self):
         ip   = self.get_detector_daq_public_ip()
@@ -317,6 +318,7 @@ class DetectorConfig():
     def get_detector_daq_public_port(self):
         return 9000 + self.get_detector_number()
 
+
     def get_detector_daq_data_address(self):
         ip   = self.get_detector_daq_data_ip()
         port = self.get_detector_daq_data_port()
@@ -328,6 +330,7 @@ class DetectorConfig():
 
     def get_detector_daq_data_port(self):
         return 9100 + self.get_detector_number()
+
 
     def get_detector_vlan(self):
         return _beamline_vlan[self.get_detector_beamline()]
