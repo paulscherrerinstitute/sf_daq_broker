@@ -7,7 +7,7 @@ from slsdet import Jungfrau, gainMode
 
 _logger = logging.getLogger("broker_writer")
 
-pulse_id_source = "SLAAR11-LTIM01-EVR0:RX-PULSEID"
+PULSE_ID_SOURCE = "SLAAR11-LTIM01-EVR0:RX-PULSEID"
 
 
 
@@ -20,7 +20,7 @@ def take_pedestal(detectors_name=None, rate=1):
     detectors_number = [int(detector_name[2:4]) for detector_name in detectors_name]
     detectors = [Jungfrau(detector_number) for detector_number in detectors_number]
 
-    pulse_id_pv = epics.PV(pulse_id_source)
+    pulse_id_pv = epics.PV(PULSE_ID_SOURCE)
 
     # switch to G0
     for detector in detectors:
