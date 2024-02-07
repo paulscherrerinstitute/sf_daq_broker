@@ -14,17 +14,17 @@ def get_streamvis_address():
     return address
 
 
-def configured_detectors_for_beamline(beamline=None):
+def configured_detectors_for_beamline(beamline):
     detectors = []
-    if beamline is None:
-        return detectors
-
     for detector_name in DETECTOR_DAQ:
-        daq = DETECTOR_DAQ[detector_name]["daq"]
+        daq  = DETECTOR_DAQ[detector_name]["daq"]
         port = DETECTOR_DAQ[detector_name]["port"]
         if daq in DAQ_BEAMLINE and port in DAQ_BEAMLINE[daq]:
             if DAQ_BEAMLINE[daq][port] == beamline:
                 detectors.append(detector_name)
+
+    if not detectors:
+        raise RuntimeError(f"no detectors configured for beamline {beamline}")
 
     return detectors
 

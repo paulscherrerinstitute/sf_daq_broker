@@ -39,9 +39,7 @@ class DetectorManager:
         validate.request_has(request, "detector_name")
 
         beamline = get_beamline(remote_ip)
-
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         detector_name = request["detector_name"]
 
@@ -69,9 +67,7 @@ class DetectorManager:
         validate.request_has(request, "detector_name")
 
         beamline = get_beamline(remote_ip)
-
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         detector_name = request["detector_name"]
 
@@ -134,9 +130,7 @@ class DetectorManager:
         validate.request_has(request, "pgroup", "run_number")
 
         beamline = get_beamline(remote_ip)
-
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         pgroup = request["pgroup"]
 
@@ -187,9 +181,7 @@ class DetectorManager:
         validate.request_has(request, "detector_name")
 
         beamline = get_beamline(remote_ip)
-
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         detector_name = request["detector_name"]
 
@@ -206,9 +198,7 @@ class DetectorManager:
         validate.request_has(request, "detector_name")
 
         beamline = get_beamline(remote_ip)
-
         allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
-        validate.allowed_detectors_beamline(allowed_detectors_beamline)
 
         detector_name = request["detector_name"]
 

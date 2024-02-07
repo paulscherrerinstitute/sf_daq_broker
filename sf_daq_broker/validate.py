@@ -12,10 +12,6 @@ ALLOWED_RATE_MULTIPLICATORS = [1, 2, 4, 8, 10, 20, 40, 50, 100]
 
 ## just check truthiness
 
-def allowed_detectors_beamline(adb):
-    if not adb:
-        raise RuntimeError("no detectors configured for this beamline")
-
 def detectors(ds):
     if not ds:
         raise RuntimeError('no "detectors" provided in the request parameters')
