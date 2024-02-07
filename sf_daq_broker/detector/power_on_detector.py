@@ -10,13 +10,13 @@ from sf_daq_broker.detector.detector_config import DetectorConfig
 
 _logger = logging.getLogger("broker_writer")
 
-beamline_event_code = {
+BEAMLINE_EVENT_CODE = {
     "alvra"       : "SAR-CVME-TIFALL4-EVG0:SoftEvt-EvtCode-SP",
     "bernina"     : "SAR-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP",
     "cristallina" : "SAR-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP",
     "diavolezza"  : "SAT-CVME-TIFALL4-EVG0:SoftEvt-EvtCode-SP",
-    "maloja"      : "SAT-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP"
-    "furka"       : "SAT-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP",
+    "maloja"      : "SAT-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP",
+    "furka"       : "SAT-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP"
 }
 
 
@@ -32,11 +32,11 @@ def power_on_detector(detector_name=None, beamline=None):
         _logger.error("No beamline name is given")
         return
 
-    if beamline not in beamline_event_code:
+    if beamline not in BEAMLINE_EVENT_CODE:
         _logger.error(f"Do not know how to stop event code for this beamline {beamline}")
         return
 
-    event_code_pv_name = beamline_event_code[beamline]
+    event_code_pv_name = BEAMLINE_EVENT_CODE[beamline]
     event_code_pv = epics.PV(event_code_pv_name)
 
     if detector_name[:2] != "JF":
