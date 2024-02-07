@@ -14,7 +14,7 @@ def get_streamvis_address():
     return address
 
 
-def configured_detectors_for_beamline(beamline):
+def get_configured_detectors(beamline):
     detectors = []
     for detector_name in DETECTOR_DAQ:
         daq  = DETECTOR_DAQ[detector_name]["daq"]

@@ -9,7 +9,7 @@ import epics
 from slsdet import Jungfrau, gainMode
 from slsdet.enums import detectorSettings
 
-from sf_daq_broker.detector.utils import configured_detectors_for_beamline
+from sf_daq_broker.detector.utils import get_configured_detectors
 from sf_daq_broker.detector.power_on_detector import BEAMLINE_EVENT_CODE
 from sf_daq_broker.utils import get_beamline, json_save, json_load
 from . import validate
@@ -39,7 +39,7 @@ class DetectorManager:
         validate.request_has(request, "detector_name")
 
         beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        allowed_detectors_beamline = get_configured_detectors(beamline)
 
         detector_name = request["detector_name"]
 
@@ -67,7 +67,7 @@ class DetectorManager:
         validate.request_has(request, "detector_name")
 
         beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        allowed_detectors_beamline = get_configured_detectors(beamline)
 
         detector_name = request["detector_name"]
 
@@ -130,7 +130,7 @@ class DetectorManager:
         validate.request_has(request, "pgroup", "run_number")
 
         beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        allowed_detectors_beamline = get_configured_detectors(beamline)
 
         pgroup = request["pgroup"]
 
@@ -181,7 +181,7 @@ class DetectorManager:
         validate.request_has(request, "detector_name")
 
         beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        allowed_detectors_beamline = get_configured_detectors(beamline)
 
         detector_name = request["detector_name"]
 
@@ -198,7 +198,7 @@ class DetectorManager:
         validate.request_has(request, "detector_name")
 
         beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = configured_detectors_for_beamline(beamline)
+        allowed_detectors_beamline = get_configured_detectors(beamline)
 
         detector_name = request["detector_name"]
 
