@@ -30,12 +30,12 @@ def compare_buffer_config_file(detector_name=None, overwrite_config=False):
     parameters_file = json_load(config_file)
 
     parameters_current = {
-        "detector_name": detector_configuration.get_detector_name(),
-        "n_modules": detector_configuration.get_number_modules(),
-        "streamvis_stream": f"tcp://{detector_configuration.get_detector_daq_public_ip()}:{detector_configuration.get_detector_daq_public_port()}",
-        "live_stream": f"tcp://{detector_configuration.get_detector_daq_data_ip()}:{detector_configuration.get_detector_daq_data_port()}",
-        "start_udp_port": detector_configuration.get_detector_port_first_module(),
-        "buffer_folder": f"/gpfs/photonics/swissfel/buffer/{detector_name}"
+        "detector_name":    detector_configuration.get_detector_name(),
+        "n_modules":        detector_configuration.get_number_modules(),
+        "streamvis_stream": detector_configuration.get_detector_daq_public_address(),
+        "live_stream":      detector_configuration.get_detector_daq_data_address(),
+        "start_udp_port":   detector_configuration.get_detector_port_first_module(),
+        "buffer_folder":    f"/gpfs/photonics/swissfel/buffer/{detector_name}"
     }
 
     need_change = False
