@@ -233,38 +233,42 @@ class DetectorConfig():
         if detector_name is None:
             raise RuntimeError("no detector name given")
 
+        # helper to ensure conistent error message
+        def raise_missing(what):
+            raise RuntimeError(f"{what} not configured for detector {detector_name}")
+
         if detector_name not in DETECTOR_HOSTNAME:
-            raise RuntimeError(f"hostname not configured for detector {detector_name}")
+            raise_missing("hostname")
 
         if detector_name not in DETECTOR_DAQ:
-            raise RuntimeError(f"DAQ server not configured for detector {detector_name}")
+            raise_missing("DAQ server")
 
         daq  = DETECTOR_DAQ[detector_name]["daq"]
         port = DETECTOR_DAQ[detector_name]["port"]
 
         if daq not in DAQ_MAC or port not in DAQ_MAC[daq]:
-            raise RuntimeError(f"DAQ/MAC not configured for detector {detector_name}")
+            raise_missing("DAQ/MAC")
 
         if daq not in DAQ_BEAMLINE or port not in DAQ_BEAMLINE[daq]:
-            raise RuntimeError(f"no association between detector {detector_name} and beamline")
+            raise_missing("association to beamline")
 
         if daq not in DAQ_PUBLIC_IP:
-            raise RuntimeError(f"DAQ public IP not configured for detector {detector_name}")
+            raise_missing("DAQ public IP")
 
         if daq not in DAQ_DATA_IP:
-            raise RuntimeError(f"DAQ data IP not configured for detector {detector_name}")
+            raise_missing("DAQ data IP")
 
         if detector_name not in DETECTOR_PORT:
-            raise RuntimeError(f"config port not configured for detector {detector_name}")
+            raise_missing("config port")
 
         if detector_name not in DETECTOR_UDP_SRCIP:
-            raise RuntimeError(f"srcip not configured for detector {detector_name}")
+            raise_missing("srcip")
 
         if detector_name not in DETECTOR_UDP_SRCMAC:
-            raise RuntimeError(f"srcmac not configured for detector {detector_name}")
+            raise_missing("srcmac")
 
         if detector_name not in DETECTOR_TXNDELAY_FRAME:
-            raise RuntimeError(f"txndelay not configured for detector {detector_name}")
+            raise_missing("txndelay")
 
         txndelay = DETECTOR_TXNDELAY_FRAME[detector_name]
         n_txndelay = len(txndelay)
@@ -274,7 +278,7 @@ class DetectorConfig():
             raise RuntimeError(f"length {n_txndelay} of configured txndelay {txndelay} does not match number of tiles {n_tiles} of detector {detector_name}")
 
         if detector_name not in DETECTOR_TEMP_THRESHOLD:
-            raise RuntimeError(f"temp_threshold not configured for detector {detector_name}")
+            raise_missing("temp_threshold")
 
 
     def get_detector_name(self):
