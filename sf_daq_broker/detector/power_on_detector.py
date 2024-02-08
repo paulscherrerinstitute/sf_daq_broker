@@ -25,43 +25,43 @@ def power_on_detector(detector_name, beamline):
     _logger.info(f"request to power on detector {detector_name}")
 
     if detector_name is None:
-        _logger.error("No detector name given")
+        _logger.error("no detector name given")
         return
 
     if beamline is None:
-        _logger.error("No beamline name is given")
+        _logger.error("no beamline name given")
         return
 
     if beamline not in BEAMLINE_EVENT_CODE:
-        _logger.error(f"Do not know how to stop event code for this beamline {beamline}")
+        _logger.error(f"trigger event code for beamline {beamline} not configured")
         return
 
     event_code_pv_name = BEAMLINE_EVENT_CODE[beamline]
     event_code_pv = epics.PV(event_code_pv_name)
 
     if detector_name[:2] != "JF":
-        _logger.error(f"Not a Jungfrau detector name {detector_name}")
+        _logger.error(f'detector name {detector_name} does not start with "JF"')
         return
 
     if len(detector_name) != 10:
-        _logger.error(f"Not proper name of detector {detector_name}")
+        _logger.error(f"detector name {detector_name} does not have 10 characters")
         return
 
     detector_number = int(detector_name[2:4])
 
-    # stop triggering of the beamline detectors
+    # stop trigger of the current beamline's detectors
     try:
         event_code_pv.put(255)
     except Exception as e:
-        _logger.error(f"can not stop detector triggering : {e}")
+        _logger.error(f"cannot stop detector trigger {event_code_pv_name} (due to: {e})")
         return
 
-    # sleep few second to give epics a chance to switch code
+    # sleep to give epics a chance to process change
     sleep(4)
 
     event_code = int(event_code_pv.get())
     if event_code != 255:
-        _logger.error(f"trigger is not stopped {event_code}")
+        _logger.error(f"detector trigger {event_code_pv_name} did not stop (event returned {event_code})")
         return
 
     detector = Jungfrau(detector_number)
@@ -69,16 +69,16 @@ def power_on_detector(detector_name, beamline):
     try:
         detector.stopDetector()
     except Exception as e:
-        _logger.info(f"{detector_name} (number {detector_number}) can not be stopped, may be was not initialised before : {e}")
+        _logger.info(f"detector {detector_name} (number {detector_number}) could not be stopped (due to: {e})")
 
     detector.freeSharedMemory()
 
     try:
         load_detector_config(detector_name)
     except Exception as e:
-        _logger.error(f"cannot configure detector : {e}")
+        _logger.error(f"could not configure detector {detector_name} (due to: {e})")
 
-    # start triggering
+    # start trigger
     event_code_pv.put(254)
 
 
