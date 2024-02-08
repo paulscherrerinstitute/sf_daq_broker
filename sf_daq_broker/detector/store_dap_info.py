@@ -7,9 +7,9 @@ _logger = logging.getLogger("broker_writer")
 
 
 
-def store_dap_info(beamline=None, pgroup=None, detector=None, start_pulse_id=None, stop_pulse_id=None, file_name_out=None):
+def store_dap_info(beamline, pgroup, detector, start_pulse_id, stop_pulse_id, file_name_out):
     if None in (beamline, pgroup, detector, start_pulse_id, stop_pulse_id, file_name_out):
-        _logger.error(f"input parameters to store_dap_info is not complete {beamline} {pgroup} {detector} {start_pulse_id} {stop_pulse_id} {file_name_out}")
+        _logger.error(f"store_dap_info called with incomplete arguments: {beamline}, {pgroup}, {detector}, {start_pulse_id}, {stop_pulse_id}, {file_name_out}")
         return
 
 #    path_to_dap_files = f"/sf/{beamline}/data/{pgroup}/res/jungfrau/output/"
@@ -38,7 +38,7 @@ def store_dap_info(beamline=None, pgroup=None, detector=None, start_pulse_id=Non
                         print(line, file=file_out)
                         n_lines_out += 1
 
-    _logger.info(f"{n_lines_out} lines of dap output is stored in file {file_name_out}")
+    _logger.info(f"{n_lines_out} lines of DAP output stored to file {file_name_out}")
 
 
 
