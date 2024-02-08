@@ -15,10 +15,12 @@ def compare_buffer_config_file_all(overwrite_config=False):
         compare_buffer_config_file(detector_name, overwrite_config)
 
 
-def compare_buffer_config_file(detector_name=None, overwrite_config=False):
-    detector_configuration = DetectorConfig(detector_name)
-    if not detector_configuration.is_configuration_present():
-        _logger.error(f"{detector_name}: No detector configuration present")
+def compare_buffer_config_file(detector_name, overwrite_config=False):
+    try:
+        detector_configuration = DetectorConfig(detector_name)
+    except RuntimeError as e:
+        _logger.error(str(e))
+        _logger.error(f"cannot configure detector {detector_name}")
         return
 
     config_file = f"/gpfs/photonics/swissfel/buffer/config/{detector_name}.json"

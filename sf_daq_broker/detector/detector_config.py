@@ -227,58 +227,55 @@ DETECTOR_TEMP_THRESHOLD = {
 
 class DetectorConfig():
 
-    def __init__(self, detector_name=None):
-        self._initialised = False
-
-        if detector_name is None:
-            _logger.error("No detector name given")
-            return
-
+    def __init__(self, detector_name):
         self._detector_name = detector_name
 
+        if detector_name is None:
+            raise RuntimeError("no detector name given")
+
         if detector_name not in DETECTOR_HOSTNAME:
-            _logger.error("hostname is not know for this detector")
-            return
+            raise RuntimeError(f"hostname not configured for detector {detector_name}")
 
         if detector_name not in DETECTOR_DAQ:
-            _logger.error("daq server is not know for this detector")
-            return
+            raise RuntimeError(f"DAQ server not configured for detector {detector_name}")
 
-        daq  = DETECTOR_DAQ[self._detector_name]["daq"]
-        port = DETECTOR_DAQ[self._detector_name]["port"]
+        daq  = DETECTOR_DAQ[detector_name]["daq"]
+        port = DETECTOR_DAQ[detector_name]["port"]
+
         if daq not in DAQ_MAC or port not in DAQ_MAC[daq]:
-            _logger.error("daq/mac configuration is not known for this detector")
-            return
+            raise RuntimeError(f"DAQ/MAC not configured for detector {detector_name}")
 
         if daq not in DAQ_BEAMLINE or port not in DAQ_BEAMLINE[daq]:
-            _logger.error("no association between detector and beamline.")
-            return
+            raise RuntimeError(f"no association between detector {detector_name} and beamline")
 
-        if daq not in DAQ_PUBLIC_IP or daq not in DAQ_DATA_IP:
-            _logger.error("configuration for daq (public or data ip) are missing")
-            return
+        if daq not in DAQ_PUBLIC_IP:
+            raise RuntimeError(f"DAQ public IP not configured for detector {detector_name}")
+
+        if daq not in DAQ_DATA_IP:
+            raise RuntimeError(f"DAQ data IP not configured for detector {detector_name}")
 
         if detector_name not in DETECTOR_PORT:
-            _logger.error("config port is not know for this detector")
-            return
+            raise RuntimeError(f"config port not configured for detector {detector_name}")
 
-        if detector_name not in DETECTOR_UDP_SRCIP or detector_name not in DETECTOR_UDP_SRCMAC:
-            _logger.error("srcip or srcmac configuration is not known for this detector")
-            return
+        if detector_name not in DETECTOR_UDP_SRCIP:
+            raise RuntimeError(f"srcip not configured for detector {detector_name}")
 
-        if detector_name not in DETECTOR_TXNDELAY_FRAME or len(DETECTOR_TXNDELAY_FRAME[detector_name]) != int(detector_name[5:7]):
-            _logger.error("txndelay for this detector is not configured or wrong")
-            return
+        if detector_name not in DETECTOR_UDP_SRCMAC:
+            raise RuntimeError(f"srcmac not configured for detector {detector_name}")
+
+        if detector_name not in DETECTOR_TXNDELAY_FRAME:
+            raise RuntimeError(f"txndelay not configured for detector {detector_name}")
+
+        txndelay = DETECTOR_TXNDELAY_FRAME[detector_name]
+        n_txndelay = len(txndelay)
+        n_tiles = int(detector_name[5:7])
+
+        if n_txndelay != n_tiles:
+            raise RuntimeError(f"length {n_txndelay} of configured txndelay {txndelay} does not match number of tiles {n_tiles} of detector {detector_name}")
 
         if detector_name not in DETECTOR_TEMP_THRESHOLD:
-            _logger.error("temp_threshold is not know for this detector")
-            return
+            raise RuntimeError(f"temp_threshold not configured for detector {detector_name}")
 
-        self._initialised = True
-
-
-    def is_configuration_present(self):
-        return self._initialised
 
     def get_detector_name(self):
         return self._detector_name
