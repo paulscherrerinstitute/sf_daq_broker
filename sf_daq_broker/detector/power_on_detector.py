@@ -21,7 +21,7 @@ BEAMLINE_EVENT_CODE = {
 
 
 
-def power_on_detector(detector_name=None, beamline=None):
+def power_on_detector(detector_name, beamline):
     _logger.info(f"request to power on detector {detector_name}")
 
     if detector_name is None:
@@ -82,17 +82,18 @@ def power_on_detector(detector_name=None, beamline=None):
     event_code_pv.put(254)
 
 
-def load_detector_config(detector_name=None):
+def load_detector_config(detector_name):
     _logger.info(f"request to load config for detector {detector_name}")
 
     if detector_name is None:
         _logger.error("No detector name given")
         return
 
-    detector_configuration = DetectorConfig(detector_name)
-
-    if not detector_configuration.is_configuration_present():
-        _logger.error("No detector configuration present")
+    try:
+        detector_configuration = DetectorConfig(detector_name)
+    except RuntimeError as e:
+        _logger.error(str(e))
+        _logger.error(f"cannot configure detector {detector_name}")
         return
 
     detector_number = detector_configuration.get_detector_number()
