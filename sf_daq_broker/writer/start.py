@@ -115,7 +115,7 @@ def process_request(request, broker_client):
 
             detectors = request.get("detectors", [])
             rate_multiplicator = request.get("rate_multiplicator", 1)
-            det_start_pulse_id, det_stop_pulse_id = take_pedestal(detectors_name=detectors, rate=rate_multiplicator)
+            det_start_pulse_id, det_stop_pulse_id = take_pedestal(detectors, rate=rate_multiplicator)
 
             # overwrite start/stop pulse_ids in run_info json file
             run_file_json = request.get("run_file_json", None)

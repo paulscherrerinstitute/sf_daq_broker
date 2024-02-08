@@ -73,7 +73,7 @@ def detector_retrieve(request, output_file_detector):
 
     if not pedestal_run and det_save_dap_results:
         file_name_out = output_file_detector[:-3] + ".dap"
-        store_dap_info(beamline=beamline, pgroup=pgroup, detector=detector_name, start_pulse_id=det_start_pulse_id, stop_pulse_id=det_stop_pulse_id, file_name_out=file_name_out)
+        store_dap_info(beamline, pgroup, detector_name, det_start_pulse_id, det_stop_pulse_id, file_name_out)
 
 
     convert_ju_file = det_conversion or det_compression or det_number_disabled_modules>0 or det_number_selected_pulse_ids>0 or det_save_ppicker_events_only or det_number_roi>0
@@ -131,7 +131,7 @@ def detector_retrieve(request, output_file_detector):
 
     if not pedestal_run and det_save_dap_results:
         file_name_out = output_file_detector[:-3] + ".dap"
-        store_dap_info(beamline=beamline, pgroup=pgroup, detector=detector_name, start_pulse_id=det_start_pulse_id, stop_pulse_id=det_stop_pulse_id, file_name_out=file_name_out)
+        store_dap_info(beamline, pgroup, detector_name, det_start_pulse_id, det_stop_pulse_id, file_name_out)
 
 
 
