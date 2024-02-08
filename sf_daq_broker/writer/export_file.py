@@ -88,18 +88,21 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
                 daq_recs = juf["daq_rec"]
                 for pulse_index in good_frames:
                     daq_rec = daq_recs[pulse_index][0]
-#                    event_fel      = bool((daq_rec>>18)&1)
-                    event_ppicker  = bool((daq_rec>>19)&1)
+#                    event_fel      = bool((daq_rec>>18) & 1)
+                    event_ppicker  = bool((daq_rec>>19) & 1)
 #                    if event_fel and event_ppicker:
                     if event_ppicker:
                         good_frames_filtered.append(pulse_index)
 
                 if not np.array_equal(good_frames, good_frames_filtered):
-                    excluded_indexes = list(set(good_frames)-set(good_frames_filtered))
-                    _logger.info(f"Some frames ({len(excluded_indexes)}) were dropped because of requirement on ppicker")
+                    excluded_indexes = set(good_frames) - set(good_frames_filtered)
+                    excluded_indexes = list(excluded_indexes)
+                    n_excluded_indexes = len(excluded_indexes)
                     good_frames = good_frames_filtered
                 else:
-                    _logger.info("No frames were dropped because of requirement on ppicker")
+                    n_excluded_indexes = "no"
+
+                _logger.info(f"{n_excluded_indexes} frames were dropped due to filter on pulse picker event")
 
 
             n_output_frames = len(good_frames)
@@ -117,7 +120,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
                     batch_size=35,
                 )
             else:
-                _logger.info("No output frames selected, no jungfrau file produced. Will keep raw_data file")
+                _logger.info("no output frames selected, thus no processed data file produced (raw data file will be kept)")
                 remove_raw_files = False
 
     else:
@@ -148,7 +151,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
     _logger.info(f"save ppicker events  : {save_ppicker_events_only}")
 
     if remove_raw_files:
-        _logger.info(f"removing raw and temporary files {files_to_remove}")
+        _logger.info(f"removing raw data files: {files_to_remove}")
         for file_remove in files_to_remove:
             os.remove(file_remove)
 
