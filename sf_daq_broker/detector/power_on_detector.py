@@ -88,8 +88,7 @@ def load_detector_config(detector_name):
     try:
         detector_configuration = DetectorConfig(detector_name)
     except RuntimeError as e:
-        _logger.error(str(e))
-        _logger.error(f"cannot configure detector {detector_name}")
+        _logger.error(f"cannot configure detector {detector_name} (due to: {e})")
         return
 
     detector_number = detector_configuration.get_detector_number()

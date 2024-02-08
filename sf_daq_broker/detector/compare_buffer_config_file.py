@@ -19,8 +19,7 @@ def compare_buffer_config_file(detector_name, overwrite_config=False):
     try:
         detector_configuration = DetectorConfig(detector_name)
     except RuntimeError as e:
-        _logger.error(str(e))
-        _logger.error(f"cannot configure detector {detector_name}")
+        _logger.error(f"cannot configure detector {detector_name} (due to: {e})")
         return
 
     config_file = f"/gpfs/photonics/swissfel/buffer/config/{detector_name}.json"
