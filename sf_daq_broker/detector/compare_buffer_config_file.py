@@ -25,7 +25,7 @@ def compare_buffer_config_file(detector_name, overwrite_config=False):
     config_file = f"/gpfs/photonics/swissfel/buffer/config/{detector_name}.json"
 
     if not os.path.exists(config_file):
-        _logger.error(f"{config_file} for {detector_name} does not exist")
+        _logger.error(f"buffer config file {config_file} for detector {detector_name} does not exist")
         return
 
     parameters_file = json_load(config_file)
@@ -42,17 +42,17 @@ def compare_buffer_config_file(detector_name, overwrite_config=False):
     need_change = False
     for p in parameters_current:
         if p not in parameters_file:
-            _logger.error(f"{detector_name}: parameter {p} is not present in buffer configuration file")
+            _logger.error(f'{detector_name}: parameter "{p}" is not present in buffer config file {config_file}')
             need_change = True
             continue
         if parameters_current[p] != parameters_file[p]:
-            _logger.error(f"{detector_name}: parameter {p} different in current configuration {parameters_current[p]} compared to config file {parameters_file[p]}")
+            _logger.error(f'{detector_name}: parameter "{p}" differs between current configuration ({parameters_current[p]}) and buffer config file ({parameters_file[p]})')
             need_change = True
 
     if need_change:
-        _logger.warning(f"{detector_name}: buffer config file need a change")
+        _logger.warning(f"{detector_name}: buffer config file {config_file} needs a change")
         if overwrite_config:
-            _logger.warning(f"{detector_name}: config file will be overwritten")
+            _logger.warning(f"{detector_name}: buffer config file {config_file} will be overwritten")
             parameters_file.update(parameters_current)
             json_save(parameters_file, config_file)
 

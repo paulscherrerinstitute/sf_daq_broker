@@ -10,16 +10,17 @@ _logger = logging.getLogger("broker_writer")
 
 
 def make_crystfel_list(data_file, run_info_file, detector):
+    #TODO: why is this done? contents of run_info_file is not used...
     try:
         _parameters = json_load(run_info_file)
     except Exception as e:
-        _logger.error(f"Cannot read provided run file {run_info_file}, may be not json? (due to: {e})")
+        _logger.error(f"cannot read provided run info file {run_info_file} (due to: {e})")
         return
 
     try:
         f = h5py.File(data_file, "r")
     except Exception as e:
-        _logger.error(f"Cannot open {data_file} (due to: {e})")
+        _logger.error(f"cannot open provided data file {data_file} (due to: {e})")
         return
 
     pulseids = f[f"/data/{detector}/pulse_id"][:]
@@ -63,23 +64,30 @@ def make_crystfel_list(data_file, run_info_file, detector):
 
     f.close()
 
-    _logger.info(f"Total number of frames: {len(pulseids)}, number of good frames : {nGoodFrames}, processed frames: {nProcessedFrames}, outputed frames: {len(index_dark)}(dark) {len(index_light)}(light)")
+    n_total = len(pulseids)
+    n_dark  = len(index_dark)
+    n_light = len(index_light)
 
-    delim = "//"
+    _logger.info(f"total number of frames: {n_total}, number of good frames: {nGoodFrames}, number of processed frames: {nProcessedFrames}, number of output frames: {n_dark} (dark) {n_light} (light)")
 
     if index_dark:
-        file_dark = data_file[:-3] + ".dark.lst"
-        _logger.info(f"List of dark frames : {file_dark} , {len(index_dark)} frames")
-        with open(file_dark, "w") as f_list:
-            for frame_number in index_dark:
-                print(f"{data_file} {delim}{frame_number}", file = f_list)
+        write_list_file(data_file, "dark", index_dark)
 
     if index_light:
-        file_light = data_file[:-3] + ".light.lst"
-        _logger.info(f"List of light frames : {file_light} , {len(index_light)} frames")
-        with open(file_light, "w") as f_list:
-            for frame_number in index_light:
-                print(f"{data_file} {delim}{frame_number}", file = f_list)
+        write_list_file(data_file, "light", index_light)
+
+
+
+def write_list_file(fn_data, ptype, indices, delim="//"):
+    basename = fn_data[:-3]
+    fn = f"{basename}.{ptype}.lst"
+
+    n_indices = len(indices)
+    _logger.info(f"list of {n_indices} {ptype} frames: {fn}")
+
+    with open(fn, "w") as f:
+        for frame_number in indices:
+            print(f"{fn_data} {delim}{frame_number}", file=f)
 
 
 
