@@ -34,7 +34,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
         if isinstance(downsample, list):
             downsample = tuple(downsample)
         if not (isinstance(downsample, tuple) and len(downsample) == 2 and isinstance(downsample[0], int) and isinstance(downsample[1], int)):
-            _logger.error(f"Bad option for the downsample parameter : {downsample}. Ignoring it.")
+            _logger.error(f'ignoring invalid "downsample" parameter (expected tuple of length two, got {downsample} instead)')
             downsample = None
 
     if conversion:

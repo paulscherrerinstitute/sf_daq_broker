@@ -52,7 +52,7 @@ fn_run_info = clargs.run_info
 
 
 if not os.path.exists(fn_run_info):
-    raise SystemExit(f"{fn_run_info} not found")
+    raise SystemExit(f"run_info file {fn_run_info} not found")
 
 run_info = json_load(fn_run_info)
 
@@ -63,7 +63,7 @@ writer     = WRITERS[source]
 
 
 if entry_name not in run_info:
-    raise SystemExit(f"No {entry_name} defined in run_info file")
+    raise SystemExit(f'no "{entry_name}" defined in run_info file')
 
 channels = run_info[entry_name]
 
@@ -91,7 +91,7 @@ ri_pgroup   = run_info["pgroup"]
 
 list_data_directories_run = glob(f"/sf/{ri_beamline}/data/{ri_pgroup}/raw/run{run_number:04}*")
 if len(list_data_directories_run) != 1:
-    raise SystemExit(f"Ambiguous data directries : {list_data_directories_run}")
+    raise SystemExit(f"run directories ambiguous: {list_data_directories_run}")
 
 data_directory = list_data_directories_run[0]
 
