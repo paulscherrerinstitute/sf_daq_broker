@@ -85,10 +85,6 @@ def power_on_detector(detector_name, beamline):
 def load_detector_config(detector_name):
     _logger.info(f"request to load config for detector {detector_name}")
 
-    if detector_name is None:
-        _logger.error("No detector name given")
-        return
-
     try:
         detector_configuration = DetectorConfig(detector_name)
     except RuntimeError as e:
