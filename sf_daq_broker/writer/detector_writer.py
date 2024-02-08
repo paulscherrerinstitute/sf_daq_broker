@@ -19,7 +19,7 @@ else:
 
 from sf_daq_broker.detector.make_crystfel_list import make_crystfel_list
 from sf_daq_broker.detector.store_dap_info import store_dap_info
-from sf_daq_broker.writer.export_file import convert_file
+from sf_daq_broker.writer.convert_file import convert_file
 from sf_daq_broker.utils import json_save, json_load
 
 
