@@ -267,6 +267,9 @@ class DetectorConfig():
         if detector_name not in DETECTOR_UDP_SRCMAC:
             raise_missing("srcmac")
 
+        if detector_name not in DETECTOR_TEMP_THRESHOLD:
+            raise_missing("temp_threshold")
+
         if detector_name not in DETECTOR_TXNDELAY_FRAME:
             raise_missing("txndelay")
 
@@ -276,9 +279,6 @@ class DetectorConfig():
 
         if n_txndelay != n_tiles:
             raise RuntimeError(f"length {n_txndelay} of configured txndelay {txndelay} does not match number of tiles {n_tiles} of detector {detector_name}")
-
-        if detector_name not in DETECTOR_TEMP_THRESHOLD:
-            raise_missing("temp_threshold")
 
 
     def get_detector_name(self):
