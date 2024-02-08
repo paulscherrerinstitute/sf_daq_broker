@@ -13,13 +13,13 @@ def make_crystfel_list(data_file, run_info_file, detector):
     try:
         _parameters = json_load(run_info_file)
     except Exception as e:
-        _logger.error(f"Cannot read provided run file {run_info_file}, may be not json? (due to {e})")
+        _logger.error(f"Cannot read provided run file {run_info_file}, may be not json? (due to: {e})")
         return
 
     try:
         f = h5py.File(data_file, "r")
     except Exception as e:
-        _logger.error(f"Cannot open {data_file} (due to {e})")
+        _logger.error(f"Cannot open {data_file} (due to: {e})")
         return
 
     pulseids = f[f"/data/{detector}/pulse_id"][:]
