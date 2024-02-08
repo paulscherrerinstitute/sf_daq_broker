@@ -1,8 +1,4 @@
-from .detector_config import DAQ_BEAMLINE, DETECTOR_DAQ, DETECTOR_NAMES
-
-
-def detector_human_names():
-    return DETECTOR_NAMES
+from .detector_config import DAQ_BEAMLINE, DETECTOR_DAQ
 
 
 def get_streamvis_address():
