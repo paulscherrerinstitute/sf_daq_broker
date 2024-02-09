@@ -27,45 +27,16 @@ MODULE_SIZE_Y = 512
 
 
 def postprocess_raw(source, dest, disabled_modules=(), index=None, compression=False, batch_size=100):
-    #TODO: this relies on h5_dest, which is only opened below
-    # a function for "visititems" should have the args (name, object)
-    def _visititems(name, obj):
-        if isinstance(obj, h5py.Group):
-            h5_dest.create_group(name)
-
-        elif isinstance(obj, h5py.Dataset):
-            dset_source = h5_source[name]
-
-            # process all but the raw data
-            if name != data_dset:
-                if name.startswith("data"):
-                    # datasets with data per image, so indexing should be applied
-                    if index is None:
-                        data = dset_source[:]
-                    else:
-                        data = dset_source[index, :]
-
-                    h5_dest.create_dataset_like(name, dset_source, data=data, shape=data.shape)
-                else:
-                    h5_dest.create_dataset_like(name, dset_source, data=dset_source)
-
-        else:
-            raise TypeError(f"Unknown h5py object type {obj}")
-
-        # copy group/dataset attributes if it is not a dataset with the actual data
-        if name != data_dset:
-            for key, value in h5_source[name].attrs.items():
-                h5_dest[name].attrs[key] = value
-
     with h5py.File(source, "r") as h5_source, h5py.File(dest, "w") as h5_dest:
         detector_name = h5_source["general/detector_name"][()].decode()
-        data_dset = f"data/{detector_name}/data"
+        dset_name = f"data/{detector_name}/data"
 
-        # traverse the source file and copy/index all datasets, except the raw data
-        h5_source.visititems(_visititems)
+        # traverse the source file and copy/index all datasets, except the raw image data
+        iv = ItemVisitor(h5_source, h5_dest, index, dset_name)
+        h5_source.visititems(iv.visititems)
 
-        # now process the raw data
-        dset = h5_source[data_dset]
+        # prepare dataset for raw image data
+        dset = h5_source[dset_name]
 
         if index is None:
             n_images = dset.shape[0]
@@ -74,7 +45,9 @@ def postprocess_raw(source, dest, disabled_modules=(), index=None, compression=F
             n_images = len(index)
 
         n_modules = dset.shape[1] // MODULE_SIZE_Y
-        out_shape = (MODULE_SIZE_Y * (n_modules - len(disabled_modules)), MODULE_SIZE_X)
+        n_disabled_modules = len(disabled_modules)
+        n_enabled_modules = n_modules - n_disabled_modules
+        out_shape = (MODULE_SIZE_Y * n_enabled_modules, MODULE_SIZE_X)
 
         args = {
             "shape"    : (n_images, *out_shape),
@@ -85,25 +58,26 @@ def postprocess_raw(source, dest, disabled_modules=(), index=None, compression=F
         if compression:
             args.update(COMPARGS)
 
-        h5_dest.create_dataset_like(data_dset, dset, **args)
+        h5_dest.create_dataset_like(dset_name, dset, **args)
 
-        # calculate and save module_map
+        # calculate and save module map
         module_map = []
-        tmp = 0
+        counter = 0
         for ind in range(n_modules):
             if ind in disabled_modules:
-                module_map.append(-1)
+                entry = -1
             else:
-                module_map.append(tmp)
-                tmp += 1
+                entry = counter
+                counter += 1
+            module_map.append(entry)
 
         h5_dest[f"data/{detector_name}/module_map"] = np.tile(module_map, (n_images, 1))
 
-        # prepare buffers to be reused for every batch
+        # prepare buffers to be reused for every batch of images
         read_buffer = np.empty((batch_size, *dset.shape[1:]), dtype=DTYPE)
         out_buffer  = np.zeros((batch_size, *out_shape),      dtype=DTYPE)
 
-        # process and write data in batches
+        # process and write raw image data in batches
         for batch_start_ind in range(0, n_images, batch_size):
             batch_stop_ind = min(batch_start_ind + batch_size, n_images)
             batch_range = range(batch_start_ind, batch_stop_ind)
@@ -117,7 +91,7 @@ def postprocess_raw(source, dest, disabled_modules=(), index=None, compression=F
             read_buffer_view = read_buffer[: len(batch_ind)]
             out_buffer_view  = out_buffer[: len(batch_ind)]
 
-            # Avoid a stride-bottleneck, see https://github.com/h5py/h5py/issues/977
+            # Avoid a stride-bottleneck: https://github.com/h5py/h5py/issues/977
             if np.sum(np.diff(batch_ind)) == len(batch_ind) - 1:
                 # consecutive index values
                 sel = np.s_[batch_ind]
@@ -152,7 +126,52 @@ def postprocess_raw(source, dest, disabled_modules=(), index=None, compression=F
                 else:
                     byte_array = im.tobytes()
 
-                h5_dest[data_dset].id.write_direct_chunk((pos, 0, 0), byte_array)
+                h5_dest[dset_name].id.write_direct_chunk((pos, 0, 0), byte_array)
+
+
+
+class ItemVisitor:
+
+    def __init__(self, h5_source, h5_dest, indices, skip):
+        self.h5_source = h5_source
+        self.h5_dest = h5_dest
+        self.indices = indices
+        self.skip = skip
+
+
+    def visititems(self, name, obj):
+        if name == self.skip:
+            return
+
+        h5_source = self.h5_source
+        h5_dest = self.h5_dest
+        indices = self.indices
+
+        if isinstance(obj, h5py.Group):
+            h5_dest.create_group(name)
+
+        elif isinstance(obj, h5py.Dataset):
+            dset_source = h5_source[name]
+
+            # datasets with BS data, so indexing along pulse ID axis should be applied
+            if name.startswith("data"):
+                if indices is None:
+                    data = dset_source[:]
+                else:
+                    data = dset_source[indices, :]
+
+                h5_dest.create_dataset_like(name, dset_source, data=data, shape=data.shape)
+
+            # datasets with non-BS data
+            else:
+                h5_dest.create_dataset_like(name, dset_source, data=dset_source)
+
+        else:
+            raise TypeError(f"unknown h5py object type: {name} ({obj})")
+
+        # copy group/dataset attributes
+        for key, value in h5_source[name].attrs.items():
+            h5_dest[name].attrs[key] = value
 
 
 
