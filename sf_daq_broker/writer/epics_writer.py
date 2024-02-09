@@ -91,7 +91,41 @@ def verify_data(pv_list, processed_data):
 
 class EpicsH5Writer(BsreadH5Writer):
 
-    def _group_data_by_channel(self, raw_data):
+    def write_data(self, json_data, start_seconds):
+        data = self.group_data_by_channel(json_data)
+
+        for channel_name, channel_data in data.items():
+            dataset_type, _shape, timestamps, values = channel_data
+
+            if dataset_type in ("string", "object"):
+#                dataset_type = h5py.special_dtype(vlen=str)
+                _logger.warning(f"cannot write string data of PV {channel_name}")
+                continue
+
+            timestamps = np.array(timestamps, dtype="int64")
+            values = np.array(values, dtype=dataset_type)
+
+            # nan values are marked as False, i.e., not changed
+            change_in_interval = [False if isnan(x) else x > start_seconds for x in timestamps]
+
+            #TODO: ugly, fix.
+            if change_in_interval:
+                if change_in_interval[0] is True:
+                    _logger.error(f"PV {channel_name} does not have data point before start of acquisition")
+
+                if any(x is False for x in change_in_interval[1:]):
+                    _logger.error(f"PV {channel_name} has corrupted data")
+
+            dataset_base = "/" + channel_name
+
+            self.file.create_dataset(dataset_base + "/data",                data=values, dtype=dataset_type)
+            self.file.create_dataset(dataset_base + "/timestamp",           data=timestamps)
+            self.file.create_dataset(dataset_base + "/changed_in_interval", data=change_in_interval)
+
+        return data
+
+
+    def group_data_by_channel(self, raw_data):
         data = {}
         for channel_data in raw_data:
             channel_name = channel_data["channel"]["name"]
@@ -152,40 +186,6 @@ class EpicsH5Writer(BsreadH5Writer):
 
             #_logger.warning(f"{channel_name} {channel_type} {channel_shape} {timestamp_data} {value_data}")
             data[channel_name] = (channel_type, channel_shape, timestamp_data, value_data)
-
-        return data
-
-
-    def write_data(self, json_data, start_seconds):
-        data = self._group_data_by_channel(json_data)
-
-        for channel_name, channel_data in data.items():
-            dataset_type, _shape, timestamps, values = channel_data
-
-            if dataset_type in ("string", "object"):
-#                dataset_type = h5py.special_dtype(vlen=str)
-                _logger.warning(f"cannot write string data of PV {channel_name}")
-                continue
-
-            timestamps = np.array(timestamps, dtype="int64")
-            values = np.array(values, dtype=dataset_type)
-
-            # nan values are marked as False, i.e., not changed
-            change_in_interval = [False if isnan(x) else x > start_seconds for x in timestamps]
-
-            #TODO: ugly, fix.
-            if change_in_interval:
-                if change_in_interval[0] is True:
-                    _logger.error(f"PV {channel_name} does not have data point before start of acquisition")
-
-                if any(x is False for x in change_in_interval[1:]):
-                    _logger.error(f"PV {channel_name} has corrupted data")
-
-            dataset_base = "/" + channel_name
-
-            self.file.create_dataset(dataset_base + "/data",                data=values, dtype=dataset_type)
-            self.file.create_dataset(dataset_base + "/timestamp",           data=timestamps)
-            self.file.create_dataset(dataset_base + "/changed_in_interval", data=change_in_interval)
 
         return data
 
