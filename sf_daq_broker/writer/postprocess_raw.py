@@ -91,7 +91,7 @@ def postprocess_raw(source, dest, disabled_modules=(), index=None, compression=F
             read_buffer_view = read_buffer[: len(batch_ind)]
             out_buffer_view  = out_buffer[: len(batch_ind)]
 
-            # Avoid a stride-bottleneck: https://github.com/h5py/h5py/issues/977
+            # avoid a stride-bottleneck: https://github.com/h5py/h5py/issues/977
             if np.sum(np.diff(batch_ind)) == len(batch_ind) - 1:
                 # consecutive index values
                 sel = np.s_[batch_ind]
