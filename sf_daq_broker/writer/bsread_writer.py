@@ -83,8 +83,8 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
 
     start_time = time()
 
-    expected_pulse_id = [p for p in range(start_pulse_id, stop_pulse_id + 1) if p % rate_multiplicator == 0]
-    expected_pulse_id = numpy.array(expected_pulse_id)
+    expected_pulse_id = numpy.arange(start_pulse_id, stop_pulse_id + 1)
+    expected_pulse_id = expected_pulse_id[expected_pulse_id % rate_multiplicator == 0]
     n_expected_pulse_id = len(expected_pulse_id)
 
     try:
