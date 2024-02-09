@@ -14,14 +14,62 @@ from sf_daq_broker import config, utils
 _logger = logging.getLogger("broker_writer")
 
 
+def write_from_imagebuffer(data_api_request, output_file, _parameters):
+    buffer_url = choice(config.IMAGE_API_QUERY_ADDRESS)
+    requester = lambda *args: dapi3h5.request(*args, url=buffer_url)
+    what = "image"
+    write_generic(data_api_request, output_file, _parameters, buffer_url, requester, what)
 
-def tsfmt(ts):
-    ts = ts // 1000
-    n = ts // 1000000
-    m = ts % 1000000
-    s = datetime.fromtimestamp(n).astimezone(pytz.timezone("UTC")).strftime("%Y-%m-%dT%H:%M:%S")
-    s = f"{s}.{m:06d}Z"
-    return s
+
+def write_from_databuffer_api3(data_api_request, output_file, _parameters):
+    buffer_url = config.DATA_API3_QUERY_ADDRESS
+    requester = lambda *args: dapi3h5.request(*args, baseurl=buffer_url, default_backend=config.DATA_BACKEND)
+    what = "data"
+    write_generic(data_api_request, output_file, _parameters, buffer_url, requester, what)
+
+
+def write_generic(data_api_request, output_file, _parameters, buffer_url, requester, what):
+    _logger.debug(f"Data API 3 ({what} buffer) request: {data_api_request}")
+
+    start_pulse_id = data_api_request["range"]["startPulseId"]
+    stop_pulse_id  = data_api_request["range"]["endPulseId"]
+    rate_multiplicator = data_api_request.get("rate_multiplicator", 1)
+
+    data_api_request_timestamp = utils.transform_range_from_pulse_id_to_timestamp_new(data_api_request)
+
+    channels = [channel["name"] for channel in data_api_request_timestamp["channels"]]
+
+    if "startTS" not in data_api_request_timestamp["range"]:
+        _logger.info("startTS not present, tranformation of pulseid to timestamp failed")
+        return
+
+    start = tsfmt(data_api_request_timestamp["range"]["startTS"])
+    end = tsfmt(data_api_request_timestamp["range"]["endTS"])
+
+    query = {
+        "channels": channels,
+        "range": {
+            "type": "date",
+            "startDate": start,
+            "endDate": end
+        }
+    }
+
+    _logger.debug(f'Requesting "{query}" to output_file {output_file} from {buffer_url}')
+
+    start_time = time()
+
+    try:
+        _logger.debug(f"query request : {query} {output_file} {buffer_url}")
+        requester(query, output_file)
+        delta_time = time() - start_time
+        _logger.info(f"{what} download and writing took {delta_time} seconds.")
+
+    except Exception as e:
+        _logger.error("Got exception from data_api3")
+        _logger.error(e)
+
+    check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, channels, output_file)
 
 
 def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, channels, output_file):
@@ -80,62 +128,13 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
     _logger.info(f"Check of data consistency took {time_delta} seconds.")
 
 
-def write_from_imagebuffer(data_api_request, output_file, _parameters):
-    buffer_url = choice(config.IMAGE_API_QUERY_ADDRESS)
-    requester = lambda *args: dapi3h5.request(*args, url=buffer_url)
-    what = "image"
-    write_generic(data_api_request, output_file, _parameters, buffer_url, requester, what)
-
-
-def write_from_databuffer_api3(data_api_request, output_file, _parameters):
-    buffer_url = config.DATA_API3_QUERY_ADDRESS
-    requester = lambda *args: dapi3h5.request(*args, baseurl=buffer_url, default_backend=config.DATA_BACKEND)
-    what = "data"
-    write_generic(data_api_request, output_file, _parameters, buffer_url, requester, what)
-
-
-def write_generic(data_api_request, output_file, _parameters, buffer_url, requester, what):
-    _logger.debug(f"Data API 3 ({what} buffer) request: {data_api_request}")
-
-    start_pulse_id = data_api_request["range"]["startPulseId"]
-    stop_pulse_id  = data_api_request["range"]["endPulseId"]
-    rate_multiplicator = data_api_request.get("rate_multiplicator", 1)
-
-    data_api_request_timestamp = utils.transform_range_from_pulse_id_to_timestamp_new(data_api_request)
-
-    channels = [channel["name"] for channel in data_api_request_timestamp["channels"]]
-
-    if "startTS" not in data_api_request_timestamp["range"]:
-        _logger.info("startTS not present, tranformation of pulseid to timestamp failed")
-        return
-
-    start = tsfmt(data_api_request_timestamp["range"]["startTS"])
-    end = tsfmt(data_api_request_timestamp["range"]["endTS"])
-
-    query = {
-        "channels": channels,
-        "range": {
-            "type": "date",
-            "startDate": start,
-            "endDate": end
-        }
-    }
-
-    _logger.debug(f'Requesting "{query}" to output_file {output_file} from {buffer_url}')
-
-    start_time = time()
-
-    try:
-        _logger.debug(f"query request : {query} {output_file} {buffer_url}")
-        requester(query, output_file)
-        delta_time = time() - start_time
-        _logger.info(f"{what} download and writing took {delta_time} seconds.")
-
-    except Exception as e:
-        _logger.error("Got exception from data_api3")
-        _logger.error(e)
-
-    check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, channels, output_file)
+def tsfmt(ts):
+    ts = ts // 1000
+    n = ts // 1000000
+    m = ts % 1000000
+    s = datetime.fromtimestamp(n).astimezone(pytz.timezone("UTC")).strftime("%Y-%m-%dT%H:%M:%S")
+    s = f"{s}.{m:06d}Z"
+    return s
 
 
 
