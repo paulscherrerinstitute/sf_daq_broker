@@ -19,12 +19,6 @@ N_RETRY_TIMEOUT = 10
 
 
 
-def verify_data(pv_list, processed_data):
-    for pv in pv_list:
-        if pv not in processed_data:
-            _logger.error(f"PV {pv} not present.")
-
-
 def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, _metadata, epics_pvs): #TODO: what is _metadata for?
     _logger.info(f"Writing {output_file} from start_pulse_id {start_pulse_id} to stop_pulse_id {stop_pulse_id}.")
     _logger.debug(f"Requesting PVs: {epics_pvs}")
@@ -85,6 +79,12 @@ def get_data(channel_list, start_seconds=None, stop_seconds=None):
         return response.json()
 
     raise RuntimeError("Unable to retrieve data from server: ", response)
+
+
+def verify_data(pv_list, processed_data):
+    for pv in pv_list:
+        if pv not in processed_data:
+            _logger.error(f"PV {pv} not present.")
 
 
 
