@@ -4,7 +4,7 @@ from random import choice
 from time import time
 
 import h5py
-import numpy
+import numpy as np
 import pytz
 from data_api3 import h5 as dapi3h5
 
@@ -83,7 +83,7 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
 
     start_time = time()
 
-    expected_pulse_id = numpy.arange(start_pulse_id, stop_pulse_id + 1)
+    expected_pulse_id = np.arange(start_pulse_id, stop_pulse_id + 1)
     expected_pulse_id = expected_pulse_id[expected_pulse_id % rate_multiplicator == 0]
     n_expected_pulse_id = len(expected_pulse_id)
 
@@ -114,7 +114,7 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
                 n_duplicate = n_pulse_id_raw - n_unique_pulse_id_raw
                 _logger.error(f"check {channel} contains duplicate entries: total {n_pulse_id_raw}, duplicates {n_duplicate}")
 
-            pulse_id = numpy.intersect1d(expected_pulse_id, pulse_id_raw)
+            pulse_id = np.intersect1d(expected_pulse_id, pulse_id_raw)
             n_pulse_id = len(pulse_id)
 
             if n_pulse_id != n_expected_pulse_id:
