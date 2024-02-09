@@ -3,7 +3,7 @@ from math import isnan
 from time import sleep, time
 
 import h5py
-import numpy
+import numpy as np
 import requests
 
 from sf_daq_broker.config import DATA_API_QUERY_ADDRESS
@@ -164,8 +164,8 @@ class EpicsH5Writer(BsreadH5Writer):
                 _logger.warning(f"Writing of string data not supported. Channel {channel_name} omitted.")
                 continue
 
-            timestamps = numpy.array(channel_data[2], dtype="int64")
-            values = numpy.array(channel_data[3], dtype=dataset_type)
+            timestamps = np.array(channel_data[2], dtype="int64")
+            values = np.array(channel_data[3], dtype=dataset_type)
 
             # Nan values are marked as False, i.e., not changed.
             change_in_interval = [False if isnan(x) else x > start_seconds for x in timestamps]
