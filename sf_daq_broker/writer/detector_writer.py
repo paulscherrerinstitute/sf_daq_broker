@@ -8,19 +8,13 @@ from time import sleep, time
 import h5py
 import numpy as np
 
-_logger = logging.getLogger("broker_writer")
-
-try:
-    import ujson
-except ImportError:
-    _logger.warning("There is no ujson in this environment. Performance will suffer.")
-else:
-    del ujson
-
 from sf_daq_broker.detector.make_crystfel_list import make_crystfel_list
 from sf_daq_broker.detector.store_dap_info import store_dap_info
 from sf_daq_broker.writer.convert_file import convert_file
 from sf_daq_broker.utils import json_save, json_load
+
+
+_logger = logging.getLogger("broker_writer")
 
 
 PEDESTAL_SPECIFIC = {
