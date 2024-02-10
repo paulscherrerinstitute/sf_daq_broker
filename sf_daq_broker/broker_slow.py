@@ -36,10 +36,10 @@ def start_server(rest_port):
 
 
 def run():
-    parser = argparse.ArgumentParser(description="detector_settings")
+    parser = argparse.ArgumentParser(description="detector settings")
 
     parser.add_argument("--rest_port", default=10003, type=int, help="REST-API port")
-    parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="Log level")
+    parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
 
     clargs = parser.parse_args()
 

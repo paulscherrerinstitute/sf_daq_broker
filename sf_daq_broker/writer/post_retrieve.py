@@ -34,7 +34,7 @@ WRITERS = {
 }
 
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(description="post retrieve")
 
 parser.add_argument("run_info", help="run_info json file")
 parser.add_argument("--source", "-s", default="image", choices=ALLOWED_SOURCES, help=f"retrieve from image or data buffer (possible values: {PRINTABLE_ALLOWED_SOURCES})")
