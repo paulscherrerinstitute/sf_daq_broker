@@ -8,12 +8,6 @@ from sf_daq_broker.writer.bsread_writer import write_from_databuffer_api3, write
 from sf_daq_broker.utils import json_load
 
 
-#logger = logging.getLogger("data_api3")
-logger = logging.getLogger("broker_writer")
-logger.setLevel("INFO")
-#logger.setLevel("DEBUG")
-
-
 ALLOWED_SOURCES = [
     "image",
     "data_api3",
@@ -44,11 +38,16 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("run_info", help="run_info json file")
 parser.add_argument("--source", "-s", default="image", choices=ALLOWED_SOURCES, help=f"retrieve from image or data buffer (possible values: {PRINTABLE_ALLOWED_SOURCES})")
+parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
 
 clargs = parser.parse_args()
 
 source = clargs.source
 fn_run_info = clargs.run_info
+
+
+_logger = logging.getLogger("broker_writer") #TODO: or "data_api3" ?
+_logger.setLevel(clargs.log_level)
 
 
 if not os.path.exists(fn_run_info):
