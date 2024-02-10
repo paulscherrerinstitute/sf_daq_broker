@@ -10,6 +10,14 @@ except ImportError:
     import json
 
 
+#TODO:
+# make requests use ujson as well?
+# `requests.models.complexjson = ujson`
+# or
+# `requests.compat.json = ujson`
+# or even
+# `sys.modules["json"] = ujson`
+
 
 def json_save(what, filename, *args, indent=4, sort_keys=True, **kwargs):
     with open(filename, "w") as f:
