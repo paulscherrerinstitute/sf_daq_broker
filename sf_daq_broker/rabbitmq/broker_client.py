@@ -1,8 +1,9 @@
-import json
 import uuid
 from time import sleep
 
 from pika import BasicProperties, BlockingConnection, ConnectionParameters
+
+from sf_daq_broker.utils import json_obj_to_str
 
 from . import broker_config
 
@@ -62,7 +63,7 @@ class BrokerClient:
             routing_key = ROUTES.get(tag, broker_config.DEFAULT_ROUTE)
 
         request_id = str(uuid.uuid4())
-        body_bytes = json.dumps(write_request).encode()
+        body_bytes = json_obj_to_str(write_request).encode()
         properties = BasicProperties(correlation_id=request_id)
 
         self.channel.basic_publish(

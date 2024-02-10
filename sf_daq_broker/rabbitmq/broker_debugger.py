@@ -1,8 +1,9 @@
 import argparse
-import json
 from datetime import datetime
 
 from pika import BlockingConnection, ConnectionParameters
+
+from sf_daq_broker.utils import json_str_to_obj
 
 from . import broker_config
 
@@ -25,7 +26,7 @@ def colorize(action):
 def on_status(_channel, _method_frame, header_frame, body):
     header = header_frame.headers
     body = body.decode()
-    request = json.loads(body)
+    request = json_str_to_obj(body)
 
     action = header["action"]
     source = header["source"]
