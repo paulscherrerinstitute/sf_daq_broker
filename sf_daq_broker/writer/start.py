@@ -1,5 +1,4 @@
 import argparse
-import json
 import logging
 from datetime import datetime
 from functools import partial
@@ -12,7 +11,7 @@ from sf_daq_broker import config
 from sf_daq_broker.detector.power_on_detector import power_on_detector
 from sf_daq_broker.detector.take_pedestal import take_pedestal
 from sf_daq_broker.rabbitmq import broker_config, BrokerClient
-from sf_daq_broker.utils import get_data_api_request, get_writer_request, json_save, json_load
+from sf_daq_broker.utils import get_data_api_request, get_writer_request, json_save, json_load, json_obj_to_str, json_str_to_obj
 from sf_daq_broker.writer.bsread_writer import write_from_databuffer_api3, write_from_imagebuffer
 from sf_daq_broker.writer.detector_writer import detector_retrieve
 
@@ -32,7 +31,7 @@ def audit_failed_write_request(write_request):
         current_time = datetime.now().strftime(config.AUDIT_FILE_TIME_FORMAT)
 
         with open(output_file, "w") as audit_file:
-            pretty_write_request = json.dumps(write_request)
+            pretty_write_request = json_obj_to_str(write_request)
             audit_file.write(f"[{current_time}] {pretty_write_request}")
 
     except Exception:
@@ -227,7 +226,7 @@ def reject_request(channel, method_frame, body, output_file, e):
 
 def on_broker_message(channel, method_frame, _header_frame, body, connection, broker_client):
     try:
-        request = json.loads(body.decode())
+        request = json_str_to_obj(body.decode())
 
         output_file = request.get("output_file", None)
         update_status(channel, body, "write_start", output_file)

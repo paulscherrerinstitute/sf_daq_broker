@@ -13,4 +13,8 @@ def json_load(filename, *args, **kwargs):
         return json.load(f, *args, **kwargs)
 
 
+json_obj_to_str = json.dumps
+json_str_to_obj = json.loads
+
+
 
