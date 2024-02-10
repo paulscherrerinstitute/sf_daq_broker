@@ -296,10 +296,10 @@ def start_service(broker_url, writer_type=0):
 def run():
     parser = argparse.ArgumentParser(description="data writer")
 
-    parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL, help="Address of the broker to connect to.")
-    parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="Log level to use.")
-    parser.add_argument("--writer_id", default=1, type=int, help="Id of the writer")
-    parser.add_argument("--writer_type", default=0, type=int, help="Type of the writer (0-epics/bs/camera; 1 - detector retrieve; 2 - detector conversion; 3 - pedestal)")
+    parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL, help="RabbitMQ broker URL")
+    parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
+    parser.add_argument("--writer_id", default=1, type=int, help="writer ID")
+    parser.add_argument("--writer_type", default=0, type=int, choices=range(4), help="writer type (0: epics/BS/camera; 1: detector retrieve; 2: detector conversion; 3: pedestal)")
 
     clargs = parser.parse_args()
 
