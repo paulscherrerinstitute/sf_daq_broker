@@ -101,13 +101,15 @@ def detector_retrieve(request, output_file_detector):
 
     detector_config_file = f"/gpfs/photonics/swissfel/buffer/config/{detector_name}.json"
 
+
     if pedestal_run:
         sleep(5)
 
         specific_kwargs = PEDESTAL_SPECIFIC.get(detector_name, {})
         time_start = time()
         create_pedestal_file(filename=raw_file_name, directory=os.path.dirname(raw_file_name), **specific_kwargs)
-        _logger.info(f"Pedestal Time : {time()-time_start}")
+        delta_time = time() - time_start
+        _logger.info(f"pedestal creation took {delta_time} seconds")
 
         request_time = request["request_time"]
         res_file_name = raw_file_name[:-3] + ".res.h5"
@@ -118,17 +120,22 @@ def detector_retrieve(request, output_file_detector):
     if convert_ju_file:
         output_dir = os.path.dirname(output_file_detector)
         os.makedirs(output_dir, exist_ok=True)
-        _logger.info(f"Will do file conversion {raw_file_name} {output_file_detector} {run_file_json} {detector_config_file}")
+
+        _logger.info(f"performing file conversion: {raw_file_name}, {output_file_detector}, {run_file_json}, {detector_config_file}")
+
         time_start = time()
+
         try:
             convert_file(raw_file_name, output_file_detector, run_file_json, detector_config_file)
         except Exception as e:
-            _logger.error("Conversion failed")
-            _logger.error(f"Error message : {e}")
-        _logger.info(f"Conversion Time : {time()-time_start}")
+            _logger.error(f"file conversion failed: {e}")
 
-        crystfel_lists = detector_params.get("crystfel_lists_laser", False)
-        if crystfel_lists:
+        delta_time = time() - time_start
+        _logger.info(f"file conversion took {delta_time} seconds")
+
+
+        crystfel_lists_laser = detector_params.get("crystfel_lists_laser", False)
+        if crystfel_lists_laser:
             make_crystfel_list(output_file_detector, run_file_json, detector_name)
 
 
