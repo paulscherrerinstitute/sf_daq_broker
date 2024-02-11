@@ -174,13 +174,13 @@ def create_pedestal_file(
         daq_recs_location      = f"data/{detector_name}/daq_rec"
         is_good_frame_location = f"data/{detector_name}/is_good_frame"
 
-        fdata           = f[data_location]
+        f_data          = f[data_location]
         f_is_good_frame = f[is_good_frame_location]
         f_daq_recs      = f[daq_recs_location]
 
-    fdata0 = fdata[0]
+    f_data0 = f_data[0]
 
-    sh_y, sh_x = fdata0.shape
+    sh_y, sh_x = f_data0.shape
     nModules = (sh_x * sh_y) // (1024 * 512)
     if (nModules * 1024 * 512) != (sh_x * sh_y):
         _logger.error(f"{detector_name}: shape mismatch: Jungfrau modules have shape 1024x512, while data has shape {sh_x}x{sh_y}")
@@ -195,11 +195,11 @@ def create_pedestal_file(
 
     _logger.debug(f"{detector_name}: test pixel is at (x, y): ({tX}, {tY})")
 
-    numberOfFrames = len(fdata)
+    numberOfFrames = len(f_data)
     _logger.info(f"{detector_name}: pedestal file {filename} contains {numberOfFrames + 1} frames")
 
-    data_shape = fdata0.shape
-    data_dtype = fdata0.dtype
+    data_shape = f_data0.shape
+    data_dtype = f_data0.dtype
     _logger.debug(f"{detector_name}: data has shape: {data_shape}, type: {data_dtype}, {nModules} modules ({n_bad_modules} bad modules)")
 
     pixelMask = np.zeros((sh_y, sh_x), dtype=int)
@@ -223,7 +223,7 @@ def create_pedestal_file(
 
         nGoodFrames += 1
 
-        image = fdata[n][:]
+        image = f_data[n][:]
         frameData = np.bitwise_and(image, 0b0011111111111111)
         gainData = np.bitwise_and(image, 0b1100000000000000) >> 14
 
