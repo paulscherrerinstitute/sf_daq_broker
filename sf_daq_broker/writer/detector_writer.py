@@ -157,14 +157,9 @@ def create_pedestal_file(
     add_pixel_mask=None,
     number_bad_modules=0
 ):
-
     if not os.path.isfile(filename) or not os.access(filename, os.R_OK):
         _logger.info(f"cannot create pedestal file: input file {filename} not found")
         return
-
-    #TODO: why are these renamed?
-    n_bad_modules = number_bad_modules
-    averagePedestalFrames = frames_average
 
     with h5py.File(filename, "r") as f:
         detector_name = f.get("general/detector_name")[()]
@@ -200,7 +195,7 @@ def create_pedestal_file(
 
     data_shape = f_data0.shape
     data_dtype = f_data0.dtype
-    _logger.debug(f"{detector_name}: data has shape: {data_shape}, type: {data_dtype}, {nModules} modules ({n_bad_modules} bad modules)")
+    _logger.debug(f"{detector_name}: data has shape: {data_shape}, type: {data_dtype}, {nModules} modules ({number_bad_modules} bad modules)")
 
     pixelMask = np.zeros((sh_y, sh_x), dtype=int)
 
@@ -253,7 +248,7 @@ def create_pedestal_file(
 
         nFramesGain = np.sum(gainData == trueGain)
         # make sure that most are the modules are in correct gain
-        if nFramesGain < (nModules - 0.5 - n_bad_modules) * (1024 * 512):
+        if nFramesGain < (nModules - 0.5 - number_bad_modules) * (1024 * 512):
             gainGoodAllModules = False
             gain0 = np.sum(gainData == 0)
             gain1 = np.sum(gainData == 1)
@@ -285,9 +280,9 @@ def create_pedestal_file(
             #trueGain += 4 * highG0
             nMgain[trueGain] += 1
 
-            if nMgain[trueGain] > averagePedestalFrames:
-                adcValuesN[trueGain]  -= adcValuesN[trueGain]  / averagePedestalFrames
-                adcValuesNN[trueGain] -= adcValuesNN[trueGain] / averagePedestalFrames
+            if nMgain[trueGain] > frames_average:
+                adcValuesN[trueGain]  -= adcValuesN[trueGain]  / frames_average
+                adcValuesNN[trueGain] -= adcValuesNN[trueGain] / frames_average
 
             adcValuesN[trueGain]  += frameData
             adcValuesNN[trueGain] += np.float_power(frameData, 2)
@@ -322,7 +317,7 @@ def create_pedestal_file(
             if gain == 2:
                 continue
             g = gain if gain < 3 else gain - 1
-            numberFramesAverage = max(1, min(averagePedestalFrames, nMgain[gain]))
+            numberFramesAverage = max(1, min(frames_average, nMgain[gain]))
             mean  = adcValuesN[gain]  / float(numberFramesAverage)
             mean2 = adcValuesNN[gain] / float(numberFramesAverage)
             variance = mean2 - np.float_power(mean, 2)
