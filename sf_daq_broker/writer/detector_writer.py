@@ -40,30 +40,24 @@ def detector_retrieve(request, output_file_detector):
 #    path_to_pgroup     = request["path_to_pgroup"]
 #    run_info_directory = request["run_info_directory"]
 
-    detector_config_file = f"/gpfs/photonics/swissfel/buffer/config/{detector_name}.json"
+    beamline           = request.get("beamline", None)
+    pgroup             = request.get("pgroup", None)
+    directory_name     = request.get("directory_name", None)
+    selected_pulse_ids = request.get("selected_pulse_ids", [])
 
     detector_params = request["detectors"][detector_name]
 
-    adc_to_energy = detector_params.get("adc_to_energy", False)
-    compression   = detector_params.get("compression", False)
-    disabled_modules = detector_params.get("disabled_modules", [])
-
-    n_disabled_modules = len(disabled_modules)
-
-    roi = detector_params.get("roi", {})
-    n_roi = len(roi)
-
+    adc_to_energy            = detector_params.get("adc_to_energy", False)
+    compression              = detector_params.get("compression", False)
+    disabled_modules         = detector_params.get("disabled_modules", [])
+    roi                      = detector_params.get("roi", {})
+    save_dap_results         = detector_params.get("save_dap_results", False)
     save_ppicker_events_only = detector_params.get("save_ppicker_events_only", False)
 
-    selected_pulse_ids = request.get("selected_pulse_ids", [])
+    n_disabled_modules   = len(disabled_modules)
+    n_roi                = len(roi)
     n_selected_pulse_ids = len(selected_pulse_ids)
 
-    beamline = request.get("beamline", None)
-    pgroup   = request.get("pgroup", None)
-
-    save_dap_results = detector_params.get("save_dap_results", False)
-
-    directory_name = request.get("directory_name", None)
     pedestal_run = (directory_name == "JF_pedestals")
 
     if save_dap_results and not pedestal_run:
@@ -71,7 +65,7 @@ def detector_retrieve(request, output_file_detector):
         store_dap_info(beamline, pgroup, detector_name, det_start_pulse_id, det_stop_pulse_id, file_name_out)
 
 
-    convert_ju_file = (adc_to_energy or compression or n_disabled_modules > 0 or n_selected_pulse_ids > 0 or save_ppicker_events_only or n_roi > 0)
+    convert_ju_file = (adc_to_energy or compression or save_ppicker_events_only or n_disabled_modules > 0 or n_roi > 0 or n_selected_pulse_ids > 0)
 
     raw_file_name = output_file_detector
     if convert_ju_file:
@@ -91,6 +85,7 @@ def detector_retrieve(request, output_file_detector):
     _logger.info(f"Retrieve Time : {time()-time_start}")
     _logger.info("Finished retrieve from the buffer")
 
+    detector_config_file = f"/gpfs/photonics/swissfel/buffer/config/{detector_name}.json"
 
     if pedestal_run:
         sleep(5)
@@ -101,7 +96,6 @@ def detector_retrieve(request, output_file_detector):
         _logger.info(f"Pedestal Time : {time()-time_start}")
 
         request_time = request["request_time"]
-        detector_config_file = f"/gpfs/photonics/swissfel/buffer/config/{detector_name}.json"
         res_file_name = raw_file_name[:-3] + ".res.h5"
         copy_pedestal_file(request_time, res_file_name, detector_name, detector_config_file)
         copy_calibration_files(res_file_name, detector_config_file)
