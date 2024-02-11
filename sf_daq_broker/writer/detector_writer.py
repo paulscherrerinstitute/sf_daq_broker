@@ -69,23 +69,35 @@ def detector_retrieve(request, output_file_detector):
         selected_pulse_ids
     ))
 
-    raw_file_name = output_file_detector
     if convert_ju_file:
-        detector_filename = os.path.basename(raw_file_name)
-        detector_dir = os.path.dirname(os.path.dirname(raw_file_name))
+        detector_filename = os.path.basename(output_file_detector)
+        detector_dir = os.path.dirname(os.path.dirname(output_file_detector))
         raw_file_name = f"{detector_dir}/raw_data/{detector_filename}"
         raw_dir = os.path.dirname(raw_file_name)
         os.makedirs(raw_dir, exist_ok=True)
+    else:
+        raw_file_name = output_file_detector
 
     number_modules = int(detector_name[5:7])
 
-    retrieve_command_from_buffer = f"/home/dbe/bin/sf_writer {raw_file_name} /gpfs/photonics/swissfel/buffer/{detector_name} {number_modules} {det_start_pulse_id} {det_stop_pulse_id} {rate_multiplicator}"
-    _logger.info(f"Starting detector retrieve from buffer {retrieve_command_from_buffer} ")
-    retrieve_command_from_buffer = retrieve_command_from_buffer.split() #TODO: should probably use shlex.split
+    command_retrieve_from_buffer = (
+        "/home/dbe/bin/sf_writer",
+        raw_file_name,
+        f"/gpfs/photonics/swissfel/buffer/{detector_name}",
+        number_modules,
+        det_start_pulse_id,
+        det_stop_pulse_id,
+        rate_multiplicator
+    )
+
+    printable_command_retrieve_from_buffer = " ".join(command_retrieve_from_buffer)
+    _logger.info(f"executing detector retrieval from buffer: {printable_command_retrieve_from_buffer}")
+
     time_start = time()
-    _process = subprocess.run(retrieve_command_from_buffer, capture_output=True)
-    _logger.info(f"Retrieve Time : {time()-time_start}")
-    _logger.info("Finished retrieve from the buffer")
+    _process = subprocess.run(command_retrieve_from_buffer, capture_output=True)
+    delta_time = time() - time_start
+
+    _logger.info(f"detector retrieval from buffer took {delta_time} seconds")
 
     detector_config_file = f"/gpfs/photonics/swissfel/buffer/config/{detector_name}.json"
 
