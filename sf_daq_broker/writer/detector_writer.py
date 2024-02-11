@@ -312,20 +312,18 @@ def create_pedestal_file(
     gains    = [None] * 3
     gainsRMS = [None] * 3
 
-    for gain in range(4):
-        if gain == 2:
-            continue
-        g = gain if gain < 3 else gain - 1
+    for gain in (0, 1, 3):
+        gv = 2 if gain == 3 else gain
         numberFramesAverage = max(1, min(frames_average, nMgain[gain]))
         mean  = adcValuesN[gain]  / float(numberFramesAverage)
         mean2 = adcValuesNN[gain] / float(numberFramesAverage)
         variance = mean2 - np.float_power(mean, 2)
         stdDeviation = np.sqrt(variance)
         _logger.debug(f"{detector_name}: results for gain {gain}: test pixel ({tY}, {tX}), mean: {mean[tY][tX]}, stddev: {stdDeviation[tY][tX]}")
-        gains[g] = mean
-        gainsRMS[g] = stdDeviation
+        gains[gv] = mean
+        gainsRMS[gv] = stdDeviation
 
-        pixelMask[np.isclose(stdDeviation, 0)] |= (1 << (6 + g))
+        pixelMask[np.isclose(stdDeviation, 0)] |= (1 << (6 + gv))
 
     with h5py.File(full_fileNameOut, "w") as outFile:
         outFile.create_dataset("pixel_mask", data=pixelMask)
