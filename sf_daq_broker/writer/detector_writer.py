@@ -44,33 +44,34 @@ def detector_retrieve(request, output_file_detector):
 
     detector_params = request["detectors"][detector_name]
 
-    det_conversion  = detector_params.get("adc_to_energy", False)
-    det_compression = detector_params.get("compression", False)
-
+    adc_to_energy = detector_params.get("adc_to_energy", False)
+    compression   = detector_params.get("compression", False)
     disabled_modules = detector_params.get("disabled_modules", [])
-    det_number_disabled_modules = len(disabled_modules)
+
+    n_disabled_modules = len(disabled_modules)
 
     roi = detector_params.get("roi", {})
-    det_number_roi = len(roi)
+    n_roi = len(roi)
 
-    det_save_ppicker_events_only = detector_params.get("save_ppicker_events_only", False)
+    save_ppicker_events_only = detector_params.get("save_ppicker_events_only", False)
 
     selected_pulse_ids = request.get("selected_pulse_ids", [])
-    det_number_selected_pulse_ids = len(selected_pulse_ids)
+    n_selected_pulse_ids = len(selected_pulse_ids)
 
     beamline = request.get("beamline", None)
     pgroup   = request.get("pgroup", None)
 
-    det_save_dap_results = detector_params.get("save_dap_results", False)
+    save_dap_results = detector_params.get("save_dap_results", False)
 
-    pedestal_run = "directory_name" in request and request["directory_name"] == "JF_pedestals"
+    directory_name = request.get("directory_name", None)
+    pedestal_run = (directory_name == "JF_pedestals")
 
-    if not pedestal_run and det_save_dap_results:
+    if save_dap_results and not pedestal_run:
         file_name_out = output_file_detector[:-3] + ".dap"
         store_dap_info(beamline, pgroup, detector_name, det_start_pulse_id, det_stop_pulse_id, file_name_out)
 
 
-    convert_ju_file = det_conversion or det_compression or det_number_disabled_modules>0 or det_number_selected_pulse_ids>0 or det_save_ppicker_events_only or det_number_roi>0
+    convert_ju_file = (adc_to_energy or compression or n_disabled_modules > 0 or n_selected_pulse_ids > 0 or save_ppicker_events_only or n_roi > 0)
 
     raw_file_name = output_file_detector
     if convert_ju_file:
@@ -123,7 +124,7 @@ def detector_retrieve(request, output_file_detector):
             make_crystfel_list(output_file_detector, run_file_json, detector_name)
 
 
-    if not pedestal_run and det_save_dap_results:
+    if not pedestal_run and save_dap_results:
         file_name_out = output_file_detector[:-3] + ".dap"
         store_dap_info(beamline, pgroup, detector_name, det_start_pulse_id, det_stop_pulse_id, file_name_out)
 
