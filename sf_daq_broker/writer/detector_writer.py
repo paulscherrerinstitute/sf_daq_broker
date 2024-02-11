@@ -220,7 +220,7 @@ def create_pedestal_file(
 
         image = f_data[n][:]
         frameData = np.bitwise_and(image, 0b0011111111111111)
-        gainData = np.bitwise_and(image, 0b1100000000000000) >> 14
+        gainData  = np.bitwise_and(image, 0b1100000000000000) >> 14
 
         daq_rec = f_daq_recs[n][0]
         trueGain = (daq_rec & 0b11000000000000) >> 12
