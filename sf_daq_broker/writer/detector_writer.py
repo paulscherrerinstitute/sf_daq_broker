@@ -335,54 +335,51 @@ def create_pedestal_file(
 
 def copy_pedestal_file(request_time, file_pedestal, detector, detector_config_file):
     PEDESTAL_DIRECTORY="/sf/jungfrau/data/pedestal"
-    request_time=datetime.strptime(request_time, "%Y-%m-%d %H:%M:%S.%f")
 
     os.makedirs(f"{PEDESTAL_DIRECTORY}/{detector}", exist_ok=True)
 
+    request_time = datetime.strptime(request_time, "%Y-%m-%d %H:%M:%S.%f")
     request_time_formatted = request_time.strftime("%Y%m%d_%H%M%S")
+
     out_name = f"{PEDESTAL_DIRECTORY}/{detector}/{request_time_formatted}.h5"
+
+    _logger.info(f"copying pedestal file {file_pedestal} to {out_name}")
     copyfile(file_pedestal, out_name)
 
-    _logger.info(f"Copied resulting pedestal file {file_pedestal} to {out_name}")
-
     if not os.path.exists(detector_config_file):
-        _logger.error(f"stream file {detector_config_file} does not exists, exiting")
+        _logger.error(f"cannot update currently used pedestal: stream config file {detector_config_file} does not exists")
         return
 
     det = json_load(detector_config_file)
-
     old_pedestal_file = det["pedestal_file"]
-    _logger.info(f"Changing in stream file {detector_config_file} pedestal from {old_pedestal_file} to {out_name}")
-
     det["pedestal_file"] = out_name
 
+    _logger.info(f"updating stream config file {detector_config_file}: change pedestal from {old_pedestal_file} to {out_name}")
     json_save(det, detector_config_file)
 
 
 def copy_calibration_files(pedestal_file, detector_config_file):
-    det_config = json_load(detector_config_file)
-
-    detector = det_config["detector_name"]
-
     pedestal_directory = os.path.dirname(pedestal_file)
     gain_directory = f"{pedestal_directory}/gainMaps"
     pixel_mask_directory = f"{pedestal_directory}/pixel_mask"
 
+    det_config = json_load(detector_config_file)
+    detector_name = det_config["detector_name"]
+
     gain_file = det_config.get("gain_file", None)
 
-    if gain_file is not None:
+    if gain_file:
         os.makedirs(gain_directory, exist_ok=True)
-        gain_file_copy = f"{gain_directory}/{detector}.h5"
+        gain_file_copy = f"{gain_directory}/{detector_name}.h5"
         if not os.path.exists(gain_file_copy):
             copyfile(gain_file, gain_file_copy)
 
-    pixel_mask_file = None
-    if detector in PEDESTAL_SPECIFIC:
-        pixel_mask_file = PEDESTAL_SPECIFIC[detector].get("add_pixel_mask", None)
+    specific = PEDESTAL_SPECIFIC.get(detector_name, {})
+    pixel_mask_file = specific.get("add_pixel_mask", None)
 
-    if pixel_mask_file is not None:
+    if pixel_mask_file:
         os.makedirs(pixel_mask_directory, exist_ok=True)
-        pixel_mask_file_copy = f"{pixel_mask_directory}/{detector}.h5"
+        pixel_mask_file_copy = f"{pixel_mask_directory}/{detector_name}.h5"
         if not os.path.exists(pixel_mask_file_copy):
             copyfile(pixel_mask_file, pixel_mask_file_copy)
 
