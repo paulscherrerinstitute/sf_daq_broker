@@ -309,25 +309,25 @@ def create_pedestal_file(
     full_fileNameOut = directory + "/" + fileNameIn + ".res.h5"
     _logger.info(f"{detector_name}: output file with pedestal corrections: {full_fileNameOut}")
 
+    gains    = [None] * 3
+    gainsRMS = [None] * 3
+
+    for gain in range(4):
+        if gain == 2:
+            continue
+        g = gain if gain < 3 else gain - 1
+        numberFramesAverage = max(1, min(frames_average, nMgain[gain]))
+        mean  = adcValuesN[gain]  / float(numberFramesAverage)
+        mean2 = adcValuesNN[gain] / float(numberFramesAverage)
+        variance = mean2 - np.float_power(mean, 2)
+        stdDeviation = np.sqrt(variance)
+        _logger.debug(f"{detector_name}: results for gain {gain}: test pixel ({tY}, {tX}), mean: {mean[tY][tX]}, stddev: {stdDeviation[tY][tX]}")
+        gains[g] = mean
+        gainsRMS[g] = stdDeviation
+
+        pixelMask[np.isclose(stdDeviation, 0)] |= (1 << (6 + g))
+
     with h5py.File(full_fileNameOut, "w") as outFile:
-        gains    = [None] * 3
-        gainsRMS = [None] * 3
-
-        for gain in range(4):
-            if gain == 2:
-                continue
-            g = gain if gain < 3 else gain - 1
-            numberFramesAverage = max(1, min(frames_average, nMgain[gain]))
-            mean  = adcValuesN[gain]  / float(numberFramesAverage)
-            mean2 = adcValuesNN[gain] / float(numberFramesAverage)
-            variance = mean2 - np.float_power(mean, 2)
-            stdDeviation = np.sqrt(variance)
-            _logger.debug(f"{detector_name}: results for gain {gain}: test pixel ({tY}, {tX}), mean: {mean[tY][tX]}, stddev: {stdDeviation[tY][tX]}")
-            gains[g] = mean
-            gainsRMS[g] = stdDeviation
-
-            pixelMask[np.isclose(stdDeviation, 0)] |= (1 << (6 + g))
-
         outFile.create_dataset("pixel_mask", data=pixelMask)
         outFile.create_dataset("gains",      data=gains)
         outFile.create_dataset("gainsRMS",   data=gainsRMS)
