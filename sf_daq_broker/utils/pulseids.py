@@ -16,27 +16,30 @@ _logger = logging.getLogger("broker_writer")
 #    new_data_api_request = deepcopy(data_api_request)
 
 #    try:
+#        start_pid = data_api_request["range"]["startPulseId"]
+#        stop_pid  = data_api_request["range"]["endPulseId"] + 1
+
 #        mapping_request = {
 #            "range": {
-#                "startPulseId": data_api_request["range"]["startPulseId"],
-#                "endPulseId":   data_api_request["range"]["endPulseId"] + 1
+#                "startPulseId": start_pid,
+#                "endPulseId":   stop_pid
 #            }
 #        }
 
-#        mapping_response = requests.post(url=config.DATA_API_QUERY_ADDRESS + "/mapping", json=mapping_request, timeout=10).json()
-#        _logger.info(f"Response to mapping request: {mapping_response}")
+#        response = requests.post(url=config.DATA_API_QUERY_ADDRESS + "/mapping", json=mapping_request, timeout=10).json()
+#        _logger.info(f"response to pulse IDs to timestamps mapping request: {response}")
 
 #        del new_data_api_request["range"]["startPulseId"]
-#        new_data_api_request["range"]["startSeconds"] = mapping_response[0]["start"]["globalSeconds"]
+#        new_data_api_request["range"]["startSeconds"] = response[0]["start"]["globalSeconds"]
 
 #        del new_data_api_request["range"]["endPulseId"]
-#        new_data_api_request["range"]["endSeconds"] = mapping_response[0]["end"]["globalSeconds"]
+#        new_data_api_request["range"]["endSeconds"] = response[0]["end"]["globalSeconds"]
 
-##        _logger.info(f"Transformed request to startSeconds and endSeconds. {new_data_api_request}")
+##        _logger.info(f"transformed request in pulse IDs ({data_api_request}) to seconds ({new_data_api_request})")
 
 #    except Exception as e:
-#        _logger.error(e)
-#        raise RuntimeError("Cannot retrieve the pulse_id to timestamp mapping.") from e
+#        _logger.error(f"mapping pulse IDs to timestamps failed: {e}")
+#        raise RuntimeError(f"mapping pulse IDs to timestamps failed (due to: {e})") from e
 
 #    return new_data_api_request
 
@@ -49,18 +52,17 @@ def pulse_id_to_seconds(pulse_id):
         if request.status_code == 200:
             sec = float(request.json()) / 1000000000.
         else:
-            _logger.error(f"Problem to convert {pulse_id} to timestamp. return code {request.status_code}")
-            _logger.error("Trying second time")
+            _logger.error(f"mapping pulse ID {pulse_id} to timestamp failed: status code {request.status_code} -- retrying")
             sleep(30)
             request = requests.get(f"{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}")
             if request.status_code == 200:
                 sec = float(request.json()) / 1000000000.
             else:
-                _logger.error(f"Problem(second time) to convert {pulse_id} to timestamp. return code {request.status_code}")
+                _logger.error(f"mapping pulse ID {pulse_id} to timestamp failed again: status code {request.status_code}")
 
     except Exception as e:
-        _logger.error(e)
-        raise RuntimeError("Cannot convert pulse_id to time") from e
+        _logger.error(f"mapping pulse ID {pulse_id} to timestamp failed: {e}")
+        raise RuntimeError(f"mapping pulse ID {pulse_id} to timestamp failed (due to: {e})") from e
 
     return sec
 
@@ -74,18 +76,17 @@ def pulse_id_to_timestamp(pulse_id):
         if request.status_code == 200:
             ts = request.json()
         else:
-            _logger.error(f"Problem to convert {pulse_id} to timestamp. return code {request.status_code}")
-            _logger.error("Trying second time")
+            _logger.error(f"mapping pulse ID {pulse_id} to timestamp failed: status code {request.status_code} -- retrying")
             sleep(randint(1, 10))
             request = requests.get(f"{config.PULSEID2SECONDS_MATCHING_ADDRESS}/{pulse_id}")
             if request.status_code == 200:
                 ts = request.json()
             else:
-                _logger.error(f"Problem(second time) to convert {pulse_id} to timestamp. return code {request.status_code}")
+                _logger.error(f"mapping pulse ID {pulse_id} to timestamp failed again: status code {request.status_code}")
 
     except Exception as e:
-        _logger.error(e)
-        raise RuntimeError("Cannot convert pulse_id to time") from e
+        _logger.error(f"mapping pulse ID {pulse_id} to timestamp failed: {e}")
+        raise RuntimeError(f"mapping pulse ID {pulse_id} to timestamp failed (due to: {e})") from e
 
     return ts
 
@@ -94,8 +95,11 @@ def transform_range_from_pulse_id_to_timestamp_new(data_api_request):
     new_data_api_request = deepcopy(data_api_request)
 
     try:
-        start_ts = pulse_id_to_timestamp(data_api_request["range"]["startPulseId"])
-        stop_ts  = pulse_id_to_timestamp(data_api_request["range"]["endPulseId"] + 1)
+        start_pid = data_api_request["range"]["startPulseId"]
+        stop_pid  = data_api_request["range"]["endPulseId"] + 1
+
+        start_ts = pulse_id_to_timestamp(start_pid)
+        stop_ts  = pulse_id_to_timestamp(stop_pid)
 
         if start_ts != 0 and stop_ts != 0 and start_ts < stop_ts:
             del new_data_api_request["range"]["startPulseId"]
@@ -103,11 +107,11 @@ def transform_range_from_pulse_id_to_timestamp_new(data_api_request):
             del new_data_api_request["range"]["endPulseId"]
             new_data_api_request["range"]["endTS"] = stop_ts
         else:
-            _logger.error(f"Convertion pulse_id to time failed {start_ts} {stop_ts}")
+            _logger.error(f"mapping pulse IDs (start_pid, stop_pid) to timestamps failed: ({start_ts}, {stop_ts})")
 
     except Exception as e:
-        _logger.error(e)
-        raise RuntimeError("Failed to convert pulse_id to time") from e
+        _logger.error(f"mapping pulse IDs to timestamps failed: {e}")
+        raise RuntimeError(f"mapping pulse IDs to timestamps failed (due to: {e})") from e
 
     return new_data_api_request
 
