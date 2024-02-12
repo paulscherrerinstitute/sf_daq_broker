@@ -69,9 +69,6 @@ def run():
     channels = run_info[entry_name]
 
 
-    start_pulse_id = run_info["start_pulseid"]
-    stop_pulse_id  = run_info["stop_pulseid"]
-
     data_request = {}
     data_request["range"] = {}
     data_request["range"]["startPulseId"] = run_info["start_pulseid"]
@@ -102,12 +99,12 @@ def run():
     writer(data_request, output_file, parameters)
 
 
-    #    metadata = {
-    #        "general/user": run_info["pgroup"],
-    #        "general/process": __name__,
-    #        "general/created": str(datetime.now()),
-    #        "general/instrument": run_info["beamline"]
-    #    }
+#    metadata = {
+#        "general/user": run_info["pgroup"],
+#        "general/process": __name__,
+#        "general/created": str(datetime.now()),
+#        "general/instrument": run_info["beamline"]
+#    }
 
 
 
