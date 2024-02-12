@@ -197,7 +197,7 @@ def process_request_internal(request, broker_client):
     metadata          = request.get("metadata", None)
     request_timestamp = request.get("timestamp", None)
 
-    _logger.info(f"request for writer type {writer_type}: output_file {output_file} from pulse ID {start_pulse_id} to {stop_pulse_id}")
+    _logger.info(f"request for writer type {writer_type}: output file {output_file} from pulse ID {start_pulse_id} to {stop_pulse_id}")
 
     if output_file == "/dev/null":
         _logger.info("skipping request: output file is /dev/null")
@@ -208,8 +208,6 @@ def process_request_internal(request, broker_client):
         return
 
     wait_for_delay(request_timestamp, writer_type)
-
-    _logger.info("Starting payload.")
 
     start_time = time()
 
@@ -228,7 +226,7 @@ def process_request_internal(request, broker_client):
         detector_pedestal_retrieve(broker_client, request)
 
     elif writer_type == broker_config.TAG_POWER_ON:
-        _logger.info("power on detector")
+        _logger.info("powering on detector")
         detector_name = request.get("detector_name", None)
         beamline = request.get("beamline", None)
         power_on_detector(detector_name, beamline)
