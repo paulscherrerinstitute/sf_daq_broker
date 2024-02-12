@@ -67,17 +67,19 @@ def post_retrieve(source, fn_run_info):
 
     channels = run_info[entry_name]
 
-    data_request = {}
-    data_request["range"] = {}
-    data_request["range"]["startPulseId"] = run_info["start_pulseid"]
-    data_request["range"]["endPulseId"]   = run_info["stop_pulseid"]
-    data_request["channels"] = [
-        {
-            "name": ch,
-            "backend": config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND
-        }
-        for ch in channels
-    ]
+    data_request = {
+        "range": {
+            "startPulseId": run_info["start_pulseid"],
+            "endPulseId":   run_info["stop_pulseid"]
+        },
+        "channels": [
+            {
+                "name": ch,
+                "backend": config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND
+            }
+            for ch in channels
+        ]
+    }
 
     run_number         = run_info.get("run_number", 0)
     acquisition_number = run_info.get("acquisition_number", 0)
