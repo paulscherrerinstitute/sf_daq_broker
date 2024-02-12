@@ -21,6 +21,19 @@ ENDPOINTS_POST = [
 
 
 
+def run():
+    parser = argparse.ArgumentParser(description="detector settings")
+
+    parser.add_argument("--rest_port", default=10003, type=int, help="REST-API port")
+    parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
+
+    clargs = parser.parse_args()
+
+    logging.basicConfig(level=clargs.log_level, format="[%(levelname)s] %(message)s")
+
+    start_server(clargs.rest_port)
+
+
 def start_server(rest_port):
     _logger.info("Starting Detector Settings Server")
 
@@ -33,19 +46,6 @@ def start_server(rest_port):
     _logger.info(f"Starting Detector Settings Server REST-API on {hostname}:{rest_port}")
 
     bottle.run(app=app, host=hostname, port=rest_port)
-
-
-def run():
-    parser = argparse.ArgumentParser(description="detector settings")
-
-    parser.add_argument("--rest_port", default=10003, type=int, help="REST-API port")
-    parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
-
-    clargs = parser.parse_args()
-
-    logging.basicConfig(level=clargs.log_level, format="[%(levelname)s] %(message)s")
-
-    start_server(clargs.rest_port)
 
 
 

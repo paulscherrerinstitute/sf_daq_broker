@@ -18,24 +18,12 @@ COLOR_END_MARKER = "\x1b[0m"
 
 
 
-def colorize(action):
-    color = COLOR_MAPPING.get(action, "")
-    return f"{color}{action}{COLOR_END_MARKER}"
+def run():
+    parser = argparse.ArgumentParser(description="connect and listen to broker events")
+    parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL, help="RabbitMQ broker URL")
 
-
-def on_status(_channel, _method_frame, header_frame, body):
-    header = header_frame.headers
-    body = body.decode()
-    request = json_str_to_obj(body)
-
-    action = header["action"]
-    source = header["source"]
-
-    action_output = colorize(action)
-    time_output = datetime.utcnow().strftime("%Y%m%d-%H:%M:%S.%f")
-
-    print(f"[{time_output}] {action_output} {source}")
-    print(request)
+    clargs = parser.parse_args()
+    connect_to_broker(broker_url=clargs.broker_url)
 
 
 def connect_to_broker(broker_url):
@@ -54,13 +42,24 @@ def connect_to_broker(broker_url):
         channel.stop_consuming()
 
 
+def on_status(_channel, _method_frame, header_frame, body):
+    header = header_frame.headers
+    body = body.decode()
+    request = json_str_to_obj(body)
 
-def run():
-    parser = argparse.ArgumentParser(description="connect and listen to broker events")
-    parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL, help="RabbitMQ broker URL")
+    action = header["action"]
+    source = header["source"]
 
-    clargs = parser.parse_args()
-    connect_to_broker(broker_url=clargs.broker_url)
+    action_output = colorize(action)
+    time_output = datetime.utcnow().strftime("%Y%m%d-%H:%M:%S.%f")
+
+    print(f"[{time_output}] {action_output} {source}")
+    print(request)
+
+
+def colorize(action):
+    color = COLOR_MAPPING.get(action, "")
+    return f"{color}{action}{COLOR_END_MARKER}"
 
 
 
