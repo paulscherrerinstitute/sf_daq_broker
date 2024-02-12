@@ -194,7 +194,6 @@ def process_request_internal(request, broker_client):
     start_pulse_id    = request.get("start_pulse_id", 0)
     stop_pulse_id     = request.get("stop_pulse_id", 100)
     output_file       = request.get("output_file", None)
-    run_log_file      = request.get("run_log_file", None)
     metadata          = request.get("metadata", None)
     request_timestamp = request.get("timestamp", None)
 
@@ -224,55 +223,7 @@ def process_request_internal(request, broker_client):
 
     elif writer_type == broker_config.TAG_PEDESTAL:
         _logger.info("recording pedestal")
-
-        detectors = request.get("detectors", [])
-        rate_multiplicator = request.get("rate_multiplicator", 1)
-        det_start_pulse_id, det_stop_pulse_id = take_pedestal(detectors, rate=rate_multiplicator)
-
-        # overwrite start/stop pulse IDs in run_info json file
-        run_file_json = request.get("run_file_json", None)
-        if run_file_json is not None:
-            run_info = json_load(run_file_json)
-
-            run_info["start_pulseid"] = det_start_pulse_id
-            run_info["stop_pulseid"]  = det_stop_pulse_id
-
-            json_save(run_info, run_file_json)
-
-        request_det_retrieve = {
-            "det_start_pulse_id" : det_start_pulse_id,
-            "det_stop_pulse_id"  : det_stop_pulse_id,
-            "rate_multiplicator" : request.get("rate_multiplicator", 1),
-            "run_file_json"      : request.get("run_file_json", None),
-            "path_to_pgroup"     : request.get("path_to_pgroup", None),
-            "run_info_directory" : request.get("run_info_directory", None),
-            "directory_name"     : request.get("directory_name"),
-            "request_time"       : request.get("request_time", str(datetime.now()))
-        }
-
-        broker_client.open()
-
-        for detector in detectors:
-            request_det_retrieve["detector_name"] = detector
-            request_det_retrieve["detectors"] = {detector: {}}
-
-            output_file_prefix = request.get("output_file_prefix", "/tmp/error")
-            output_file_det = f"{output_file_prefix}.{detector}.h5"
-            run_log_file_det = run_log_file[:-4] + "." + detector + ".log"
-
-            write_request = get_writer_request(
-                writer_type=broker_config.TAG_DETECTOR_RETRIEVE,
-                channels=request_det_retrieve,
-                output_file=output_file_det,
-                metadata=None,
-                start_pulse_id=det_start_pulse_id,
-                stop_pulse_id=det_start_pulse_id,
-                run_log_file=run_log_file_det
-            )
-
-            broker_client.send(write_request, broker_config.TAG_DETECTOR_RETRIEVE)
-
-        broker_client.close()
+        detector_pedestal_retrieve(broker_client, request)
 
     elif writer_type == broker_config.TAG_POWER_ON:
         _logger.info("power on detector")
@@ -330,6 +281,60 @@ def audit_failed_write_request(write_request):
 
     except Exception as e:
         _logger.exception(f"failed to write request {write_request} to file {output_file}: {e}")
+
+
+#TODO: this should probably be in detector_writer.py
+def detector_pedestal_retrieve(broker_client, request):
+    detectors = request.get("detectors", [])
+    rate_multiplicator = request.get("rate_multiplicator", 1)
+    det_start_pulse_id, det_stop_pulse_id = take_pedestal(detectors, rate=rate_multiplicator)
+
+    # overwrite start/stop pulse IDs in run_info json file
+    run_file_json = request.get("run_file_json", None)
+    if run_file_json is not None:
+        run_info = json_load(run_file_json)
+
+        run_info["start_pulseid"] = det_start_pulse_id
+        run_info["stop_pulseid"]  = det_stop_pulse_id
+
+        json_save(run_info, run_file_json)
+
+    request_detector_retrieve = {
+        "det_start_pulse_id": det_start_pulse_id,
+        "det_stop_pulse_id":  det_stop_pulse_id,
+        "rate_multiplicator": request.get("rate_multiplicator", 1),
+        "run_file_json":      request.get("run_file_json", None),
+        "path_to_pgroup":     request.get("path_to_pgroup", None),
+        "run_info_directory": request.get("run_info_directory", None),
+        "directory_name":     request.get("directory_name"),
+        "request_time":       request.get("request_time", str(datetime.now()))
+    }
+
+    run_log_file = request.get("run_log_file", None)
+
+    broker_client.open()
+
+    for detector in detectors:
+        request_detector_retrieve["detector_name"] = detector
+        request_detector_retrieve["detectors"] = {detector: {}}
+
+        output_file_prefix = request.get("output_file_prefix", "/tmp/error")
+        output_file_det = f"{output_file_prefix}.{detector}.h5"
+        run_log_file_det = run_log_file[:-4] + "." + detector + ".log"
+
+        write_request = get_writer_request(
+            writer_type=broker_config.TAG_DETECTOR_RETRIEVE,
+            channels=request_detector_retrieve,
+            output_file=output_file_det,
+            metadata=None,
+            start_pulse_id=det_start_pulse_id,
+            stop_pulse_id=det_start_pulse_id,
+            run_log_file=run_log_file_det
+        )
+
+        broker_client.send(write_request, broker_config.TAG_DETECTOR_RETRIEVE)
+
+    broker_client.close()
 
 
 
