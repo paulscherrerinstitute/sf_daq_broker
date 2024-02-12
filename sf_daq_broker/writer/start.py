@@ -93,17 +93,17 @@ def start_service(broker_url, writer_type=0):
 def on_broker_message(channel, method_frame, _header_frame, body, connection, broker_client):
     try:
         request = json_str_to_obj(body.decode())
-
         output_file = request.get("output_file", None)
-        update_status(channel, body, "write_start", output_file)
+
+        write_start(channel, body, output_file)
 
         def process_async():
             try:
                 process_request(request, broker_client)
 
             except Exception as e:
-                _logger.exception("Error while trying to write a requested data.")
-                callback = partial(reject_request, channel, method_frame, body, output_file, e)
+                _logger.exception(f"failed to write requested data: {e}")
+                callback = partial(reject_request, channel, method_frame, body, output_file, str(e))
 
             else:
                 callback = partial(confirm_request, channel, method_frame, body, output_file)
@@ -115,8 +115,12 @@ def on_broker_message(channel, method_frame, _header_frame, body, connection, br
         thread.start()
 
     except Exception as e:
-        _logger.exception("Error while trying to write a requested data.")
-        reject_request(channel, method_frame, body, output_file, e)
+        _logger.exception(f"failed to write requested data: {e}")
+        reject_request(channel, method_frame, body, output_file, str(e))
+
+
+def write_start(channel, body, output_file):
+    update_status(channel, body, "write_start", output_file)
 
 
 def confirm_request(channel, method_frame, body, output_file):
@@ -124,9 +128,9 @@ def confirm_request(channel, method_frame, body, output_file):
     update_status(channel, body, "write_finished", output_file)
 
 
-def reject_request(channel, method_frame, body, output_file, e):
+def reject_request(channel, method_frame, body, output_file, message):
     channel.basic_reject(delivery_tag=method_frame.delivery_tag, requeue=False)
-    update_status(channel, body, "write_rejected", output_file, str(e))
+    update_status(channel, body, "write_rejected", output_file, message=message)
 
 
 def update_status(channel, body, action, file, message=None):
@@ -148,15 +152,13 @@ def update_status(channel, body, action, file, message=None):
 
 def process_request(request, broker_client):
     writer_type = request["writer_type"]
-    channels = request.get("channels", None)
 
-    start_pulse_id = request.get("start_pulse_id", 0)
-    stop_pulse_id = request.get("stop_pulse_id", 100)
-
-    output_file = request.get("output_file", None)
-    run_log_file = request.get("run_log_file", None)
-
-    metadata = request.get("metadata", None)
+    channels          = request.get("channels", None)
+    start_pulse_id    = request.get("start_pulse_id", 0)
+    stop_pulse_id     = request.get("stop_pulse_id", 100)
+    output_file       = request.get("output_file", None)
+    run_log_file      = request.get("run_log_file", None)
+    metadata          = request.get("metadata", None)
     request_timestamp = request.get("timestamp", None)
 
     file_handler = None
@@ -171,14 +173,14 @@ def process_request(request, broker_client):
             logger_data_api.addHandler(file_handler)
 
     try:
-        _logger.info(f"Request for {writer_type} : output_file {output_file} from pulse_id {start_pulse_id} to {stop_pulse_id}")
+        _logger.info(f"request for writer type {writer_type}: output_file {output_file} from pulse ID {start_pulse_id} to {stop_pulse_id}")
 
         if output_file == "/dev/null":
-            _logger.info("Output file set to /dev/null. Skipping request.")
+            _logger.info("skipping request: output file is /dev/null")
             return
 
         if not channels and writer_type not in (broker_config.TAG_PEDESTAL, broker_config.TAG_POWER_ON):
-            _logger.info("No channels requested. Skipping request.")
+            _logger.info("skipping request: no channels requested")
             return
 
         wait_for_delay(request_timestamp, writer_type)
@@ -188,21 +190,21 @@ def process_request(request, broker_client):
         start_time = time()
 
         if writer_type == broker_config.TAG_DATA3BUFFER:
-            _logger.info("Using data_api3 databuffer writer.")
+            _logger.info("using Data API 3 databuffer writer")
             write_from_databuffer_api3(get_data_api_request(channels, start_pulse_id, stop_pulse_id), output_file, metadata)
 
         elif writer_type == broker_config.TAG_IMAGEBUFFER:
-            _logger.info("Using imagebuffer writer.")
+            _logger.info("using imagebuffer writer")
             write_from_imagebuffer(get_data_api_request(channels, start_pulse_id, stop_pulse_id), output_file, metadata)
 
         elif writer_type == broker_config.TAG_PEDESTAL:
-            _logger.info("Doing pedestal.")
+            _logger.info("recording pedestal")
 
             detectors = request.get("detectors", [])
             rate_multiplicator = request.get("rate_multiplicator", 1)
             det_start_pulse_id, det_stop_pulse_id = take_pedestal(detectors, rate=rate_multiplicator)
 
-            # overwrite start/stop pulse_ids in run_info json file
+            # overwrite start/stop pulse IDs in run_info json file
             run_file_json = request.get("run_file_json", None)
             if run_file_json is not None:
                 run_info = json_load(run_file_json)
@@ -227,8 +229,7 @@ def process_request(request, broker_client):
 
             for detector in detectors:
                 request_det_retrieve["detector_name"] = detector
-                request_det_retrieve["detectors"] = {}
-                request_det_retrieve["detectors"][detector] = {}
+                request_det_retrieve["detectors"] = {detector: {}}
 
                 output_file_prefix = request.get("output_file_prefix", "/tmp/error")
                 output_file_det = f"{output_file_prefix}.{detector}.h5"
@@ -249,31 +250,31 @@ def process_request(request, broker_client):
             broker_client.close()
 
         elif writer_type == broker_config.TAG_POWER_ON:
-            _logger.info("Power ON detector")
+            _logger.info("power on detector")
             detector_name = request.get("detector_name", None)
             beamline = request.get("beamline", None)
             power_on_detector(detector_name=detector_name, beamline=beamline)
 
         elif writer_type == broker_config.TAG_DETECTOR_RETRIEVE:
-            _logger.info("Using detector retrieve writer.")
+            _logger.info("using detector retrieve writer")
             detector_retrieve(channels, output_file)
 
         elif writer_type == broker_config.TAG_DETECTOR_CONVERT:
-            _logger.info("Using detector convert writer.")
+            _logger.info("using detector convert writer")
             #TODO: nothing here?
 
         delta_time = time() - start_time
-        _logger.info(f"Finished. Took {delta_time} seconds to complete request.")
+        _logger.info(f"processing request took {delta_time} seconds")
 
-#        #TODO this block is also in finally, it will run there anyway
+#        #TODO: this block is also in finally, it will run there anyway
 #        if file_handler:
 #            _logger.removeHandler(file_handler)
 #            if logger_data_api is not None:
 #                logger_data_api.removeHandler(file_handler)
 
-    except Exception:
+    except Exception as e:
         audit_failed_write_request(request)
-        _logger.exception(f"Request failed: {request}")
+        _logger.exception(f"failed to process request ({request}): {e}")
         raise
 
     finally:
@@ -291,17 +292,17 @@ def wait_for_delay(request_timestamp, writer_type):
     if writer_type == broker_config.TAG_DETECTOR_RETRIEVE:
         time_to_wait = config.DETECTOR_RETRIEVAL_DELAY
 
-#    # should not come here in this case, since request_timestamp is None
+#    # the following is not needed since for the covered cases request_timestamp is None
 #    if writer_type == broker_config.TAG_PEDESTAL or writer_type != broker_config.TAG_POWER_ON:
 #        time_to_wait = 0
 
     current_timestamp = time()
-    # sleep time = target sleep time - time that has already passed.
+    # time to sleep = target sleep time - time that has already passed
     adjusted_retrieval_delay = time_to_wait - (current_timestamp - request_timestamp)
     adjusted_retrieval_delay = max(adjusted_retrieval_delay, 0)
 
-    _logger.debug(f"Request timestamp={request_timestamp}, current_timestamp={current_timestamp}, adjusted_retrieval_delay={adjusted_retrieval_delay}.")
-    _logger.info(f"Sleeping for {adjusted_retrieval_delay} seconds before continuing.")
+    _logger.debug(f"request timestamp: {request_timestamp}, current timestamp: {current_timestamp}, adjusted retrieval delay: {adjusted_retrieval_delay}")
+    _logger.info(f"sleeping for {adjusted_retrieval_delay} seconds before continuing...")
     sleep(adjusted_retrieval_delay)
 
 
@@ -320,7 +321,7 @@ def audit_failed_write_request(write_request):
             audit_file.write(f"[{current_time}] {pretty_write_request}")
 
     except Exception:
-        _logger.exception(f"Error while trying to write request {write_request} to file {output_file}.")
+        _logger.exception(f"failed to write request {write_request} to file {output_file}: {e}")
 
 
 
