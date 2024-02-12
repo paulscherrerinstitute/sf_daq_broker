@@ -46,12 +46,12 @@ def run():
 
 
 def start_server(broker_url, rest_port):
-    _logger.info(f"Starting sf_daq_broker message broker on {broker_url}")
+    _logger.info(f"starting sf-daq broker on {broker_url}")
 
     broker_client = BrokerClient(broker_url=broker_url)
     logging.getLogger("pika").setLevel(logging.WARNING)
 
-    _logger.info("sf_daq_broker message broker started")
+    _logger.info("sf-daq broker started")
 
     app = bottle.Bottle()
     manager = BrokerManager(broker_client=broker_client)
@@ -59,7 +59,7 @@ def start_server(broker_url, rest_port):
     register_rest_api(app, manager, endpoints_post=ENDPOINTS_POST, endpoints_get=ENDPOINTS_GET)
 
     hostname = socket.gethostname()
-    _logger.info(f"Starting sf_daq_broker REST-API on {hostname}:{rest_port}")
+    _logger.info(f"starting sf-daq broker REST-API on {hostname}:{rest_port}")
 
     bottle.run(app=app, host=hostname, port=rest_port)
 
