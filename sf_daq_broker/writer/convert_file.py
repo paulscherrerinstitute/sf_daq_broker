@@ -27,8 +27,8 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
     compression      = detector_params.get("compression", False)
     conversion       = detector_params.get("adc_to_energy", False)
     disabled_modules = detector_params.get("disabled_modules", [])
-    remove_raw_files = detector_params.get("remove_raw_files", False)
     downsample       = detector_params.get("downsample", None)
+    remove_raw_files = detector_params.get("remove_raw_files", False)
 
     if downsample is not None:
         if isinstance(downsample, list):
@@ -38,26 +38,27 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
             downsample = None
 
     if conversion:
-        mask                 = detector_params.get("mask", True)
         double_pixels_action = detector_params.get("double_pixels_action", "mask")
-        geometry             = detector_params.get("geometry", False)
-        gap_pixels           = detector_params.get("gap_pixels", True)
         factor               = detector_params.get("factor", None)
+        gap_pixels           = detector_params.get("gap_pixels", True)
+        geometry             = detector_params.get("geometry", False)
+        mask                 = detector_params.get("mask", True)
     else:
-        mask                 = False
         double_pixels_action = "keep"
-        geometry             = False
-        gap_pixels           = False
         factor               = None
+        gap_pixels           = False
+        geometry             = False
+        mask                 = False
 
-    selected_pulse_ids = data.get("selected_pulse_ids", [])
-    save_ppicker_events_only = detector_params.get("save_ppicker_events_only", False)
     roi = detector_params.get("roi", None)
+    save_ppicker_events_only = detector_params.get("save_ppicker_events_only", False)
+    selected_pulse_ids = data.get("selected_pulse_ids", [])
 
+    n_selected_pulse_ids = len(selected_pulse_ids)
 
     files_to_remove = set()
 
-    if conversion or len(disabled_modules) > 0 or len(selected_pulse_ids) > 0 or save_ppicker_events_only:
+    if conversion or disabled_modules or save_ppicker_events_only or selected_pulse_ids:
         files_to_remove.add(file_in)
 
         with ju.File(
@@ -72,15 +73,15 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
             parallel=True,
         ) as juf:
             n_input_frames = len(juf["data"])
-            if len(selected_pulse_ids) == 0:
-                good_frames = np.nonzero(juf["is_good_frame"])[0]
-            else:
+            if selected_pulse_ids:
                 good_frames = []
                 is_good_frames = juf["is_good_frame"]
                 det_pulse_ids = juf["pulse_id"]
                 for pulse_index in range(n_input_frames):
                     if is_good_frames[pulse_index] != 0 and det_pulse_ids[pulse_index][0] in selected_pulse_ids:
                         good_frames.append(pulse_index)
+            else:
+                good_frames = np.nonzero(juf["is_good_frame"])[0]
 
 
             if save_ppicker_events_only:
@@ -147,7 +148,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
     _logger.info(f"factor               : {factor}")
     _logger.info(f"downsample           : {downsample}")
     _logger.info(f"roi                  : {roi}")
-    _logger.info(f"reduce pulseids      : {len(selected_pulse_ids)>0} {len(selected_pulse_ids)}")
+    _logger.info(f"reduce pulseids      : {n_selected_pulse_ids > 0} {n_selected_pulse_ids}")
     _logger.info(f"save ppicker events  : {save_ppicker_events_only}")
 
     if remove_raw_files:
