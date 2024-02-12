@@ -34,78 +34,86 @@ WRITERS = {
 }
 
 
-parser = argparse.ArgumentParser(description="post retrieve")
 
-parser.add_argument("run_info", help="run_info json file")
-parser.add_argument("--source", "-s", default="image", choices=ALLOWED_SOURCES, help=f"retrieve from image or data buffer (possible values: {PRINTABLE_ALLOWED_SOURCES})")
-parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
+def run():
+    parser = argparse.ArgumentParser(description="post retrieve")
 
-clargs = parser.parse_args()
+    parser.add_argument("run_info", help="run_info json file")
+    parser.add_argument("--source", "-s", default="image", choices=ALLOWED_SOURCES, help=f"retrieve from image or data buffer (possible values: {PRINTABLE_ALLOWED_SOURCES})")
+    parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
 
-source = clargs.source
-fn_run_info = clargs.run_info
+    clargs = parser.parse_args()
 
-
-_logger = logging.getLogger("broker_writer") #TODO: or "data_api3" ?
-_logger.setLevel(clargs.log_level)
+    source = clargs.source
+    fn_run_info = clargs.run_info
 
 
-if not os.path.exists(fn_run_info):
-    raise SystemExit(f"run_info file {fn_run_info} not found")
-
-run_info = json_load(fn_run_info)
+    _logger = logging.getLogger("broker_writer") #TODO: or "data_api3" ?
+    _logger.setLevel(clargs.log_level)
 
 
-entry_name = ENTRY_NAMES[source]
-ftype      = FTYPES[source]
-writer     = WRITERS[source]
+    if not os.path.exists(fn_run_info):
+        raise SystemExit(f"run_info file {fn_run_info} not found")
+
+    run_info = json_load(fn_run_info)
 
 
-if entry_name not in run_info:
-    raise SystemExit(f'no "{entry_name}" defined in run_info file')
-
-channels = run_info[entry_name]
-
-
-start_pulse_id = run_info["start_pulseid"]
-stop_pulse_id  = run_info["stop_pulseid"]
-
-data_request = {}
-data_request["range"] = {}
-data_request["range"]["startPulseId"] = run_info["start_pulseid"]
-data_request["range"]["endPulseId"]   = run_info["stop_pulseid"]
-data_request["channels"] = [
-    {
-        "name": ch,
-        "backend": config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND
-    }
-    for ch in channels
-]
-
-run_number         = run_info.get("run_number", 0)
-acquisition_number = run_info.get("acquisition_number", 0)
-
-ri_beamline = run_info["beamline"]
-ri_pgroup   = run_info["pgroup"]
-
-list_data_directories_run = glob(f"/sf/{ri_beamline}/data/{ri_pgroup}/raw/run{run_number:04}*")
-if len(list_data_directories_run) != 1:
-    raise SystemExit(f"run directories ambiguous: {list_data_directories_run}")
-
-data_directory = list_data_directories_run[0]
-
-output_file = f"{data_directory}/data/acq{acquisition_number:04}.{ftype}.h5.2"
-
-parameters = None
-writer(data_request, output_file, parameters)
+    entry_name = ENTRY_NAMES[source]
+    ftype      = FTYPES[source]
+    writer     = WRITERS[source]
 
 
-#    metadata = {
-#        "general/user": run_info["pgroup"],
-#        "general/process": __name__,
-#        "general/created": str(datetime.now()),
-#        "general/instrument": run_info["beamline"]
-#    }
+    if entry_name not in run_info:
+        raise SystemExit(f'no "{entry_name}" defined in run_info file')
 
+    channels = run_info[entry_name]
+
+
+    start_pulse_id = run_info["start_pulseid"]
+    stop_pulse_id  = run_info["stop_pulseid"]
+
+    data_request = {}
+    data_request["range"] = {}
+    data_request["range"]["startPulseId"] = run_info["start_pulseid"]
+    data_request["range"]["endPulseId"]   = run_info["stop_pulseid"]
+    data_request["channels"] = [
+        {
+            "name": ch,
+            "backend": config.IMAGE_BACKEND if ch.endswith(":FPICTURE") else config.DATA_BACKEND
+        }
+        for ch in channels
+    ]
+
+    run_number         = run_info.get("run_number", 0)
+    acquisition_number = run_info.get("acquisition_number", 0)
+
+    ri_beamline = run_info["beamline"]
+    ri_pgroup   = run_info["pgroup"]
+
+    list_data_directories_run = glob(f"/sf/{ri_beamline}/data/{ri_pgroup}/raw/run{run_number:04}*")
+    if len(list_data_directories_run) != 1:
+        raise SystemExit(f"run directories ambiguous: {list_data_directories_run}")
+
+    data_directory = list_data_directories_run[0]
+
+    output_file = f"{data_directory}/data/acq{acquisition_number:04}.{ftype}.h5.2"
+
+    parameters = None
+    writer(data_request, output_file, parameters)
+
+
+    #    metadata = {
+    #        "general/user": run_info["pgroup"],
+    #        "general/process": __name__,
+    #        "general/created": str(datetime.now()),
+    #        "general/instrument": run_info["beamline"]
+    #    }
+
+
+
+
+
+if __name__ == "__main__":
+    run()
 
 
