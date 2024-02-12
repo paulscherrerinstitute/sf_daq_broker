@@ -8,6 +8,9 @@ from sf_daq_broker.writer.bsread_writer import write_from_databuffer_api3, write
 from sf_daq_broker.utils import json_load
 
 
+_logger = logging.getLogger("broker_writer") #TODO: or "data_api3" ?
+
+
 ALLOWED_SOURCES = [
     "image",
     "data_api3",
@@ -44,30 +47,25 @@ def run():
 
     clargs = parser.parse_args()
 
-    source = clargs.source
-    fn_run_info = clargs.run_info
-
-
-    _logger = logging.getLogger("broker_writer") #TODO: or "data_api3" ?
     _logger.setLevel(clargs.log_level)
 
+    post_retrieve(clargs.source, clargs.run_info)
 
+
+def post_retrieve(source, fn_run_info):
     if not os.path.exists(fn_run_info):
         raise SystemExit(f"run_info file {fn_run_info} not found")
 
     run_info = json_load(fn_run_info)
 
-
     entry_name = ENTRY_NAMES[source]
     ftype      = FTYPES[source]
     writer     = WRITERS[source]
-
 
     if entry_name not in run_info:
         raise SystemExit(f'no "{entry_name}" defined in run_info file')
 
     channels = run_info[entry_name]
-
 
     data_request = {}
     data_request["range"] = {}
@@ -97,7 +95,6 @@ def run():
 
     parameters = None
     writer(data_request, output_file, parameters)
-
 
 #    metadata = {
 #        "general/user": run_info["pgroup"],
