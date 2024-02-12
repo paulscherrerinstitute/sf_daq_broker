@@ -278,7 +278,7 @@ def process_request_internal(request, broker_client):
         _logger.info("power on detector")
         detector_name = request.get("detector_name", None)
         beamline = request.get("beamline", None)
-        power_on_detector(detector_name=detector_name, beamline=beamline)
+        power_on_detector(detector_name, beamline)
 
     elif writer_type == broker_config.TAG_DETECTOR_RETRIEVE:
         _logger.info("using detector retrieve writer")
