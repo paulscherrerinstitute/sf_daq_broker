@@ -31,6 +31,20 @@ ENDPOINTS_GET = [
 
 
 
+def run():
+    parser = argparse.ArgumentParser(description="sf-daq broker")
+
+    parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL, help="RabbitMQ broker URL")
+    parser.add_argument("--rest_port", default=config.DEFAULT_BROKER_REST_PORT, type=int, help="REST-API port")
+    parser.add_argument("--log_level", default=config.DEFAULT_LOG_LEVEL, choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
+
+    clargs = parser.parse_args()
+
+    logging.basicConfig(level=clargs.log_level, format="[%(levelname)s] %(message)s")
+
+    start_server(clargs.broker_url, clargs.rest_port)
+
+
 def start_server(broker_url, rest_port):
     _logger.info(f"Starting sf_daq_broker message broker on {broker_url}")
 
@@ -48,20 +62,6 @@ def start_server(broker_url, rest_port):
     _logger.info(f"Starting sf_daq_broker REST-API on {hostname}:{rest_port}")
 
     bottle.run(app=app, host=hostname, port=rest_port)
-
-
-def run():
-    parser = argparse.ArgumentParser(description="sf-daq broker")
-
-    parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL, help="RabbitMQ broker URL")
-    parser.add_argument("--rest_port", default=config.DEFAULT_BROKER_REST_PORT, type=int, help="REST-API port")
-    parser.add_argument("--log_level", default=config.DEFAULT_LOG_LEVEL, choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
-
-    clargs = parser.parse_args()
-
-    logging.basicConfig(level=clargs.log_level, format="[%(levelname)s] %(message)s")
-
-    start_server(clargs.broker_url, clargs.rest_port)
 
 
 
