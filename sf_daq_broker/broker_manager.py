@@ -398,13 +398,13 @@ class BrokerManager:
             run_log_file = f"{run_info_directory}/acq{current_acq:04}.{filename_suffix}.log"
 
             write_request = get_writer_request(
-                writer_type=tag,
-                channels=channels,
-                output_file=output_file,
-                metadata=metadata,
-                start_pulse_id=adjusted_start_pulse_id,
-                stop_pulse_id=adjusted_stop_pulse_id,
-                run_log_file=run_log_file
+                tag,
+                channels,
+                output_file,
+                metadata,
+                adjusted_start_pulse_id,
+                adjusted_stop_pulse_id,
+                run_log_file
             )
 
             try:
