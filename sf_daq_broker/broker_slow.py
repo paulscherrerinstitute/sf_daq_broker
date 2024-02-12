@@ -22,7 +22,7 @@ ENDPOINTS_POST = [
 
 
 def run():
-    parser = argparse.ArgumentParser(description="detector settings")
+    parser = argparse.ArgumentParser(description="detector settings server")
 
     parser.add_argument("--rest_port", default=10003, type=int, help="REST-API port")
     parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
@@ -35,7 +35,7 @@ def run():
 
 
 def start_server(rest_port):
-    _logger.info("Starting Detector Settings Server")
+    _logger.info("starting detector settings server")
 
     app = bottle.Bottle()
     manager = DetectorManager()
@@ -43,7 +43,7 @@ def start_server(rest_port):
     register_rest_api(app, manager, endpoints_post=ENDPOINTS_POST)
 
     hostname = socket.gethostname()
-    _logger.info(f"Starting Detector Settings Server REST-API on {hostname}:{rest_port}")
+    _logger.info(f"starting detector settings server REST-API on {hostname}:{rest_port}")
 
     bottle.run(app=app, host=hostname, port=rest_port)
 

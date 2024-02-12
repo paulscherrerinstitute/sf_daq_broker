@@ -21,7 +21,7 @@ _logger = logging.getLogger("broker_writer")
 
 
 def run():
-    parser = argparse.ArgumentParser(description="data writer")
+    parser = argparse.ArgumentParser(description="data writer service")
 
     parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL, help="RabbitMQ broker URL")
     parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
@@ -46,7 +46,7 @@ def run():
     # make message-broker less noisy in logs
     logging.getLogger("pika").setLevel(logging.WARNING)
 
-    _logger.info("Writer started. Waiting for requests.")
+    _logger.info("starting data writer service")
 
     start_service(broker_url=clargs.broker_url, writer_type=clargs.writer_type)
 
