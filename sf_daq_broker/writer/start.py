@@ -320,7 +320,7 @@ def audit_failed_write_request(write_request):
             pretty_write_request = json_obj_to_str(write_request)
             audit_file.write(f"[{current_time}] {pretty_write_request}")
 
-    except Exception:
+    except Exception as e:
         _logger.exception(f"failed to write request {write_request} to file {output_file}: {e}")
 
 
