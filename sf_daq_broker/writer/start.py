@@ -299,7 +299,8 @@ def detector_pedestal_retrieve(broker_client, request):
 
         json_save(run_info, run_file_json)
 
-    request_detector_retrieve = {
+    #TODO: this contains much more than "channels"
+    channels = {
         "det_start_pulse_id": det_start_pulse_id,
         "det_stop_pulse_id":  det_stop_pulse_id,
         "rate_multiplicator": request.get("rate_multiplicator", 1),
@@ -315,21 +316,21 @@ def detector_pedestal_retrieve(broker_client, request):
     broker_client.open()
 
     for detector in detectors:
-        request_detector_retrieve["detector_name"] = detector
-        request_detector_retrieve["detectors"] = {detector: {}}
+        channels["detector_name"] = detector
+        channels["detectors"] = {detector: {}}
 
         output_file_prefix = request.get("output_file_prefix", "/tmp/error")
-        output_file_det = f"{output_file_prefix}.{detector}.h5"
-        run_log_file_det = run_log_file[:-4] + "." + detector + ".log"
+        det_output_file = f"{output_file_prefix}.{detector}.h5"
+        det_run_log_file = run_log_file[:-4] + "." + detector + ".log"
 
         write_request = get_writer_request(
-            writer_type=broker_config.TAG_DETECTOR_RETRIEVE,
-            channels=request_detector_retrieve,
-            output_file=output_file_det,
-            metadata=None,
-            start_pulse_id=det_start_pulse_id,
-            stop_pulse_id=det_start_pulse_id,
-            run_log_file=run_log_file_det
+            broker_config.TAG_DETECTOR_RETRIEVE,
+            channels,
+            det_output_file,
+            None,
+            det_start_pulse_id,
+            det_start_pulse_id,
+            det_run_log_file
         )
 
         broker_client.send(write_request, broker_config.TAG_DETECTOR_RETRIEVE)
