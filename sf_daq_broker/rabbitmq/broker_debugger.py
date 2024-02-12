@@ -55,7 +55,7 @@ def connect_to_broker(broker_url):
 
 
 
-def main():
+def run():
     parser = argparse.ArgumentParser(description="connect and listen to broker events")
     parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL, help="RabbitMQ broker URL")
 
@@ -67,7 +67,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run()
 
 
 
