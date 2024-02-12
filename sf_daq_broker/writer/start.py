@@ -215,11 +215,13 @@ def process_request_internal(request, broker_client):
 
     if writer_type == broker_config.TAG_DATA3BUFFER:
         _logger.info("using Data API 3 databuffer writer")
-        write_from_databuffer_api3(get_data_api_request(channels, start_pulse_id, stop_pulse_id), output_file, metadata)
+        req = get_data_api_request(channels, start_pulse_id, stop_pulse_id)
+        write_from_databuffer_api3(req, output_file, metadata)
 
     elif writer_type == broker_config.TAG_IMAGEBUFFER:
         _logger.info("using imagebuffer writer")
-        write_from_imagebuffer(get_data_api_request(channels, start_pulse_id, stop_pulse_id), output_file, metadata)
+        req = get_data_api_request(channels, start_pulse_id, stop_pulse_id)
+        write_from_imagebuffer(req, output_file, metadata)
 
     elif writer_type == broker_config.TAG_PEDESTAL:
         _logger.info("recording pedestal")
