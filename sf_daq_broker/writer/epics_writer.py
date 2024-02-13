@@ -28,7 +28,7 @@ def write_epics_pvs(output_file, start_pulse_id, stop_pulse_id, _metadata, epics
     start_seconds = pulse_id_to_seconds(start_pulse_id)
     stop_seconds  = pulse_id_to_seconds(stop_pulse_id)
 
-    data = get_data(epics_pvs, start_seconds=start_seconds, stop_seconds=stop_seconds)
+    data = get_data(epics_pvs, start_seconds, stop_seconds)
 
     delta_time = time() - start_time
     _logger.info(f"data download took {delta_time} seconds")
