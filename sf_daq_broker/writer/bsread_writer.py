@@ -43,7 +43,7 @@ def write_generic(data_api_request, output_file, buffer_url, requester, what):
         start_ts = pulse_id_to_timestamp(start_pid)
         stop_ts  = pulse_id_to_timestamp(stop_pid)
     except RuntimeError as e:
-        _logger.info(str(e))
+        _logger.info(f"request to Data API 3 failed: {e}")
         return
 
     start_ts = tsfmt(start_ts)
