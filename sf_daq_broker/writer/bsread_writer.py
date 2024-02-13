@@ -8,7 +8,8 @@ import numpy as np
 import pytz
 from data_api3 import h5 as dapi3h5
 
-from sf_daq_broker import config, utils
+from sf_daq_broker import config
+from sf_daq_broker.utils import pulse_id_to_timestamp
 
 
 _logger = logging.getLogger("broker_writer")
@@ -31,30 +32,29 @@ def write_from_databuffer_api3(data_api_request, output_file, _parameters):
 def write_generic(data_api_request, output_file, buffer_url, requester, what):
     _logger.debug(f"Data API 3 ({what} buffer) request: {data_api_request}")
 
-    data_api_request_timestamp = utils.transform_range_from_pulse_id_to_timestamp_new(data_api_request)
-
-    channels = data_api_request_timestamp["channels"]
+    channels = data_api_request["channels"]
     channels = [channel["name"] for channel in channels]
 
-    range_timestamp = data_api_request_timestamp["range"]
+    pid_range = data_api_request["range"]
+    start_pid = pid_range["startPulseId"]
+    stop_pid  = pid_range["endPulseId"] + 1
 
-    if "startTS" not in range_timestamp:
-        _logger.info('pulse ID to timestamp transformation failed: "startTS" missing')
+    try:
+        start_ts = pulse_id_to_timestamp(start_pid)
+        stop_ts  = pulse_id_to_timestamp(stop_pid)
+    except RuntimeError as e:
+        _logger.info(str(e))
         return
 
-    if "endTS" not in range_timestamp:
-        _logger.info('pulse ID to timestamp transformation failed: "endTS" missing')
-        return
-
-    start = tsfmt(range_timestamp["startTS"])
-    end   = tsfmt(range_timestamp["endTS"])
+    start_ts = tsfmt(start_ts)
+    stop_ts  = tsfmt(stop_ts)
 
     query = {
         "channels": channels,
         "range": {
             "type": "date",
-            "startDate": start,
-            "endDate": end
+            "startDate": start_ts,
+            "endDate": stop_ts
         }
     }
 
