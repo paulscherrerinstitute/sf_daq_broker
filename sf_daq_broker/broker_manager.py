@@ -365,7 +365,7 @@ class BrokerManager:
         validate.directory_exists(output_data_directory)
 
         current_acq = get_current_step_in_scan(meta_directory)
-        unique_acq = get_current_run_number(daq_directory)
+        unique_acq = get_current_run_number(daq_directory, file_run="LAST_ARUN")
 
         request["beamline"] = beamline
         request["acquisition_number"] = current_acq
