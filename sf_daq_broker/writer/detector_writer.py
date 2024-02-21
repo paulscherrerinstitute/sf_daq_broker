@@ -90,6 +90,8 @@ def detector_retrieve(request, output_file_detector):
         rate_multiplicator
     )
 
+    command_retrieve_from_buffer = tuple(str(i) for i in command_retrieve_from_buffer)
+
     printable_command_retrieve_from_buffer = " ".join(command_retrieve_from_buffer)
     _logger.info(f"executing detector retrieval from buffer: {printable_command_retrieve_from_buffer}")
 
