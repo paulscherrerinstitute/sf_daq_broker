@@ -171,9 +171,9 @@ def create_pedestal_file(
         daq_recs_location      = f"data/{detector_name}/daq_rec"
         is_good_frame_location = f"data/{detector_name}/is_good_frame"
 
-        f_data          = f[data_location]
-        f_is_good_frame = f[is_good_frame_location]
-        f_daq_recs      = f[daq_recs_location]
+        f_data          = f[data_location][:]
+        f_is_good_frame = f[is_good_frame_location][:]
+        f_daq_recs      = f[daq_recs_location][:]
 
     f_data0 = f_data[0]
 
