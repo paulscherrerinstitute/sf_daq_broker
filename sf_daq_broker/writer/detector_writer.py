@@ -129,8 +129,8 @@ def detector_retrieve(request, output_file_detector):
 
         try:
             convert_file(raw_file_name, output_file_detector, run_file_json, detector_config_file)
-        except Exception as e:
-            _logger.error(f"file conversion failed: {e}")
+        except Exception:
+            _logger.exception("file conversion failed")
 
         delta_time = time() - time_start
         _logger.info(f"file conversion took {delta_time} seconds")

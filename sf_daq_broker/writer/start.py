@@ -102,7 +102,7 @@ def on_broker_message(channel, method_frame, _header_frame, body, connection, br
                 process_request(request, broker_client)
 
             except Exception as e:
-                _logger.exception(f"failed to write requested data: {e}")
+                _logger.exception("failed to write requested data")
                 callback = partial(reject_request, channel, method_frame, body, output_file, str(e))
 
             else:
@@ -115,7 +115,7 @@ def on_broker_message(channel, method_frame, _header_frame, body, connection, br
         thread.start()
 
     except Exception as e:
-        _logger.exception(f"failed to write requested data: {e}")
+        _logger.exception("failed to write requested data")
         reject_request(channel, method_frame, body, output_file, str(e))
 
 
@@ -175,9 +175,9 @@ def process_request(request, broker_client):
 #            if logger_data_api is not None:
 #                logger_data_api.removeHandler(file_handler)
 
-    except Exception as e:
+    except Exception:
         audit_failed_write_request(request)
-        _logger.exception(f"failed to process request ({request}): {e}")
+        _logger.exception(f"failed to process request: {request}")
         raise
 
     finally:
@@ -279,8 +279,8 @@ def audit_failed_write_request(write_request):
             pretty_write_request = json_obj_to_str(write_request)
             audit_file.write(f"[{current_time}] {pretty_write_request}")
 
-    except Exception as e:
-        _logger.exception(f"failed to write request {write_request} to file {output_file}: {e}")
+    except Exception:
+        _logger.exception(f"failed to write request {write_request} to file {output_file}")
 
 
 #TODO: this should probably be in detector_writer.py

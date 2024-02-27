@@ -53,8 +53,8 @@ def power_on_detector(detector_name, beamline):
     # stop trigger of the current beamline's detectors
     try:
         event_code_pv.put(255)
-    except Exception as e:
-        _logger.error(f"cannot stop detector trigger {event_code_pv_name} (due to: {e})")
+    except Exception:
+        _logger.exception(f"cannot stop detector trigger {event_code_pv_name}")
         return
 
     # sleep to give epics a chance to process change
@@ -76,8 +76,8 @@ def power_on_detector(detector_name, beamline):
 
     try:
         load_detector_config(detector_name)
-    except Exception as e:
-        _logger.error(f"could not configure detector {detector_name} (due to: {e})")
+    except Exception:
+        _logger.exception(f"could not configure detector {detector_name}")
 
     # start trigger
     event_code_pv.put(254)
@@ -88,8 +88,8 @@ def load_detector_config(detector_name):
 
     try:
         detector_configuration = DetectorConfig(detector_name)
-    except RuntimeError as e:
-        _logger.error(f"cannot configure detector {detector_name} (due to: {e})")
+    except RuntimeError:
+        _logger.exception(f"cannot configure detector {detector_name}")
         return
 
     detector_number = detector_configuration.get_detector_number()
