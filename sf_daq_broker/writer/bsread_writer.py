@@ -137,8 +137,8 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
                         _logger.error(f"check {channel} pulse IDs are not monotonic: {pi} != {epi}")
                         break
 
-    except Exception as e:
-        _logger.error(f"data consistency check failed: {e}")
+    except Exception:
+        _logger.exception("data consistency check failed")
 
     time_delta = time() - start_time
     _logger.info(f"data consistency check took {time_delta} seconds")
