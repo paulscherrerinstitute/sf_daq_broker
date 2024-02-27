@@ -1,11 +1,8 @@
-import logging
 from time import sleep
 
 import epics
 from slsdet import Jungfrau, gainMode
 
-
-_logger = logging.getLogger("broker_writer")
 
 PULSE_ID_SOURCE = "SLAAR11-LTIM01-EVR0:RX-PULSEID"
 

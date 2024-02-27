@@ -1,4 +1,3 @@
-import logging
 import os
 import string
 from datetime import datetime
@@ -11,8 +10,6 @@ from sf_daq_broker.rabbitmq import broker_config
 from sf_daq_broker.utils import get_writer_request, get_beamline, json_save, json_load
 from . import validate
 
-
-_logger = logging.getLogger(__name__)
 
 PEDESTAL_FRAMES = 3000
 #TODO: move to config

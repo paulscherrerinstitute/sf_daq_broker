@@ -15,6 +15,7 @@ from sf_daq_broker.utils import pulse_id_to_timestamp
 _logger = logging.getLogger("broker_writer")
 
 
+
 def write_from_imagebuffer(data_api_request, output_file, _parameters): #TODO: what is parameters for?
     buffer_url = choice(config.IMAGE_API_QUERY_ADDRESS)
     requester = lambda *args: dapi3h5.request(*args, url=buffer_url)
