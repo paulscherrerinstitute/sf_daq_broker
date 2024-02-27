@@ -17,6 +17,7 @@ from . import validate
 
 _logger = logging.getLogger(__name__)
 
+
 conv_detector_settings = {
     detectorSettings.GAIN0: "normal",
     detectorSettings.HIGHGAIN0: "low_noise"

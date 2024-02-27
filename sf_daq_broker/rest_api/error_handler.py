@@ -4,6 +4,7 @@ import bottle
 
 from sf_daq_broker.utils import json_obj_to_str
 
+
 _logger = logging.getLogger(__name__)
 
 

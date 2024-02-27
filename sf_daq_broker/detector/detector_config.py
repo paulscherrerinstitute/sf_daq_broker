@@ -1,7 +1,3 @@
-import logging
-
-
-_logger = logging.getLogger("broker_writer")
 
 BEAMLINE_VLAN = {
     "alvra"       : "10.3.10",

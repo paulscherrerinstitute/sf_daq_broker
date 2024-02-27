@@ -10,6 +10,7 @@ from sf_daq_broker.detector.detector_config import DetectorConfig
 
 _logger = logging.getLogger("broker_writer")
 
+
 BEAMLINE_EVENT_CODE = {
     "alvra"       : "SAR-CVME-TIFALL4-EVG0:SoftEvt-EvtCode-SP",
     "bernina"     : "SAR-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP",
