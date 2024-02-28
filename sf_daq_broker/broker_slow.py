@@ -4,6 +4,7 @@ import socket
 
 import bottle
 
+from sf_daq_broker import config
 from sf_daq_broker.broker_manager_slow import DetectorManager
 from sf_daq_broker.rest_api import register_rest_api
 
@@ -24,8 +25,8 @@ ENDPOINTS_POST = [
 def run():
     parser = argparse.ArgumentParser(description="detector settings server")
 
-    parser.add_argument("--rest_port", default=10003, type=int, help="REST-API port")
-    parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
+    parser.add_argument("--rest_port", default=config.DEFAULT_BROKER_SLOW_REST_PORT, type=int, help="REST-API port")
+    parser.add_argument("--log_level", default=config.DEFAULT_LOG_LEVEL, choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
 
     clargs = parser.parse_args()
 
