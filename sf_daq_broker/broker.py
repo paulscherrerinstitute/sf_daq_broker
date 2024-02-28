@@ -40,7 +40,7 @@ def run():
 
     clargs = parser.parse_args()
 
-    logging.basicConfig(level=clargs.log_level, format="[%(levelname)s] %(message)s")
+    logging.basicConfig(level=clargs.log_level, format=config.LOG_FORMAT)
 
     start_server(clargs.broker_url, clargs.rest_port)
 
