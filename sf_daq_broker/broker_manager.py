@@ -7,7 +7,7 @@ from sf_daq_broker import config
 from sf_daq_broker.detector.utils import get_configured_detectors, get_streamvis_address
 from sf_daq_broker.detector.detector_config import DETECTOR_NAMES
 from sf_daq_broker.rabbitmq import broker_config
-from sf_daq_broker.utils import get_writer_request, get_beamline, json_save, json_load
+from sf_daq_broker.utils import get_writer_request, get_beamline, json_save, json_load, dueto
 from . import validate
 
 
@@ -408,7 +408,7 @@ class BrokerManager:
                 self.broker_client.send(write_request, tag)
             except Exception as e:
                 with open(write_request["run_log_file"], "a") as log_file:
-                    log_file.write(f"Cannot send request to writer (due to: {e})")
+                    log_file.write(f"Cannot send request to writer {dueto(e)}")
                 raise
 
         self.broker_client.open()

@@ -1,6 +1,8 @@
 import os
 from glob import glob
 
+from sf_daq_broker.utils import dueto
+
 
 MAX_PULSEID_DELTA = 60001
 ALLOWED_RATE_MULTIPLICATORS = [1, 2, 4, 8, 10, 20, 40, 50, 100]
@@ -110,7 +112,7 @@ def directory_exists(pd):
     try:
         os.makedirs(pd)
     except Exception as e:
-        raise RuntimeError(f"cannot create directory {pd} (due to: {e})") from e
+        raise RuntimeError(f"cannot create directory {pd} {dueto(e)}") from e
 
 def request_has_integer_pulseids(req):
     helper_request_has_integer_pulseid(req, "start_pulseid")
@@ -120,7 +122,7 @@ def helper_request_has_integer_pulseid(req, key):
     try:
         req[key] = int(req[key])
     except Exception as e:
-        raise RuntimeError(f'bad "{key}" provided in the request parameters (due to: {e})') from e
+        raise RuntimeError(f'bad "{key}" provided in the request parameters {dueto(e)}') from e
 
 
 
