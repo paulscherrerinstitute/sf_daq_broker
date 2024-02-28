@@ -6,20 +6,15 @@ import requests
 broker_address = "http://sf-daq:10002"
 TIMEOUT_DAQ = 10
 
-def run():
 
+def run():
     parser = argparse.ArgumentParser(description="simple daq client example")
 
     parser.add_argument("-p", "--pgroup", help="pgroup, example p12345", default="p18493")
-
     parser.add_argument("-c", "--channels_file", help="TXT file with list channels", default=None)
-
     parser.add_argument("-e", "--epics_file", help="TXT file with list of epics channels to save", default=None)
-
     parser.add_argument("-f", "--file_detectors", help="JSON file with the detector list", default=None)
-
     parser.add_argument("-r", "--rate_multiplicator", type=int, help="rate multiplicator (1(default): 100Hz, 2: 50Hz,)", default=1)
-
     parser.add_argument("-s", "--scan_step_file", help="JSON file with the scan step information", default=None)
 
     parser.add_argument("--start_pulseid", type=int, help="start pulseid", default=None)
@@ -27,19 +22,29 @@ def run():
 
     args = parser.parse_args()
 
-    retrieve_data_from_buffer_files(pgroup=args.pgroup,
-                              channels_file=args.channels_file, epics_file=args.epics_file,
-                              detectors_file=args.file_detectors,
-                              start_pulseid=args.start_pulseid, stop_pulseid=args.stop_pulseid,
-                              rate_multiplicator=args.rate_multiplicator,
-                              scan_step_info_file=args.scan_step_file)
+    retrieve_data_from_buffer_files(
+        pgroup=args.pgroup,
+        channels_file=args.channels_file,
+        epics_file=args.epics_file,
+        detectors_file=args.file_detectors,
+        start_pulseid=args.start_pulseid,
+        stop_pulseid=args.stop_pulseid,
+        rate_multiplicator=args.rate_multiplicator,
+        scan_step_info_file=args.scan_step_file
+    )
 
-def retrieve_data_from_buffer_files(pgroup=None,
-                              channels_file=None, epics_file=None,
-                              detectors_file=None,
-                              start_pulseid=None, stop_pulseid=None,
-                              rate_multiplicator=1,
-                              scan_step_info_file=None):
+
+
+def retrieve_data_from_buffer_files(
+        pgroup=None,
+        channels_file=None,
+        epics_file=None,
+        detectors_file=None,
+        start_pulseid=None,
+        stop_pulseid=None,
+        rate_multiplicator=1,
+        scan_step_info_file=None
+    ):
 
     camera_channels = []
     bsread_channels = []
@@ -82,22 +87,33 @@ def retrieve_data_from_buffer_files(pgroup=None,
             print(f"Cannot read provided scan step info file, may be not json? due to {e}")
             return None
 
+    run_number = retrieve_data_from_buffer(
+        pgroup=pgroup,
+        camera_channels=camera_channels,
+        bsread_channels=bsread_channels,
+        epics_channels=epics_channels,
+        detectors=detectors,
+        start_pulseid=start_pulseid,
+        stop_pulseid=stop_pulseid,
+        rate_multiplicator=rate_multiplicator,
+        scan_step_info=scan_step_info
+    )
 
-    run_number = retrieve_data_from_buffer(pgroup=pgroup,
-                                     camera_channels=camera_channels, bsread_channels=bsread_channels,
-                                     epics_channels=epics_channels,
-                                     detectors=detectors,
-                                     start_pulseid=start_pulseid, stop_pulseid=stop_pulseid,
-                                     rate_multiplicator=rate_multiplicator,
-                                     scan_step_info=scan_step_info)
     return run_number
 
-def retrieve_data_from_buffer(pgroup=None,
-                              camera_channels=None, bsread_channels=None, epics_channels=None,
-                              detectors=None,
-                              start_pulseid=None, stop_pulseid=None,
-                              rate_multiplicator=1,
-                              scan_step_info=None):
+
+
+def retrieve_data_from_buffer(
+        pgroup=None,
+        camera_channels=None,
+        bsread_channels=None,
+        epics_channels=None,
+        detectors=None,
+        start_pulseid=None,
+        stop_pulseid=None,
+        rate_multiplicator=1,
+        scan_step_info=None
+    ):
 
     camera_channels = camera_channels or []
     bsread_channels = bsread_channels or []
@@ -138,30 +154,36 @@ def retrieve_data_from_buffer(pgroup=None,
         raise NameError("Cannot connect to daq") from e
 
     run_number = None
-    responce = r.json()
-    if "status" in responce:
-        if responce["status"] == "ok":
-            message = responce.get("message", None)
-            run_number = responce.get("run_number", None)
+    response = r.json()
+    if "status" in response:
+        if response["status"] == "ok":
+            message = response.get("message", None)
+            run_number = response.get("run_number", None)
             if run_number is not None:
                 run_number = int(run_number)
                 run_number_print = f"{run_number:04}"
             else:
                 run_number_print = None
-            acq_number = responce.get("acquisition_number", None)
-            unq_acq_number = responce.get("unique_acquisition_number", None)
-            files_daq = responce.get("files", [])
+            acq_number = response.get("acquisition_number", None)
+            unq_acq_number = response.get("unique_acquisition_number", None)
+            files_daq = response.get("files", [])
             print(f"success: {message=} {run_number=} {acq_number=} {unq_acq_number=}")
             print(f" these files to expect in raw/{pgroup}/run{run_number_print}/data/ directory : {files_daq}")
         else:
-            message = responce.get("message", None)
+            message = response.get("message", None)
             print(f" Error, reason : {message=}")
-            print(f"    whole responce : {responce=}")
+            print(f"    whole response : {response=}")
     else:
-        print("Bad responce from request")
+        print("Bad response from request")
 
     return run_number
 
+
+
+
+
 if __name__ == "__main__":
     run()
+
+
 

@@ -7,7 +7,6 @@ import h5py
 
 
 def run():
-
     parser = argparse.ArgumentParser(description="check consistency of produced files")
 
     parser.add_argument("-r", "--run_file", help="JSON file from the retrieve process", default=None)
@@ -26,8 +25,9 @@ def run():
         for reason in result["reason"]:
             print(f"    Reason : {reason}")
 
-def check_consistency(run_file=None, rate_multiplicator=0):
 
+
+def check_consistency(run_file=None, rate_multiplicator=0):
     problems = []
 
     if run_file is None:
@@ -64,13 +64,14 @@ def check_consistency(run_file=None, rate_multiplicator=0):
         directory_name = parameters["directory_name"]
         full_directory = f"{full_directory}{directory_name}"
 
-#TODO: make this check possible for different from 100Hz case (not straitforward - start_pulse_id can be not alligned properly with the rate)
-# this is case for 100Hz:
+    #TODO: make this check possible for different from 100Hz case (not straitforward - start_pulse_id can be not alligned properly with the rate)
+    # this is case for 100Hz:
     expected_pulse_id = []
     for p in range(start_pulse_id,stop_pulse_id+1):
         if p%rate_multiplicator == 0:
             expected_pulse_id.append(p)
     expected_number_measurements = len(expected_pulse_id)
+
 
     if "channels_list" in parameters:
         bsread_file = f"{full_directory}/run_{run_number:06}.BSREAD.h5"
@@ -151,6 +152,7 @@ def check_consistency(run_file=None, rate_multiplicator=0):
             except Exception as e:
                 problems.append(f"Can not read from cameras file {cameras_file} may be too early due to {e}")
 
+
     if "detectors" in parameters:
         for detector in parameters["detectors"]:
 
@@ -162,7 +164,7 @@ def check_consistency(run_file=None, rate_multiplicator=0):
                     detector_h5py = h5py.File(detector_file,"r")
                     pulse_id      = detector_h5py[f"/data/{detector}/pulse_id"][:]
                     n_pulse_id = len(pulse_id)
-# in case of converted data, frame_index, is_good_frame and daq_rec may be missing
+                    # in case of converted data, frame_index, is_good_frame and daq_rec may be missing
                     if f"data/{detector}/frame_index" in detector_h5py.keys():
                         frame_index   = detector_h5py[f"data/{detector}/frame_index"][:]
                     else:
@@ -211,6 +213,12 @@ def check_consistency(run_file=None, rate_multiplicator=0):
     else:
         return {"check" : True, "reason" : "all tests passed"}
 
+
+
+
+
 if __name__ == "__main__":
     run()
+
+
 
