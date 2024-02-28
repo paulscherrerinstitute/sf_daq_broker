@@ -7,6 +7,7 @@ import time
 
 import daq_client
 
+
 pulseid = {
   "alvra"       : "SLAAR11-LTIM01-EVR0:RX-PULSEID",
   "bernina"     : "SLAAR21-LTIM01-EVR0:RX-PULSEID",
@@ -15,11 +16,19 @@ pulseid = {
   "furka"       : "SLAAR11-LTIM01-EVR0:RX-PULSEID"
 }
 
+
 def get_beamline():
-    ip2beamlines = {"129.129.242": "alvra", "129.129.243": "bernina", "129.129.244": "cristallina", "129.129.246": "maloja", "129.129.247": "furka"}
+    ip2beamlines = {
+        "129.129.242": "alvra",
+        "129.129.243": "bernina",
+        "129.129.244": "cristallina",
+        "129.129.246": "maloja",
+        "129.129.247": "furka"
+    }
     ip=socket.gethostbyname(socket.gethostname())
     if ip[:11] in ip2beamlines:
         return ip2beamlines[ip[:11]]
+
 
 try:
     import epics
@@ -27,6 +36,7 @@ try:
     PV_pulseid=epics.PV(pulseid[get_beamline()])
 except ImportError:
     epics_available=False
+
 
 def get_current_pulseid():
     if not epics_available:
@@ -37,6 +47,7 @@ def get_current_pulseid():
         p = get_fake_pulseid()
     return p
 
+
 def get_fake_pulseid():
     #2020-05-08 08:29:52.742737 : 11718049010
     # 28.05.2020 - checked compared to "real" pulse-id:  2380 pulses difference
@@ -44,6 +55,8 @@ def get_fake_pulseid():
     now = datetime.datetime.utcnow()
     delta = (now-reference_date).total_seconds()*1000
     return int(delta/10)+11718049010 + 2361
+
+
 
 class BrokerClient:
 
@@ -65,16 +78,21 @@ class BrokerClient:
         if not os.path.isdir(raw_directory):
             raise NameError(f"{raw_directory} doesnt exist or accessible")
 
-    def configure(self,
-                  channels_file=None, epics_file=None,
-                  detectors_file=None, scan_step_info_file=None,
-                  rate_multiplicator=1):
 
-        self.channels_file    = channels_file
-        self.epics_file       = epics_file
-        self.detectors_file   = detectors_file
+    def configure(
+            self,
+            channels_file=None,
+            epics_file=None,
+            detectors_file=None,
+            scan_step_info_file=None,
+            rate_multiplicator=1
+        ):
+
+        self.channels_file       = channels_file
+        self.epics_file          = epics_file
+        self.detectors_file      = detectors_file
         self.scan_step_info_file = scan_step_info_file
-        self.rate_multiplicator = rate_multiplicator
+        self.rate_multiplicator  = rate_multiplicator
 
         try:
             beamline=get_beamline()
@@ -85,8 +103,10 @@ class BrokerClient:
         except Exception:
             pass
 
+
     def start(self):
         self.start_pulseid = get_current_pulseid()
+
 
     def stop(self, stop_pulseid=None):
         if self.start_pulseid is not None:
@@ -105,13 +125,14 @@ class BrokerClient:
         else:
             print("Run was not started to stop it")
 
+
     def status(self):
         if self.start_pulseid is not None:
             return "running"
         return None
 
-    def run(self, number_frames=1000):
 
+    def run(self, number_frames=1000):
         self.start()
 
         stop_pulseid = int(self.start_pulseid + number_frames*self.rate_multiplicator-1)
@@ -140,4 +161,6 @@ class BrokerClient:
         print()
 
         self.stop(stop_pulseid=stop_pulseid)
+
+
 
