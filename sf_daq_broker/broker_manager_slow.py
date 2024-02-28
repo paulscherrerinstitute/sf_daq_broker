@@ -11,7 +11,7 @@ from slsdet.enums import detectorSettings
 
 from sf_daq_broker.detector.utils import get_configured_detectors
 from sf_daq_broker.detector.power_on_detector import BEAMLINE_EVENT_CODE
-from sf_daq_broker.utils import get_beamline, json_save, json_load
+from sf_daq_broker.utils import get_beamline, json_save, json_load, dueto
 from . import validate
 
 
@@ -89,7 +89,7 @@ class DetectorManager:
         try:
             event_code_pv.put(255)
         except Exception as e:
-            raise RuntimeError(f"could not stop detector trigger {event_code_pv_name} (due to: {e})") from e
+            raise RuntimeError(f"could not stop detector trigger {event_code_pv_name} {dueto(e)}") from e
 
         # allow epics to process the change
         sleep(4)
@@ -97,7 +97,7 @@ class DetectorManager:
         try:
             event_code = int(event_code_pv.get())
         except Exception as e:
-            raise RuntimeError(f"got unexpected value from detector trigger {event_code_pv_name}: {event_code_pv.get()} (due to: {e})") from e
+            raise RuntimeError(f"got unexpected value from detector trigger {event_code_pv_name}: {event_code_pv.get()} {dueto(e)}") from e
 
         if event_code != 255:
             raise RuntimeError(f"stopping detector trigger {event_code_pv_name} failed")
@@ -234,7 +234,7 @@ class DetectorManager:
                 json_save(dap_config, dap_parameters_file)
             except Exception as e:
                 shutil.copyfile(f"{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}", dap_parameters_file)
-                raise RuntimeError(f"could not update DAP configuration (due to: {e})") from e
+                raise RuntimeError(f"could not update DAP configuration {dueto(e)}") from e
 
         return changed_parameters
 
