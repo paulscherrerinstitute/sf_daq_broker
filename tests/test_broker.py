@@ -8,13 +8,22 @@ import requests
 from sf_daq_broker import broker
 
 
-GET_ENDPOINTS = [
+ENDPOINTS_GET = [
     "get_allowed_detectors_list",
     "get_running_detectors_list",
     "get_next_run_number",
     "get_last_run_number",
     "get_pvlist"
 ]
+
+
+
+class TestGeneral(unittest.TestCase):
+
+    def test_all_get_endpoints_known(self):
+        endpoints_broker = set(broker.ENDPOINTS_GET)
+        endpoints_tested = set(ENDPOINTS_GET)
+        self.assertEqual(endpoints_broker, endpoints_tested)
 
 
 
@@ -52,13 +61,13 @@ class TestBroker(unittest.TestCase):
 
 
     def test_response_code_get_endpoints(self):
-        for ep in GET_ENDPOINTS:
+        for ep in ENDPOINTS_GET:
             response = requests.get(f"{self.address}/{ep}")
             self.assertEqual(response.status_code, 200)
 
 
     def test_response_status_get_endpoints(self):
-        for ep in GET_ENDPOINTS:
+        for ep in ENDPOINTS_GET:
             response = requests.get(f"{self.address}/{ep}")
             status = response.json()["status"]
             self.assertIn(status, ["ok", "failed"])
