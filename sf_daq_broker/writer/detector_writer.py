@@ -220,7 +220,7 @@ def create_pedestal_file(
 
         nGoodFrames += 1
 
-        image = f_data[n][:]
+        image = f_data[n]
         frameData = np.bitwise_and(image, 0b0011111111111111)
         gainData  = np.bitwise_and(image, 0b1100000000000000) >> 14
 
