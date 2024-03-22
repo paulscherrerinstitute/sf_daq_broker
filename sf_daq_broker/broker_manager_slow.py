@@ -36,6 +36,30 @@ conv_detector_gain_settings_reverse = dict(zip(conv_detector_gain_settings.value
 
 class DetectorManager:
 
+    def get_detector_temperatures(self, request, remote_ip):
+        validate.request_has(request, "detector_name")
+
+        beamline = get_beamline(remote_ip)
+        allowed_detectors_beamline = get_configured_detectors(beamline)
+
+        detector_name = request["detector_name"]
+
+        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+
+        detector_number = int(detector_name[2:4])
+        detector = Jungfrau(detector_number)
+
+        temperatures = {t.name: detector.getTemperature(t) for t in detector.getTemperatureList()}
+        temperatures["TEMPERATURE_THRESHOLDS"] = detector.getThresholdTemperature()
+
+        res = {
+            "status": "ok",
+            "message": f"successfully retrieved temperatures from {detector_name}",
+            "temperatures": temperatures
+        }
+        return res
+
+
     def get_detector_settings(self, request, remote_ip):
         validate.request_has(request, "detector_name")
 
