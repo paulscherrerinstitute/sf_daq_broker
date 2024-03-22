@@ -20,6 +20,10 @@ ENDPOINTS_POST = [
     "set_dap_settings"
 ]
 
+ENDPOINTS_GET = [
+    "get_detector_temperatures"
+]
+
 
 
 def run():
@@ -41,7 +45,7 @@ def start_server(rest_port):
     app = bottle.Bottle()
     manager = DetectorManager()
 
-    register_rest_api(app, manager, endpoints_post=ENDPOINTS_POST)
+    register_rest_api(app, manager, endpoints_post=ENDPOINTS_POST, endpoints_get=ENDPOINTS_GET)
 
     hostname = socket.gethostname()
     _logger.info(f"starting detector settings server REST-API on {hostname}:{rest_port}")
