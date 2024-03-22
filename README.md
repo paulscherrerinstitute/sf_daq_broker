@@ -236,10 +236,10 @@ $ cat acq0010.PVDATA.log
 [sf.cristallina.epics_writer] Requesting file /sf/cristallina/data/p21528/raw/run0001/data/acq0010.PVDATA.h5 for pulse_id range 18940426916 to 18940427116 with 132 channels.
 [sf.cristallina.epics_writer] Request b4396eec-4156-4ad1-b2da-62d903405ace completed in 0.29 seconds.
 [sf.cristallina.epics_writer] Output file analysis:
-	[SARFE10-PBPG050:PHOTON-ENERGY-PER-PULSE-US] Point count 3 (1[2)0)
-	[SARFE10-PBPG050:PHOTON-ENERGY-PER-PULSE-DS] Point count 3 (1[2)0)
-	[SARFE10-OAPU044:MOTOR_X] Point count 1 (1[0)0)
-	...<skipped>...
+    [SARFE10-PBPG050:PHOTON-ENERGY-PER-PULSE-US] Point count 3 (1[2)0)
+    [SARFE10-PBPG050:PHOTON-ENERGY-PER-PULSE-DS] Point count 3 (1[2)0)
+    [SARFE10-OAPU044:MOTOR_X] Point count 1 (1[0)0)
+    ...<skipped>...
     [SAROP31-OKBH154:TX2.RBV] Point count 1 (1[0)0)
 
 $ cat acq0010.JF16T03V01.log 
@@ -254,3 +254,4 @@ Finished. Took 0.3386099338531494 seconds to complete request.
 ```
 
 These logs provide insights such as missing pulseid, incomplete data for certain sources, and details about the consistency of the acquired data.
+
