@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import subprocess
 from datetime import datetime
 from shutil import copyfile
@@ -29,6 +30,9 @@ PEDESTAL_SPECIFIC = {
     "JF18T01V01" : {"number_bad_modules" : 1}
 }
 
+TMPDIR = "/gpfs/photonics/swissfel/daqtmp"
+TMP_SPACE_THRESH = 1e12 # 1TB
+
 
 
 def detector_retrieve(request, output_file_detector):
@@ -54,6 +58,14 @@ def detector_retrieve(request, output_file_detector):
     save_dap_results         = detector_params.get("save_dap_results", False)
     save_ppicker_events_only = detector_params.get("save_ppicker_events_only", False)
 
+    # use SSD tmp storage only if raw files are removed
+    use_tmp = detector_params.get("remove_raw_files", False)
+
+    # get free space in SSD tmp storage, if smaller than threshold do not use it
+    _tmp_space_total, _tmp_space_used, tmp_space_free = shutil.disk_usage(TMPDIR)
+    if tmp_space_free < TMP_SPACE_THRESH:
+        use_tmp = False
+
     pedestal_run = (directory_name == "JF_pedestals")
 
     if save_dap_results and not pedestal_run:
@@ -73,6 +85,10 @@ def detector_retrieve(request, output_file_detector):
         detector_filename = os.path.basename(output_file_detector)
         detector_dir = os.path.dirname(os.path.dirname(output_file_detector))
         raw_file_name = f"{detector_dir}/raw_data/{detector_filename}"
+        if use_tmp:
+            # flatten folder structure so that there are no empty folders after removal
+            flat_raw_file_name = raw_file_name.replace("/", "_")
+            raw_file_name = f"{TMPDIR}/{flat_raw_file_name}"
         raw_dir = os.path.dirname(raw_file_name)
         os.makedirs(raw_dir, exist_ok=True)
     else:
