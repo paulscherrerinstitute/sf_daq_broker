@@ -16,13 +16,14 @@ def register_error_handler(app):
         bottle.response.content_type = "application/json"
         bottle.response.status = 200
 
-        error_text = str(error.exception)
+        exc = error.exception
 
-        _logger.error(error_text)
+        _logger.exception("Internal Server Error (500)", exc_info=exc)
 
         return json_obj_to_str({
             "status": "error",
-            "message": error_text
+            "message": str(exc),
+            "exception": type(exc).__name__
         })
 
 
