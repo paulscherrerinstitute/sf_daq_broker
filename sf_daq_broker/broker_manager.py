@@ -63,7 +63,7 @@ class BrokerManager:
 
         res = {
             "status": "ok",
-            "message": "successfully retrieved list of PVs",
+            "message": f"successfully retrieved list of PVs for {beamline}",
             "pv_list": pv_list
         }
         return res
@@ -92,7 +92,12 @@ class BrokerManager:
         config_file_timestamped = f"{config_file}.{date_now_str}"
         copyfile(config_file, config_file_timestamped)
 
-        return pv_list
+        res = {
+            "status": "ok",
+            "message": f"successfully changed list of PVs for {beamline}",
+            "pv_list": pv_list
+        }
+        return res
 
 
     def get_last_run_number(self, request, remote_ip, increment_run_number=False):
@@ -115,7 +120,13 @@ class BrokerManager:
         validate.pgroup_is_not_closed(daq_directory, path_to_pgroup)
 
         next_run = get_current_run_number(daq_directory, increment_run_number=increment_run_number)
-        return next_run
+
+        res = {
+            "status": "ok",
+            "message": f"successfully retrieved run number for {beamline} {pgroup}",
+            "run_number": next_run
+        }
+        return res
 
 
     def power_on_detector(self, request, remote_ip):
@@ -160,7 +171,7 @@ class BrokerManager:
 
         res = {
             "status": "ok",
-            "message": "successfully retrieved list of running detectors",
+            "message": f"successfully retrieved list of running detectors for {beamline}",
             "detectors": running_detectors
         }
         return res
@@ -518,7 +529,7 @@ class BrokerManager:
 
         res = {
             "status": "ok",
-            "message": "OK",
+            "message": "request(s) to retrieve data sent",
             "run_number": str(run_number),
             "acquisition_number": str(current_acq),
             "unique_acquisition_number": str(unique_acq),
