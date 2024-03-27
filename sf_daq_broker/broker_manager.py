@@ -272,11 +272,7 @@ class BrokerManager:
 
         res = {
             "status": "ok",
-            "message": f"request to take pedestal sent, wait at least {time_to_wait} seconds",
-            #TODO: are these needed?
-            "run_number": str(0),
-            "acquisition_number": str(0),
-            "unique_acquisition_number": str(0)
+            "message": f"request to take pedestal sent, wait at least {time_to_wait} seconds"
         }
         return res
 
