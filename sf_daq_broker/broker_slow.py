@@ -13,14 +13,14 @@ _logger = logging.getLogger(__name__)
 
 
 ENDPOINTS_POST = [
-    "get_detector_settings",
     "set_detector_settings",
     "copy_user_files",
-    "get_dap_settings",
     "set_dap_settings"
 ]
 
 ENDPOINTS_GET = [
+    "get_dap_settings",
+    "get_detector_settings",
     "get_detector_temperatures"
 ]
 
