@@ -21,8 +21,8 @@ def register_error_handler(app):
         _logger.error(error_text)
 
         return json_obj_to_str({
-            "state": "error",
-            "status": error_text
+            "status": "error",
+            "message": error_text
         })
 
 
