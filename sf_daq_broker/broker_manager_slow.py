@@ -80,6 +80,7 @@ class DetectorManager:
 
         res = {
             "status": "ok",
+            "message": f"successfully retrieved detector settings from {detector_name}",
             "exptime": exptime,
             "detector_mode": detector_mode,
             "delay": delay,
@@ -148,7 +149,7 @@ class DetectorManager:
         event_code_pv.put(254)
         event_code_pv.disconnect()
 
-        return "detector settings changed successfully"
+        return f"successfully changed detector settings of {detector_name}",
 
 
     def copy_user_files(self, request, remote_ip):
@@ -215,7 +216,13 @@ class DetectorManager:
         validate.dap_parameters_file_exists(dap_parameters_file)
 
         dap_config = json_load(dap_parameters_file)
-        return dap_config
+
+        res = {
+            "status": "ok",
+            "message": f"successfully retrieved DAP settings for {detector_name}",
+            "dap_settings": dap_config
+        }
+        return res
 
 
     def set_dap_settings(self, request, remote_ip):
@@ -260,7 +267,12 @@ class DetectorManager:
                 shutil.copyfile(f"{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}", dap_parameters_file)
                 raise RuntimeError(f"could not update DAP configuration {dueto(e)}") from e
 
-        return changed_parameters
+        res = {
+            "status": "ok",
+            "message": f"successfully changed DAP settings for {detector_name}",
+            "changed_parameters": changed_parameters
+        }
+        return res
 
 
 
