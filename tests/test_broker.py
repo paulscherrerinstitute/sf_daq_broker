@@ -70,7 +70,7 @@ class TestBroker(unittest.TestCase):
         for ep in ENDPOINTS_GET:
             response = requests.get(f"{self.address}/{ep}")
             status = response.json()["status"]
-            self.assertIn(status, ["ok", "failed"])
+            self.assertIn(status, ["ok", "error"])
 
 
 

@@ -8,7 +8,7 @@ def return_status(func):
             res = func(*args, **kwargs)
         except Exception as e:
             return {
-                "status": "failed",
+                "status": "error",
                 "message": str(e),
                 "exception": type(e).__name__
             }
@@ -58,9 +58,9 @@ if __name__ == "__main__":
         return {"status": "stat", "message": "already a dict", "other": "whatever"}
 
 
-    assert test_str_works(123) == {"status": "ok",     "message": "test works 123"}
-    assert test_str_fails(123) == {"status": "failed", "message": "test fails 123", "exception": "ValueError"}
-    assert test_str_works()    == {"status": "failed", "message": "test_str_works() missing 1 required positional argument: 'x'", "exception": "TypeError"} # pylint: disable=no-value-for-parameter
+    assert test_str_works(123) == {"status": "ok",    "message": "test works 123"}
+    assert test_str_fails(123) == {"status": "error", "message": "test fails 123", "exception": "ValueError"}
+    assert test_str_works()    == {"status": "error", "message": "test_str_works() missing 1 required positional argument: 'x'", "exception": "TypeError"} # pylint: disable=no-value-for-parameter
 
     assert test_dict_nostatus()       == {"status": "ok",   "message": "already a dict"}
     assert test_dict_status()         == {"status": "stat", "message": "already a dict"}
