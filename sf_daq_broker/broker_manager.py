@@ -337,11 +337,7 @@ class BrokerManager:
 
         write_data = "channels_list" in request or "camera_list" in request or "pv_list" in request or "detectors" in request
         if not write_data:
-            res = {
-                "status": "pass",
-                "message": "request did not contain any channels to be written to file"
-            }
-            return res
+            raise RuntimeError("request did not contain any channels to be written to file")
 
         request_detectors = request.get("detectors", {})
         validate.request_detectors_is_dict(request_detectors)
