@@ -270,11 +270,7 @@ class BrokerManager:
 
         time_to_wait = PEDESTAL_FRAMES / 100 * rate_multiplicator + 10
 
-        res = {
-            "status": "ok",
-            "message": f"request to take pedestal sent, wait at least {time_to_wait} seconds"
-        }
-        return res
+        return f"request to take pedestal sent, wait at least {time_to_wait} seconds"
 
 
     def retrieve_from_buffers(self, request, remote_ip):
