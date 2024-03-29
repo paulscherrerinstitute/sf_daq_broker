@@ -5,7 +5,7 @@
 2. [/retrieve_from_buffers](#retrieve_from_buffers)
 3. [/take_pedestal](#take_pedestal)
 4. [/get_allowed_detectors_list](#get_allowed_detectors_list)
-5. [/get_running_detectors_list](#get_running_detectors_list)
+5. [/get_running_detectors](#get_running_detectors)
 6. [/power_on_detector](#power_on_detector)
 7. [/get_next_run_number](#get_next_run_number)
 8. [/get_last_run_number](#get_last_run_number)
@@ -288,7 +288,7 @@ else:
 * Successful responses contain a list of detectors configured for the beamline, their human-readable names, and visualisation addresses.
 * Failed responses might occur if there's an issue with the request or if detectors aren't properly configured.
 
-<a id="get_running_detectors_list"></a>
+<a id="get_running_detectors"></a>
 ## Get Running Detectors List
 
 Retrieve the list of detectors currently recording data to the DetectorBuffer.
@@ -299,7 +299,7 @@ import requests
 import json
 
 # Make the API call to get the list of running detectors
-running_detectors_url = f"{broker_address}/get_running_detectors_list"
+running_detectors_url = f"{broker_address}/get_running_detectors"
 r = requests.get(running_detectors_url)
 
 # Check for a successful response and handle accordingly
