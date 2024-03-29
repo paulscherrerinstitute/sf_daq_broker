@@ -7,7 +7,7 @@
 4. [/get_allowed_detectors](#get_allowed_detectors)
 5. [/get_running_detectors](#get_running_detectors)
 6. [/power_on_detector](#power_on_detector)
-7. [/get_next_run_number](#get_next_run_number)
+7. [/advance_run_number](#advance_run_number)
 8. [/get_current_run_number](#get_current_run_number)
 9. [/get_pvlist](#get_pvlist)
 10. [/set_pvlist](#set_pvlist)
@@ -371,7 +371,7 @@ else:
 
 Ensure the detector specified for powering on is properly configured and connected to necessary hardware elements such as cooling, power, network, and trigger systems before making this call.
 
-<a id="get_next_run_number"></a>
+<a id="advance_run_number"></a>
 ## Get Next Acquisition Run Number
 
 Generate a run number for the next data acquisition process to ensure sequential data organization.
@@ -386,7 +386,7 @@ import json
 pgroup = "p17534"
 
 # Make the API call to get the next run number
-next_run_number_url = f"{broker_address}/get_next_run_number"
+next_run_number_url = f"{broker_address}/advance_run_number"
 next_run_number_request = {'pgroup': pgroup}
 r = requests.get(next_run_number_url, json=next_run_number_request)
 
