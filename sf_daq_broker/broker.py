@@ -14,6 +14,7 @@ _logger = logging.getLogger(__name__)
 
 
 ENDPOINTS_POST = [
+    "advance_run_number",
     "retrieve_from_buffers",
     "take_pedestal",
     "power_on_detector",
@@ -24,7 +25,6 @@ ENDPOINTS_POST = [
 ENDPOINTS_GET = [
     "get_allowed_detectors",
     "get_running_detectors",
-    "advance_run_number",
     "get_current_run_number",
     "get_pvlist"
 ]

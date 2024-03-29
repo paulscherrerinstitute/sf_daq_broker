@@ -11,7 +11,6 @@ from sf_daq_broker import broker
 ENDPOINTS_GET = [
     "get_allowed_detectors",
     "get_running_detectors",
-    "advance_run_number",
     "get_current_run_number",
     "get_pvlist"
 ]
