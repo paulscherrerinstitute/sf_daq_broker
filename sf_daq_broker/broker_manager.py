@@ -119,7 +119,7 @@ class BrokerManager:
 
         validate.pgroup_is_not_closed(daq_directory, path_to_pgroup)
 
-        next_run = get_current_run_number(daq_directory, increment_run_number=increment_run_number)
+        next_run = get_run_number(daq_directory, increment_run_number=increment_run_number)
 
         res = {
             "status": "ok",
@@ -308,9 +308,9 @@ class BrokerManager:
         validate.directory_exists(daq_directory)
 
         if "run_number" not in request:
-            request["run_number"] = get_current_run_number(daq_directory)
+            request["run_number"] = get_run_number(daq_directory)
         else:
-            current_known_run_number = get_current_run_number(daq_directory, increment_run_number=False)
+            current_known_run_number = get_run_number(daq_directory, increment_run_number=False)
             run_number = request.get("run_number")
             validate.allowed_run_number(run_number, current_known_run_number)
 
@@ -361,7 +361,7 @@ class BrokerManager:
         validate.directory_exists(output_data_directory)
 
         current_acq = get_current_step_in_scan(meta_directory)
-        unique_acq = get_current_run_number(daq_directory, file_run="LAST_ARUN")
+        unique_acq = get_run_number(daq_directory, file_run="LAST_ARUN")
 
         request["beamline"] = beamline
         request["acquisition_number"] = current_acq
@@ -545,7 +545,7 @@ def clean_last_character_user_tag(user_tag, replacement_character="_"):
     return user_tag
 
 
-def get_current_run_number(daq_directory=None, file_run="LAST_RUN", increment_run_number=True):
+def get_run_number(daq_directory=None, file_run="LAST_RUN", increment_run_number=True):
     if daq_directory is None:
         return None
 
