@@ -153,7 +153,7 @@ class BrokerManager:
         return "request to power on detector sent, wait a few minutes"
 
 
-    def get_running_detectors_list(self, request, remote_ip):
+    def get_running_detectors(self, request, remote_ip):
         validate.request_is_empty(request)
 
         beamline = get_beamline(remote_ip)
