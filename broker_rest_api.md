@@ -4,7 +4,7 @@
 1. [General remarks](#general_remarks)
 2. [/retrieve_from_buffers](#retrieve_from_buffers)
 3. [/take_pedestal](#take_pedestal)
-4. [/get_allowed_detectors_list](#get_allowed_detectors_list)
+4. [/get_allowed_detectors](#get_allowed_detectors)
 5. [/get_running_detectors](#get_running_detectors)
 6. [/power_on_detector](#power_on_detector)
 7. [/get_next_run_number](#get_next_run_number)
@@ -41,7 +41,7 @@ When making requests to the broker, it's crucial to handle responses appropriate
 import json
 
 # Example API call to retrieve data
-api_call = "/get_allowed_detectors_list"
+api_call = "/get_allowed_detectors"
 r = requests.get(f"{broker_address}{api_call}")
 
 # Check if the request was successful (Status Code 200)
@@ -240,7 +240,7 @@ else:
 
 Ensure detectors specified for the pedestal run belong to the respective beamline and are appropriately configured.
 
-<a id="get_allowed_detectors_list"></a>
+<a id="get_allowed_detectors"></a>
 ## Get Allowed Detectors List
 
 Retrieve the list of detectors configured for the beamline along with their specific details.
@@ -252,7 +252,7 @@ import requests
 import json
 
 # Make the API call to get allowed detectors list
-allowed_detectors_url = f"{broker_address}/get_allowed_detectors_list"
+allowed_detectors_url = f"{broker_address}/get_allowed_detectors"
 r = requests.get(allowed_detectors_url)
 
 # Check for a successful response and handle accordingly

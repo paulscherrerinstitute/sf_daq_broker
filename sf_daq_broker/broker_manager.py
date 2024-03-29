@@ -177,7 +177,7 @@ class BrokerManager:
         return res
 
 
-    def get_allowed_detectors_list(self, request, remote_ip):
+    def get_allowed_detectors(self, request, remote_ip):
         validate.request_is_empty(request)
 
         beamline = get_beamline(remote_ip)
