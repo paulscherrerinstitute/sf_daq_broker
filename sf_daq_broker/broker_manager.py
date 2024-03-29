@@ -100,11 +100,15 @@ class BrokerManager:
         return res
 
 
-    def get_current_run_number(self, request, remote_ip, increment_run_number=False):
-        return self.advance_run_number(request=request, remote_ip=remote_ip, increment_run_number=increment_run_number)
+    def get_current_run_number(self, request, remote_ip):
+        return self._get_run_number(request, remote_ip, False)
 
 
-    def advance_run_number(self, request, remote_ip, increment_run_number=True):
+    def advance_run_number(self, request, remote_ip):
+        return self._get_run_number(request, remote_ip, True)
+
+
+    def _get_run_number(self, request, remote_ip, increment_run_number):
         validate.request_has(request, "pgroup")
 
         beamline = get_beamline(remote_ip)
@@ -119,12 +123,13 @@ class BrokerManager:
 
         validate.pgroup_is_not_closed(daq_directory, path_to_pgroup)
 
-        next_run = get_run_number(daq_directory, increment_run_number=increment_run_number)
+        run_number = get_run_number(daq_directory, increment_run_number=increment_run_number)
+        action = "advanced" if increment_run_number else "retrieved"
 
         res = {
             "status": "ok",
-            "message": f"successfully retrieved run number for {beamline} {pgroup}",
-            "run_number": next_run
+            "message": f"successfully {action} run number for {beamline} {pgroup}",
+            "run_number": run_number
         }
         return res
 
