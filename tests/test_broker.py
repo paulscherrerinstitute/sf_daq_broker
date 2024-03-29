@@ -9,7 +9,7 @@ from sf_daq_broker import broker
 
 
 ENDPOINTS_GET = [
-    "get_allowed_detectors_list",
+    "get_allowed_detectors",
     "get_running_detectors",
     "get_next_run_number",
     "get_last_run_number",
