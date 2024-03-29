@@ -100,7 +100,7 @@ class BrokerManager:
         return res
 
 
-    def get_last_run_number(self, request, remote_ip, increment_run_number=False):
+    def get_current_run_number(self, request, remote_ip, increment_run_number=False):
         return self.get_next_run_number(request=request, remote_ip=remote_ip, increment_run_number=increment_run_number)
 
 

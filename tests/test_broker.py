@@ -12,7 +12,7 @@ ENDPOINTS_GET = [
     "get_allowed_detectors",
     "get_running_detectors",
     "get_next_run_number",
-    "get_last_run_number",
+    "get_current_run_number",
     "get_pvlist"
 ]
 

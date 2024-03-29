@@ -8,7 +8,7 @@
 5. [/get_running_detectors](#get_running_detectors)
 6. [/power_on_detector](#power_on_detector)
 7. [/get_next_run_number](#get_next_run_number)
-8. [/get_last_run_number](#get_last_run_number)
+8. [/get_current_run_number](#get_current_run_number)
 9. [/get_pvlist](#get_pvlist)
 10. [/set_pvlist](#set_pvlist)
 11. [/close_pgroup_writing](#close_pgroup_writing)
@@ -422,7 +422,7 @@ else:
 
 Ensure the call for the next run number is made in a sequential manner to maintain data organization and prevent loss of acquired data due to non-usage of generated run numbers.
 
-<a id="get_last_run_number"></a>
+<a id="get_current_run_number"></a>
 ## Get Last Acquisition Run Number
 
 Retrieve the most recently generated run number for data acquisition in a pgroup.
@@ -437,7 +437,7 @@ import json
 pgroup = "p17534"
 
 # Make the API call to get the last run number
-last_run_number_url = f"{broker_address}/get_last_run_number"
+last_run_number_url = f"{broker_address}/get_current_run_number"
 last_run_number_request = {'pgroup': pgroup}
 r = requests.get(last_run_number_url, json=last_run_number_request)
 
