@@ -155,7 +155,7 @@ class BrokerManager:
         self.broker_client.send(request_power_on, broker_config.TAG_POWER_ON)
         self.broker_client.close()
 
-        return "request to power on detector sent, wait a few minutes"
+        return f"request to power on detector {detector_name} sent, wait a few minutes"
 
 
     def get_running_detectors(self, request, remote_ip):
