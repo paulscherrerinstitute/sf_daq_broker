@@ -82,6 +82,7 @@ def power_on_detector(detector_name, beamline):
 
     # start trigger
     event_code_pv.put(254)
+    _logger.info(f"detector {detector_name} powered on")
 
 
 def load_detector_config(detector_name):
@@ -109,7 +110,7 @@ def load_detector_config(detector_name):
     detector.udp_srcip = detector_configuration.get_detector_upd_ip()
     detector.udp_srcmac = detector_configuration.get_detector_udp_mac()
 
-    detector.txndelay_frame = detector_configuration.get_detector_txndelay()
+    detector.txdelay_frame = detector_configuration.get_detector_txndelay()
     detector.delay = detector_configuration.get_detector_delay()
 
     if detector_number == 2:
