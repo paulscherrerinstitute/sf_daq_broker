@@ -3,9 +3,8 @@ from datetime import datetime
 
 from pika import BlockingConnection, ConnectionParameters
 
+from sf_daq_broker.rabbitmq import broker_config
 from sf_daq_broker.utils import json_str_to_obj
-
-from . import broker_config
 
 
 COLOR_MAPPING = {
