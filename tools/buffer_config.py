@@ -18,6 +18,21 @@ EXTRA_PARAMS = {
 
 
 
+class Choices(tuple):
+    # adapted from https://github.com/python/cpython/issues/53834#issuecomment-1093515812
+
+    def __init__(self, _iterable=None, default=None):
+        # _iterable is already handled by tuple.__new__
+        self.default = default or []
+
+    def __contains__(self, item):
+        return super().__contains__(item) or item == self.default
+
+
+DETECTORS = Choices(sorted(DETECTOR_DAQ.keys()))
+
+
+
 def run():
     dbcfs = "detector buffer config files"
     parser = argparse.ArgumentParser(description=f"create, update or update {dbcfs}")
@@ -25,7 +40,8 @@ def run():
     subparsers = parser.add_subparsers(title="commands", required=True)
 
     parser_detname = argparse.ArgumentParser(add_help=False)
-    parser_detname.add_argument("detector_name", help="Name of a JF detector")
+    parser_detname.add_argument("detectors", nargs="*", choices=DETECTORS, help="name(s) of (a) JF detector(s)")
+    parser_detname.add_argument("--all", action="store_true", help="if no detectors are given, all detectors are used")
 
     commands = ["create", "update", "compare"]
     for cmd in commands:
@@ -35,10 +51,20 @@ def run():
 
     clargs = parser.parse_args()
 
-    try:
-        clargs.func(clargs.detector_name)
-    except Exception as e:
-        raise SystemExit(f"{e} -- skipping {clargs.detector_name}") from e
+    detectors = clargs.detectors
+
+    if clargs.all:
+        if detectors:
+            raise SystemExit("both detectors and --all set")
+        detectors = DETECTORS
+    elif not detectors:
+        raise SystemExit("nothing to do")
+
+    for dn in detectors:
+        try:
+            clargs.func(dn)
+        except Exception as e:
+            print(f"{e} -- skipping {dn}")
 
 
 def cmd_create(detector_name):
