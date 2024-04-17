@@ -37,9 +37,7 @@ class JFCtrl(telnetlib.Telnet):
         for line in raw:
             name, val = line.rsplit(":", 1)
             val = int(val)
-            if " [m" in name:
-                name = name.replace(" [m", " [")
-                val /= 1000
+            name, val = adjust_units(name, val)
             res[name] = val
         return res
 
