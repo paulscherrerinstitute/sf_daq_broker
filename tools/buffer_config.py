@@ -7,6 +7,7 @@ from sf_daq_broker.utils import json_load, json_save
 
 
 BUFFER = "/gpfs/photonics/swissfel/buffer"
+FN_CFG_TEMPL = f"{BUFFER}/config/{{detector_name}}.json"
 
 #TODO: look up gain and pedestal files
 EXTRA_PARAMS = {
@@ -74,14 +75,14 @@ def cmd_create(detector_name):
     res = EXTRA_PARAMS.copy()
     res.update(params)
 
-    fn_cfg = f"{BUFFER}/config/{detector_name}.json"
+    fn_cfg = mk_fn_cfg(detector_name)
     json_save(res, fn_cfg)
 
 
 def cmd_update(detector_name):
     params_code = get_detector_params(detector_name)
 
-    fn_cfg = f"{BUFFER}/config/{detector_name}.json"
+    fn_cfg = mk_fn_cfg(detector_name)
     params_file = load_config_file(fn_cfg)
 
     params_file.update(params_code)
@@ -92,7 +93,7 @@ def cmd_update(detector_name):
 def cmd_compare(detector_name):
     params_code = get_detector_params(detector_name)
 
-    fn_cfg = f"{BUFFER}/config/{detector_name}.json"
+    fn_cfg = mk_fn_cfg(detector_name)
     params_file = load_config_file(fn_cfg)
 
     diff = diff_dicts(params_code, params_file)
@@ -115,6 +116,10 @@ def get_detector_params(detector_name):
         "buffer_folder":    f"{BUFFER}/{detector_name}"
     }
     return params
+
+
+def mk_fn_cfg(detector_name):
+    return FN_CFG_TEMPL.format(detector_name=detector_name)
 
 
 def load_config_file(fn_cfg):
