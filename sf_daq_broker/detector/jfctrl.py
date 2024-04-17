@@ -17,7 +17,7 @@ class JFCtrl(telnetlib.Telnet):
     PROMPT = ":/> "
     BIN_PROMPT = PROMPT.encode()
 
-    ERRADIC_PROMPT = "root:/> "
+    ERRATIC_PROMPT = "root:/> "
 
     ENTER = b"\n"
     NEWLINE = "\r\n"
@@ -57,7 +57,7 @@ class JFCtrl(telnetlib.Telnet):
         if last == self.PROMPT:
             return res
         msg = f'expected prompt "{self.PROMPT}" but got "{last}" instead'
-        if last == self.ERRADIC_PROMPT:
+        if last == self.ERRATIC_PROMPT:
             warnings.warn(msg, RuntimeWarning, stacklevel=2)
             first = res.pop(0)
             assert first == cmd, repr(first)
