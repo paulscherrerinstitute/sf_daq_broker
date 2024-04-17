@@ -1,3 +1,8 @@
+"""
+For a command-line tool for working with buffer config files see also:
+sf_daq_broker/tools/buffer_config.py
+"""
+
 import logging
 import os
 
