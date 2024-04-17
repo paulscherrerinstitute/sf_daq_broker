@@ -1,4 +1,5 @@
 import telnetlib
+import warnings
 
 
 ID_TO_HOST = {
@@ -13,14 +14,16 @@ ID_TO_HOST = {
 
 class JFCtrl(telnetlib.Telnet):
 
-    sock = None
     PROMPT  = b":/> "
     ENTER   = b"\n"
     NEWLINE = "\r\n"
 
+    ERRADIC_PROMPT = b"root:/> "
+
     def __init__(self, ID, *args, **kwargs):
         host = ID_TO_HOST.get(ID)
         if not host:
+            self.sock = None # circumvent a crash in Telnet.close when raising here
             raise ValueError(f"cannot match Jungfrau ID {ID} to host name")
         super().__init__(host, *args, **kwargs)
         self.read_until_prompt()
@@ -42,15 +45,23 @@ class JFCtrl(telnetlib.Telnet):
         self.write(cmd)
         self.write(self.ENTER)
         res = self.read_until_prompt()
-        return self.parse_result(res)
+        return self.parse_result(res, cmd)
 
     def read_until_prompt(self):
         return self.read_until(self.PROMPT)
 
-    def parse_result(self, res):
+    def parse_result(self, res, cmd):
         res = res.decode().split(self.NEWLINE)
-        assert res[-1] == self.PROMPT.decode(), res[-1]
-        return res[:-1]
+        last = res.pop()
+        if last == self.PROMPT.decode():
+            return res
+        msg = f'expected prompt "{self.PROMPT.decode()}" but got "{last}" instead'
+        if last == self.ERRADIC_PROMPT.decode():
+            warnings.warn(msg, RuntimeWarning, stacklevel=2)
+            first = res.pop(0)
+            assert first == cmd.decode(), repr(first)
+            return res
+        raise ValueError(msg)
 
 
 
