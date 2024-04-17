@@ -14,11 +14,13 @@ ID_TO_HOST = {
 
 class JFCtrl(telnetlib.Telnet):
 
-    PROMPT  = b":/> "
-    ENTER   = b"\n"
-    NEWLINE = "\r\n"
+    PROMPT = ":/> "
+    BIN_PROMPT = PROMPT.encode()
 
-    ERRADIC_PROMPT = b"root:/> "
+    ERRADIC_PROMPT = "root:/> "
+
+    ENTER = b"\n"
+    NEWLINE = "\r\n"
 
     def __init__(self, ID, *args, **kwargs):
         host = ID_TO_HOST.get(ID)
@@ -29,7 +31,8 @@ class JFCtrl(telnetlib.Telnet):
         self.read_until_prompt()
 
     def get_monitor(self):
-        raw = self.execute("power_control_user/monitor")
+        cmd = "power_control_user/monitor"
+        raw = self.execute(cmd)
         res = {}
         for line in raw:
             name, val = line.rsplit(":", 1)
@@ -41,25 +44,25 @@ class JFCtrl(telnetlib.Telnet):
         return res
 
     def execute(self, cmd):
-        cmd = cmd.encode()
-        self.write(cmd)
+        bin_cmd = cmd.encode()
+        self.write(bin_cmd)
         self.write(self.ENTER)
-        res = self.read_until_prompt()
+        res = self.read_until_prompt().decode()
         return self.parse_result(res, cmd)
 
     def read_until_prompt(self):
-        return self.read_until(self.PROMPT)
+        return self.read_until(self.BIN_PROMPT)
 
     def parse_result(self, res, cmd):
-        res = res.decode().split(self.NEWLINE)
+        res = res.split(self.NEWLINE)
         last = res.pop()
-        if last == self.PROMPT.decode():
+        if last == self.PROMPT:
             return res
-        msg = f'expected prompt "{self.PROMPT.decode()}" but got "{last}" instead'
-        if last == self.ERRADIC_PROMPT.decode():
+        msg = f'expected prompt "{self.PROMPT}" but got "{last}" instead'
+        if last == self.ERRADIC_PROMPT:
             warnings.warn(msg, RuntimeWarning, stacklevel=2)
             first = res.pop(0)
-            assert first == cmd.decode(), repr(first)
+            assert first == cmd, repr(first)
             return res
         raise ValueError(msg)
 
