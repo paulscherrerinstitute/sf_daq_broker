@@ -36,7 +36,7 @@ DETECTORS = Choices(sorted(DETECTOR_DAQ.keys()))
 
 def run():
     dbcfs = "detector buffer config files"
-    parser = argparse.ArgumentParser(description=f"create, update or update {dbcfs}")
+    parser = argparse.ArgumentParser(description=f"create, update or compare {dbcfs}")
 
     subparsers = parser.add_subparsers(title="commands", required=True)
 
@@ -56,7 +56,7 @@ def run():
 
     if clargs.all:
         if detectors:
-            raise SystemExit("both detectors and --all set")
+            raise SystemExit("ambiguous arguments: both detectors and --all set")
         detectors = DETECTORS
     elif not detectors:
         raise SystemExit("nothing to do")
