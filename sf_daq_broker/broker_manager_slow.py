@@ -239,12 +239,12 @@ class DetectorManager:
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
         validate.dap_parameters_file_exists(dap_parameters_file)
 
-        dap_config = json_load(dap_parameters_file)
+        parameters = json_load(dap_parameters_file)
 
         res = {
             "status": "ok",
             "message": f"successfully retrieved DAP settings for {detector_name}",
-            "dap_settings": dap_config
+            "parameters": parameters
         }
         return res
 
