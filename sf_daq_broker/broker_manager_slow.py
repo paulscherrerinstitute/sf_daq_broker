@@ -9,6 +9,7 @@ import epics
 from slsdet import Jungfrau, gainMode
 from slsdet.enums import detectorSettings
 
+from sf_daq_broker.detector.jfctrl import JFCtrl
 from sf_daq_broker.detector.utils import get_configured_detectors
 from sf_daq_broker.detector.power_on_detector import BEAMLINE_EVENT_CODE
 from sf_daq_broker.utils import get_beamline, json_save, json_load, dueto
@@ -35,6 +36,29 @@ conv_detector_gain_settings_reverse = dict(zip(conv_detector_gain_settings.value
 
 
 class DetectorManager:
+
+    def get_jfctrl_monitor(self, request, remote_ip):
+        validate.request_has(request, "detector_name")
+
+        beamline = get_beamline(remote_ip)
+        allowed_detectors_beamline = get_configured_detectors(beamline)
+
+        detector_name = request["detector_name"]
+
+        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+
+        detector_number = int(detector_name[2:4])
+        jfctrl = JFCtrl(detector_number)
+
+        parameters = jfctrl.get_monitor()
+
+        res = {
+            "status": "ok",
+            "message": f"successfully retrieved JFCtrl monitor parameters from {detector_name}",
+            "parameters": parameters
+        }
+        return res
+
 
     def get_detector_temperatures(self, request, remote_ip):
         validate.request_has(request, "detector_name")
