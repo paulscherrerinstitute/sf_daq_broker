@@ -132,10 +132,22 @@ class DetectorManager:
 
         parameters = request["parameters"]
 
-        exptime       = parameters.get("exptime", None)
-        detector_mode = parameters.get("detector_mode", None)
-        delay         = parameters.get("delay", None)
-        gain_mode     = parameters.get("gain_mode", None)
+        delay         = parameters.get("delay")
+        detector_mode = parameters.get("detector_mode")
+        exptime       = parameters.get("exptime")
+        gain_mode     = parameters.get("gain_mode")
+
+        gainmode = conv_detector_gain_settings_reverse.get(gain_mode)
+        settings = conv_detector_settings_reverse.get(detector_mode)
+
+        new_parameters = {
+            "delay": delay,
+            "exptime": exptime,
+            "gainmode": gainmode,
+            "settings": settings
+        }
+
+        new_parameters = {k: v for k, v in new_parameters.items() if v is not None}
 
         event_code_pv_name = BEAMLINE_EVENT_CODE[beamline]
         event_code_pv = epics.PV(event_code_pv_name)
@@ -158,24 +170,13 @@ class DetectorManager:
             raise RuntimeError(f"stopping detector trigger {event_code_pv_name} failed")
 
         changed_parameters = {}
-
-        if exptime is not None:
-            detector.exptime = exptime
-            _logger.info(f"setting exptime to {exptime}")
-
-        if detector_mode is not None:
-            if detector_mode in conv_detector_settings_reverse:
-                detector.settings = new_settings = conv_detector_settings_reverse[detector_mode]
-                _logger.info(f"setting detector settings to {new_settings} ({detector_mode})")
-
-        if delay is not None:
-            detector.delay = delay
-            _logger.info(f"setting delay to {delay}")
-
-        if gain_mode is not None:
-            if gain_mode in conv_detector_gain_settings_reverse:
-                detector.gainmode = new_settings = conv_detector_gain_settings_reverse[gain_mode]
-                _logger.info(f"setting detector gain settings to {new_settings} ({gain_mode})")
+        for name, new_value in new_parameters.items():
+            old_value = getattr(detector, name)
+            if old_value == new_value:
+                continue
+            changed_parameters[name] = (old_value, new_value)
+            setattr(detector, name, new_value)
+            _logger.info(f'changed parameter "{name}" from {old_value} to {new_value}')
 
         # start triggering
         event_code_pv.put(254)
