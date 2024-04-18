@@ -157,20 +157,20 @@ class DetectorManager:
         if event_code != 255:
             raise RuntimeError(f"stopping detector trigger {event_code_pv_name} failed")
 
-        if exptime:
+        if exptime is not None:
             detector.exptime = exptime
             _logger.info(f"setting exptime to {exptime}")
 
-        if detector_mode:
+        if detector_mode is not None:
             if detector_mode in conv_detector_settings_reverse:
                 detector.settings = new_settings = conv_detector_settings_reverse[detector_mode]
                 _logger.info(f"setting detector settings to {new_settings} ({detector_mode})")
 
-        if delay:
+        if delay is not None:
             detector.delay = delay
             _logger.info(f"setting delay to {delay}")
 
-        if gain_mode:
+        if gain_mode is not None:
             if gain_mode in conv_detector_gain_settings_reverse:
                 detector.gainmode = new_settings = conv_detector_gain_settings_reverse[gain_mode]
                 _logger.info(f"setting detector gain settings to {new_settings} ({gain_mode})")
