@@ -173,7 +173,7 @@ class DetectorManager:
         event_code_pv.put(254)
         event_code_pv.disconnect()
 
-        return f"successfully changed detector settings of {detector_name}",
+        return f"successfully changed detector settings of {detector_name}"
 
 
     def copy_user_files(self, request, remote_ip):
