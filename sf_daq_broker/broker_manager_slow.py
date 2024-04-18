@@ -256,7 +256,7 @@ class DetectorManager:
 
 
     def set_dap_settings(self, request, remote_ip):
-        validate.request_has(request, "detector_name")
+        validate.request_has(request, "detector_name", "parameters")
 
         beamline = get_beamline(remote_ip)
         allowed_detectors_beamline = get_configured_detectors(beamline)
@@ -268,7 +268,7 @@ class DetectorManager:
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
         validate.dap_parameters_file_exists(dap_parameters_file)
 
-        new_parameters = request.get("parameters", {})
+        new_parameters = request["parameters"]
 
         dap_config = json_load(dap_parameters_file)
 
