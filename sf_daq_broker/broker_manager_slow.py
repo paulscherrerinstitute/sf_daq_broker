@@ -280,18 +280,15 @@ class DetectorManager:
 
         dap_config = json_load(dap_parameters_file)
 
-        changed = False
         changed_parameters = {}
-
         for name, new_value in new_parameters.items():
             old_value = dap_config.get(name, None)
             if old_value == new_value:
                 continue
             changed_parameters[name] = (old_value, new_value)
             dap_config[name] = new_value
-            changed = True
 
-        if changed:
+        if changed_parameters:
             date_now = datetime.now()
             date_now_str = date_now.strftime("%d-%b-%Y_%H:%M:%S")
             backup_directory = "/gpfs/photonics/swissfel/buffer/dap/config/backup"
