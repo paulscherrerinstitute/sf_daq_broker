@@ -282,12 +282,13 @@ class DetectorManager:
         changed = False
         changed_parameters = {}
 
-        for k in new_parameters:
-            if k not in dap_config or new_parameters[k] != dap_config[k]:
-                old_value = dap_config.get(k, None)
-                changed_parameters[k] = [old_value, new_parameters[k]]
-                dap_config[k] = new_parameters[k]
-                changed = True
+        for name, new_value in new_parameters.items():
+            old_value = dap_config.get(name, None)
+            if old_value == new_value:
+                continue
+            changed_parameters[name] = (old_value, new_value)
+            dap_config[name] = new_value
+            changed = True
 
         if changed:
             date_now = datetime.now()
