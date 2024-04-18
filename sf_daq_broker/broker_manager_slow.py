@@ -118,7 +118,7 @@ class DetectorManager:
 
 
     def set_detector_settings(self, request, remote_ip):
-        validate.request_has(request, "detector_name")
+        validate.request_has(request, "detector_name", "parameters")
 
         beamline = get_beamline(remote_ip)
         allowed_detectors_beamline = get_configured_detectors(beamline)
@@ -130,10 +130,12 @@ class DetectorManager:
         detector_number = int(detector_name[2:4])
         detector = Jungfrau(detector_number)
 
-        exptime       = request.get("exptime", None)
-        detector_mode = request.get("detector_mode", None)
-        delay         = request.get("delay", None)
-        gain_mode     = request.get("gain_mode", None)
+        parameters = request["parameters"]
+
+        exptime       = parameters.get("exptime", None)
+        detector_mode = parameters.get("detector_mode", None)
+        delay         = parameters.get("delay", None)
+        gain_mode     = parameters.get("gain_mode", None)
 
         event_code_pv_name = BEAMLINE_EVENT_CODE[beamline]
         event_code_pv = epics.PV(event_code_pv_name)
