@@ -100,15 +100,19 @@ class DetectorManager:
         exptime = detector.exptime
         detector_mode = conv_detector_settings.get(detector.settings, "unknown")
         delay = detector.delay
-        gain_mode = conv_detector_gain_settings.get(detector.gainmode, "Error")
+        gain_mode = conv_detector_gain_settings.get(detector.gainmode, "unknown")
 
-        res = {
-            "status": "ok",
-            "message": f"successfully retrieved detector settings from {detector_name}",
+        parameters = {
             "exptime": exptime,
             "detector_mode": detector_mode,
             "delay": delay,
             "gain_mode": gain_mode
+        }
+
+        res = {
+            "status": "ok",
+            "message": f"successfully retrieved detector settings from {detector_name}",
+            "parameters": parameters
         }
         return res
 
