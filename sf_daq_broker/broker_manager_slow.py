@@ -157,6 +157,8 @@ class DetectorManager:
         if event_code != 255:
             raise RuntimeError(f"stopping detector trigger {event_code_pv_name} failed")
 
+        changed_parameters = {}
+
         if exptime is not None:
             detector.exptime = exptime
             _logger.info(f"setting exptime to {exptime}")
@@ -179,7 +181,12 @@ class DetectorManager:
         event_code_pv.put(254)
         event_code_pv.disconnect()
 
-        return f"successfully changed detector settings of {detector_name}"
+        res = {
+            "status": "ok",
+            "message": f"successfully changed detector settings of {detector_name}",
+            "changed_parameters": changed_parameters
+        }
+        return res
 
 
     def copy_user_files(self, request, remote_ip):
