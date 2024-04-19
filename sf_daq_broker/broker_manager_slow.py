@@ -243,6 +243,7 @@ class DetectorManager:
             "status": "ok",
             "message": 'copying user file(s) finished, check "error_files"',
             "error_files": error_files,
+            "error_messages": error_messages,
             "destination_file_path": destination_file_path
         }
         return res
