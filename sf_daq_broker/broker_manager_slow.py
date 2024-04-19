@@ -213,22 +213,22 @@ class DetectorManager:
         target_directory = f"{full_path}/aux"
         validate.directory_exists(target_directory)
 
-        group_to_copy = os.stat(target_directory).st_gid
+        target_group = os.stat(target_directory).st_gid
         files_to_copy = request.get("files", [])
         error_files = []
         error_messages = []
-        destination_file_path = []
+        destination_file_paths = []
 
         for file_to_copy in files_to_copy:
             if not os.path.exists(file_to_copy):
                 error_files.append(file_to_copy)
-                error_messages.append(f"file {file_to_copy} does not exist")
+                error_messages.append(f'file "{file_to_copy}" does not exist')
                 continue
 
-            group_original_file = os.stat(file_to_copy).st_gid
-            if group_to_copy != group_original_file:
+            source_group = os.stat(file_to_copy).st_gid
+            if source_group != target_group:
                 error_files.append(file_to_copy)
-                error_messages.append(f"group mismatch: {group_to_copy} vs. {group_original_file}")
+                error_messages.append(f'group ID mismatch for file "{file_to_copy}": source {source_group} vs. target {target_group}')
                 continue
 
             try:
@@ -237,14 +237,14 @@ class DetectorManager:
                 error_files.append(file_to_copy)
                 error_messages.append(str(e))
             else:
-                destination_file_path.append(dest)
+                destination_file_paths.append(dest)
 
         res = {
             "status": "ok",
-            "message": 'copying user file(s) finished, check "error_files"',
+            "message": 'copying user file(s) finished, check "error_files" and "error_messages"',
             "error_files": error_files,
             "error_messages": error_messages,
-            "destination_file_path": destination_file_path
+            "destination_file_paths": destination_file_paths
         }
         return res
 
