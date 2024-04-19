@@ -212,39 +212,36 @@ class DetectorManager:
         full_path = list_data_directories_run[0]
         target_directory = f"{full_path}/aux"
         validate.directory_exists(target_directory)
-
         target_group = os.stat(target_directory).st_gid
+
         files_to_copy = request.get("files", [])
-        error_files = []
-        error_messages = []
-        destination_file_paths = []
+        files_to_copy = sorted(set(files_to_copy))
+
+        error_files = {}
+        destination_files = {}
 
         for file_to_copy in files_to_copy:
             if not os.path.exists(file_to_copy):
-                error_files.append(file_to_copy)
-                error_messages.append(f'file "{file_to_copy}" does not exist')
+                error_files[file_to_copy] = f'file "{file_to_copy}" does not exist'
                 continue
 
             source_group = os.stat(file_to_copy).st_gid
             if source_group != target_group:
-                error_files.append(file_to_copy)
-                error_messages.append(f'group ID mismatch for file "{file_to_copy}": source {source_group} vs. target {target_group}')
+                error_files[file_to_copy] = f'group ID mismatch for file "{file_to_copy}": source {source_group} vs. target {target_group}'
                 continue
 
             try:
                 dest = shutil.copy2(file_to_copy, target_directory)
             except Exception as e:
-                error_files.append(file_to_copy)
-                error_messages.append(str(e))
+                error_files[file_to_copy] = str(e)
             else:
-                destination_file_paths.append(dest)
+                destination_files[file_to_copy] = dest
 
         res = {
             "status": "ok",
             "message": 'copying user file(s) finished, check "error_files" and "error_messages"',
             "error_files": error_files,
-            "error_messages": error_messages,
-            "destination_file_paths": destination_file_paths
+            "destination_files": destination_files
         }
         return res
 
