@@ -20,7 +20,7 @@ except ImportError:
 # `sys.modules["json"] = ujson`
 
 
-def json_save(what, filename, *args, mode="x", indent=4, sort_keys=True, **kwargs):
+def json_save(what, filename, *args, mode="w", indent=4, sort_keys=True, **kwargs):
     with open(filename, mode=mode) as f:
         json.dump(what, f, *args, indent=indent, sort_keys=sort_keys, **kwargs)
 

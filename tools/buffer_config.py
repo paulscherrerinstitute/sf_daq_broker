@@ -76,7 +76,7 @@ def cmd_create(detector_name):
     res.update(params)
 
     fn_cfg = mk_fn_cfg(detector_name)
-    json_save(res, fn_cfg)
+    json_save(res, fn_cfg, mode="x")
 
 
 def cmd_update(detector_name):
@@ -87,7 +87,7 @@ def cmd_update(detector_name):
 
     params_file.update(params_code)
 
-    json_save(params_file, fn_cfg, mode="w")
+    json_save(params_file, fn_cfg)
 
 
 def cmd_compare(detector_name):
