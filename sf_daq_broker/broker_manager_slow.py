@@ -237,9 +237,16 @@ class DetectorManager:
             else:
                 destination_files[file_to_copy] = dest
 
+        if error_files:
+            status = "error"
+            message = 'copying user file(s) finished with errors, check "error_files"'
+        else:
+            status = "ok"
+            message = "copying user file(s) finished successfully"
+
         res = {
-            "status": "ok",
-            "message": 'copying user file(s) finished, check "error_files" and "error_messages"',
+            "status": status,
+            "message": message,
             "error_files": error_files,
             "destination_files": destination_files
         }
