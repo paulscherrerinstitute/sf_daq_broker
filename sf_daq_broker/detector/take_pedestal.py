@@ -12,15 +12,14 @@ PULSE_ID_SOURCE = "SLAAR11-LTIM01-EVR0:RX-PULSEID"
 
 
 
-def take_pedestal(detectors_name, rate=1):
+def take_pedestal(detectors_name, rate=1, pedestalmode=False):
     if not detectors_name:
         return None, None
 
     detectors_number = [int(detector_name[2:4]) for detector_name in detectors_name]
     detectors = [Jungfrau(detector_number) for detector_number in detectors_number]
 
-    #TODO: add a proper switch for this
-    if detectors == ["JF01T03V01"]:
+    if pedestalmode:
         mode = "via pedestalmode"
         switch_gains = switch_gains_via_pedestalmode
     else:

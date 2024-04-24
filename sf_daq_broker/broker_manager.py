@@ -218,6 +218,7 @@ class BrokerManager:
         allowed_detectors_beamline = get_configured_detectors(beamline)
 
         rate_multiplicator = request.get("rate_multiplicator", 1)
+        pedestalmode = request.get("pedestalmode", False)
 
         detectors = list(request["detectors"])
         validate.detectors(detectors)
@@ -253,6 +254,7 @@ class BrokerManager:
         pedestal_request = {
             "detectors": detectors,
             "rate_multiplicator": rate_multiplicator,
+            "pedestalmode": pedestalmode,
             "writer_type": broker_config.TAG_PEDESTAL,
             "channels": None,
             "start_pulse_id": 0,

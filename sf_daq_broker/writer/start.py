@@ -287,7 +287,8 @@ def audit_failed_write_request(write_request):
 def detector_pedestal_retrieve(broker_client, request):
     detectors = request.get("detectors", [])
     rate_multiplicator = request.get("rate_multiplicator", 1)
-    det_start_pulse_id, det_stop_pulse_id = take_pedestal(detectors, rate=rate_multiplicator)
+    pedestalmode = request.get("pedestalmode", False)
+    det_start_pulse_id, det_stop_pulse_id = take_pedestal(detectors, rate=rate_multiplicator, pedestalmode=pedestalmode)
 
     # overwrite start/stop pulse IDs in run_info json file
     run_file_json = request.get("run_file_json", None)
