@@ -1,7 +1,11 @@
+import logging
 from time import sleep
 
 import epics
 from slsdet import Jungfrau, gainMode, pedestalParameters
+
+
+_logger = logging.getLogger("broker_writer")
 
 
 PULSE_ID_SOURCE = "SLAAR11-LTIM01-EVR0:RX-PULSEID"
@@ -17,9 +21,13 @@ def take_pedestal(detectors_name, rate=1):
 
     #TODO: add a proper switch for this
     if detectors == ["JF01T03V01"]:
+        mode = "via pedestalmode"
         switch_gains = switch_gains_via_pedestalmode
     else:
+        mode = "manually"
         switch_gains = switch_gains_manually
+
+    _logger.info(f"take_pedestal: switch gains {mode} for {detectors_name}")
 
     start_pulse_id, stop_pulse_id = switch_gains(detectors, rate)
     det_start_pulse_id, det_stop_pulse_id = align_pids(start_pulse_id, stop_pulse_id, rate)
