@@ -15,6 +15,12 @@ def take_pedestal(detectors_name, rate=1):
     detectors_number = [int(detector_name[2:4]) for detector_name in detectors_name]
     detectors = [Jungfrau(detector_number) for detector_number in detectors_number]
 
+    start_pulse_id, stop_pulse_id = switch_gains(detectors, rate)
+    det_start_pulse_id, det_stop_pulse_id = align_pids(start_pulse_id, stop_pulse_id, rate)
+    return det_start_pulse_id, det_stop_pulse_id
+
+
+def switch_gains(detectors, rate):
     pulse_id_pv = epics.PV(PULSE_ID_SOURCE)
 
     # switch to G0
@@ -40,7 +46,7 @@ def take_pedestal(detectors_name, rate=1):
         detector.gainmode = gainMode.FORCE_SWITCH_G2
 
     # collect in G2
-    sleep(10*rate)
+    sleep(10 * rate)
 
     stop_pulse_id = int(pulse_id_pv.get())
 
@@ -50,6 +56,10 @@ def take_pedestal(detectors_name, rate=1):
 
     sleep(1)
 
+    return start_pulse_id, stop_pulse_id
+
+
+def align_pids(start_pulse_id, stop_pulse_id, rate):
     det_start_pulse_id = 0
     det_stop_pulse_id = stop_pulse_id
     for p in range(start_pulse_id, stop_pulse_id+1):
