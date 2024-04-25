@@ -79,20 +79,36 @@ def switch_gains_via_pedestalmode(detectors, rate):
     pp.frames = 50
     pp.loops = 200
 
-    start_pulse_id = int(pulse_id_pv.get())
+    # put detectors in idle mode
+    for detector in detectors:
+        detector.stopDetector()
 
     # turn on pedestal mode
     for detector in detectors:
         detector.pedestalmode = pp
+
+    start_pulse_id = int(pulse_id_pv.get())
+
+    # start detectors again
+    for detector in detectors:
+        detector.startDetector()
 
     ngains = 2 # g1 and g2
     sleep(ngains * pp.frames * pp.loops * rate)
 
     stop_pulse_id = int(pulse_id_pv.get())
 
+    # put detectors in idle mode
+    for detector in detectors:
+        detector.stopDetector()
+
     # turn off pedestal mode
     for detector in detectors:
         detector.pedestalmode = 0
+
+    # start detectors again
+    for detector in detectors:
+        detector.startDetector()
 
     sleep(1)
 
