@@ -330,7 +330,9 @@ class DetectorManager:
         """
         validate.request_has(request, "det")
 
-        request["detector_name"] = request.pop("det")
+        request["detector_name"] = detector = request.pop("det")
+
+        writing = get_writing_state(detector)
 
         res1 = self.get_detector_temperatures(request, remote_ip)
 
@@ -346,9 +348,23 @@ class DetectorManager:
             "status": "ok",
             "message": f"successfully retrieved JFCtrl monitor parameters and temperatures from {detector_name}",
             "parameters": parameters,
+            "writing": writing,
             "temperatures": temperatures
         }
         return res
+
+
+
+def get_writing_state(detector):
+    detector_buffer_file = f"/gpfs/photonics/swissfel/buffer/{detector}/M00/LATEST"
+    if not os.path.exists(detector_buffer_file):
+        return False
+
+    time_file = datetime.fromtimestamp(os.path.getmtime(detector_buffer_file))
+    time_now = datetime.now()
+    delta_time = time_now - time_file
+    writing = (delta_time.total_seconds() < 30)
+    return writing
 
 
 
