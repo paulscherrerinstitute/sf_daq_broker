@@ -324,4 +324,31 @@ class DetectorManager:
         return res
 
 
+    def get_jfstats(self, request, remote_ip):
+        """
+        This is a special endpoint with shorter naming to ease parsing this from an epics IOC
+        """
+        validate.request_has(request, "det")
+
+        request["detector_name"] = request.pop("det")
+
+        res1 = self.get_detector_temperatures(request, remote_ip)
+
+        try:
+            res2 = self.get_jfctrl_monitor(request, remote_ip)
+        except ValueError:
+            return res1
+
+        temperatures = res1["temperatures"]
+        parameters   = res2["parameters"]
+
+        res = {
+            "status": "ok",
+            "message": f"successfully retrieved JFCtrl monitor parameters and temperatures from {detector_name}",
+            "parameters": parameters,
+            "temperatures": temperatures
+        }
+        return res
+
+
 
