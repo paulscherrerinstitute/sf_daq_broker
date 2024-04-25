@@ -145,10 +145,10 @@ class BrokerManager:
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
         request_power_on = {
-            "detector_name": detector_name,
             "beamline": beamline,
-            "writer_type": broker_config.TAG_POWER_ON,
-            "channels": None
+            "channels": None,
+            "detector_name": detector_name,
+            "writer_type": broker_config.TAG_POWER_ON
         }
 
         self.broker_client.open()
@@ -252,23 +252,23 @@ class BrokerManager:
         json_save(request, run_file_json)
 
         pedestal_request = {
-            "detectors": detectors,
-            "rate_multiplicator": rate_multiplicator,
-            "pedestalmode": pedestalmode,
-            "writer_type": broker_config.TAG_PEDESTAL,
             "channels": None,
+            "detectors": detectors,
+            "directory_name": directory_name,
+            "metadata": None,
+            "output_file": None,
+            "output_file_prefix": f"{full_path}/{pedestal_name}",
+            "path_to_pgroup": path_to_pgroup,
+            "pedestalmode": pedestalmode,
+            "rate_multiplicator": rate_multiplicator,
+            "request_time": str(request_time),
+            "run_file_json": run_file_json,
+            "run_info_directory": run_info_directory,
+            "run_log_file": f"{run_info_directory}/{pedestal_name}.log",
             "start_pulse_id": 0,
             "stop_pulse_id": 100,
-            "output_file": None,
-            "run_log_file": f"{run_info_directory}/{pedestal_name}.log",
-            "metadata": None,
             "timestamp": None,
-            "run_file_json": run_file_json,
-            "path_to_pgroup": path_to_pgroup,
-            "run_info_directory": run_info_directory,
-            "output_file_prefix": f"{full_path}/{pedestal_name}",
-            "directory_name": directory_name,
-            "request_time": str(request_time)
+            "writer_type": broker_config.TAG_PEDESTAL
         }
 
         self.broker_client.open()
@@ -372,17 +372,17 @@ class BrokerManager:
 
         request["beamline"] = beamline
         request["acquisition_number"] = current_acq
-        request["request_time"] = str(datetime.now())
         request["unique_acquisition_run_number"] = unique_acq
+        request["request_time"] = str(datetime.now())
 
         run_file_json = f"{meta_directory}/acq{current_acq:04}.json"
         json_save(request, run_file_json)
 
         metadata = {
-            "general/user": str(pgroup[1:6]),
-            "general/process": __name__,
             "general/created": str(datetime.now()),
-            "general/instrument": beamline
+            "general/instrument": beamline,
+            "general/process": __name__,
+            "general/user": str(pgroup[1:6])
         }
 
         output_files_list = []
@@ -451,12 +451,12 @@ class BrokerManager:
             request_detector["det_start_pulse_id"] = det_start_pulse_id
             request_detector["det_stop_pulse_id"]  = det_stop_pulse_id
 
-            request_detector["path_to_pgroup"]     = path_to_pgroup
             request_detector["rate_multiplicator"] = rate_multiplicator
+            request_detector["path_to_pgroup"]     = path_to_pgroup
             request_detector["run_file_json"]      = run_file_json
             request_detector["run_info_directory"] = run_info_directory
-            request_detector["request_time"]       = request["request_time"]
             request_detector["directory_name"]     = output_run_directory
+            request_detector["request_time"]       = request["request_time"]
 
             request_detector["beamline"]           = beamline
             request_detector["pgroup"]             = pgroup

@@ -103,9 +103,9 @@ class DetectorManager:
         gain_mode = conv_detector_gain_settings.get(detector.gainmode, "unknown")
 
         parameters = {
-            "exptime": exptime,
-            "detector_mode": detector_mode,
             "delay": delay,
+            "detector_mode": detector_mode,
+            "exptime": exptime,
             "gain_mode": gain_mode
         }
 
@@ -247,8 +247,8 @@ class DetectorManager:
         res = {
             "status": status,
             "message": message,
-            "error_files": error_files,
-            "destination_files": destination_files
+            "destination_files": destination_files,
+            "error_files": error_files
         }
         return res
 
@@ -348,8 +348,8 @@ class DetectorManager:
             "status": "ok",
             "message": f"successfully retrieved JFCtrl monitor parameters and temperatures from {detector_name}",
             "parameters": parameters,
-            "writing": writing,
-            "temperatures": temperatures
+            "temperatures": temperatures,
+            "writing": writing
         }
         return res
 
