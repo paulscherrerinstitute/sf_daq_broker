@@ -168,7 +168,7 @@ def create_pedestal_file(
     X_test_pixel=0,
     Y_test_pixel=0,
     _nFramesPede=1000, #TODO: what is nFramesPede for?
-    number_frames=10000,
+    number_frames=100000, #TODO: remove this entirely?
     frames_average=1000,
     directory="./",
     gain_check=1,
