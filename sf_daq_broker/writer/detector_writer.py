@@ -167,8 +167,6 @@ def create_pedestal_file(
     filename="pedestal.h5",
     X_test_pixel=0,
     Y_test_pixel=0,
-    _nFramesPede=1000, #TODO: what is nFramesPede for?
-    number_frames=100000, #TODO: remove this entirely?
     frames_average=1000,
     directory="./",
     gain_check=1,
@@ -228,9 +226,7 @@ def create_pedestal_file(
     nGoodFrames = 0
     nGoodFramesGain = 0
 
-    analyzeFrames = min(numberOfFrames, number_frames)
-
-    for n in range(analyzeFrames):
+    for n in range(numberOfFrames):
         if not f_is_good_frame[n]:
             continue
 
@@ -306,7 +302,7 @@ def create_pedestal_file(
             adcValuesNN[trueGain] += np.float_power(frameData, 2)
 
 
-    _logger.info(f"{detector_name}: {analyzeFrames} frames analyzed, {nGoodFrames} good frames, {nGoodFramesGain} frames without settings mismatch; gain frames distribution (0, 1, 2, 3, HG0): ({nMgain})")
+    _logger.info(f"{detector_name}: {numberOfFrames} frames analyzed, {nGoodFrames} good frames, {nGoodFramesGain} frames without settings mismatch; gain frames distribution (0, 1, 2, 3, HG0): ({nMgain})")
 
     if add_pixel_mask is not None:
         if os.path.isfile(add_pixel_mask) and os.access(add_pixel_mask, os.R_OK):
