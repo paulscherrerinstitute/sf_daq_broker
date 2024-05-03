@@ -171,7 +171,8 @@ class BrokerManager:
             detector_buffer_file = f"{buffer_location}/{detector}/M00/LATEST"
             if os.path.exists(detector_buffer_file):
                 time_file = datetime.fromtimestamp(os.path.getmtime(detector_buffer_file))
-                if (time_file-time_now).total_seconds() > -30: #TODO: hmm?
+                delta_time = time_now - time_file
+                if delta_time.total_seconds() < 30:
                     running_detectors.append(detector)
 
         res = {
