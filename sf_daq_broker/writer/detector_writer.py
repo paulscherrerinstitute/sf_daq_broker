@@ -169,7 +169,7 @@ def create_pedestal_file(
     Y_test_pixel=0,
     frames_average=1000,
     directory="./",
-    gain_check=1,
+    gain_check=True,
     add_pixel_mask=None,
     number_bad_modules=0
 ):
@@ -241,7 +241,7 @@ def create_pedestal_file(
         highG0 = daq_rec & 0b1
 
         gainGoodAllModules = True
-        if gain_check > 0:
+        if gain_check:
             daq_recs = f_daq_recs[n]
             for dr in daq_recs:
                 trueGain_found = (dr & 0b11000000000000) >> 12
