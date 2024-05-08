@@ -332,8 +332,8 @@ def create_pedestal_file(
         for gain in (0, 1, 3):
             gv = 2 if gain == 3 else gain
             numberFramesAverage = max(1, min(frames_average, nMgain[gain]))
-            mean  = adcValuesN[gain]  / float(numberFramesAverage)
-            mean2 = adcValuesNN[gain] / float(numberFramesAverage)
+            mean  = adcValuesN[gain]  / numberFramesAverage
+            mean2 = adcValuesNN[gain] / numberFramesAverage
             variance = mean2 - mean**2
             stdDeviation = np.sqrt(variance)
             _logger.debug(f"{detector_name}: results for gain {gain}: test pixel ({tY}, {tX}), mean: {mean[tY][tX]}, stddev: {stdDeviation[tY][tX]}")
