@@ -306,7 +306,7 @@ def create_pedestal_file(
                 adcValuesNN[trueGain] += np.square(frameData, dtype=np.uint32)
 
 
-        _logger.info(f"{detector_name}: {numberOfFrames} frames analyzed, {nGoodFrames} good frames, {nGoodFramesGain} frames without settings mismatch; gain frames distribution (0, 1, 2, 3, HG0): ({nMgain})")
+        _logger.info(f"{detector_name}: {numberOfFrames} frames analyzed, {nGoodFrames} good frames, {nGoodFramesGain} frames without settings mismatch; gain frames distribution (0, 1, 2, 3): {tuple(nMgain)}")
 
         if add_pixel_mask is not None:
             if os.path.isfile(add_pixel_mask) and os.access(add_pixel_mask, os.R_OK):
