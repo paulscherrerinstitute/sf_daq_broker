@@ -310,14 +310,13 @@ def create_pedestal_file(
 
         if add_pixel_mask is not None:
             if os.path.isfile(add_pixel_mask) and os.access(add_pixel_mask, os.R_OK):
-                additional_pixel_mask = np.zeros((2, 2))
                 with h5py.File(add_pixel_mask, "r") as additional_pixel_mask_file:
-                    additional_pixel_mask = additional_pixel_mask_file["pixel_mask"]
-                    additional_pixel_mask = np.array(additional_pixel_mask)
-                number = np.sum(additional_pixel_mask == 1)
-                _logger.info(f"{detector_name}: adding additional pixel mask from file {add_pixel_mask}, number {number}")
+                    additional_pixel_mask = additional_pixel_mask_file["pixel_mask"][:]
+                nmasked = np.sum(additional_pixel_mask)
+                _logger.info(f"{detector_name}: adding additional pixel mask from file {add_pixel_mask}, number of additionally masked pixels: {nmasked}")
                 if additional_pixel_mask.shape == pixelMask.shape:
-                    pixelMask[additional_pixel_mask == 1] |= (1 << 5)
+                    additional_pixel_mask = additional_pixel_mask.astype(bool)
+                    pixelMask[additional_pixel_mask] |= (1 << 5)
                 else:
                     _logger.error(f"{detector_name}: shape of additional pixel mask ({additional_pixel_mask.shape}) does not match current pixel mask ({pixelMask.shape})")
             else:
