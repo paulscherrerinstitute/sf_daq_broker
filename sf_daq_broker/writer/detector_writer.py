@@ -263,7 +263,8 @@ def create_pedestal_file(
 #                _logger.info(f"{detector_name}: skipping frame {n}: Jungfrau is in high G0 mode ({highG0}), but gain settings is: {trueGain}")
 #                continue
 
-            nFramesGain = np.sum(gainData == trueGain)
+            correct_gain = (gainData == trueGain)
+            nFramesGain = np.sum(correct_gain)
             # make sure that most are the modules are in correct gain
             if nFramesGain < (nModules - 0.5 - number_bad_modules) * (1024 * 512):
                 gainGoodAllModules = False
@@ -293,7 +294,7 @@ def create_pedestal_file(
                 highG0Check = highG0
 
             if gainGoodAllModules:
-                pixelMask[gainData != trueGain] |= (1 << (trueGain + 4 * highG0))
+                pixelMask[~correct_gain] |= (1 << (trueGain + 4 * highG0))
                 #trueGain += 4 * highG0
                 nMgain[trueGain] += 1
 
