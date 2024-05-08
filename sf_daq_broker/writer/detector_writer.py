@@ -112,7 +112,7 @@ def detector_retrieve(request, output_file_detector):
     _logger.info(f"executing detector retrieval from buffer: {printable_command_retrieve_from_buffer}")
 
     time_start = time()
-    _process = subprocess.run(command_retrieve_from_buffer, capture_output=True)
+    _process = subprocess.run(command_retrieve_from_buffer, capture_output=True, check=True)
     delta_time = time() - time_start
 
     _logger.info(f"detector retrieval from buffer took {delta_time} seconds")
