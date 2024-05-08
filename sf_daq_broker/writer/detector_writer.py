@@ -185,169 +185,172 @@ def create_pedestal_file(
         daq_recs_location      = f"data/{detector_name}/daq_rec"
         is_good_frame_location = f"data/{detector_name}/is_good_frame"
 
-        f_data          = f[data_location][:]
+        # for larger detectors and pedestalmode=True, data may be too large to be loaded at once
+        #TODO: check memory usage and only if possible load at once for better performance
+        f_data          = f[data_location]
         f_is_good_frame = f[is_good_frame_location][:]
         f_daq_recs      = f[daq_recs_location][:]
 
-    f_data0 = f_data[0]
+        f_data0 = f_data[0]
 
-    sh_y, sh_x = f_data0.shape
-    nModules = (sh_x * sh_y) // (1024 * 512)
-    if (nModules * 1024 * 512) != (sh_x * sh_y):
-        _logger.error(f"{detector_name}: shape mismatch: Jungfrau modules have shape 1024x512, while data has shape {sh_x}x{sh_y}")
-        return
+        sh_y, sh_x = f_data0.shape
+        nModules = (sh_x * sh_y) // (1024 * 512)
+        if (nModules * 1024 * 512) != (sh_x * sh_y):
+            _logger.error(f"{detector_name}: shape mismatch: Jungfrau modules have shape 1024x512, while data has shape {sh_x}x{sh_y}")
+            return
 
-    tX = X_test_pixel
-    tY = Y_test_pixel
-    if tX < 0 or tX > (sh_x - 1):
-        tX = 0
-    if tY < 0 or tY > (sh_y - 1):
-        tY = 0
+        tX = X_test_pixel
+        tY = Y_test_pixel
+        if tX < 0 or tX > (sh_x - 1):
+            tX = 0
+        if tY < 0 or tY > (sh_y - 1):
+            tY = 0
 
-    _logger.debug(f"{detector_name}: test pixel is at (x, y): ({tX}, {tY})")
+        _logger.debug(f"{detector_name}: test pixel is at (x, y): ({tX}, {tY})")
 
-    numberOfFrames = len(f_data)
-    _logger.info(f"{detector_name}: pedestal file {filename} contains {numberOfFrames + 1} frames")
+        numberOfFrames = len(f_data)
+        _logger.info(f"{detector_name}: pedestal file {filename} contains {numberOfFrames + 1} frames")
 
-    data_shape = f_data0.shape
-    data_dtype = f_data0.dtype
-    _logger.debug(f"{detector_name}: data has shape: {data_shape}, type: {data_dtype}, {nModules} modules ({number_bad_modules} bad modules)")
+        data_shape = f_data0.shape
+        data_dtype = f_data0.dtype
+        _logger.debug(f"{detector_name}: data has shape: {data_shape}, type: {data_dtype}, {nModules} modules ({number_bad_modules} bad modules)")
 
-    pixelMask = np.zeros((sh_y, sh_x), dtype=int)
+        pixelMask = np.zeros((sh_y, sh_x), dtype=int)
 
-    adcValuesN  = np.zeros((4, sh_y, sh_x))
-    adcValuesNN = np.zeros((4, sh_y, sh_x))
+        adcValuesN  = np.zeros((4, sh_y, sh_x))
+        adcValuesNN = np.zeros((4, sh_y, sh_x))
 
-    nMgain = [0] * 4
+        nMgain = [0] * 4
 
-    gainCheck = -1
-    highG0Check = 0
-    printFalseGain = False
-    nGoodFrames = 0
-    nGoodFramesGain = 0
+        gainCheck = -1
+        highG0Check = 0
+        printFalseGain = False
+        nGoodFrames = 0
+        nGoodFramesGain = 0
 
-    for n in range(numberOfFrames):
-        if not f_is_good_frame[n]:
-            continue
+        for n in range(numberOfFrames):
 
-        nGoodFrames += 1
+            if not f_is_good_frame[n]:
+                continue
 
-        image = f_data[n]
-        frameData = np.bitwise_and(image, 0b0011111111111111)
-        gainData  = np.bitwise_and(image, 0b1100000000000000) >> 14
+            nGoodFrames += 1
 
-        daq_rec = f_daq_recs[n][0]
-        trueGain = (daq_rec & 0b11000000000000) >> 12
-        highG0 = daq_rec & 0b1
+            image = f_data[n]
+            frameData = np.bitwise_and(image, 0b0011111111111111)
+            gainData  = np.bitwise_and(image, 0b1100000000000000) >> 14
 
-        gainGoodAllModules = True
-        if gain_check:
-            daq_recs = f_daq_recs[n]
-            for dr in daq_recs:
-                trueGain_found = (dr & 0b11000000000000) >> 12
-                highG0_found = dr & 0b1
-                if trueGain != trueGain_found or highG0 != highG0_found:
-                    gainGoodAllModules = False
+            daq_rec = f_daq_recs[n][0]
+            trueGain = (daq_rec & 0b11000000000000) >> 12
+            highG0 = daq_rec & 0b1
 
-        if not gainGoodAllModules:
-            trueGain_found = (daq_recs & 0b11000000000000) >> 12
-            highG0_found = daq_recs & 0b1
-            _logger.debug(f"{detector_name}: skipping frame {n}: mismatch between modules and general settings: gain: {trueGain} vs {trueGain_found}, highG0: {highG0} vs {highG0_found}")
-            continue
+            gainGoodAllModules = True
+            if gain_check:
+                daq_recs = f_daq_recs[n]
+                for dr in daq_recs:
+                    trueGain_found = (dr & 0b11000000000000) >> 12
+                    highG0_found = dr & 0b1
+                    if trueGain != trueGain_found or highG0 != highG0_found:
+                        gainGoodAllModules = False
 
-#        if highG0 == 1 and trueGain != 0:
-#            gainGoodAllModules = False
-#            _logger.info(f"{detector_name}: skipping frame {n}: Jungfrau is in high G0 mode ({highG0}), but gain settings is: {trueGain}")
-#            continue
+            if not gainGoodAllModules:
+                trueGain_found = (daq_recs & 0b11000000000000) >> 12
+                highG0_found = daq_recs & 0b1
+                _logger.debug(f"{detector_name}: skipping frame {n}: mismatch between modules and general settings: gain: {trueGain} vs {trueGain_found}, highG0: {highG0} vs {highG0_found}")
+                continue
 
-        nFramesGain = np.sum(gainData == trueGain)
-        # make sure that most are the modules are in correct gain
-        if nFramesGain < (nModules - 0.5 - number_bad_modules) * (1024 * 512):
-            gainGoodAllModules = False
-            gain0 = np.sum(gainData == 0)
-            gain1 = np.sum(gainData == 1)
-            gain2 = np.sum(gainData == 3)
-            gain_undefined = np.sum(gainData == 2)
-            _logger.debug(f"{detector_name}: skipping frame {n}: too many bad pixels (true gain: {trueGain} ({nFramesGain}), highG0: {highG0}, gain0: {gain0}, gain1: {gain1}, gain2: {gain2}, undefined gain: {gain_undefined})")
-            continue
+#            if highG0 == 1 and trueGain != 0:
+#                gainGoodAllModules = False
+#                _logger.info(f"{detector_name}: skipping frame {n}: Jungfrau is in high G0 mode ({highG0}), but gain settings is: {trueGain}")
+#                continue
 
-        nGoodFramesGain += 1
+            nFramesGain = np.sum(gainData == trueGain)
+            # make sure that most are the modules are in correct gain
+            if nFramesGain < (nModules - 0.5 - number_bad_modules) * (1024 * 512):
+                gainGoodAllModules = False
+                gain0 = np.sum(gainData == 0)
+                gain1 = np.sum(gainData == 1)
+                gain2 = np.sum(gainData == 3)
+                gain_undefined = np.sum(gainData == 2)
+                _logger.debug(f"{detector_name}: skipping frame {n}: too many bad pixels (true gain: {trueGain} ({nFramesGain}), highG0: {highG0}, gain0: {gain0}, gain1: {gain1}, gain2: {gain2}, undefined gain: {gain_undefined})")
+                continue
 
-        gainData_tXtY = gainData[tY][tX]
+            nGoodFramesGain += 1
 
-        if gainData_tXtY != trueGain:
-            if not printFalseGain:
-                _logger.info(f"{detector_name}: frame {n}: wrong gain for test pixel ({tX}, {tY}): expected {trueGain} but found {gainData_tXtY}")
-                printFalseGain = True
-        else:
-            if gainCheck != -1 and printFalseGain:
-                _logger.info(f"{detector_name}: frame {n}: wrong gain for test pixel ({tX}, {tY}) in previous frame, but correct in this frame {gainData[tY, tX]}")
-            printFalseGain = False
+            gainData_tXtY = gainData[tY][tX]
 
-        if gainCheck != gainData_tXtY or highG0Check != highG0:
-            _logger.info(f"{detector_name}: frame {n}: gain changed for test pixel ({tX}, {tY}): {gainCheck} -> {gainData_tXtY} (highG0: {highG0Check} -> {highG0}), match: {gainData_tXtY == trueGain}")
-            gainCheck = gainData_tXtY
-            highG0Check = highG0
-
-        if gainGoodAllModules:
-            pixelMask[gainData != trueGain] |= (1 << (trueGain + 4 * highG0))
-            #trueGain += 4 * highG0
-            nMgain[trueGain] += 1
-
-            if nMgain[trueGain] > frames_average:
-                adcValuesN[trueGain]  -= adcValuesN[trueGain]  / frames_average
-                adcValuesNN[trueGain] -= adcValuesNN[trueGain] / frames_average
-
-            adcValuesN[trueGain]  += frameData
-            adcValuesNN[trueGain] += np.float_power(frameData, 2)
-
-
-    _logger.info(f"{detector_name}: {numberOfFrames} frames analyzed, {nGoodFrames} good frames, {nGoodFramesGain} frames without settings mismatch; gain frames distribution (0, 1, 2, 3, HG0): ({nMgain})")
-
-    if add_pixel_mask is not None:
-        if os.path.isfile(add_pixel_mask) and os.access(add_pixel_mask, os.R_OK):
-            additional_pixel_mask = np.zeros((2, 2))
-            with h5py.File(add_pixel_mask, "r") as additional_pixel_mask_file:
-                additional_pixel_mask = additional_pixel_mask_file["pixel_mask"]
-                additional_pixel_mask = np.array(additional_pixel_mask)
-            number = np.sum(additional_pixel_mask == 1)
-            _logger.info(f"{detector_name}: adding additional pixel mask from file {add_pixel_mask}, number {number}")
-            if additional_pixel_mask.shape == pixelMask.shape:
-                pixelMask[additional_pixel_mask == 1] |= (1 << 5)
+            if gainData_tXtY != trueGain:
+                if not printFalseGain:
+                    _logger.info(f"{detector_name}: frame {n}: wrong gain for test pixel ({tX}, {tY}): expected {trueGain} but found {gainData_tXtY}")
+                    printFalseGain = True
             else:
-                _logger.error(f"{detector_name}: shape of additional pixel mask ({additional_pixel_mask.shape}) does not match current pixel mask ({pixelMask.shape})")
-        else:
-            _logger.error(f"{detector_name}: specified file with additional pixel mask {add_pixel_mask} not found or not readable")
+                if gainCheck != -1 and printFalseGain:
+                    _logger.info(f"{detector_name}: frame {n}: wrong gain for test pixel ({tX}, {tY}) in previous frame, but correct in this frame {gainData[tY, tX]}")
+                printFalseGain = False
 
-    fileNameIn = os.path.splitext(os.path.basename(filename))[0]
-    full_fileNameOut = directory + "/" + fileNameIn + ".res.h5"
-    _logger.info(f"{detector_name}: output file with pedestal corrections: {full_fileNameOut}")
+            if gainCheck != gainData_tXtY or highG0Check != highG0:
+                _logger.info(f"{detector_name}: frame {n}: gain changed for test pixel ({tX}, {tY}): {gainCheck} -> {gainData_tXtY} (highG0: {highG0Check} -> {highG0}), match: {gainData_tXtY == trueGain}")
+                gainCheck = gainData_tXtY
+                highG0Check = highG0
 
-    gains    = [None] * 3
-    gainsRMS = [None] * 3
+            if gainGoodAllModules:
+                pixelMask[gainData != trueGain] |= (1 << (trueGain + 4 * highG0))
+                #trueGain += 4 * highG0
+                nMgain[trueGain] += 1
 
-    for gain in (0, 1, 3):
-        gv = 2 if gain == 3 else gain
-        numberFramesAverage = max(1, min(frames_average, nMgain[gain]))
-        mean  = adcValuesN[gain]  / float(numberFramesAverage)
-        mean2 = adcValuesNN[gain] / float(numberFramesAverage)
-        variance = mean2 - np.float_power(mean, 2)
-        stdDeviation = np.sqrt(variance)
-        _logger.debug(f"{detector_name}: results for gain {gain}: test pixel ({tY}, {tX}), mean: {mean[tY][tX]}, stddev: {stdDeviation[tY][tX]}")
-        gains[gv] = mean
-        gainsRMS[gv] = stdDeviation
+                if nMgain[trueGain] > frames_average:
+                    adcValuesN[trueGain]  -= adcValuesN[trueGain]  / frames_average
+                    adcValuesNN[trueGain] -= adcValuesNN[trueGain] / frames_average
 
-        pixelMask[np.isclose(stdDeviation, 0)] |= (1 << (6 + gv))
+                adcValuesN[trueGain]  += frameData
+                adcValuesNN[trueGain] += np.float_power(frameData, 2)
 
-    with h5py.File(full_fileNameOut, "w") as outFile:
-        outFile.create_dataset("pixel_mask", data=pixelMask)
-        outFile.create_dataset("gains",      data=gains)
-        outFile.create_dataset("gainsRMS",   data=gainsRMS)
 
-    ngood = np.sum(pixelMask == 0)
-    ntotal = sh_x * sh_y
-    nbad = ntotal - ngood
-    _logger.info(f"{detector_name}: number of good pixels: {ngood} from {ntotal} in total ({nbad} bad pixels)")
+        _logger.info(f"{detector_name}: {numberOfFrames} frames analyzed, {nGoodFrames} good frames, {nGoodFramesGain} frames without settings mismatch; gain frames distribution (0, 1, 2, 3, HG0): ({nMgain})")
+
+        if add_pixel_mask is not None:
+            if os.path.isfile(add_pixel_mask) and os.access(add_pixel_mask, os.R_OK):
+                additional_pixel_mask = np.zeros((2, 2))
+                with h5py.File(add_pixel_mask, "r") as additional_pixel_mask_file:
+                    additional_pixel_mask = additional_pixel_mask_file["pixel_mask"]
+                    additional_pixel_mask = np.array(additional_pixel_mask)
+                number = np.sum(additional_pixel_mask == 1)
+                _logger.info(f"{detector_name}: adding additional pixel mask from file {add_pixel_mask}, number {number}")
+                if additional_pixel_mask.shape == pixelMask.shape:
+                    pixelMask[additional_pixel_mask == 1] |= (1 << 5)
+                else:
+                    _logger.error(f"{detector_name}: shape of additional pixel mask ({additional_pixel_mask.shape}) does not match current pixel mask ({pixelMask.shape})")
+            else:
+                _logger.error(f"{detector_name}: specified file with additional pixel mask {add_pixel_mask} not found or not readable")
+
+        fileNameIn = os.path.splitext(os.path.basename(filename))[0]
+        full_fileNameOut = directory + "/" + fileNameIn + ".res.h5"
+        _logger.info(f"{detector_name}: output file with pedestal corrections: {full_fileNameOut}")
+
+        gains    = [None] * 3
+        gainsRMS = [None] * 3
+
+        for gain in (0, 1, 3):
+            gv = 2 if gain == 3 else gain
+            numberFramesAverage = max(1, min(frames_average, nMgain[gain]))
+            mean  = adcValuesN[gain]  / float(numberFramesAverage)
+            mean2 = adcValuesNN[gain] / float(numberFramesAverage)
+            variance = mean2 - np.float_power(mean, 2)
+            stdDeviation = np.sqrt(variance)
+            _logger.debug(f"{detector_name}: results for gain {gain}: test pixel ({tY}, {tX}), mean: {mean[tY][tX]}, stddev: {stdDeviation[tY][tX]}")
+            gains[gv] = mean
+            gainsRMS[gv] = stdDeviation
+
+            pixelMask[np.isclose(stdDeviation, 0)] |= (1 << (6 + gv))
+
+        with h5py.File(full_fileNameOut, "w") as outFile:
+            outFile.create_dataset("pixel_mask", data=pixelMask)
+            outFile.create_dataset("gains",      data=gains)
+            outFile.create_dataset("gainsRMS",   data=gainsRMS)
+
+        ngood = np.sum(pixelMask == 0)
+        ntotal = sh_x * sh_y
+        nbad = ntotal - ngood
+        _logger.info(f"{detector_name}: number of good pixels: {ngood} from {ntotal} in total ({nbad} bad pixels)")
 
 
 
