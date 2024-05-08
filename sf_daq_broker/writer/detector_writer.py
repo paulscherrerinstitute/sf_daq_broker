@@ -178,7 +178,7 @@ def create_pedestal_file(
         return
 
     with h5py.File(filename, "r") as f:
-        detector_name = f.get("general/detector_name")[()]
+        detector_name = f["general/detector_name"][()]
         detector_name = detector_name.decode("UTF-8")
 
         data_location          = f"data/{detector_name}/data"
