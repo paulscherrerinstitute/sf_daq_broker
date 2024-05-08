@@ -302,7 +302,7 @@ def create_pedestal_file(
                     adcValuesNN[trueGain] -= adcValuesNN[trueGain] / frames_average
 
                 adcValuesN[trueGain]  += frameData
-                adcValuesNN[trueGain] += np.float_power(frameData, 2)
+                adcValuesNN[trueGain] += np.square(frameData, dtype=np.float64)
 
 
         _logger.info(f"{detector_name}: {numberOfFrames} frames analyzed, {nGoodFrames} good frames, {nGoodFramesGain} frames without settings mismatch; gain frames distribution (0, 1, 2, 3, HG0): ({nMgain})")
@@ -334,7 +334,7 @@ def create_pedestal_file(
             numberFramesAverage = max(1, min(frames_average, nMgain[gain]))
             mean  = adcValuesN[gain]  / float(numberFramesAverage)
             mean2 = adcValuesNN[gain] / float(numberFramesAverage)
-            variance = mean2 - np.float_power(mean, 2)
+            variance = mean2 - mean**2
             stdDeviation = np.sqrt(variance)
             _logger.debug(f"{detector_name}: results for gain {gain}: test pixel ({tY}, {tX}), mean: {mean[tY][tX]}, stddev: {stdDeviation[tY][tX]}")
             gains[gv] = mean
