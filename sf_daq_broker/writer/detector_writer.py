@@ -177,8 +177,8 @@ def create_pedestal_file(
         _logger.info(f"cannot create pedestal file: input file {filename} not found")
         return
 
-    with h5py.File(filename, "r") as f:
-        detector_name = f["general/detector_name"][()]
+    with h5py.File(filename, "r") as h5f:
+        detector_name = h5f["general/detector_name"][()]
         detector_name = detector_name.decode("UTF-8")
 
         data_location          = f"data/{detector_name}/data"
@@ -187,9 +187,9 @@ def create_pedestal_file(
 
         # for larger detectors and pedestalmode=True, data may be too large to be loaded at once
         #TODO: check memory usage and only if possible load at once for better performance
-        f_data          = f[data_location]
-        f_is_good_frame = f[is_good_frame_location][:]
-        f_daq_recs      = f[daq_recs_location][:]
+        f_data          = h5f[data_location]
+        f_is_good_frame = h5f[is_good_frame_location][:]
+        f_daq_recs      = h5f[daq_recs_location][:]
 
         f_data0 = f_data[0]
 
