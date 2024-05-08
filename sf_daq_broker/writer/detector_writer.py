@@ -241,20 +241,20 @@ def create_pedestal_file(
 
             daq_rec = f_daq_recs[n][0]
             trueGain = (daq_rec & 0b11000000000000) >> 12
-            highG0 = daq_rec & 0b1
+            highG0 = (daq_rec & 0b1)
 
             gainGoodAllModules = True
             if gain_check:
                 daq_recs = f_daq_recs[n]
                 for dr in daq_recs:
                     trueGain_found = (dr & 0b11000000000000) >> 12
-                    highG0_found = dr & 0b1
+                    highG0_found = (dr & 0b1)
                     if trueGain != trueGain_found or highG0 != highG0_found:
                         gainGoodAllModules = False
 
             if not gainGoodAllModules:
                 trueGain_found = (daq_recs & 0b11000000000000) >> 12
-                highG0_found = daq_recs & 0b1
+                highG0_found = (daq_recs & 0b1)
                 _logger.debug(f"{detector_name}: skipping frame {n}: mismatch between modules and general settings: gain: {trueGain} vs {trueGain_found}, highG0: {highG0} vs {highG0_found}")
                 continue
 
