@@ -326,21 +326,20 @@ def create_pedestal_file(
         full_fileNameOut = directory + "/" + fileNameIn + ".res.h5"
         _logger.info(f"{detector_name}: output file with pedestal corrections: {full_fileNameOut}")
 
-        gains    = [None] * 3
-        gainsRMS = [None] * 3
+        gains    = []
+        gainsRMS = []
 
-        for gain in (0, 1, 3):
-            gv = 2 if gain == 3 else gain
+        for index, gain in enumerate((0, 1, 3)):
             numberFramesAverage = max(1, min(frames_average, nMgain[gain]))
             mean  = adcValuesN[gain]  / numberFramesAverage
             mean2 = adcValuesNN[gain] / numberFramesAverage
             variance = mean2 - mean**2
             stdDeviation = np.sqrt(variance)
             _logger.debug(f"{detector_name}: results for gain {gain}: test pixel ({tY}, {tX}), mean: {mean[tY][tX]}, stddev: {stdDeviation[tY][tX]}")
-            gains[gv] = mean
-            gainsRMS[gv] = stdDeviation
+            gains.append(mean)
+            gainsRMS.append(stdDeviation)
 
-            pixelMask[np.isclose(stdDeviation, 0)] |= (1 << (6 + gv))
+            pixelMask[np.isclose(stdDeviation, 0)] |= (1 << (6 + index))
 
         with h5py.File(full_fileNameOut, "w") as outFile:
             outFile.create_dataset("pixel_mask", data=pixelMask)
