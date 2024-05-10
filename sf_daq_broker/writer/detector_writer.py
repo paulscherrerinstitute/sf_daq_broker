@@ -186,7 +186,9 @@ def create_pedestal_file(
         is_good_frame_location = f"data/{detector_name}/is_good_frame"
 
         # for larger detectors and pedestalmode=True, data may be too large to be loaded at once
-        #TODO: check memory usage and only if possible load at once for better performance
+        #TODO: for better read performance:
+        # - investigate chunking
+        # - check memory needed vs. available and only if possible load at once
         f_data          = h5f[data_location]
         f_is_good_frame = h5f[is_good_frame_location][:]
         f_daq_recs      = h5f[daq_recs_location][:]
