@@ -119,6 +119,11 @@ def load_detector_config(detector_name):
     if detector_number == 18:
         detector.dacs.vb_comp = 1320
 
+    # workaround for mismatched frames problem
+    if detector_number == 6:
+        detector.sync = 1
+        detector.setMaster(1, 31)
+
     detector.temp_threshold = detector_configuration.get_detector_temp_threshold()
     detector.temp_control = 1
 
