@@ -182,6 +182,14 @@ class DetectorManager:
         event_code_pv.put(254)
         event_code_pv.disconnect()
 
+        changed_gainmode = changed_parameters.pop("gainmode", None)
+        if changed_gainmode:
+            changed_parameters["gain_mode"] = tuple(conv_detector_gain_settings.get(i) for i in changed_gainmode)
+
+        changed_settings = changed_parameters.pop("settings", None)
+        if changed_settings:
+            changed_parameters["detector_mode"] = tuple(conv_detector_settings.get(i) for i in changed_settings)
+
         res = {
             "status": "ok",
             "message": f"successfully changed detector settings of {detector_name}",
