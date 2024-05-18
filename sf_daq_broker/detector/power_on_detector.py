@@ -75,10 +75,13 @@ def power_on_detector(detector_name, beamline):
 
     detector.freeSharedMemory()
 
+    detector_config = get_detector_config(detector_name)
+
     try:
-        load_detector_config(detector_name)
+        _logger.info(f"request to apply config to detector {detector_name}")
+        apply_detector_config(detector_config, detector)
     except Exception:
-        _logger.exception(f"could not configure detector {detector_name}")
+        _logger.exception(f"could not apply config to detector {detector_name}")
 
     try:
         detector.startDetector()
@@ -90,19 +93,21 @@ def power_on_detector(detector_name, beamline):
     _logger.info(f"detector {detector_name} powered on")
 
 
-def load_detector_config(detector_name):
+def get_detector_config(detector_name):
     _logger.info(f"request to load config for detector {detector_name}")
-
     try:
-        detector_configuration = DetectorConfig(detector_name)
+        return DetectorConfig(detector_name)
     except RuntimeError:
-        _logger.exception(f"cannot configure detector {detector_name}")
+        _logger.exception(f"could not load config for detector {detector_name}")
+        return None
+
+
+def apply_detector_config(detector_configuration, detector):
+    if not detector_configuration:
         return
 
     detector_number = detector_configuration.get_detector_number()
 #    number_modules = detector_configuration.get_number_modules()
-
-    detector = Jungfrau(detector_number)
 
     detector.detsize = detector_configuration.get_detector_size()
 
@@ -110,7 +115,7 @@ def load_detector_config(detector_name):
 
     detector.udp_dstmac = detector_configuration.get_detector_udp_dstmac()
     detector.udp_dstip  = detector_configuration.get_udp_dstip()
-    detector.udp_dstport = detector_configuration.get_detector_port_first_module() # will increment port(+1) for each module
+    detector.udp_dstport = detector_configuration.get_detector_port_first_module() # increments port by +1 for each module
 
     detector.udp_srcip = detector_configuration.get_detector_upd_ip()
     detector.udp_srcmac = detector_configuration.get_detector_udp_mac()
