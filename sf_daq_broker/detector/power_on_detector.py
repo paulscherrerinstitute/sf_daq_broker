@@ -80,6 +80,11 @@ def power_on_detector(detector_name, beamline):
     except Exception:
         _logger.exception(f"could not configure detector {detector_name}")
 
+    try:
+        detector.startDetector()
+    except Exception:
+        _logger.exception(f"could not start detector {detector_name}")
+
     # start trigger
     event_code_pv.put(254)
     _logger.info(f"detector {detector_name} powered on")
@@ -141,8 +146,6 @@ def load_detector_config(detector_name):
 
     detector.frames = 1
     detector.dr = 16
-
-    detector.startDetector()
 
 
 
