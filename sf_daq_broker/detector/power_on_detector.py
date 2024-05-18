@@ -26,28 +26,15 @@ BEAMLINE_EVENT_CODE = {
 def power_on_detector(detector_name, beamline):
     _logger.info(f"request to power on detector {detector_name}")
 
-    if detector_name is None:
-        _logger.error("no detector name given")
-        return
-
-    if beamline is None:
-        _logger.error("no beamline name given")
-        return
-
-    if beamline not in BEAMLINE_EVENT_CODE:
-        _logger.error(f"trigger event code for beamline {beamline} not configured")
+    try:
+        validate_detector_name(detector_name)
+        validate_beamline(beamline)
+    except RuntimeError as e:
+        _logger.error(e)
         return
 
     event_code_pv_name = BEAMLINE_EVENT_CODE[beamline]
     event_code_pv = epics.PV(event_code_pv_name)
-
-    if detector_name[:2] != "JF":
-        _logger.error(f'detector name {detector_name} does not start with "JF"')
-        return
-
-    if len(detector_name) != 10:
-        _logger.error(f"detector name {detector_name} does not have 10 characters")
-        return
 
     detector_number = int(detector_name[2:4])
 
@@ -91,6 +78,25 @@ def power_on_detector(detector_name, beamline):
     # start trigger
     event_code_pv.put(254)
     _logger.info(f"detector {detector_name} powered on")
+
+
+def validate_detector_name(detector_name):
+    if detector_name is None:
+        raise RuntimeError("no detector name given")
+
+    if detector_name[:2] != "JF":
+        raise RuntimeError(f'detector name {detector_name} does not start with "JF"')
+
+    if len(detector_name) != 10:
+        raise RuntimeError(f"detector name {detector_name} does not have 10 characters")
+
+
+def validate_beamline(beamline):
+    if beamline is None:
+        raise RuntimeError("no beamline name given")
+
+    if beamline not in BEAMLINE_EVENT_CODE:
+        raise RuntimeError(f"trigger event code for beamline {beamline} not configured")
 
 
 def get_detector_config(detector_name):
