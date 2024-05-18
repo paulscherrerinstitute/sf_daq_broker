@@ -33,16 +33,16 @@ def power_on_detector(detector_name, beamline):
         _logger.error(e)
         return
 
+    detector_number = int(detector_name[2:4])
+
     event_code_pv_name = BEAMLINE_EVENT_CODE[beamline]
     event_code_pv = epics.PV(event_code_pv_name)
-
-    detector_number = int(detector_name[2:4])
 
     # stop trigger of the current beamline's detectors
     try:
         event_code_pv.put(255)
     except Exception:
-        _logger.exception(f"cannot stop detector trigger {event_code_pv_name}")
+        _logger.exception(f"could not stop detector trigger {event_code_pv_name}")
         return
 
     # sleep to give epics a chance to process change
@@ -81,8 +81,11 @@ def power_on_detector(detector_name, beamline):
 
 
 def validate_detector_name(detector_name):
+    #TODO: is the None check even needed?
     if detector_name is None:
         raise RuntimeError("no detector name given")
+
+    #TODO: should match the proper regex instead:
 
     if detector_name[:2] != "JF":
         raise RuntimeError(f'detector name {detector_name} does not start with "JF"')
@@ -92,11 +95,12 @@ def validate_detector_name(detector_name):
 
 
 def validate_beamline(beamline):
+    #TODO: is the None check even needed?
     if beamline is None:
-        raise RuntimeError("no beamline name given")
+        raise RuntimeError("no beamline given")
 
     if beamline not in BEAMLINE_EVENT_CODE:
-        raise RuntimeError(f"trigger event code for beamline {beamline} not configured")
+        raise RuntimeError(f"trigger event code for beamline {beamline} not known")
 
 
 def get_detector_config(detector_name):
