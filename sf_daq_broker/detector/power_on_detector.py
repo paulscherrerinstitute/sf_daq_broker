@@ -77,7 +77,10 @@ def power_on_detector(detector_name, beamline):
     except Exception:
         _logger.exception(f"could not start detector {detector_name}")
 
-    start_trigger(event_code_pv)
+    try:
+        start_trigger(event_code_pv)
+    except RuntimeError:
+        return
 
     _logger.info(f"detector {detector_name} powered on")
 
@@ -105,6 +108,10 @@ def validate_beamline(beamline):
         raise RuntimeError(f"trigger event code for beamline {beamline} not known")
 
 
+def start_trigger(pv):
+    set_trigger(pv, 254, "start")
+
+
 def stop_trigger(pv):
     set_trigger(pv, 255, "stop")
 
@@ -123,10 +130,6 @@ def set_trigger(pv, value, action):
     if event_code != value:
         _logger.error(f"detector trigger {pv.pvname} did not {action} (event returned {event_code})")
         raise RuntimeError
-
-
-def start_trigger(pv):
-    pv.put(254)
 
 
 def apply_detector_config(detector_configuration, detector):
