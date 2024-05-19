@@ -52,11 +52,12 @@ def power_on_detector(detector_name, beamline):
 
     detector.freeSharedMemory()
 
-    try:
-        _logger.info(f"request to apply config to detector {detector_name}")
-        apply_detector_config(detector_config, detector)
-    except Exception:
-        _logger.exception(f"could not apply config to detector {detector_name}")
+    if detector_configuration:
+        try:
+            _logger.info(f"request to apply config to detector {detector_name}")
+            apply_detector_config(detector_config, detector)
+        except Exception:
+            _logger.exception(f"could not apply config to detector {detector_name}")
 
     try:
         detector.startDetector()
@@ -121,9 +122,6 @@ def get_detector_config(detector_name):
 
 
 def apply_detector_config(detector_configuration, detector):
-    if not detector_configuration:
-        return
-
     detector_number = detector_configuration.get_detector_number()
 #    number_modules = detector_configuration.get_number_modules()
 
