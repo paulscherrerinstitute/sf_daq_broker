@@ -33,18 +33,27 @@ def power_on_detector(detector_name, beamline):
         _logger.error(e)
         return
 
-    detector_number = int(detector_name[2:4])
-
     try:
         detector_config = DetectorConfig(detector_name)
     except Exception:
         _logger.exception(f"could not load config for detector {detector_name}")
         return
 
-    detector = Jungfrau(detector_number)
+    detector_number = int(detector_name[2:4])
+
+    try:
+        detector = Jungfrau(detector_number)
+    except Exception:
+        _logger.exception(f"could not connect to detector {detector_name}")
+        return
 
     event_code_pv_name = BEAMLINE_EVENT_CODE[beamline]
-    event_code_pv = epics.PV(event_code_pv_name)
+
+    try:
+        event_code_pv = epics.PV(event_code_pv_name)
+    except Exception:
+        _logger.exception(f"could not connect to event code PV {event_code_pv_name}")
+        return
 
     try:
         stop_trigger(event_code_pv, event_code_pv_name)
