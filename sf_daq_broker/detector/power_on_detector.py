@@ -34,8 +34,14 @@ def power_on_detector(detector_name, beamline):
         return
 
     detector_number = int(detector_name[2:4])
+
+    try:
+        detector_config = DetectorConfig(detector_name)
+    except Exception:
+        _logger.exception(f"could not load config for detector {detector_name}")
+        return
+
     detector = Jungfrau(detector_number)
-    detector_config = get_detector_config(detector_name)
 
     event_code_pv_name = BEAMLINE_EVENT_CODE[beamline]
     event_code_pv = epics.PV(event_code_pv_name)
@@ -52,12 +58,11 @@ def power_on_detector(detector_name, beamline):
 
     detector.freeSharedMemory()
 
-    if detector_configuration:
-        try:
-            _logger.info(f"request to apply config to detector {detector_name}")
-            apply_detector_config(detector_config, detector)
-        except Exception:
-            _logger.exception(f"could not apply config to detector {detector_name}")
+    try:
+        _logger.info(f"request to apply config to detector {detector_name}")
+        apply_detector_config(detector_config, detector)
+    except Exception:
+        _logger.exception(f"could not apply config to detector {detector_name}")
 
     try:
         detector.startDetector()
@@ -110,15 +115,6 @@ def stop_trigger(event_code_pv, event_code_pv_name):
 
 def start_trigger(event_code_pv):
     event_code_pv.put(254)
-
-
-def get_detector_config(detector_name):
-    _logger.info(f"request to load config for detector {detector_name}")
-    try:
-        return DetectorConfig(detector_name)
-    except RuntimeError:
-        _logger.exception(f"could not load config for detector {detector_name}")
-        return None
 
 
 def apply_detector_config(detector_configuration, detector):
