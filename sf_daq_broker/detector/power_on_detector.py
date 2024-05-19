@@ -128,7 +128,7 @@ def set_trigger(pv, value, action):
 
     event_code = int(pv.get())
     if event_code != value:
-        _logger.error(f"detector trigger {pv.pvname} did not {action} (event returned {event_code})")
+        _logger.error(f"detector trigger {pv.pvname} did not {action} (expected {value} but event returned {event_code})")
         raise RuntimeError
 
 
