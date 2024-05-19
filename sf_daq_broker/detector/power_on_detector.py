@@ -34,6 +34,8 @@ def power_on_detector(detector_name, beamline):
         return
 
     detector_number = int(detector_name[2:4])
+    detector = Jungfrau(detector_number)
+    detector_config = get_detector_config(detector_name)
 
     event_code_pv_name = BEAMLINE_EVENT_CODE[beamline]
     event_code_pv = epics.PV(event_code_pv_name)
@@ -43,16 +45,12 @@ def power_on_detector(detector_name, beamline):
     except RuntimeError:
         return
 
-    detector = Jungfrau(detector_number)
-
     try:
         detector.stopDetector()
     except Exception as e:
         _logger.info(f"detector {detector_name} (number {detector_number}) could not be stopped {dueto(e)}")
 
     detector.freeSharedMemory()
-
-    detector_config = get_detector_config(detector_name)
 
     try:
         _logger.info(f"request to apply config to detector {detector_name}")
