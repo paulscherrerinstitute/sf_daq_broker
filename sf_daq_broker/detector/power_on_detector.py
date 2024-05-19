@@ -124,7 +124,7 @@ def set_trigger(pv, value, action):
         raise RuntimeError
 
     # sleep to give epics a chance to process change
-    sleep(4)
+    sleep(4) #TODO: this seems excessive, check!
 
     event_code = int(pv.get())
     if event_code != value:
