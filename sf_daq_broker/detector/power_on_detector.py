@@ -106,18 +106,22 @@ def validate_beamline(beamline):
 
 
 def stop_trigger(pv):
+    set_trigger(pv, 255, "stop")
+
+
+def set_trigger(pv, value, action):
     try:
-        pv.put(255)
+        pv.put(value)
     except Exception:
-        _logger.exception(f"could not stop detector trigger {pv.pvname}")
+        _logger.exception(f"could not {action} detector trigger {pv.pvname}")
         raise RuntimeError
 
     # sleep to give epics a chance to process change
     sleep(4)
 
     event_code = int(pv.get())
-    if event_code != 255:
-        _logger.error(f"detector trigger {pv.pvname} did not stop (event returned {event_code})")
+    if event_code != value:
+        _logger.error(f"detector trigger {pv.pvname} did not {action} (event returned {event_code})")
         raise RuntimeError
 
 
