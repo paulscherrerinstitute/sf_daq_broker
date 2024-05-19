@@ -39,7 +39,7 @@ def power_on_detector(detector_name, beamline):
     event_code_pv = epics.PV(event_code_pv_name)
 
     try:
-        stop_trigger(event_code_pv)
+        stop_trigger(event_code_pv, event_code_pv_name)
     except RuntimeError:
         return
 
@@ -93,7 +93,7 @@ def validate_beamline(beamline):
         raise RuntimeError(f"trigger event code for beamline {beamline} not known")
 
 
-def stop_trigger(event_code_pv):
+def stop_trigger(event_code_pv, event_code_pv_name):
     try:
         event_code_pv.put(255)
     except Exception:
