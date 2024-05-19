@@ -56,7 +56,7 @@ def power_on_detector(detector_name, beamline):
         return
 
     try:
-        stop_trigger(event_code_pv, event_code_pv_name)
+        stop_trigger(event_code_pv)
     except RuntimeError:
         return
 
@@ -105,24 +105,24 @@ def validate_beamline(beamline):
         raise RuntimeError(f"trigger event code for beamline {beamline} not known")
 
 
-def stop_trigger(event_code_pv, event_code_pv_name):
+def stop_trigger(pv):
     try:
-        event_code_pv.put(255)
+        pv.put(255)
     except Exception:
-        _logger.exception(f"could not stop detector trigger {event_code_pv_name}")
+        _logger.exception(f"could not stop detector trigger {pv.pvname}")
         raise RuntimeError
 
     # sleep to give epics a chance to process change
     sleep(4)
 
-    event_code = int(event_code_pv.get())
+    event_code = int(pv.get())
     if event_code != 255:
-        _logger.error(f"detector trigger {event_code_pv_name} did not stop (event returned {event_code})")
+        _logger.error(f"detector trigger {pv.pvname} did not stop (event returned {event_code})")
         raise RuntimeError
 
 
-def start_trigger(event_code_pv):
-    event_code_pv.put(254)
+def start_trigger(pv):
+    pv.put(254)
 
 
 def apply_detector_config(detector_configuration, detector):
