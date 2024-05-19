@@ -38,19 +38,9 @@ def power_on_detector(detector_name, beamline):
     event_code_pv_name = BEAMLINE_EVENT_CODE[beamline]
     event_code_pv = epics.PV(event_code_pv_name)
 
-    # stop trigger of the current beamline's detectors
     try:
-        event_code_pv.put(255)
-    except Exception:
-        _logger.exception(f"could not stop detector trigger {event_code_pv_name}")
-        return
-
-    # sleep to give epics a chance to process change
-    sleep(4)
-
-    event_code = int(event_code_pv.get())
-    if event_code != 255:
-        _logger.error(f"detector trigger {event_code_pv_name} did not stop (event returned {event_code})")
+        stop_trigger(event_code_pv)
+    except RuntimeError:
         return
 
     detector = Jungfrau(detector_number)
@@ -75,8 +65,8 @@ def power_on_detector(detector_name, beamline):
     except Exception:
         _logger.exception(f"could not start detector {detector_name}")
 
-    # start trigger
-    event_code_pv.put(254)
+    start_trigger(event_code_pv)
+
     _logger.info(f"detector {detector_name} powered on")
 
 
@@ -101,6 +91,26 @@ def validate_beamline(beamline):
 
     if beamline not in BEAMLINE_EVENT_CODE:
         raise RuntimeError(f"trigger event code for beamline {beamline} not known")
+
+
+def stop_trigger(event_code_pv):
+    try:
+        event_code_pv.put(255)
+    except Exception:
+        _logger.exception(f"could not stop detector trigger {event_code_pv_name}")
+        raise RuntimeError
+
+    # sleep to give epics a chance to process change
+    sleep(4)
+
+    event_code = int(event_code_pv.get())
+    if event_code != 255:
+        _logger.error(f"detector trigger {event_code_pv_name} did not stop (event returned {event_code})")
+        raise RuntimeError
+
+
+def start_trigger(event_code_pv):
+    event_code_pv.put(254)
 
 
 def get_detector_config(detector_name):
