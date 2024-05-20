@@ -2,7 +2,7 @@ import argparse
 import os
 from collections import defaultdict
 
-from sf_daq_broker.detector.detector_config import DetectorConfig, DETECTOR_DAQ
+from sf_daq_broker.detector.detector_config import DetectorConfig, DETECTOR_NAMES
 from sf_daq_broker.utils import json_load, json_save
 
 
@@ -30,7 +30,7 @@ class Choices(tuple):
         return super().__contains__(item) or item == self.default
 
 
-DETECTORS = Choices(sorted(DETECTOR_DAQ.keys()))
+DETECTORS = Choices(sorted(DETECTOR_NAMES.keys()))
 
 
 

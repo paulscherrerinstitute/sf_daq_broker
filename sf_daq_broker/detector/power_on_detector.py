@@ -5,7 +5,7 @@ import epics
 from slsdet import Jungfrau
 from slsdet.enums import timingMode
 
-from sf_daq_broker.detector.detector_config import DetectorConfig
+from sf_daq_broker.detector.detector_config import DetectorConfig, DETECTOR_NAMES
 from sf_daq_broker.utils import dueto
 
 
@@ -90,13 +90,8 @@ def validate_detector_name(detector_name):
     if detector_name is None:
         raise RuntimeError("no detector name given")
 
-    #TODO: should match the proper regex instead:
-
-    if detector_name[:2] != "JF":
-        raise RuntimeError(f'detector name {detector_name} does not start with "JF"')
-
-    if len(detector_name) != 10:
-        raise RuntimeError(f"detector name {detector_name} does not have 10 characters")
+    if detector_name not in DETECTOR_NAMES:
+        raise RuntimeError(f"detector name {detector_name} not known")
 
 
 def validate_beamline(beamline):
