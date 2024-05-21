@@ -57,7 +57,8 @@ def power_on_detector(detector_name, beamline):
 
     try:
         stop_trigger(event_code_pv)
-    except RuntimeError:
+    except RuntimeError as e:
+        _logger.error(e, exc_info=e.__cause__)
         return
 
     try:
@@ -79,7 +80,8 @@ def power_on_detector(detector_name, beamline):
 
     try:
         start_trigger(event_code_pv)
-    except RuntimeError:
+    except RuntimeError as e:
+        _logger.error(e, exc_info=e.__cause__)
         return
 
     _logger.info(f"detector {detector_name} powered on")
@@ -114,17 +116,15 @@ def stop_trigger(pv):
 def set_trigger(pv, value, action):
     try:
         pv.put(value)
-    except Exception:
-        _logger.exception(f"could not {action} detector trigger {pv.pvname}")
-        raise RuntimeError
+    except Exception as e:
+        raise RuntimeError(f"could not {action} detector trigger {pv.pvname}") from e
 
     # sleep to give epics a chance to process change
     sleep(4) #TODO: this seems excessive, check!
 
     event_code = int(pv.get())
     if event_code != value:
-        _logger.error(f"detector trigger {pv.pvname} did not {action} (expected {value} but event returned {event_code})")
-        raise RuntimeError
+        raise RuntimeError(f"detector trigger {pv.pvname} did not {action} (expected {value} but event returned {event_code})")
 
 
 def apply_detector_config(detector_configuration, detector):
