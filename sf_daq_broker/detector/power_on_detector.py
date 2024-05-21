@@ -6,7 +6,6 @@ from slsdet import Jungfrau
 from slsdet.enums import timingMode
 
 from sf_daq_broker.detector.detector_config import DetectorConfig, DETECTOR_NAMES
-from sf_daq_broker.utils import dueto
 
 
 _logger = logging.getLogger("broker_writer")
@@ -64,7 +63,7 @@ def power_on_detector(detector_name, beamline):
     try:
         detector.stopDetector()
     except Exception as e:
-        _logger.info(f"detector {detector_name} (number {detector_number}) could not be stopped {dueto(e)}")
+        _logger.info(f"detector {detector_name} (number {detector_number}) could not be stopped", exc_info=e)
 
     detector.freeSharedMemory()
 
