@@ -65,7 +65,10 @@ def power_on_detector(detector_name, beamline):
     except Exception as e:
         _logger.info(f"could not stop detector {detector_name}", exc_info=e)
 
-    detector.freeSharedMemory()
+    try:
+        detector.freeSharedMemory()
+    except Exception:
+        _logger.exception(f"could not free shared memory of detector {detector_name}")
 
     try:
         apply_detector_config(detector_config, detector)
