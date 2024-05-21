@@ -43,7 +43,7 @@ def power_on_detector(detector_name, beamline):
     try:
         detector = Jungfrau(detector_number)
     except Exception:
-        _logger.exception(f"could not connect to detector {detector_name}")
+        _logger.exception(f"could not connect to detector {detector_name} (number {detector_number})")
         return
 
     event_code_pv_name = BEAMLINE_EVENT_CODE[beamline]
@@ -63,7 +63,7 @@ def power_on_detector(detector_name, beamline):
     try:
         detector.stopDetector()
     except Exception as e:
-        _logger.info(f"detector {detector_name} (number {detector_number}) could not be stopped", exc_info=e)
+        _logger.info(f"could not stop detector {detector_name}", exc_info=e)
 
     detector.freeSharedMemory()
 
