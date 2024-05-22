@@ -6,6 +6,7 @@ from slsdet import Jungfrau
 from slsdet.enums import timingMode
 
 from sf_daq_broker.detector.detector_config import DetectorConfig, DETECTOR_NAMES
+from sf_daq_broker.errors import ValidationError
 
 
 _logger = logging.getLogger("broker_writer")
@@ -28,7 +29,7 @@ def power_on_detector(detector_name, beamline):
     try:
         validate_detector_name(detector_name)
         validate_beamline(beamline)
-    except RuntimeError as e:
+    except ValidationError as e:
         _logger.error(e)
         return
 
@@ -92,19 +93,19 @@ def power_on_detector(detector_name, beamline):
 def validate_detector_name(detector_name):
     #TODO: is the None check even needed?
     if detector_name is None:
-        raise RuntimeError("no detector name given")
+        raise ValidationError("no detector name given")
 
     if detector_name not in DETECTOR_NAMES:
-        raise RuntimeError(f"detector name {detector_name} not known")
+        raise ValidationError(f"detector name {detector_name} not known")
 
 
 def validate_beamline(beamline):
     #TODO: is the None check even needed?
     if beamline is None:
-        raise RuntimeError("no beamline given")
+        raise ValidationError("no beamline given")
 
     if beamline not in BEAMLINE_EVENT_CODE:
-        raise RuntimeError(f"trigger event code for beamline {beamline} not known")
+        raise ValidationError(f"trigger event code for beamline {beamline} not known")
 
 
 def start_trigger(pv):
