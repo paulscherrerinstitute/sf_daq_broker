@@ -158,6 +158,15 @@ def apply_detector_config(detector_configuration, detector):
         detector.sync = 1
         detector.setMaster(1, 31)
 
+    # hardcoded fixed gain for specific modules
+    if detector_number == 6:
+        modules = [
+            3, 4,
+            6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
+            23, 24
+        ]
+        detector.setGainMode(gainMode.FIX_G1, modules)
+
     detector.temp_threshold = detector_configuration.get_detector_temp_threshold()
     detector.temp_control = 1
 
