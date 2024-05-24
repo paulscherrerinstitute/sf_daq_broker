@@ -1,12 +1,10 @@
 import logging
-from time import sleep
 
-import epics
-from slsdet import Jungfrau
-from slsdet.enums import timingMode
+from slsdet import Jungfrau, gainMode, timingMode
 
 from sf_daq_broker.detector.detector_config import DetectorConfig, DETECTOR_NAMES
-from sf_daq_broker.errors import ValidationError
+from sf_daq_broker.detector.trigger import Trigger
+from sf_daq_broker.errors import TriggerError, ValidationError
 
 
 _logger = logging.getLogger("broker_writer")
@@ -28,7 +26,6 @@ def power_on_detector(detector_name, beamline):
 
     try:
         validate_detector_name(detector_name)
-        validate_beamline(beamline)
     except ValidationError as e:
         _logger.error(e)
         return
@@ -47,17 +44,10 @@ def power_on_detector(detector_name, beamline):
         _logger.exception(f"could not connect to detector {detector_name} (number {detector_number})")
         return
 
-    event_code_pv_name = BEAMLINE_EVENT_CODE[beamline]
-
     try:
-        event_code_pv = epics.PV(event_code_pv_name)
-    except Exception:
-        _logger.exception(f"could not connect to event code PV {event_code_pv_name}")
-        return
-
-    try:
-        stop_trigger(event_code_pv)
-    except RuntimeError as e:
+        trigger = Trigger(beamline)
+        trigger.stop()
+    except (TriggerError, ValidationError) as e:
         _logger.error(e, exc_info=e.__cause__)
         return
 
@@ -82,8 +72,8 @@ def power_on_detector(detector_name, beamline):
         _logger.exception(f"could not start detector {detector_name}")
 
     try:
-        start_trigger(event_code_pv)
-    except RuntimeError as e:
+        trigger.start()
+    except TriggerError as e:
         _logger.error(e, exc_info=e.__cause__)
         return
 
@@ -97,37 +87,6 @@ def validate_detector_name(detector_name):
 
     if detector_name not in DETECTOR_NAMES:
         raise ValidationError(f"detector name {detector_name} not known")
-
-
-def validate_beamline(beamline):
-    #TODO: is the None check even needed?
-    if beamline is None:
-        raise ValidationError("no beamline given")
-
-    if beamline not in BEAMLINE_EVENT_CODE:
-        raise ValidationError(f"trigger event code for beamline {beamline} not known")
-
-
-def start_trigger(pv):
-    set_trigger(pv, 254, "start")
-
-
-def stop_trigger(pv):
-    set_trigger(pv, 255, "stop")
-
-
-def set_trigger(pv, value, action):
-    try:
-        pv.put(value)
-    except Exception as e:
-        raise RuntimeError(f"could not {action} detector trigger {pv.pvname}") from e
-
-    # sleep to give epics a chance to process change
-    sleep(4) #TODO: this seems excessive, check!
-
-    event_code = int(pv.get())
-    if event_code != value:
-        raise RuntimeError(f"detector trigger {pv.pvname} did not {action} (expected {value} but event returned {event_code})")
 
 
 def apply_detector_config(detector_configuration, detector):
