@@ -2,7 +2,7 @@ from time import sleep
 
 import epics
 
-from sf_daq_broker.errors import ValidationError
+from sf_daq_broker.errors import TriggerError, ValidationError
 
 
 BEAMLINE_EVENT_CODE = {
@@ -26,7 +26,7 @@ class Trigger:
         try:
             self.pv = epics.PV(pvname)
         except Exception as e:
-            raise RuntimeError(f"could not connect to event code PV {pvname}") from e
+            raise TriggerError(f"could not connect to event code PV {pvname}") from e
 
 
     def start(self):
@@ -51,7 +51,7 @@ def set_trigger(pv, value, action):
     try:
         pv.put(value)
     except Exception as e:
-        raise RuntimeError(f"could not {action} detector trigger {pv.pvname}") from e
+        raise TriggerError(f"could not {action} detector trigger {pv.pvname}") from e
 
     # sleep to give epics a chance to process change
     sleep(4) #TODO: this seems excessive, check!
@@ -59,10 +59,10 @@ def set_trigger(pv, value, action):
     try:
         event_code = int(pv.get())
     except Exception as e:
-        raise RuntimeError(f"got unexpected value from detector trigger {pv.pvname}: {pv.get()}") from e
+        raise TriggerError(f"got unexpected value from detector trigger {pv.pvname}: {pv.get()}") from e
 
     if event_code != value:
-        raise RuntimeError(f"detector trigger {pv.pvname} did not {action} (expected {value} but event returned {event_code})")
+        raise TriggerError(f"detector trigger {pv.pvname} did not {action} (expected {value} but event returned {event_code})")
 
 
 
