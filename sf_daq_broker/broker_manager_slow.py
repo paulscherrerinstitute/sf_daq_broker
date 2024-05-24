@@ -3,15 +3,13 @@ import os
 import shutil
 from datetime import datetime
 from glob import glob
-from time import sleep
 
-import epics
 from slsdet import Jungfrau, gainMode
 from slsdet.enums import detectorSettings
 
 from sf_daq_broker.detector.jfctrl import JFCtrl
+from sf_daq_broker.detector.trigger import Trigger
 from sf_daq_broker.detector.utils import get_configured_detectors
-from sf_daq_broker.detector.power_on_detector import BEAMLINE_EVENT_CODE
 from sf_daq_broker.utils import get_beamline, json_save, json_load, dueto
 from . import validate
 
@@ -152,25 +150,8 @@ class DetectorManager:
 
         new_parameters = {k: v for k, v in new_parameters.items() if v is not None}
 
-        event_code_pv_name = BEAMLINE_EVENT_CODE[beamline]
-        event_code_pv = epics.PV(event_code_pv_name)
-
-        # stop triggering of the beamline detectors
-        try:
-            event_code_pv.put(255)
-        except Exception as e:
-            raise RuntimeError(f"could not stop detector trigger {event_code_pv_name} {dueto(e)}") from e
-
-        # allow epics to process the change
-        sleep(4)
-
-        try:
-            event_code = int(event_code_pv.get())
-        except Exception as e:
-            raise RuntimeError(f"got unexpected value from detector trigger {event_code_pv_name}: {event_code_pv.get()} {dueto(e)}") from e
-
-        if event_code != 255:
-            raise RuntimeError(f"stopping detector trigger {event_code_pv_name} failed")
+        trigger = Trigger(beamline)
+        trigger.stop()
 
         changed_parameters = {}
         for name, new_value in new_parameters.items():
@@ -181,9 +162,7 @@ class DetectorManager:
             setattr(detector, name, new_value)
             _logger.info(f'changed parameter "{name}" from {old_value} to {new_value}')
 
-        # start triggering
-        event_code_pv.put(254)
-        event_code_pv.disconnect()
+        trigger.start()
 
         changed_gainmode = changed_parameters.pop("gainmode", None)
         if changed_gainmode:
@@ -357,7 +336,7 @@ class DetectorManager:
 
         res = {
             "status": "ok",
-            "message": f"successfully retrieved JFCtrl monitor parameters and temperatures from {detector_name}",
+            "message": f"successfully retrieved JFCtrl monitor parameters and temperatures from {detector}",
             "parameters": parameters,
             "temperatures": temperatures,
             "writing": writing
