@@ -28,6 +28,9 @@ conv_detector_gain_settings = {
     gainMode.DYNAMIC: "dynamic",
     gainMode.FORCE_SWITCH_G1: "fixed_gain1",
     gainMode.FORCE_SWITCH_G2: "fixed_gain2"
+#    gainMode.FIX_G1
+#    gainMode.FIX_G2
+#    gainMode.FIX_G0
 }
 
 conv_detector_settings_reverse = dict(zip(conv_detector_settings.values(), conv_detector_settings.keys()))
