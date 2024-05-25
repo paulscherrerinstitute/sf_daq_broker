@@ -4,10 +4,10 @@ import shutil
 from datetime import datetime
 from glob import glob
 
-from slsdet import Jungfrau, gainMode
-from slsdet.enums import detectorSettings
+from slsdet import Jungfrau, gainMode, detectorSettings
 
 from sf_daq_broker.detector.jfctrl import JFCtrl
+from sf_daq_broker.detector.detector import Detector
 from sf_daq_broker.detector.trigger import Trigger
 from sf_daq_broker.detector.utils import get_configured_detectors
 from sf_daq_broker.utils import get_beamline, json_save, json_load, dueto
@@ -71,11 +71,9 @@ class DetectorManager:
 
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
-        detector_number = int(detector_name[2:4])
-        detector = Jungfrau(detector_number)
+        detector = Detector(detector_name)
 
-        temperatures = {t.name: detector.getTemperature(t) for t in detector.getTemperatureList()}
-        temperatures["TEMPERATURE_THRESHOLDS"] = detector.getThresholdTemperature()
+        temperatures = detector.get_temperatures()
 
         res = {
             "status": "ok",

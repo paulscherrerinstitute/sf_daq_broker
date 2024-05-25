@@ -48,6 +48,13 @@ class Detector:
             raise DetectorError(f"could not apply config to detector {self.name}") from e
 
 
+    def get_temperatures(self):
+        jf = self.jf
+        temperatures = {t.name: jf.getTemperature(t) for t in jf.getTemperatureList()}
+        temperatures["TEMPERATURE_THRESHOLDS"] = jf.getThresholdTemperature()
+        return temperatures
+
+
 
 def validate_detector_name(detector_name):
     #TODO: is the None check even needed?
