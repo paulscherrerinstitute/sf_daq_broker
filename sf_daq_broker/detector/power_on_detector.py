@@ -14,14 +14,9 @@ def power_on_detector(detector_name, beamline):
 
     try:
         detector = Detector(detector_name)
-    except (DetectorError, ValidationError) as e:
-        _logger.error(e, exc_info=e.__cause__)
-        return
-
-    try:
         trigger = Trigger(beamline)
         trigger.stop()
-    except (TriggerError, ValidationError) as e:
+    except (DetectorError, TriggerError, ValidationError) as e:
         _logger.error(e, exc_info=e.__cause__)
         return
 
