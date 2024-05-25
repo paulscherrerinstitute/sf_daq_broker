@@ -1,7 +1,25 @@
-from slsdet import Jungfrau, gainMode, timingMode
+from slsdet import Jungfrau, detectorSettings, gainMode, timingMode
 
 from sf_daq_broker.detector.detector_config import DETECTOR_NAMES, DetectorConfig
 from sf_daq_broker.errors import DetectorError, ValidationError
+
+
+conv_detector_settings = {
+    detectorSettings.GAIN0: "normal",
+    detectorSettings.HIGHGAIN0: "low_noise"
+}
+
+conv_detector_gain_settings = {
+    gainMode.DYNAMIC: "dynamic",
+    gainMode.FORCE_SWITCH_G1: "fixed_gain1",
+    gainMode.FORCE_SWITCH_G2: "fixed_gain2"
+#    gainMode.FIX_G1
+#    gainMode.FIX_G2
+#    gainMode.FIX_G0
+}
+
+conv_detector_settings_reverse = dict(zip(conv_detector_settings.values(), conv_detector_settings.keys()))
+conv_detector_gain_settings_reverse = dict(zip(conv_detector_gain_settings.values(), conv_detector_gain_settings.keys()))
 
 
 
@@ -53,6 +71,42 @@ class Detector:
         temperatures = {t.name: jf.getTemperature(t) for t in jf.getTemperatureList()}
         temperatures["TEMPERATURE_THRESHOLDS"] = jf.getThresholdTemperature()
         return temperatures
+
+
+    @property
+    def exptime(self):
+        return self.jf.exptime
+
+    @exptime.setter
+    def exptime(self, value):
+        self.jf.exptime = value
+
+
+    @property
+    def delay(self):
+        return self.jf.delay
+
+    @delay.setter
+    def delay(self, value):
+        self.jf.delay = value
+
+
+    @property
+    def detector_mode(self):
+        return conv_detector_settings.get(self.jf.settings, "unknown")
+
+    @detector_mode.setter
+    def detector_mode(self, value):
+        self.jf.settings = conv_detector_settings_reverse.get(value)
+
+
+    @property
+    def gain_mode(self):
+        return conv_detector_gain_settings.get(self.jf.gainmode, "unknown")
+
+    @gain_mode.setter
+    def gain_mode(self, value):
+        self.jf.gainmode = conv_detector_gain_settings_reverse.get(value)
 
 
 

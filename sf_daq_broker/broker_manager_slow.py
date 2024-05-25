@@ -4,8 +4,6 @@ import shutil
 from datetime import datetime
 from glob import glob
 
-from slsdet import Jungfrau, gainMode, detectorSettings
-
 from sf_daq_broker.detector.jfctrl import JFCtrl
 from sf_daq_broker.detector.detector import Detector
 from sf_daq_broker.detector.trigger import Trigger
@@ -15,24 +13,6 @@ from . import validate
 
 
 _logger = logging.getLogger(__name__)
-
-
-conv_detector_settings = {
-    detectorSettings.GAIN0: "normal",
-    detectorSettings.HIGHGAIN0: "low_noise"
-}
-
-conv_detector_gain_settings = {
-    gainMode.DYNAMIC: "dynamic",
-    gainMode.FORCE_SWITCH_G1: "fixed_gain1",
-    gainMode.FORCE_SWITCH_G2: "fixed_gain2"
-#    gainMode.FIX_G1
-#    gainMode.FIX_G2
-#    gainMode.FIX_G0
-}
-
-conv_detector_settings_reverse = dict(zip(conv_detector_settings.values(), conv_detector_settings.keys()))
-conv_detector_gain_settings_reverse = dict(zip(conv_detector_gain_settings.values(), conv_detector_gain_settings.keys()))
 
 
 
@@ -91,13 +71,12 @@ class DetectorManager:
 
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
-        detector_number = int(detector_name[2:4])
-        detector = Jungfrau(detector_number)
+        detector = Detector(detector_name)
 
         exptime = detector.exptime
-        detector_mode = conv_detector_settings.get(detector.settings, "unknown")
+        detector_mode = detector.detector_mode
         delay = detector.delay
-        gain_mode = conv_detector_gain_settings.get(detector.gainmode, "unknown")
+        gain_mode = detector.gain_mode
 
         parameters = {
             "delay": delay,
@@ -124,8 +103,7 @@ class DetectorManager:
 
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
-        detector_number = int(detector_name[2:4])
-        detector = Jungfrau(detector_number)
+        detector = Detector(detector_name)
 
         parameters = request["parameters"]
 
@@ -134,14 +112,11 @@ class DetectorManager:
         exptime       = parameters.get("exptime")
         gain_mode     = parameters.get("gain_mode")
 
-        gainmode = conv_detector_gain_settings_reverse.get(gain_mode)
-        settings = conv_detector_settings_reverse.get(detector_mode)
-
         new_parameters = {
             "delay": delay,
             "exptime": exptime,
-            "gainmode": gainmode,
-            "settings": settings
+            "gain_mode": gain_mode,
+            "detector_mode": detector_mode
         }
 
         new_parameters = {k: v for k, v in new_parameters.items() if v is not None}
@@ -159,14 +134,6 @@ class DetectorManager:
             _logger.info(f'changed parameter "{name}" from {old_value} to {new_value}')
 
         trigger.start()
-
-        changed_gainmode = changed_parameters.pop("gainmode", None)
-        if changed_gainmode:
-            changed_parameters["gain_mode"] = tuple(conv_detector_gain_settings.get(i) for i in changed_gainmode)
-
-        changed_settings = changed_parameters.pop("settings", None)
-        if changed_settings:
-            changed_parameters["detector_mode"] = tuple(conv_detector_settings.get(i) for i in changed_settings)
 
         res = {
             "status": "ok",
