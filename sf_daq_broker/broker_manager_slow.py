@@ -73,17 +73,14 @@ class DetectorManager:
 
         detector = Detector(detector_name)
 
-        exptime = detector.exptime
-        detector_mode = detector.detector_mode
-        delay = detector.delay
-        gain_mode = detector.gain_mode
+        parameter_names = [
+            "delay",
+            "detector_mode",
+            "exptime",
+            "gain_mode"
+        ]
 
-        parameters = {
-            "delay": delay,
-            "detector_mode": detector_mode,
-            "exptime": exptime,
-            "gain_mode": gain_mode
-        }
+        parameters = {n: getattr(detector, n) for n in parameter_names}
 
         res = {
             "status": "ok",
@@ -107,25 +104,22 @@ class DetectorManager:
 
         parameters = request["parameters"]
 
-        delay         = parameters.get("delay")
-        detector_mode = parameters.get("detector_mode")
-        exptime       = parameters.get("exptime")
-        gain_mode     = parameters.get("gain_mode")
+        parameter_names = [
+            "delay",
+            "detector_mode",
+            "exptime",
+            "gain_mode"
+        ]
 
-        new_parameters = {
-            "delay": delay,
-            "exptime": exptime,
-            "gain_mode": gain_mode,
-            "detector_mode": detector_mode
-        }
-
-        new_parameters = {k: v for k, v in new_parameters.items() if v is not None}
+        new_parameters = {n: parameters.get(n) for n in parameter_names}
 
         trigger = Trigger(beamline)
         trigger.stop()
 
         changed_parameters = {}
         for name, new_value in new_parameters.items():
+            if new_value is None:
+                continue
             old_value = getattr(detector, name)
             if old_value == new_value:
                 continue
