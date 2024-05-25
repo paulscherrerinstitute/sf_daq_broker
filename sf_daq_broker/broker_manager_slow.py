@@ -68,11 +68,9 @@ class DetectorManager:
         allowed_detectors_beamline = get_configured_detectors(beamline)
 
         detector_name = request["detector_name"]
-
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
         detector = Detector(detector_name)
-
         temperatures = detector.get_temperatures()
 
         res = {
