@@ -15,6 +15,14 @@ from . import validate
 _logger = logging.getLogger(__name__)
 
 
+PARAMETER_NAMES = [
+    "delay",
+    "detector_mode",
+    "exptime",
+    "gain_mode"
+]
+
+
 
 class DetectorManager:
 
@@ -73,14 +81,7 @@ class DetectorManager:
 
         detector = Detector(detector_name)
 
-        parameter_names = [
-            "delay",
-            "detector_mode",
-            "exptime",
-            "gain_mode"
-        ]
-
-        parameters = {n: getattr(detector, n) for n in parameter_names}
+        parameters = {n: getattr(detector, n) for n in PARAMETER_NAMES}
 
         res = {
             "status": "ok",
@@ -104,14 +105,7 @@ class DetectorManager:
 
         parameters = request["parameters"]
 
-        parameter_names = [
-            "delay",
-            "detector_mode",
-            "exptime",
-            "gain_mode"
-        ]
-
-        new_parameters = {n: parameters.get(n) for n in parameter_names}
+        new_parameters = {n: parameters.get(n) for n in PARAMETER_NAMES}
 
         trigger = Trigger(beamline)
         trigger.stop()
