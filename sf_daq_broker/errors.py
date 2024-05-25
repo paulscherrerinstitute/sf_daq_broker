@@ -1,4 +1,7 @@
 
+class DetectorError(Exception):
+    pass
+
 class TriggerError(Exception):
     pass
 
