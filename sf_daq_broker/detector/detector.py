@@ -1,6 +1,6 @@
 from slsdet import Jungfrau, gainMode, timingMode
 
-from sf_daq_broker.detector.detector_config import DETECTOR_NAMES
+from sf_daq_broker.detector.detector_config import DETECTOR_NAMES, DetectorConfig
 from sf_daq_broker.errors import DetectorError, ValidationError
 
 
@@ -11,6 +11,11 @@ class Detector:
         validate_detector_name(name)
         self.name = name
         self.number = number = int(name[2:4])
+
+        try:
+            self.cfg = DetectorConfig(name)
+        except Exception as e:
+            raise DetectorError(f"could not load config for detector {name}") from e
 
         try:
             self.jf = Jungfrau(number)
@@ -36,10 +41,9 @@ class Detector:
         except Exception as e:
             raise DetectorError(f"could not free shared memory of detector {self.name}") from e
 
-
-    def apply_config(self, cfg):
+    def apply_config(self):
         try:
-            apply_detector_config(cfg, self.jf)
+            apply_detector_config(self.cfg, self.jf)
         except Exception as e:
             raise DetectorError(f"could not apply config to detector {self.name}") from e
 
