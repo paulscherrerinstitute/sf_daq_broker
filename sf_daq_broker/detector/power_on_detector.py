@@ -10,16 +10,6 @@ from sf_daq_broker.errors import TriggerError, ValidationError
 _logger = logging.getLogger("broker_writer")
 
 
-BEAMLINE_EVENT_CODE = {
-    "alvra"       : "SAR-CVME-TIFALL4-EVG0:SoftEvt-EvtCode-SP",
-    "bernina"     : "SAR-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP",
-    "cristallina" : "SAR-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP",
-    "diavolezza"  : "SAT-CVME-TIFALL4-EVG0:SoftEvt-EvtCode-SP",
-    "maloja"      : "SAT-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP",
-    "furka"       : "SAT-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP"
-}
-
-
 
 def power_on_detector(detector_name, beamline):
     _logger.info(f"request to power on detector {detector_name}")
