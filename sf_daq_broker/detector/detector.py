@@ -8,22 +8,22 @@ def invert_dict(d):
     return dict(zip(d.values(), d.keys()))
 
 
-DETECTOR_MODE_NAMES = {
-    detectorSettings.GAIN0: "normal",
-    detectorSettings.HIGHGAIN0: "low_noise"
+DETECTOR_MODES = {
+    "normal":    detectorSettings.GAIN0,
+    "low_noise": detectorSettings.HIGHGAIN0
 }
 
-GAIN_MODE_NAMES = {
-    gainMode.DYNAMIC: "dynamic",
-    gainMode.FORCE_SWITCH_G1: "fixed_gain1",
-    gainMode.FORCE_SWITCH_G2: "fixed_gain2"
+GAIN_MODES = {
+    "dynamic":     gainMode.DYNAMIC,
+    "fixed_gain1": gainMode.FORCE_SWITCH_G1,
+    "fixed_gain2": gainMode.FORCE_SWITCH_G2
 #    gainMode.FIX_G1
 #    gainMode.FIX_G2
 #    gainMode.FIX_G0
 }
 
-DETECTOR_MODES = invert_dict(DETECTOR_MODE_NAMES)
-GAIN_MODES     = invert_dict(GAIN_MODE_NAMES)
+DETECTOR_MODE_NAMES = invert_dict(DETECTOR_MODES)
+GAIN_MODE_NAMES     = invert_dict(GAIN_MODES)
 
 
 
