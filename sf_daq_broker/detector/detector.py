@@ -103,7 +103,7 @@ class Detector:
 
     @detector_mode.setter
     def detector_mode(self, value):
-        self.jf.settings = DETECTOR_MODES.get(value)
+        self.jf.settings = DETECTOR_MODES.get(value, "unknown")
 
 
     @property
