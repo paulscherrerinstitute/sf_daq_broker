@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from slsdet import Jungfrau, detectorSettings, gainMode, timingMode
 
 from sf_daq_broker.detector.detector_config import DETECTOR_NAMES, DetectorConfig
@@ -106,11 +108,35 @@ class Detector:
 
     @property
     def gain_mode(self):
-        return GAIN_MODE_NAMES.get(self.jf.gainmode, "unknown")
+        gainmode = self.jf.gainmode
+        if isinstance(gainmode, list):
+            res = parse_param_list(gainmode)
+            res = {GAIN_MODE_NAMES.get(k, "unknown"): v for k, v in res.items()}
+            return res
+        else:
+            return GAIN_MODE_NAMES.get(gainmode, "unknown")
 
     @gain_mode.setter
     def gain_mode(self, value):
-        self.jf.gainmode = GAIN_MODES.get(value)
+        if isinstance(value, dict):
+            for k, v in value.items():
+                k = GAIN_MODES.get(k, "unknown")
+                self.jf.setGainMode(k, v)
+        else:
+            self.jf.gainmode = GAIN_MODES.get(value, "unknown")
+
+
+
+def parse_param_list(seq):
+    """
+    convert list containg parameter value for each module into
+    dict mapping parameter value to list of modules where it applies:
+    [x, x, y, x] -> {x: [0, 1, 3], y: [2]}
+    """
+    res = defaultdict(list)
+    for i, v in enumerate(seq):
+        res[v].append(i)
+    return res
 
 
 
