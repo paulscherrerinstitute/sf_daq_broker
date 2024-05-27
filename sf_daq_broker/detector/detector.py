@@ -34,18 +34,9 @@ class Detector:
     def __init__(self, name):
         validate_detector_name(name)
         self.name = name
-        self.ID = ID = int(name[2:4])
-
-        try:
-            self.cfg = DetectorConfig(name)
-        except Exception as e:
-            raise DetectorError(f"could not load config for detector {name}") from e
-
-        try:
-            self.jf = Jungfrau(ID)
-        except Exception as e:
-            raise DetectorError(f"could not connect to detector {name} (ID {ID})") from e
-
+        self.ID = int(name[2:4])
+        self.load_config()
+        self.connect()
 
     def start(self):
         try:
@@ -59,11 +50,23 @@ class Detector:
         except Exception as e:
             raise DetectorError(f"could not stop detector {self.name}") from e
 
+    def connect(self):
+        try:
+            self.jf = Jungfrau(self.ID)
+        except Exception as e:
+            raise DetectorError(f"could not connect to detector {self.name} (ID {self.ID})") from e
+
     def free_shared_memory(self):
         try:
             self.jf.freeSharedMemory()
         except Exception as e:
             raise DetectorError(f"could not free shared memory of detector {self.name}") from e
+
+    def load_config(self):
+        try:
+            self.cfg = DetectorConfig(self.name)
+        except Exception as e:
+            raise DetectorError(f"could not load config for detector {self.name}") from e
 
     def apply_config(self):
         try:
