@@ -77,28 +77,21 @@ def switch_gains_manually(detectors, rate):
 
 
 def switch_gains_via_pedestalmode(detectors, rate):
-    detectors = [d.jf for d in detectors]
-
     pulse_id_pv = epics.PV(PULSE_ID_SOURCE)
-
-    pp = pedestalParameters()
-    pp.enable = 1
-    pp.frames = 50
-    pp.loops = 200
 
     # put detectors in idle mode
     for detector in detectors:
-        detector.stopDetector()
+        detector.jf.stopDetector()
 
     # turn on pedestal mode
     for detector in detectors:
-        detector.pedestalmode = pp
+        detector.enable_pedestal_mode()
 
     start_pulse_id = int(pulse_id_pv.get())
 
     # start detectors again
     for detector in detectors:
-        detector.startDetector()
+        detector.jf.startDetector()
 
     ngains = 2 # g1 and g2
     nominal_rate = 100 # Hz
@@ -109,20 +102,15 @@ def switch_gains_via_pedestalmode(detectors, rate):
 
     # put detectors in idle mode
     for detector in detectors:
-        detector.stopDetector()
-
-    pp = pedestalParameters()
-    pp.enable = 0
-    pp.frames = 0
-    pp.loops = 0
+        detector.jf.stopDetector()
 
     # turn off pedestal mode
     for detector in detectors:
-        detector.pedestalmode = pp
+        detector.disable_pedestal_mode()
 
     # start detectors again
     for detector in detectors:
-        detector.startDetector()
+        detector.jf.startDetector()
 
     sleep(1)
 
