@@ -27,6 +27,7 @@ def power_on_detector(detector_name, beamline):
 
     try:
         detector.free_shared_memory()
+        detector.connect()
         detector.apply_config()
         detector.start()
     except DetectorError as e:
