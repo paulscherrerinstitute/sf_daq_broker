@@ -36,8 +36,8 @@ def take_pedestal(detectors_name, rate=1, pedestalmode=False):
 def switch_gains_manually(detectors, rate):
     pulse_id_pv = epics.PV(PULSE_ID_SOURCE)
 
-    # store original gain mode settings
-    gainmode_orig = {d.getShmId(): d.gainmode for d in detectors}
+#    # store original gain mode settings
+#    gainmode_orig = {d.getShmId(): d.gainmode for d in detectors}
 
     # switch to G0
     for detector in detectors:
@@ -66,10 +66,14 @@ def switch_gains_manually(detectors, rate):
 
     stop_pulse_id = int(pulse_id_pv.get())
 
-    # switch back to original gain mode settings
+#    # switch back to original gain mode settings
+#    for detector in detectors:
+#        sid = detector.getShmId()
+#        detector.gainmode = gainmode_orig[sid]
+
+    # switch back to dynamic
     for detector in detectors:
-        sid = detector.getShmId()
-        detector.gainmode = gainmode_orig[sid]
+        detector.gainmode = gainMode.DYNAMIC
 
     sleep(1)
 
