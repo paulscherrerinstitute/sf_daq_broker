@@ -81,7 +81,7 @@ def switch_gains_via_pedestalmode(detectors, rate):
 
     # put detectors in idle mode
     for detector in detectors:
-        detector.jf.stopDetector()
+        detector.stop()
 
     # turn on pedestal mode
     for detector in detectors:
@@ -91,7 +91,7 @@ def switch_gains_via_pedestalmode(detectors, rate):
 
     # start detectors again
     for detector in detectors:
-        detector.jf.startDetector()
+        detector.start()
 
     ngains = 2 # g1 and g2
     nominal_rate = 100 # Hz
@@ -102,7 +102,7 @@ def switch_gains_via_pedestalmode(detectors, rate):
 
     # put detectors in idle mode
     for detector in detectors:
-        detector.jf.stopDetector()
+        detector.stop()
 
     # turn off pedestal mode
     for detector in detectors:
@@ -110,7 +110,7 @@ def switch_gains_via_pedestalmode(detectors, rate):
 
     # start detectors again
     for detector in detectors:
-        detector.jf.startDetector()
+        detector.start()
 
     sleep(1)
 
