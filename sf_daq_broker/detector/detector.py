@@ -34,7 +34,7 @@ class Detector:
     def __init__(self, name):
         validate_detector_name(name)
         self.name = name
-        self.number = number = int(name[2:4])
+        self.ID = ID = int(name[2:4])
 
         try:
             self.cfg = DetectorConfig(name)
@@ -42,9 +42,9 @@ class Detector:
             raise DetectorError(f"could not load config for detector {name}") from e
 
         try:
-            self.jf = Jungfrau(number)
+            self.jf = Jungfrau(ID)
         except Exception as e:
-            raise DetectorError(f"could not connect to detector {name} (number {number})") from e
+            raise DetectorError(f"could not connect to detector {name} (ID {ID})") from e
 
 
     def start(self):
