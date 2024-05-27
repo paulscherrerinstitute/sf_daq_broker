@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from slsdet import Jungfrau, detectorSettings, gainMode, timingMode
+from slsdet import Jungfrau, detectorSettings, gainMode, pedestalParameters, timingMode
 
 from sf_daq_broker.detector.detector_config import DETECTOR_NAMES, DetectorConfig
 from sf_daq_broker.errors import DetectorError, ValidationError
@@ -124,6 +124,21 @@ class Detector:
                 self.jf.setGainMode(k, v)
         else:
             self.jf.gainmode = GAIN_MODES.get(value, "unknown")
+
+
+    def enable_pedestal_mode(self, frames=50, loops=200):
+        pp = pedestalParameters()
+        pp.enable = 1
+        pp.frames = frames
+        pp.loops = loops
+        self.jf.pedestalmode = pp
+
+    def disable_pedestal_mode(self):
+        pp = pedestalParameters()
+        pp.enable = 0
+        pp.frames = 0
+        pp.loops = 0
+        self.jf.pedestalmode = pp
 
 
 
