@@ -2,7 +2,9 @@ import logging
 from time import sleep
 
 import epics
-from slsdet import Jungfrau, gainMode, pedestalParameters
+from slsdet import gainMode, pedestalParameters
+
+from sf_daq_broker.detector.detector import Detector
 
 
 _logger = logging.getLogger("broker_writer")
@@ -12,12 +14,11 @@ PULSE_ID_SOURCE = "SLAAR11-LTIM01-EVR0:RX-PULSEID"
 
 
 
-def take_pedestal(detectors_name, rate=1, pedestalmode=False):
-    if not detectors_name:
+def take_pedestal(detector_names, rate=1, pedestalmode=False):
+    if not detector_names:
         return None, None
 
-    detectors_number = [int(detector_name[2:4]) for detector_name in detectors_name]
-    detectors = [Jungfrau(detector_number) for detector_number in detectors_number]
+    detectors = [Detector(name) for name in detector_names]
 
     if pedestalmode:
         mode = "via pedestalmode"
@@ -26,7 +27,7 @@ def take_pedestal(detectors_name, rate=1, pedestalmode=False):
         mode = "manually"
         switch_gains = switch_gains_manually
 
-    _logger.info(f"take_pedestal: switch gains {mode} for {detectors_name}")
+    _logger.info(f"take_pedestal: switch gains {mode} for {detector_names}")
 
     start_pulse_id, stop_pulse_id = switch_gains(detectors, rate)
     det_start_pulse_id, det_stop_pulse_id = align_pids(start_pulse_id, stop_pulse_id, rate)
@@ -36,12 +37,12 @@ def take_pedestal(detectors_name, rate=1, pedestalmode=False):
 def switch_gains_manually(detectors, rate):
     pulse_id_pv = epics.PV(PULSE_ID_SOURCE)
 
-#    # store original gain mode settings
-#    gainmode_orig = {d.getShmId(): d.gainmode for d in detectors}
+    # store original gain mode settings
+    gain_mode_orig = {d.ID: d.gain_mode for d in detectors}
 
     # switch to G0
     for detector in detectors:
-        detector.gainmode = gainMode.DYNAMIC
+        detector.jf.gainmode = gainMode.DYNAMIC
 
     sleep(1)
 
@@ -52,28 +53,23 @@ def switch_gains_manually(detectors, rate):
 
     # switch to G1
     for detector in detectors:
-        detector.gainmode = gainMode.FORCE_SWITCH_G1
+        detector.jf.gainmode = gainMode.FORCE_SWITCH_G1
 
     # collect in G1
     sleep(10 * rate)
 
     # switch to G2
     for detector in detectors:
-        detector.gainmode = gainMode.FORCE_SWITCH_G2
+        detector.jf.gainmode = gainMode.FORCE_SWITCH_G2
 
     # collect in G2
     sleep(10 * rate)
 
     stop_pulse_id = int(pulse_id_pv.get())
 
-#    # switch back to original gain mode settings
-#    for detector in detectors:
-#        sid = detector.getShmId()
-#        detector.gainmode = gainmode_orig[sid]
-
-    # switch back to dynamic
+    # switch back to original gain mode settings
     for detector in detectors:
-        detector.gainmode = gainMode.DYNAMIC
+        detector.gain_mode = gain_mode_orig[detector.ID]
 
     sleep(1)
 
@@ -81,6 +77,8 @@ def switch_gains_manually(detectors, rate):
 
 
 def switch_gains_via_pedestalmode(detectors, rate):
+    detectors = [d.jf for d in detectors]
+
     pulse_id_pv = epics.PV(PULSE_ID_SOURCE)
 
     pp = pedestalParameters()
