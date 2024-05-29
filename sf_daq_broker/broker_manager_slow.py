@@ -119,7 +119,7 @@ class DetectorManager:
                 continue
             changed_parameters[name] = (old_value, new_value)
             setattr(detector, name, new_value)
-            _logger.info(f'changed parameter "{name}" from {old_value} to {new_value}')
+            _logger.info(f'changed parameter "{name}" from "{old_value}" to "{new_value}"')
 
         trigger.start()
 
