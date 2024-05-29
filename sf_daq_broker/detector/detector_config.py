@@ -25,23 +25,23 @@ DAQ_BEAMLINE = {
     13 : {0: "alvra",   1: "bernina"}
 }
 
-DAQ_PUBLIC_IP = {
-    3  : "129.129.241.42",
-    8  : "129.129.241.46",
-    9  : "129.129.241.50",
-    10 : "129.129.241.62",
-    12 : "129.129.241.65",
-    13 : "129.129.241.64"
-}
+#DAQ_PUBLIC_IP = {
+#    3  : "129.129.241.42",
+#    8  : "129.129.241.46",
+#    9  : "129.129.241.50",
+#    10 : "129.129.241.62",
+#    12 : "129.129.241.65",
+#    13 : "129.129.241.64"
+#}
 
-DAQ_DATA_IP = {
-    3  : "192.168.30.29",
-    8  : "192.168.30.8",
-    9  : "192.168.30.25",
-    10 : "192.168.30.11",
-    12 : "192.168.30.38",
-    13 : "192.168.30.39"
-}
+#DAQ_DATA_IP = {
+#    3  : "192.168.30.29",
+#    8  : "192.168.30.8",
+#    9  : "192.168.30.25",
+#    10 : "192.168.30.11",
+#    12 : "192.168.30.38",
+#    13 : "192.168.30.39"
+#}
 
 BEAMLINE_DELAY = {
     "alvra"       : 0.000889,
@@ -248,11 +248,11 @@ class DetectorConfig():
         if daq not in DAQ_BEAMLINE or port not in DAQ_BEAMLINE[daq]:
             raise_missing("association to beamline")
 
-        if daq not in DAQ_PUBLIC_IP:
-            raise_missing("DAQ public IP")
+#        if daq not in DAQ_PUBLIC_IP:
+#            raise_missing("DAQ public IP")
 
-        if daq not in DAQ_DATA_IP:
-            raise_missing("DAQ data IP")
+#        if daq not in DAQ_DATA_IP:
+#            raise_missing("DAQ data IP")
 
         if detector_name not in DETECTOR_PORT:
             raise_missing("config port")
@@ -277,8 +277,8 @@ class DetectorConfig():
             raise RuntimeError(f"length {n_txndelay} of configured txndelay {txndelay} does not match number of tiles {n_tiles} of detector {detector_name}")
 
 
-    def get_detector_name(self):
-        return self._detector_name
+#    def get_detector_name(self):
+#        return self._detector_name
 
     def get_detector_beamline(self):
         daq  = DETECTOR_DAQ[self._detector_name]["daq"]
@@ -303,30 +303,30 @@ class DetectorConfig():
         return DAQ_MAC[daq][port]
 
 
-    def get_detector_daq_public_address(self):
-        ip   = self.get_detector_daq_public_ip()
-        port = self.get_detector_daq_public_port()
-        return f"tcp://{ip}:{port}"
+#    def get_detector_daq_public_address(self):
+#        ip   = self.get_detector_daq_public_ip()
+#        port = self.get_detector_daq_public_port()
+#        return f"tcp://{ip}:{port}"
 
-    def get_detector_daq_public_ip(self):
-        daq = DETECTOR_DAQ[self._detector_name]["daq"]
-        return DAQ_PUBLIC_IP[daq]
+#    def get_detector_daq_public_ip(self):
+#        daq = DETECTOR_DAQ[self._detector_name]["daq"]
+#        return DAQ_PUBLIC_IP[daq]
 
-    def get_detector_daq_public_port(self):
-        return 9000 + self.get_detector_number()
+#    def get_detector_daq_public_port(self):
+#        return 9000 + self.get_detector_number()
 
 
-    def get_detector_daq_data_address(self):
-        ip   = self.get_detector_daq_data_ip()
-        port = self.get_detector_daq_data_port()
-        return f"tcp://{ip}:{port}"
+#    def get_detector_daq_data_address(self):
+#        ip   = self.get_detector_daq_data_ip()
+#        port = self.get_detector_daq_data_port()
+#        return f"tcp://{ip}:{port}"
 
-    def get_detector_daq_data_ip(self):
-        daq = DETECTOR_DAQ[self._detector_name]["daq"]
-        return DAQ_DATA_IP[daq]
+#    def get_detector_daq_data_ip(self):
+#        daq = DETECTOR_DAQ[self._detector_name]["daq"]
+#        return DAQ_DATA_IP[daq]
 
-    def get_detector_daq_data_port(self):
-        return 9100 + self.get_detector_number()
+#    def get_detector_daq_data_port(self):
+#        return 9100 + self.get_detector_number()
 
 
     def get_detector_vlan(self):
