@@ -11,9 +11,9 @@ _logger = logging.getLogger("broker_writer")
 
 
 
-def pulse_id_to_seconds(pulse_id, **kwargs):
-    ts = pulse_id_to_timestamp(pulse_id, **kwargs)
-    return ts / 1e9
+#def pulse_id_to_seconds(pulse_id, **kwargs):
+#    ts = pulse_id_to_timestamp(pulse_id, **kwargs)
+#    return ts / 1e9
 
 
 def pulse_id_to_timestamp(pulse_id, n_tries=15, wait_time=5):
