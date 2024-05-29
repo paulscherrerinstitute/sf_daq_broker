@@ -2,7 +2,7 @@ import logging
 from time import sleep
 
 import epics
-from slsdet import gainMode, pedestalParameters
+from slsdet import gainMode
 
 from sf_daq_broker.detector.detector import Detector
 
@@ -79,13 +79,17 @@ def switch_gains_manually(detectors, rate):
 def switch_gains_via_pedestalmode(detectors, rate):
     pulse_id_pv = epics.PV(PULSE_ID_SOURCE)
 
+    # config
+    frames = 50
+    loops = 200
+
     # put detectors in idle mode
     for detector in detectors:
         detector.stop()
 
     # turn on pedestal mode
     for detector in detectors:
-        detector.enable_pedestal_mode()
+        detector.enable_pedestal_mode(frames, loops)
 
     start_pulse_id = int(pulse_id_pv.get())
 
@@ -95,7 +99,7 @@ def switch_gains_via_pedestalmode(detectors, rate):
 
     ngains = 2 # g1 and g2
     nominal_rate = 100 # Hz
-    wait_time = ngains * pp.frames * pp.loops * rate / nominal_rate
+    wait_time = ngains * frames * loops * rate / nominal_rate
     sleep(wait_time)
 
     stop_pulse_id = int(pulse_id_pv.get())

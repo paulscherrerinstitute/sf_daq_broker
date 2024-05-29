@@ -129,7 +129,7 @@ class Detector:
             self.jf.gainmode = GAIN_MODES.get(value, "unknown")
 
 
-    def enable_pedestal_mode(self, frames=50, loops=200):
+    def enable_pedestal_mode(self, frames, loops):
         pp = pedestalParameters()
         pp.enable = 1
         pp.frames = frames
