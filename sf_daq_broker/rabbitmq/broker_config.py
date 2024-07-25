@@ -16,11 +16,6 @@ ROUTE_DETECTOR_CONVERT  = "detector.convert"
 ROUTE_DETECTOR_PEDESTAL = "detector.pedestal"
 ROUTE_DETECTOR_RETRIEVE = "detector.retrieve"
 
-WRITER_DATA_API          = 0
-WRITER_DETECTOR_CONVERT  = 2
-WRITER_DETECTOR_PEDESTAL = 3
-WRITER_DETECTOR_RETRIEVE = 1
-
 # Name of the tags for rabbitmq requests.
 TAG_DATA3BUFFER       = "data3buffer"
 TAG_IMAGEBUFFER       = "imagebuffer"

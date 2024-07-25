@@ -19,18 +19,23 @@ from sf_daq_broker.writer.detector_writer import detector_retrieve
 _logger = logging.getLogger("broker_writer")
 
 
+WRITER_DATA_API          = 0
+WRITER_DETECTOR_RETRIEVE = 1
+WRITER_DETECTOR_CONVERT  = 2
+WRITER_DETECTOR_PEDESTAL = 3
+
 ROUTING_KEYS = {
-    broker_config.WRITER_DATA_API:          broker_config.ROUTE_DATA_API,
-    broker_config.WRITER_DETECTOR_RETRIEVE: broker_config.ROUTE_DETECTOR_RETRIEVE,
-    broker_config.WRITER_DETECTOR_CONVERT:  broker_config.ROUTE_DETECTOR_CONVERT,
-    broker_config.WRITER_DETECTOR_PEDESTAL: broker_config.ROUTE_DETECTOR_PEDESTAL
+    WRITER_DATA_API:          broker_config.ROUTE_DATA_API,
+    WRITER_DETECTOR_RETRIEVE: broker_config.ROUTE_DETECTOR_RETRIEVE,
+    WRITER_DETECTOR_CONVERT:  broker_config.ROUTE_DETECTOR_CONVERT,
+    WRITER_DETECTOR_PEDESTAL: broker_config.ROUTE_DETECTOR_PEDESTAL
 }
 
 REQUEST_QUEUES = {
-    broker_config.WRITER_DATA_API:          broker_config.QUEUE_DATA_API,
-    broker_config.WRITER_DETECTOR_RETRIEVE: broker_config.QUEUE_DETECTOR_RETRIEVE,
-    broker_config.WRITER_DETECTOR_CONVERT:  broker_config.QUEUE_DETECTOR_CONVERT,
-    broker_config.WRITER_DETECTOR_PEDESTAL: broker_config.QUEUE_DETECTOR_PEDESTAL
+    WRITER_DATA_API:          broker_config.QUEUE_DATA_API,
+    WRITER_DETECTOR_RETRIEVE: broker_config.QUEUE_DETECTOR_RETRIEVE,
+    WRITER_DETECTOR_CONVERT:  broker_config.QUEUE_DETECTOR_CONVERT,
+    WRITER_DETECTOR_PEDESTAL: broker_config.QUEUE_DETECTOR_PEDESTAL
 }
 
 
