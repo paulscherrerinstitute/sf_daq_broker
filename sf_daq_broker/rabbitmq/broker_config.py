@@ -6,17 +6,19 @@ REQUEST_EXCHANGE = "request"
 # Exchange where the status of the writing is reported.
 STATUS_EXCHANGE = "status"
 
+# Names of the queues for rabbitmq requests.
 QUEUE_DATA_API          = "write_request"
 QUEUE_DETECTOR_CONVERT  = "detector_convert"
 QUEUE_DETECTOR_PEDESTAL = "detector_pedestal"
 QUEUE_DETECTOR_RETRIEVE = "detector_retrieve"
 
+# Names of the routes for rabbitmq requests.
 ROUTE_DATA_API          = "bs.*"
 ROUTE_DETECTOR_CONVERT  = "detector.convert"
 ROUTE_DETECTOR_PEDESTAL = "detector.pedestal"
 ROUTE_DETECTOR_RETRIEVE = "detector.retrieve"
 
-# Name of the tags for rabbitmq requests.
+# Names of the tags for rabbitmq requests.
 TAG_DATA3BUFFER       = "data3buffer"
 TAG_IMAGEBUFFER       = "imagebuffer"
 TAG_DETECTOR_CONVERT  = "detector_convert"
