@@ -28,6 +28,6 @@ TAG_DATA3BUFFER = "data3buffer"
 TAG_DETECTOR_CONVERT  = "detector_convert"
 TAG_DETECTOR_RETRIEVE = "detector_buffer"
 TAG_IMAGEBUFFER = "imagebuffer"
-TAG_PEDESTAL = "pedestal"
-TAG_POWER_ON = "detector_power_on"
+TAG_DETECTOR_PEDESTAL = "pedestal"
+TAG_DETECTOR_POWER_ON = "detector_power_on"
 

@@ -204,7 +204,7 @@ def process_request_internal(request, broker_client):
         _logger.info("skipping request: output file is /dev/null")
         return
 
-    if not channels and writer_type not in (broker_config.TAG_PEDESTAL, broker_config.TAG_POWER_ON):
+    if not channels and writer_type not in (broker_config.TAG_DETECTOR_PEDESTAL, broker_config.TAG_DETECTOR_POWER_ON):
         _logger.info("skipping request: no channels requested")
         return
 
@@ -222,11 +222,11 @@ def process_request_internal(request, broker_client):
         req = get_data_api_request(channels, start_pulse_id, stop_pulse_id)
         write_from_imagebuffer(req, output_file, metadata)
 
-    elif writer_type == broker_config.TAG_PEDESTAL:
+    elif writer_type == broker_config.TAG_DETECTOR_PEDESTAL:
         _logger.info("recording pedestal")
         detector_pedestal_retrieve(broker_client, request)
 
-    elif writer_type == broker_config.TAG_POWER_ON:
+    elif writer_type == broker_config.TAG_DETECTOR_POWER_ON:
         _logger.info("powering on detector")
         detector_name = request.get("detector_name", None)
         beamline = request.get("beamline", None)
@@ -253,7 +253,7 @@ def wait_for_delay(request_timestamp, writer_type):
         time_to_wait = config.DETECTOR_RETRIEVAL_DELAY
 
 #    # the following is not needed since for the covered cases request_timestamp is None
-#    if writer_type == broker_config.TAG_PEDESTAL or writer_type != broker_config.TAG_POWER_ON:
+#    if writer_type == broker_config.TAG_DETECTOR_PEDESTAL or writer_type != broker_config.TAG_DETECTOR_POWER_ON:
 #        time_to_wait = 0
 
     current_timestamp = time()

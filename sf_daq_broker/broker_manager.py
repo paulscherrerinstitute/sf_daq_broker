@@ -148,11 +148,11 @@ class BrokerManager:
             "beamline": beamline,
             "channels": None,
             "detector_name": detector_name,
-            "writer_type": broker_config.TAG_POWER_ON
+            "writer_type": broker_config.TAG_DETECTOR_POWER_ON
         }
 
         self.broker_client.open()
-        self.broker_client.send(request_power_on, broker_config.TAG_POWER_ON)
+        self.broker_client.send(request_power_on, broker_config.TAG_DETECTOR_POWER_ON)
         self.broker_client.close()
 
         return f"request to power on detector {detector_name} sent, wait a few minutes"
@@ -269,11 +269,11 @@ class BrokerManager:
             "start_pulse_id": 0,
             "stop_pulse_id": 100,
             "timestamp": None,
-            "writer_type": broker_config.TAG_PEDESTAL
+            "writer_type": broker_config.TAG_DETECTOR_PEDESTAL
         }
 
         self.broker_client.open()
-        self.broker_client.send(pedestal_request, broker_config.TAG_PEDESTAL)
+        self.broker_client.send(pedestal_request, broker_config.TAG_DETECTOR_PEDESTAL)
         self.broker_client.close()
 
         time_to_wait = PEDESTAL_FRAMES / 100 * rate_multiplicator + 10

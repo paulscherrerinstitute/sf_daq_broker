@@ -13,8 +13,8 @@ ROUTES = {
     broker_config.TAG_IMAGEBUFFER:       broker_config.ROUTE_DATA_API,
     broker_config.TAG_DETECTOR_RETRIEVE: broker_config.ROUTE_DETECTOR_RETRIEVE,
     broker_config.TAG_DETECTOR_CONVERT:  broker_config.ROUTE_DETECTOR_CONVERT,
-    broker_config.TAG_PEDESTAL:          broker_config.ROUTE_DETECTOR_PEDESTAL,
-    broker_config.TAG_POWER_ON:          broker_config.ROUTE_DETECTOR_PEDESTAL,
+    broker_config.TAG_DETECTOR_PEDESTAL: broker_config.ROUTE_DETECTOR_PEDESTAL,
+    broker_config.TAG_DETECTOR_POWER_ON: broker_config.ROUTE_DETECTOR_PEDESTAL,
 }
 
 
