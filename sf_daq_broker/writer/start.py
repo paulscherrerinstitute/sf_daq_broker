@@ -44,7 +44,7 @@ def run():
     parser = argparse.ArgumentParser(description="data writer service")
 
     parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL, help="RabbitMQ broker URL")
-    parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
+    parser.add_argument("--log_level", default=config.DEFAULT_LOG_LEVEL, choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
     parser.add_argument("--writer_id", default=1, type=int, help="writer ID")
     parser.add_argument("--writer_type", default=0, type=int, choices=range(4), help="writer type (0: epics/BS/camera; 1: detector retrieve; 2: detector conversion; 3: detector pedestal)")
 

@@ -43,7 +43,7 @@ def run():
 
     parser.add_argument("run_info", help="run_info json file")
     parser.add_argument("--source", "-s", default="image", choices=ALLOWED_SOURCES, help=f"retrieve from image or data buffer (possible values: {PRINTABLE_ALLOWED_SOURCES})")
-    parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
+    parser.add_argument("--log_level", default=config.DEFAULT_LOG_LEVEL, choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
 
     clargs = parser.parse_args()
 
