@@ -19,6 +19,19 @@ from sf_daq_broker.writer.detector_writer import detector_retrieve
 _logger = logging.getLogger("broker_writer")
 
 
+ROUTING_KEYS = {
+    broker_config.WRITER_DETECTOR_RETRIEVE: broker_config.ROUTE_DETECTOR_RETRIEVE,
+    broker_config.WRITER_DETECTOR_CONVERT:  broker_config.ROUTE_DETECTOR_CONVERT,
+    broker_config.WRITER_DETECTOR_PEDESTAL: broker_config.ROUTE_DETECTOR_PEDESTAL
+}
+
+REQUEST_QUEUES = {
+    broker_config.WRITER_DETECTOR_RETRIEVE: broker_config.QUEUE_DETECTOR_RETRIEVE,
+    broker_config.WRITER_DETECTOR_CONVERT:  broker_config.QUEUE_DETECTOR_CONVERT,
+    broker_config.WRITER_DETECTOR_PEDESTAL: broker_config.QUEUE_DETECTOR_PEDESTAL
+}
+
+
 
 def run():
     parser = argparse.ArgumentParser(description="data writer service")
@@ -57,18 +70,6 @@ def start_service(broker_url, writer_type=0):
 
     channel.exchange_declare(exchange=broker_config.STATUS_EXCHANGE,  exchange_type="fanout")
     channel.exchange_declare(exchange=broker_config.REQUEST_EXCHANGE, exchange_type="topic")
-
-    ROUTING_KEYS = {
-        broker_config.WRITER_DETECTOR_RETRIEVE: broker_config.ROUTE_DETECTOR_RETRIEVE,
-        broker_config.WRITER_DETECTOR_CONVERT:  broker_config.ROUTE_DETECTOR_CONVERT,
-        broker_config.WRITER_DETECTOR_PEDESTAL: broker_config.ROUTE_DETECTOR_PEDESTAL
-    }
-
-    REQUEST_QUEUES = {
-        broker_config.WRITER_DETECTOR_RETRIEVE: broker_config.QUEUE_DETECTOR_RETRIEVE,
-        broker_config.WRITER_DETECTOR_CONVERT:  broker_config.QUEUE_DETECTOR_CONVERT,
-        broker_config.WRITER_DETECTOR_PEDESTAL: broker_config.QUEUE_DETECTOR_PEDESTAL
-    }
 
     routing_key   = ROUTING_KEYS.get(writer_type, broker_config.DEFAULT_ROUTE)
     request_queue = REQUEST_QUEUES.get(writer_type, broker_config.DEFAULT_QUEUE)
