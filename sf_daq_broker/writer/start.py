@@ -26,7 +26,7 @@ def run():
     parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL, help="RabbitMQ broker URL")
     parser.add_argument("--log_level", default="INFO", choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"], help="log level")
     parser.add_argument("--writer_id", default=1, type=int, help="writer ID")
-    parser.add_argument("--writer_type", default=0, type=int, choices=range(4), help="writer type (0: epics/BS/camera; 1: detector retrieve; 2: detector conversion; 3: pedestal)")
+    parser.add_argument("--writer_type", default=0, type=int, choices=range(4), help="writer type (0: epics/BS/camera; 1: detector retrieve; 2: detector conversion; 3: detector pedestal)")
 
     clargs = parser.parse_args()
 
@@ -58,18 +58,16 @@ def start_service(broker_url, writer_type=0):
     channel.exchange_declare(exchange=broker_config.STATUS_EXCHANGE,  exchange_type="fanout")
     channel.exchange_declare(exchange=broker_config.REQUEST_EXCHANGE, exchange_type="topic")
 
-    #TODO: should introduce named writer_types / enum?
-
     ROUTING_KEYS = {
-        1: broker_config.ROUTE_DETECTOR_RETRIEVE,
-        2: broker_config.ROUTE_DETECTOR_CONVERT,
-        3: broker_config.ROUTE_DETECTOR_PEDESTAL
+        broker_config.WRITER_DETECTOR_RETRIEVE: broker_config.ROUTE_DETECTOR_RETRIEVE,
+        broker_config.WRITER_DETECTOR_CONVERT:  broker_config.ROUTE_DETECTOR_CONVERT,
+        broker_config.WRITER_DETECTOR_PEDESTAL: broker_config.ROUTE_DETECTOR_PEDESTAL
     }
 
     REQUEST_QUEUES = {
-        1: broker_config.QUEUE_DETECTOR_RETRIEVE,
-        2: broker_config.QUEUE_DETECTOR_CONVERT,
-        3: broker_config.QUEUE_DETECTOR_PEDESTAL
+        broker_config.WRITER_DETECTOR_RETRIEVE: broker_config.QUEUE_DETECTOR_RETRIEVE,
+        broker_config.WRITER_DETECTOR_CONVERT:  broker_config.QUEUE_DETECTOR_CONVERT,
+        broker_config.WRITER_DETECTOR_PEDESTAL: broker_config.QUEUE_DETECTOR_PEDESTAL
     }
 
     routing_key   = ROUTING_KEYS.get(writer_type, broker_config.DEFAULT_ROUTE)
