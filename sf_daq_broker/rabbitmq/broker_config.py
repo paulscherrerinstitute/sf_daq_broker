@@ -6,8 +6,8 @@ REQUEST_EXCHANGE = "request"
 # Exchange where the status of the writing is reported.
 STATUS_EXCHANGE = "status"
 
-DEFAULT_QUEUE = "write_request"
-DEFAULT_ROUTE = "bs.*"
+QUEUE_DATA_API = "write_request"
+ROUTE_DATA_API = "bs.*"
 
 QUEUE_DETECTOR_CONVERT = "detector_convert"
 ROUTE_DETECTOR_CONVERT = "detector.convert"

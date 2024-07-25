@@ -20,12 +20,14 @@ _logger = logging.getLogger("broker_writer")
 
 
 ROUTING_KEYS = {
+    broker_config.WRITER_DATA_API:          broker_config.ROUTE_DATA_API,
     broker_config.WRITER_DETECTOR_RETRIEVE: broker_config.ROUTE_DETECTOR_RETRIEVE,
     broker_config.WRITER_DETECTOR_CONVERT:  broker_config.ROUTE_DETECTOR_CONVERT,
     broker_config.WRITER_DETECTOR_PEDESTAL: broker_config.ROUTE_DETECTOR_PEDESTAL
 }
 
 REQUEST_QUEUES = {
+    broker_config.WRITER_DATA_API:          broker_config.QUEUE_DATA_API,
     broker_config.WRITER_DETECTOR_RETRIEVE: broker_config.QUEUE_DETECTOR_RETRIEVE,
     broker_config.WRITER_DETECTOR_CONVERT:  broker_config.QUEUE_DETECTOR_CONVERT,
     broker_config.WRITER_DETECTOR_PEDESTAL: broker_config.QUEUE_DETECTOR_PEDESTAL
@@ -71,8 +73,8 @@ def start_service(broker_url, writer_type=0):
     channel.exchange_declare(exchange=broker_config.STATUS_EXCHANGE,  exchange_type="fanout")
     channel.exchange_declare(exchange=broker_config.REQUEST_EXCHANGE, exchange_type="topic")
 
-    routing_key   = ROUTING_KEYS.get(writer_type, broker_config.DEFAULT_ROUTE)
-    request_queue = REQUEST_QUEUES.get(writer_type, broker_config.DEFAULT_QUEUE)
+    routing_key   = ROUTING_KEYS[writer_type]
+    request_queue = REQUEST_QUEUES[writer_type]
 
     channel.queue_declare(queue=request_queue, auto_delete=True)
     channel.queue_bind(queue=request_queue, exchange=broker_config.REQUEST_EXCHANGE, routing_key=routing_key)

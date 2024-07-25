@@ -9,8 +9,8 @@ from . import broker_config
 
 
 ROUTES = {
-#    broker_config.TAG_DATA3BUFFER:       broker_config.DEFAULT_ROUTE,
-#    broker_config.TAG_IMAGEBUFFER:       broker_config.DEFAULT_ROUTE,
+    broker_config.TAG_DATA3BUFFER:       broker_config.ROUTE_DATA_API,
+    broker_config.TAG_IMAGEBUFFER:       broker_config.ROUTE_DATA_API,
     broker_config.TAG_DETECTOR_RETRIEVE: broker_config.ROUTE_DETECTOR_RETRIEVE,
     broker_config.TAG_DETECTOR_CONVERT:  broker_config.ROUTE_DETECTOR_CONVERT,
     broker_config.TAG_PEDESTAL:          broker_config.ROUTE_DETECTOR_PEDESTAL,
@@ -60,7 +60,7 @@ class BrokerClient:
         if tag.startswith("epics_"):
             routing_key = tag
         else:
-            routing_key = ROUTES.get(tag, broker_config.DEFAULT_ROUTE)
+            routing_key = ROUTES[tag]
 
         request_id = str(uuid.uuid4())
         body_bytes = json_obj_to_str(write_request).encode()
