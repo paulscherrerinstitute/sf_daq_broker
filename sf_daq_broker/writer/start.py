@@ -62,13 +62,13 @@ def start_service(broker_url, writer_type=0):
 
     ROUTING_KEYS = {
         1: broker_config.ROUTE_DETECTOR_RETRIEVE,
-        2: broker_config.ROUTE_DETECTOR_CONVERSION,
+        2: broker_config.ROUTE_DETECTOR_CONVERT,
         3: broker_config.ROUTE_DETECTOR_PEDESTAL
     }
 
     REQUEST_QUEUES = {
         1: broker_config.QUEUE_DETECTOR_RETRIEVE,
-        2: broker_config.QUEUE_DETECTOR_CONVERSION,
+        2: broker_config.QUEUE_DETECTOR_CONVERT,
         3: broker_config.QUEUE_DETECTOR_PEDESTAL
     }
 

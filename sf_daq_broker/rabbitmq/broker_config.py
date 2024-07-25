@@ -9,8 +9,8 @@ STATUS_EXCHANGE = "status"
 DEFAULT_QUEUE = "write_request"
 DEFAULT_ROUTE = "bs.*"
 
-QUEUE_DETECTOR_CONVERSION = "detector_convert"
-ROUTE_DETECTOR_CONVERSION = "detector.convert"
+QUEUE_DETECTOR_CONVERT = "detector_convert"
+ROUTE_DETECTOR_CONVERT = "detector.convert"
 
 QUEUE_DETECTOR_PEDESTAL = "detector_pedestal"
 ROUTE_DETECTOR_PEDESTAL = "detector.pedestal"
