@@ -61,15 +61,15 @@ def start_service(broker_url, writer_type=0):
     #TODO: should introduce named writer_types / enum?
 
     ROUTING_KEYS = {
-        1: broker_config.DETECTOR_RETRIEVE_ROUTE,
-        2: broker_config.DETECTOR_CONVERSION_ROUTE,
-        3: broker_config.DETECTOR_PEDESTAL_ROUTE
+        1: broker_config.ROUTE_DETECTOR_RETRIEVE,
+        2: broker_config.ROUTE_DETECTOR_CONVERSION,
+        3: broker_config.ROUTE_DETECTOR_PEDESTAL
     }
 
     REQUEST_QUEUES = {
-        1: broker_config.DETECTOR_RETRIEVE_QUEUE,
-        2: broker_config.DETECTOR_CONVERSION_QUEUE,
-        3: broker_config.DETECTOR_PEDESTAL_QUEUE
+        1: broker_config.QUEUE_DETECTOR_RETRIEVE,
+        2: broker_config.QUEUE_DETECTOR_CONVERSION,
+        3: broker_config.QUEUE_DETECTOR_PEDESTAL
     }
 
     routing_key   = ROUTING_KEYS.get(writer_type, broker_config.DEFAULT_ROUTE)
