@@ -320,7 +320,7 @@ def detector_pedestal_retrieve(broker_client, request):
 
     output_file_prefix = request.get("output_file_prefix", "/tmp/error")
     run_log_file = request.get("run_log_file", None)
-    run_log_file_prefix = run_log_file[:-4]
+    run_log_file_prefix = run_log_file.rsplit(".", 1)[0]
 
     broker_client.open()
 
