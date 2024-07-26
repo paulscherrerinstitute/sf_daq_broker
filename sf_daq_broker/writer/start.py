@@ -318,7 +318,9 @@ def detector_pedestal_retrieve(broker_client, request):
         "request_time":       request.get("request_time", str(datetime.now()))
     }
 
+    output_file_prefix = request.get("output_file_prefix", "/tmp/error")
     run_log_file = request.get("run_log_file", None)
+    run_log_file_prefix = run_log_file[:-4]
 
     broker_client.open()
 
@@ -326,9 +328,8 @@ def detector_pedestal_retrieve(broker_client, request):
         channels["detector_name"] = detector
         channels["detectors"] = {detector: {}}
 
-        output_file_prefix = request.get("output_file_prefix", "/tmp/error")
         det_output_file = f"{output_file_prefix}.{detector}.h5"
-        det_run_log_file = run_log_file[:-4] + "." + detector + ".log"
+        det_run_log_file = f"{run_log_file_prefix}.{detector}.log"
 
         write_request = get_writer_request(
             broker_config.TAG_DETECTOR_RETRIEVE,
