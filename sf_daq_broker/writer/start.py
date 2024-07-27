@@ -318,7 +318,11 @@ def detector_pedestal_retrieve(broker_client, request):
         "request_time":       request.get("request_time", str(datetime.now()))
     }
 
-    output_file_prefix = request.get("output_file_prefix", "/tmp/error")
+    output_file_prefix = request.get("output_file_prefix", None)
+    if output_file_prefix is None:
+        _logger.error("cannot write pedestal data due to missing output_file_prefix")
+        return
+
     run_log_file = request.get("run_log_file", None)
     run_log_file_prefix = run_log_file.rsplit(".", 1)[0]
 
