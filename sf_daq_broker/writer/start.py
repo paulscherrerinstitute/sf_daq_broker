@@ -291,6 +291,11 @@ def audit_failed_write_request(write_request):
 
 #TODO: this should probably be in detector_writer.py
 def detector_pedestal_retrieve(broker_client, request):
+    output_file_prefix = request.get("output_file_prefix", None)
+    if output_file_prefix is None:
+        _logger.error("cannot take pedestal due to missing output_file_prefix")
+        return
+
     detectors = request.get("detectors", [])
     rate_multiplicator = request.get("rate_multiplicator", 1)
     pedestalmode = request.get("pedestalmode", False)
@@ -317,11 +322,6 @@ def detector_pedestal_retrieve(broker_client, request):
         "directory_name":     request.get("directory_name"),
         "request_time":       request.get("request_time", str(datetime.now()))
     }
-
-    output_file_prefix = request.get("output_file_prefix", None)
-    if output_file_prefix is None:
-        _logger.error("cannot write pedestal data due to missing output_file_prefix")
-        return
 
     run_log_file = request.get("run_log_file", None)
     run_log_file_prefix = run_log_file.rsplit(".", 1)[0]
