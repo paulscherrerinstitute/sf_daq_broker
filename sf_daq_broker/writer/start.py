@@ -323,7 +323,7 @@ def detector_pedestal_retrieve(broker_client, request):
         "request_time":       request.get("request_time", str(datetime.now()))
     }
 
-    run_log_file = request.get("run_log_file", None)
+    run_log_file = request.get("run_log_file", "/tmp/pedestal.log")
     run_log_file_prefix = run_log_file.rsplit(".", 1)[0]
 
     broker_client.open()
