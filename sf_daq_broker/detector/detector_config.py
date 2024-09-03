@@ -73,24 +73,24 @@ DETECTOR_HOSTNAME = {
 }
 
 DETECTOR_NAMES = {
-    "JF01T03V01" : "1p5M Bernina detector",
-    "JF02T09V03" : "von Hamos 4.5M",
-    "JF03T01V02" : "Bernina I0, 1 module",
-    "JF04T01V01" : "Fluorescence, 1 module",
-    "JF05T01V01" : "Stripsel, 1 module",
-    "JF06T08V04" : "4M version of 16M detector",
-    "JF06T32V04" : "16M detector",
-    "JF07T32V02" : "16M detector",
-    "JF08T01V01" : "Visual light detector, 1 module",
-    "JF09T01V01" : "Flex, 1 module",
-    "JF10T01V01" : "Flex-stripsel, 1 module",
-    "JF11T04V01" : "TXS, 4 modules detector",
-    "JF13T01V01" : "Vacuum detector",
-    "JF14T01V01" : "RIXS detector",
-    "JF15T08V01" : "Maloja, 8 modules detector, 4M",
-    "JF16T03V01" : "Cristallina-Q, 3 modules detector, 1p5M",
-    "JF17T16V01" : "Cristallina-MX, 16 modules detector, 8M",
-    "JF18T01V01" : "Furka, RIXS detector"
+    "JF01T03V01" : "Bernina (1.5M)",
+    "JF02T09V03" : "Alvra: von Hamos (4.5M)",
+    "JF03T01V02" : "Bernina: I0 (0.5M)",
+    "JF04T01V01" : "Bernina: Fluorescence (0.5M)",
+    "JF05T01V01" : "Bernina: Stripsel (0.5M)",
+    "JF06T08V04" : "Alvra: 4M version of 16M (4M)",
+    "JF06T32V04" : "Alvra (16M)",
+    "JF07T32V02" : "Bernina (16M)",
+    "JF08T01V01" : "Alvra: Visual Light (0.5M)",
+    "JF09T01V01" : "Alvra: Flex (0.5M)",
+    "JF10T01V01" : "Alvra: Flex-Stripsel (0.5M)",
+    "JF11T04V01" : "Alvra: TXS (2M)",
+    "JF13T01V01" : "Bernina: Vacuum (0.5M)",
+    "JF14T01V01" : "Bernina: RIXS (0.5M)",
+    "JF15T08V01" : "Maloja (4M)",
+    "JF16T03V01" : "Cristallina-Q (1.5M)",
+    "JF17T16V01" : "Cristallina-MX (8M)",
+    "JF18T01V01" : "Furka: RIXS (0.5M)"
 }
 
 DETECTOR_DAQ = {
