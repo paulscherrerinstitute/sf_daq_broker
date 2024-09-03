@@ -52,24 +52,24 @@ BEAMLINE_DELAY = {
 }
 
 DETECTOR_HOSTNAME = {
-    "JF01T03V01" : ["JF1M5B-01", "JF1M5B-02", "JF1M5B-03"],
-    "JF02T09V03" : ["JF4M5-01", "JF4M5-02", "JF4M5-03", "JF4M5-04", "JF4M5-05", "JF4M5-06", "JF4M5-07", "JF4M5-08", "JF4M5-09"],
-    "JF03T01V02" : ["JF0M5B-I0-01"],
+    "JF01T03V01" : ["jf1m5b-01", "jf1m5b-02", "jf1m5b-03"],
+    "JF02T09V03" : ["jf4m5-01", "jf4m5-02", "jf4m5-03", "jf4m5-04", "jf4m5-05", "jf4m5-06", "jf4m5-07", "jf4m5-08", "jf4m5-09"],
+    "JF03T01V02" : ["jf0m5b-i0-01"],
     "JF04T01V01" : ["jf0m5b-fl-01"],
-    "JF05T01V01" : ["JF0M5B-ST-01"],
+    "JF05T01V01" : ["jf0m5b-st-01"],
     "JF06T08V04" : ["jf16ma-07", "jf16ma-08", "jf16ma-11", "jf16ma-12", "jf16ma-15", "jf16ma-16", "jf16ma-19", "jf16ma-20"],
-    "JF06T32V04" : ["Jf16ma-00", "jf16ma-01", "jf16ma-02", "jf16ma-03", "jf16ma-04", "jf16ma-05", "jf16mA-06", "jf16ma-07", "jf16ma-08", "jf16ma-09", "jf16ma-10", "jf16ma-11", "jf16ma-12", "jf16ma-13", "jf16ma-14", "jf16ma-15", "jf16ma-16", "jf16ma-17", "jf16ma-18", "jf16ma-19", "jf16ma-20", "jf16ma-21", "jf16ma-22", "jf16ma-23", "jf16ma-24", "jf16ma-25", "jf16ma-26", "jf16ma-27", "jf16ma-28", "jf16ma-29", "jf16ma-30", "jf16ma-31"],
-    "JF07T32V02" : ["JF16MB-00", "JF16MB-01", "JF16MB-02", "JF16MB-03", "JF16MB-04", "JF16MB-05", "JF16MB-06", "JF16MB-07", "JF16MB-08", "JF16MB-09", "JF16MB-10", "JF16MB-11", "JF16MB-12", "JF16MB-13", "JF16MB-14", "JF16MB-15", "JF16MB-16", "JF16MB-17", "JF16MB-18", "JF16MB-19", "JF16MB-20", "JF16MB-21", "JF16MB-22", "JF16MB-23", "JF16MB-24", "JF16MB-25", "JF16MB-26", "JF16MB-27", "JF16MB-28", "JF16MB-29", "JF16MB-30", "JF16MB-31"],
-    "JF08T01V01" : ["JF08T01V01"],
-    "JF09T01V01" : ["JF09T01V01"],
-    "JF10T01V01" : ["JF10T01V01"],
+    "JF06T32V04" : ["jf16ma-00", "jf16ma-01", "jf16ma-02", "jf16ma-03", "jf16ma-04", "jf16ma-05", "jf16ma-06", "jf16ma-07", "jf16ma-08", "jf16ma-09", "jf16ma-10", "jf16ma-11", "jf16ma-12", "jf16ma-13", "jf16ma-14", "jf16ma-15", "jf16ma-16", "jf16ma-17", "jf16ma-18", "jf16ma-19", "jf16ma-20", "jf16ma-21", "jf16ma-22", "jf16ma-23", "jf16ma-24", "jf16ma-25", "jf16ma-26", "jf16ma-27", "jf16ma-28", "jf16ma-29", "jf16ma-30", "jf16ma-31"],
+    "JF07T32V02" : ["jf16mb-00", "jf16mb-01", "jf16mb-02", "jf16mb-03", "jf16mb-04", "jf16mb-05", "jf16mb-06", "jf16mb-07", "jf16mb-08", "jf16mb-09", "jf16mb-10", "jf16mb-11", "jf16mb-12", "jf16mb-13", "jf16mb-14", "jf16mb-15", "jf16mb-16", "jf16mb-17", "jf16mb-18", "jf16mb-19", "jf16mb-20", "jf16mb-21", "jf16mb-22", "jf16mb-23", "jf16mb-24", "jf16mb-25", "jf16mb-26", "jf16mb-27", "jf16mb-28", "jf16mb-29", "jf16mb-30", "jf16mb-31"],
+    "JF08T01V01" : ["jf08t01v01"],
+    "JF09T01V01" : ["jf09t01v01"],
+    "JF10T01V01" : ["jf10t01v01"],
     "JF11T04V01" : ["bchip243", "bchip244", "bchip245", "bchip246"],
-    "JF13T01V01" : ["JF13T01"],
-    "JF14T01V01" : ["JF14T01"],
-    "JF15T08V01" : ["JF4MG-0", "JF4MG-1", "JF4MG-2", "JF4MG-3", "JF4MG-4", "JF4MG-5", "JF4MG-6", "JF4MG-7"],
-    "JF16T03V01" : ["JF16T03-0", "JF16T03-1", "JF16T03-2"],
-    "JF17T16V01" : ["jf8MA-00", "jf8MA-01", "jf8MA-02", "jf8MA-03", "jf8MA-04", "jf8MA-05", "jf8MA-06", "jf8MA-07", "jf8MA-08", "jf8MA-09", "jf8MA-10", "jf8MA-11", "jf8MA-12", "jf8MA-13", "jf8MA-14", "jf8MA-15"],
-    "JF18T01V01" : ["jf18T01-00"]
+    "JF13T01V01" : ["jf13t01"],
+    "JF14T01V01" : ["jf14t01"],
+    "JF15T08V01" : ["jf4mg-0", "jf4mg-1", "jf4mg-2", "jf4mg-3", "jf4mg-4", "jf4mg-5", "jf4mg-6", "jf4mg-7"],
+    "JF16T03V01" : ["jf16t03-0", "jf16t03-1", "jf16t03-2"],
+    "JF17T16V01" : ["jf8ma-00", "jf8ma-01", "jf8ma-02", "jf8ma-03", "jf8ma-04", "jf8ma-05", "jf8ma-06", "jf8ma-07", "jf8ma-08", "jf8ma-09", "jf8ma-10", "jf8ma-11", "jf8ma-12", "jf8ma-13", "jf8ma-14", "jf8ma-15"],
+    "JF18T01V01" : ["jf18t01-00"]
 }
 
 DETECTOR_NAMES = {
