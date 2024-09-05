@@ -6,6 +6,8 @@ _logger = logging.getLogger(__name__)
 
 try:
     import ujson as json
+    import functools
+    json.dump = functools.partial(json.dump, escape_forward_slashes=False) # ujson escapes slashes by default
 except ImportError:
     _logger.warning("ujson package not available -- performance may suffer")
     import json
