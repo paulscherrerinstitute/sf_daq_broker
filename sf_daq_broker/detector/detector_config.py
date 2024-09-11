@@ -57,8 +57,8 @@ DETECTOR_HOSTNAME = {
     "JF03T01V02" : ["jf0m5b-i0-01"],
     "JF04T01V01" : ["jf0m5b-fl-01"],
     "JF05T01V01" : ["jf0m5b-st-01"],
-    "JF06T08V04" : ["jf16ma-07", "jf16ma-08", "jf16ma-11", "jf16ma-12", "jf16ma-15", "jf16ma-16", "jf16ma-19", "jf16ma-20"],
-    "JF06T32V04" : ["jf16ma-00", "jf16ma-01", "jf16ma-02", "jf16ma-03", "jf16ma-04", "jf16ma-05", "jf16ma-06", "jf16ma-07", "jf16ma-08", "jf16ma-09", "jf16ma-10", "jf16ma-11", "jf16ma-12", "jf16ma-13", "jf16ma-14", "jf16ma-15", "jf16ma-16", "jf16ma-17", "jf16ma-18", "jf16ma-19", "jf16ma-20", "jf16ma-21", "jf16ma-22", "jf16ma-23", "jf16ma-24", "jf16ma-25", "jf16ma-26", "jf16ma-27", "jf16ma-28", "jf16ma-29", "jf16ma-30", "jf16ma-31"],
+    "JF06T08V05" : ["jf16ma-07", "jf16ma-08", "jf16ma-11", "jf16ma-12", "jf16ma-15", "jf16ma-16", "jf16ma-19", "jf16ma-20"],
+    "JF06T32V05" : ["jf16ma-00", "jf16ma-01", "jf16ma-02", "jf16ma-03", "jf16ma-04", "jf16ma-05", "jf16ma-06", "jf16ma-07", "jf16ma-08", "jf16ma-09", "jf16ma-10", "jf16ma-11", "jf16ma-12", "jf16ma-13", "jf16ma-14", "jf16ma-15", "jf16ma-16", "jf16ma-17", "jf16ma-18", "jf16ma-19", "jf16ma-20", "jf16ma-21", "jf16ma-22", "jf16ma-23", "jf16ma-24", "jf16ma-25", "jf16ma-26", "jf16ma-27", "jf16ma-28", "jf16ma-29", "jf16ma-30", "jf16ma-31"],
     "JF07T32V02" : ["jf16mb-00", "jf16mb-01", "jf16mb-02", "jf16mb-03", "jf16mb-04", "jf16mb-05", "jf16mb-06", "jf16mb-07", "jf16mb-08", "jf16mb-09", "jf16mb-10", "jf16mb-11", "jf16mb-12", "jf16mb-13", "jf16mb-14", "jf16mb-15", "jf16mb-16", "jf16mb-17", "jf16mb-18", "jf16mb-19", "jf16mb-20", "jf16mb-21", "jf16mb-22", "jf16mb-23", "jf16mb-24", "jf16mb-25", "jf16mb-26", "jf16mb-27", "jf16mb-28", "jf16mb-29", "jf16mb-30", "jf16mb-31"],
     "JF08T01V01" : ["jf08t01v01"],
     "JF09T01V01" : ["jf09t01v01"],
@@ -67,7 +67,7 @@ DETECTOR_HOSTNAME = {
     "JF13T01V01" : ["jf13t01"],
     "JF14T01V01" : ["jf14t01"],
     "JF15T08V01" : ["jf4mg-0", "jf4mg-1", "jf4mg-2", "jf4mg-3", "jf4mg-4", "jf4mg-5", "jf4mg-6", "jf4mg-7"],
-    "JF16T03V01" : ["jf16t03-0", "jf16t03-1", "jf16t03-2"],
+    "JF16T03V02" : ["jf16t03-0", "jf16t03-1", "jf16t03-2"],
     "JF17T16V01" : ["jf8ma-00", "jf8ma-01", "jf8ma-02", "jf8ma-03", "jf8ma-04", "jf8ma-05", "jf8ma-06", "jf8ma-07", "jf8ma-08", "jf8ma-09", "jf8ma-10", "jf8ma-11", "jf8ma-12", "jf8ma-13", "jf8ma-14", "jf8ma-15"],
     "JF18T01V01" : ["jf18t01-00"]
 }
@@ -78,8 +78,8 @@ DETECTOR_NAMES = {
     "JF03T01V02" : "Bernina: I0 (0.5M)",
     "JF04T01V01" : "Bernina: Fluorescence (0.5M)",
     "JF05T01V01" : "Bernina: Stripsel (0.5M)",
-    "JF06T08V04" : "Alvra: 4M version of 16M (4M)",
-    "JF06T32V04" : "Alvra (16M)",
+    "JF06T08V05" : "Alvra: 4M version of 16M (4M)",
+    "JF06T32V05" : "Alvra (16M)",
     "JF07T32V02" : "Bernina (16M)",
     "JF08T01V01" : "Alvra: Visual Light (0.5M)",
     "JF09T01V01" : "Alvra: Flex (0.5M)",
@@ -88,7 +88,7 @@ DETECTOR_NAMES = {
     "JF13T01V01" : "Bernina: Vacuum (0.5M)",
     "JF14T01V01" : "Bernina: RIXS (0.5M)",
     "JF15T08V01" : "Maloja (4M)",
-    "JF16T03V01" : "Cristallina-Q (1.5M)",
+    "JF16T03V02" : "Cristallina-Q (1.5M)",
     "JF17T16V01" : "Cristallina-MX (8M)",
     "JF18T01V01" : "Furka: RIXS (0.5M)"
 }
@@ -99,8 +99,8 @@ DETECTOR_DAQ = {
     "JF03T01V02" : {"daq": 12, "port": 1},
     "JF04T01V01" : {"daq": 12, "port": 1},
     "JF05T01V01" : {"daq": 12, "port": 1},
-    "JF06T08V04" : {"daq": 13, "port": 0},
-    "JF06T32V04" : {"daq": 12, "port": 0},
+    "JF06T08V05" : {"daq": 13, "port": 0},
+    "JF06T32V05" : {"daq": 12, "port": 0},
     "JF07T32V02" : {"daq": 13, "port": 1},
     "JF08T01V01" : {"daq": 13, "port": 0},
     "JF09T01V01" : {"daq": 13, "port": 0},
@@ -109,7 +109,7 @@ DETECTOR_DAQ = {
     "JF13T01V01" : {"daq": 13, "port": 1},
     "JF14T01V01" : {"daq": 13, "port": 1},
     "JF15T08V01" : {"daq": 9,  "port": 0},
-    "JF16T03V01" : {"daq": 10, "port": 1},
+    "JF16T03V02" : {"daq": 10, "port": 1},
     "JF17T16V01" : {"daq": 10, "port": 1},
     "JF18T01V01" : {"daq": 9,  "port": 1}
 }
@@ -120,8 +120,8 @@ DETECTOR_PORT = {
     "JF03T01V02" : 50030,
     "JF04T01V01" : 50040,
     "JF05T01V01" : 50050,
-    "JF06T08V04" : 50060,
-    "JF06T32V04" : 50060,
+    "JF06T08V05" : 50060,
+    "JF06T32V05" : 50060,
     "JF07T32V02" : 50100,
     "JF08T01V01" : 50140,
     "JF09T01V01" : 50150,
@@ -130,7 +130,7 @@ DETECTOR_PORT = {
     "JF13T01V01" : 50190,
     "JF14T01V01" : 50191,
     "JF15T08V01" : 50192,
-    "JF16T03V01" : 50200,
+    "JF16T03V02" : 50200,
     "JF17T16V01" : 50203,
     "JF18T01V01" : 50219
 }
@@ -141,8 +141,8 @@ DETECTOR_UDP_SRCIP = {
     "JF03T01V02" : 75,
     "JF04T01V01" : 76,
     "JF05T01V01" : 77,
-    "JF06T08V04" : 78,
-    "JF06T32V04" : 78,
+    "JF06T08V05" : 78,
+    "JF06T32V05" : 78,
     "JF07T32V02" : 101,
     "JF08T01V01" : 130,
     "JF09T01V01" : 131,
@@ -151,7 +151,7 @@ DETECTOR_UDP_SRCIP = {
     "JF13T01V01" : 140,
     "JF14T01V01" : 141,
     "JF15T08V01" : 142,
-    "JF16T03V01" : 150,
+    "JF16T03V02" : 150,
     "JF17T16V01" : 155,
     "JF18T01V01" : 171
 }
@@ -162,8 +162,8 @@ DETECTOR_UDP_SRCMAC = {
     "JF03T01V02" : 42,
     "JF04T01V01" : 43,
     "JF05T01V01" : 44,
-    "JF06T08V04" : 45,
-    "JF06T32V04" : 45,
+    "JF06T08V05" : 45,
+    "JF06T32V05" : 45,
     "JF07T32V02" : 81,
     "JF08T01V01" : 121,
     "JF09T01V01" : 122,
@@ -172,7 +172,7 @@ DETECTOR_UDP_SRCMAC = {
     "JF13T01V01" : 131,
     "JF14T01V01" : 132,
     "JF15T08V01" : 133,
-    "JF16T03V01" : 143,
+    "JF16T03V02" : 143,
     "JF17T16V01" : 148,
     "JF18T01V01" : 164
 }
@@ -183,8 +183,8 @@ DETECTOR_TXNDELAY_FRAME = {
     "JF03T01V02" : [9],
     "JF04T01V01" : [8],
     "JF05T01V01" : [8],
-    "JF06T08V04" : [0, 0, 1, 1, 2, 2, 3, 3],
-    "JF06T32V04" : [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 9, 9, 9, 9],
+    "JF06T08V05" : [0, 0, 1, 1, 2, 2, 3, 3],
+    "JF06T32V05" : [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 9, 9, 9, 9],
     "JF07T32V02" : [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7],
     "JF08T01V01" : [8],
     "JF09T01V01" : [8],
@@ -193,7 +193,7 @@ DETECTOR_TXNDELAY_FRAME = {
     "JF13T01V01" : [8],
     "JF14T01V01" : [8],
     "JF15T08V01" : [0, 0, 1, 1, 2, 2, 3, 3],
-    "JF16T03V01" : [4, 5, 6],
+    "JF16T03V02" : [4, 5, 6],
     "JF17T16V01" : [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4],
     "JF18T01V01" : [0]
 }
@@ -204,8 +204,8 @@ DETECTOR_TEMP_THRESHOLD = {
     "JF03T01V02" : 55,
     "JF04T01V01" : 55,
     "JF05T01V01" : 55,
-    "JF06T08V04" : 48,
-    "JF06T32V04" : 48,
+    "JF06T08V05" : 48,
+    "JF06T32V05" : 48,
     "JF07T32V02" : 55,
     "JF08T01V01" : 55,
     "JF09T01V01" : 55,
@@ -214,7 +214,7 @@ DETECTOR_TEMP_THRESHOLD = {
     "JF13T01V01" : 55,
     "JF14T01V01" : 55,
     "JF15T08V01" : 55,
-    "JF16T03V01" : 55,
+    "JF16T03V02" : 55,
     "JF17T16V01" : 55,
     "JF18T01V01" : 55
 }
