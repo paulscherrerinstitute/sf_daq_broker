@@ -19,12 +19,12 @@ _logger = logging.getLogger("broker_writer")
 
 
 PEDESTAL_SPECIFIC = {
-    "JF02T09V02" : {"number_bad_modules" : 1},
-#    "JF03T01V02" : {"add_pixel_mask" : "/sf/bernina/config/jungfrau/pixel_mask/JF03T01V02/pixel_mask_half_chip.h5"},
+#    "JF02T09V02" : {"number_bad_modules" : 1}, # historic version number
+#    "JF03T01V02" : {"add_pixel_mask" : "/sf/bernina/config/jungfrau/pixel_mask/JF03T01V02/pixel_mask_half_chip.h5"}, # unclear why this is not in use
     "JF05T01V01" : {"number_bad_modules" : 1},
-    "JF06T08V02" : {"add_pixel_mask" : "/sf/alvra/config/jungfrau/pixel_mask/JF06T08V01/mask_2lines_module3.h5"},
-    "JF06T32V02" : {"number_bad_modules" : 1},
-    "JF07T32V01" : {"add_pixel_mask" : "/sf/bernina/config/jungfrau/pixel_mask/JF07T32V01/pixel_mask_13_full.h5"},
+#    "JF06T08V02" : {"add_pixel_mask" : "/sf/alvra/config/jungfrau/pixel_mask/JF06T08V01/mask_2lines_module3.h5"}, # historic version number
+#    "JF06T32V02" : {"number_bad_modules" : 1}, # historic version number
+#    "JF07T32V01" : {"add_pixel_mask" : "/sf/bernina/config/jungfrau/pixel_mask/JF07T32V01/pixel_mask_13_full.h5"}, # historic version number
     "JF10T01V01" : {"number_bad_modules" : 1},
     "JF11T04V01" : {"number_bad_modules" : 2},
     "JF18T01V01" : {"number_bad_modules" : 1}
