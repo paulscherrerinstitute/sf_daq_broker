@@ -2,7 +2,6 @@ import logging
 from time import sleep
 
 import epics
-from slsdet import gainMode
 
 from sf_daq_broker.detector.detector import Detector
 
@@ -42,7 +41,7 @@ def switch_gains_manually(detectors, rate):
 
     # switch to G0
     for detector in detectors:
-        detector.jf.gainmode = gainMode.DYNAMIC
+        detector.gain_mode = "dynamic"
 
     sleep(1)
 
@@ -53,14 +52,14 @@ def switch_gains_manually(detectors, rate):
 
     # switch to G1
     for detector in detectors:
-        detector.jf.gainmode = gainMode.FORCE_SWITCH_G1
+        detector.gain_mode = "fixed_gain1"
 
     # collect in G1
     sleep(10 * rate)
 
     # switch to G2
     for detector in detectors:
-        detector.jf.gainmode = gainMode.FORCE_SWITCH_G2
+        detector.gain_mode = "fixed_gain2"
 
     # collect in G2
     sleep(10 * rate)
