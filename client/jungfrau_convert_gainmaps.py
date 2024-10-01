@@ -79,17 +79,27 @@ def load_module(index, fname):
 
 
 
-def merge_gainmaps(maps, shape, module_shape):
-    if maps[0].shape != module_shape:
-        print(f"[ERROR]: shape of the provided maps is not correct. Provided shape: {maps[0].shape}, required shape: {module_shape}")
-    res = np.zeros([module_shape[0], shape[0] * module_shape[1], shape[1] * module_shape[2]], dtype=float)
-    for i in range(shape[0]):
-        for j in range(shape[1]):
+def merge_gainmaps(modules, shape, module_shape):
+    output_shape = (
+        module_shape[0],
+        module_shape[1] * shape[0],
+        module_shape[2] * shape[1]
+    )
+
+    output = np.zeros(output_shape, dtype=float)
+
+    for x in range(shape[0]):
+        for y in range(shape[1]):
             for z in range(module_shape[0]):
-                ri = (i * module_shape[1], (i + 1) * module_shape[1])
-                rj = (j * module_shape[2], (j + 1) * module_shape[2])
-                res[z, ri[0]:ri[1], rj[0]:rj[1]] = maps[i + j][z]
-    return res
+                istart = x * module_shape[1]
+                jstart = y * module_shape[2]
+
+                istop = (x + 1) * module_shape[1]
+                jstop = (y + 1) * module_shape[2]
+
+                output[z, istart:istop, jstart:jstop] = modules[x + y][z]
+
+    return output
 
 
 
