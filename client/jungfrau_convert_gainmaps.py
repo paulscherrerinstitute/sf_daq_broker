@@ -14,7 +14,7 @@ GAINS = ["G0", "G1", "G2", "HG0", "HG1", "HG2"]
 def merge_gainmaps(maps, shape, module_shape):
     if maps[0].shape != module_shape:
         print(f"[ERROR]: shape of the provided maps is not correct. Provided shape: {maps[0].shape}, required shape: {module_shape}")
-    res = np.zeros([module_shape[0], shape[0] * module_shape[1], shape[1] * module_shape[2]], dtype=np.float)
+    res = np.zeros([module_shape[0], shape[0] * module_shape[1], shape[1] * module_shape[2]], dtype=float)
     for i in range(shape[0]):
         for j in range(shape[1]):
             for z in range(module_shape[0]):
