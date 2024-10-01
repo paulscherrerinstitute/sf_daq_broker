@@ -30,29 +30,12 @@ def main():
         n_modules = len(clargs.files)
         clargs.shape = (n_modules, 1)
 
-    modules = [np.fromfile(f, np.double) for f in clargs.files]
+    modules = [load_module(i, fn) for i, fn in enumerate(clargs.files)]
 
-    for i, mod in enumerate(modules):
-        if mod.ndim != 1:
-            raise ValueError(f"module {i}: gain coefficients have unexpected shape {mod.shape}")
-        shapex = mod.shape[0]
-        if shapex == 3 * MODULE_PIXELS:
-            print(f"module {i}: gain coefficients are only for G0, G1, G2. Expanding them to HG0, HG1, HG2 (copy: G0, G1, G2)")
-            modules[i] = np.append(mod, mod[:3 * MODULE_PIXELS])
-        elif shapex == 4 * MODULE_PIXELS:
-            print(f"module {i}: gain coefficients are only for G0, G1, G2, HG0. Expanding them to HG1, HG2 (copy: G1, G2)")
-            modules[i] = np.append(mod, mod[MODULE_PIXELS : 3 * MODULE_PIXELS])
-        elif shapex == 6 * MODULE_PIXELS:
-            print(f"module {i}: gain coefficients are complete G0, G1, G2, HG0, HG1, HG2.")
-        else:
-            raise ValueError(f"module {i}: gain coefficients have unexpected shape {shapex}")
-
-    modules = [i.reshape(MODULE_SHAPE) for i in modules]
-
-    res = merge_gainmaps(modules, clargs.shape, MODULE_SHAPE)
+    data = merge_gainmaps(modules, clargs.shape, MODULE_SHAPE)
 
     with h5py.File(clargs.outfile, "w") as h5f:
-        dst = h5f.create_dataset(DST_NAME, data=res)
+        dst = h5f.create_dataset(DST_NAME, data=data)
 
         dst.attrs["creator"] = os.getenv("USER")
         dst.attrs["date"] = datetime.now().strftime("%Y%m%d %H:%M:%S")
@@ -75,6 +58,32 @@ def main():
             avg = dst[i].mean()
             std = dst[i].std()
             print(f"\t{gain}: {avg:.2f} +- {std:.2f}")
+        print()
+
+
+
+def load_module(index, fname):
+    mod = np.fromfile(fname, np.double)
+
+    msg = f"module {index}: gain coefficients"
+
+    if mod.ndim != 1:
+        raise ValueError(f"{msg} have unexpected shape {mod.shape}")
+
+    shapex = mod.shape[0]
+    if shapex == 3 * MODULE_PIXELS:
+        print(f"{msg} are only for G0, G1, G2. Expanding them to HG0, HG1, HG2 (copy: G0, G1, G2)")
+        mod = np.append(mod, mod[:3 * MODULE_PIXELS])
+    elif shapex == 4 * MODULE_PIXELS:
+        print(f"{msg} are only for G0, G1, G2, HG0. Expanding them to HG1, HG2 (copy: G1, G2)")
+        mod = np.append(mod, mod[MODULE_PIXELS : 3 * MODULE_PIXELS])
+    elif shapex == 6 * MODULE_PIXELS:
+        print(f"{msg} are complete G0, G1, G2, HG0, HG1, HG2.")
+    else:
+        raise ValueError(f"{msg} have unexpected shape {shapex}")
+
+    mod = mod.reshape(MODULE_SHAPE)
+    return mod
 
 
 
