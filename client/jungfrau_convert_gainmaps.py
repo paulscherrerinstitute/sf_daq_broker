@@ -45,24 +45,8 @@ def main():
     modules = [load_module(i, fn) for i, fn in enumerate(fnames)]
     data = merge_gainmaps(modules, shape, MODULE_SHAPE)
 
-    with h5py.File(fn_out, "w") as h5f:
-        dst = h5f.create_dataset(DST_NAME, data=data)
-        dst.attrs.update(attributes)
-
-    with h5py.File(fn_out, "r") as h5f:
-        dst = h5f["gains"]
-        print()
-        print(f"File {fn_out} written, size of {DST_NAME} dataset: {dst.shape}")
-        print("Written attributes:")
-        for k, v in dst.attrs.items():
-            print(f"\t{k}: {v}")
-        print("Gain averages:")
-        for i, gain in enumerate(GAINS):
-            vals = dst[i][:]
-            avg = vals.mean()
-            std = vals.std()
-            print(f"\t{gain}: {avg:.2f} +- {std:.2f}")
-        print()
+    write_file(fn_out, data, attributes)
+    check_file(fn_out)
 
 
 
@@ -102,6 +86,34 @@ def merge_gainmaps(maps, shape, module_shape):
                 rj = (j * module_shape[2], (j + 1) * module_shape[2])
                 res[z, ri[0]:ri[1], rj[0]:rj[1]] = maps[i + j][z]
     return res
+
+
+
+def write_file(fn_out, data, attributes):
+    with h5py.File(fn_out, "w") as h5f:
+        dst = h5f.create_dataset(DST_NAME, data=data)
+        dst.attrs.update(attributes)
+
+
+
+def check_file(fn_out):
+    with h5py.File(fn_out, "r") as h5f:
+        dst = h5f["gains"]
+        print()
+        print(f"File {fn_out} written, size of {DST_NAME} dataset: {dst.shape}")
+
+        print("Written attributes:")
+        for k, v in dst.attrs.items():
+            print(f"\t{k}: {v}")
+
+        print("Gain averages:")
+        for i, gain in enumerate(GAINS):
+            vals = dst[i][:]
+            avg = vals.mean()
+            std = vals.std()
+            print(f"\t{gain}: {avg:.2f} +- {std:.2f}")
+
+        print()
 
 
 
