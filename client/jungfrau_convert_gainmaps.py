@@ -80,24 +80,27 @@ def load_module(index, fname):
 
 
 def merge_gainmaps(modules, shape, module_shape):
+    nheight, nwidth = shape
+    msgain, msheight, mswidth = module_shape
+
     output_shape = (
-        module_shape[0],
-        module_shape[1] * shape[0],
-        module_shape[2] * shape[1]
+        msgain,
+        msheight * nheight,
+        mswidth  * nwidth
     )
 
     output = np.zeros(output_shape, dtype=float)
 
-    for x in range(shape[0]):
-        for y in range(shape[1]):
-            for z in range(module_shape[0]):
-                istart = x * module_shape[1]
-                jstart = y * module_shape[2]
+    for h in range(nheight):
+        for w in range(nwidth):
+            for g in range(msgain):
+                istart = msheight * h
+                istop  = msheight * (h + 1)
 
-                istop = (x + 1) * module_shape[1]
-                jstop = (y + 1) * module_shape[2]
+                jstart = mswidth  * w
+                jstop  = mswidth  * (w + 1)
 
-                output[z, istart:istop, jstart:jstop] = modules[x + y][z]
+                output[g, istart:istop, jstart:jstop] = modules[h + w][g]
 
     return output
 
