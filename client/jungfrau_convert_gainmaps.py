@@ -57,10 +57,10 @@ def main():
         for k, v in dst.attrs.items():
             print(f"\t{k}: {v}")
         print("Gain averages:")
-        for i in range(MODULE_SHAPE[0]):
-            gain = GAINS[i]
-            avg = dst[i].mean()
-            std = dst[i].std()
+        for i, gain in enumerate(GAINS):
+            vals = dst[i][:]
+            avg = vals.mean()
+            std = vals.std()
             print(f"\t{gain}: {avg:.2f} +- {std:.2f}")
         print()
 
