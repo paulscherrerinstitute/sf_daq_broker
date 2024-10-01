@@ -19,15 +19,15 @@ def main():
         The name of the dataset used for saving the maps is "gains".
     """)
 
-    parser.add_argument("files", metavar="file", type=str, help="Binary file as provided by the Detectors Group, usually one per module. Order matters! The first file provided is the bottom-left module.", nargs="+")
-    parser.add_argument("--outfile", type=str, help="Name for the hdf5 output", default="gains.h5")
-    parser.add_argument("--attributes", type=str, help="Additional attributes to be added to the destination dataset, in the form key=value,key=value,...", default="")
-    parser.add_argument("--shape", type=int, nargs=2, help="Dimension of the final image, in modules. For example, a 1.5 Jungfrau with three modules one on top of each other is [3,1].", default=[-1, -1])
+    parser.add_argument("files", metavar="file", nargs="+", help="Binary file as provided by the Detectors Group, usually one per module. Order matters! The first file provided is the bottom-left module.")
+    parser.add_argument("--outfile", default="gains.h5", help="Name for the hdf5 output")
+    parser.add_argument("--attributes", default="", help="Additional attributes to be added to the destination dataset, in the form key=value,key=value,...")
+    parser.add_argument("--shape", type=int, nargs=2, help="Dimension of the final image, in modules. For example, a 1.5 Jungfrau with three modules one on top of each other is [3,1].")
 
     clargs = parser.parse_args()
 
     n_modules = len(clargs.files)
-    if clargs.shape == [-1, -1]:
+    if clargs.shape is None:
         clargs.shape = [n_modules, 1]
 
     maps = [np.fromfile(f, np.double) for f in clargs.files]
@@ -36,36 +36,33 @@ def main():
         if maps[i].shape[0] == 3 * 512 * 1024:
             print(f"{i}-module gain coefficients are only for G0, G1, G2. Expanding them to HG0, HG1, HG2 (copy: G0, G1, G2)")
             maps[i] = np.append(maps[i], maps[i][:3 * 512 * 1024])
-        if maps[i].shape[0] == 4 * 512 * 1024:
+        elif maps[i].shape[0] == 4 * 512 * 1024:
             print(f"{i}-module gain coefficients are only for G0, G1, G2, HG0. Expanding them to HG1, HG2 (copy: G1, G2)")
             maps[i] = np.append(maps[i], maps[i][1024 * 512 : 3 * 1024 * 512])
-            print(maps[i].shape[0])
 
     maps = [i.reshape(MODULE_SHAPE) for i in maps]
 
     res = merge_gainmaps(maps, clargs.shape, MODULE_SHAPE)
 
-    f = h5py.File(clargs.outfile, "w")
+    with h5py.File(clargs.outfile, "w") as h5f:
 
-    dst = f.create_dataset(DST_NAME, data=res)
-    dst.attrs["creator"] = os.getenv("USER")
-    dst.attrs["date"] = datetime.now().strftime("%Y%m%d %H:%M:%S")
-    dst.attrs["original_filenames"] = " ".join(clargs.files)
+        dst = h5f.create_dataset(DST_NAME, data=res)
+        dst.attrs["creator"] = os.getenv("USER")
+        dst.attrs["date"] = datetime.now().strftime("%Y%m%d %H:%M:%S")
+        dst.attrs["original_filenames"] = " ".join(clargs.files)
 
-    for kv in clargs.attributes.split(","):
-        if kv == "":
-            continue
-        dst.attrs[kv.split("=")[0]] = kv.split("=")[1]
+        for kv in clargs.attributes.split(","):
+            if kv == "":
+                continue
+            dst.attrs[kv.split("=")[0]] = kv.split("=")[1]
 
-    print(f"File {clargs.outfile} written, size of {DST_NAME} dataset: {dst.shape}")
-    print("Written attributes:")
-    for k, v in dst.attrs.items():
-        print(f"\t {k} = {v}")
-    print("Gain averages:")
-    for i in range(MODULE_SHAPE[0]):
-        print(f"\t {GAINS[i]} = {dst[i].mean():.2f} +- {dst[i].std():.2f}")
-
-    f.close()
+        print(f"File {clargs.outfile} written, size of {DST_NAME} dataset: {dst.shape}")
+        print("Written attributes:")
+        for k, v in dst.attrs.items():
+            print(f"\t{k} = {v}")
+        print("Gain averages:")
+        for i in range(MODULE_SHAPE[0]):
+            print(f"\t{GAINS[i]} = {dst[i].mean():.2f} +- {dst[i].std():.2f}")
 
 
 
