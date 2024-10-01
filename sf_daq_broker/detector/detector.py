@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from slsdet import Jungfrau, detectorSettings, gainMode, pedestalParameters, timingMode
+from .slsdetcompat import Jungfrau, detectorSettings, gainMode, pedestalParameters, timingMode
 
 from sf_daq_broker.detector.detector_config import DETECTOR_NAMES, DetectorConfig
 from sf_daq_broker.errors import DetectorError, ValidationError
