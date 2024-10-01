@@ -49,6 +49,8 @@ def main():
         dst = h5f.create_dataset(DST_NAME, data=data)
         dst.attrs.update(attributes)
 
+    with h5py.File(fn_out, "r") as h5f:
+        dst = h5f["gains"]
         print()
         print(f"File {fn_out} written, size of {DST_NAME} dataset: {dst.shape}")
         print("Written attributes:")
