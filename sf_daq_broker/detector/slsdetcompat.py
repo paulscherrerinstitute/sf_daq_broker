@@ -7,18 +7,33 @@ to be removed once we updated all JFs to firmware 8.x
 import logging
 
 from slsdet import Jungfrau as JungfrauOriginal
-from slsdet import *
+from slsdet import detectorSettings, gainMode, timingMode
 
 
 _logger = logging.getLogger("broker_writer")
 
 
+# class added in slsdet 8.0.0
 try:
-    # class added in slsdet 8.0.0
-    pedestalParameters
-except NameError:
+    from slsdet import pedestalParameters
+except ImportError:
     _logger.warning("slsdet.pedestalParameters not available")
     pedestalParameters = None
+
+
+
+def make_mock_property(cls, name):
+    msg = f"{cls}.{name} not available"
+
+    def getter(self):
+        _logger.warning(msg)
+        return None
+
+    def setter(self, _value):
+        _logger.warning(msg)
+
+    return property(getter, setter)
+
 
 
 class Jungfrau(JungfrauOriginal):
@@ -37,17 +52,19 @@ class Jungfrau(JungfrauOriginal):
             self.txndelay_frame = value
 
 
-    # property added in slsdet 7.0.0
-    sync = None
-
     # method added in slsdet 7.0.0
-    def setMaster(self, *args, **kwargs):
-        printable_args = make_printable_args(args, kwargs)
-        _logger.warning("ignoring call Jungfrau.setMaster({printable_args})")
-        pass
+    if not hasattr(JungfrauOriginal, "setMaster"):
+        def setMaster(self, *args, **kwargs):
+            printable_args = make_printable_args(args, kwargs)
+            _logger.warning(f"ignoring call Jungfrau.setMaster({printable_args})")
+
+    # property added in slsdet 7.0.0
+    if not hasattr(JungfrauOriginal, "sync"):
+        sync = make_mock_property("Jungfrau", "sync")
 
     # property added in slsdet 8.0.0
-    pedestalmode = None
+    if not hasattr(JungfrauOriginal, "pedestalmode"):
+        pedestalmode = make_mock_property("Jungfrau", "pedestalmode")
 
 
 
