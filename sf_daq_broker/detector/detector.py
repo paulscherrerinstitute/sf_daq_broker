@@ -56,7 +56,7 @@ class Detector:
 
     def __repr__(self):
         status = self.status
-        if not isinstance(status, str):
+        if isinstance(status, list):
             status = "\n" + "\n".join(f"{i}\t{s}" for i, s in enumerate(status))
         return f"{self.name}: {status}"
 
