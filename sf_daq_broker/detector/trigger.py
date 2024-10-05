@@ -3,6 +3,7 @@ from time import sleep
 import epics
 
 from sf_daq_broker.errors import TriggerError, ValidationError
+from sf_daq_broker.utils import typename
 
 
 BEAMLINE_EVENT_CODE = {
@@ -14,11 +15,19 @@ BEAMLINE_EVENT_CODE = {
     "furka"       : "SAT-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP"
 }
 
+TRIGGER_VALUES = {
+    "start": 254,
+    "stop":  255
+}
+
+TRIGGER_VALUES_INVERTED = {v: k for k, v in TRIGGER_VALUES.items()}
+
 
 
 class Trigger:
 
     def __init__(self, beamline):
+        self.beamline = beamline
         validate_beamline(beamline)
 
         pvname = BEAMLINE_EVENT_CODE[beamline]
@@ -26,14 +35,20 @@ class Trigger:
         try:
             self.pv = epics.PV(pvname)
         except Exception as e:
-            raise TriggerError(f"could not connect to event code PV {pvname}") from e
+            raise TriggerError(f"could not connect to {beamline} event code PV {pvname}") from e
 
 
     def start(self):
-        set_trigger(self.pv, 254, "start")
+        set_trigger(self.pv, "start")
 
     def stop(self):
-        set_trigger(self.pv, 255, "stop")
+        set_trigger(self.pv, "stop")
+
+    def __repr__(self):
+        tname = typename(self)
+        status = self.pv.get()
+        status = TRIGGER_VALUES_INVERTED.get(status, status)
+        return f"{tname} {self.beamline}: {status}"
 
 
 
@@ -47,7 +62,9 @@ def validate_beamline(beamline):
 
 
 
-def set_trigger(pv, value, action):
+def set_trigger(pv, action):
+    value = TRIGGER_VALUES[action]
+
     try:
         pv.put(value)
     except Exception as e:

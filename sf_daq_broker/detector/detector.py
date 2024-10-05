@@ -50,6 +50,16 @@ class Detector:
         except Exception as e:
             raise DetectorError(f"could not stop detector {self.name}") from e
 
+    @property
+    def status(self):
+        return self.jf.status
+
+    def __repr__(self):
+        status = self.status
+        if not isinstance(status, str):
+            status = "\n" + "\n".join(f"{i}\t{s}" for i, s in enumerate(status))
+        return f"{self.name}: {status}"
+
     def connect(self):
         try:
             self.jf = Jungfrau(self.ID)
