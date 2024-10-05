@@ -23,14 +23,15 @@ class Debugger:
         self.trigger = Trigger(beamline)
 
     def __repr__(self):
-        values = {
-            "name": self.name,
-            "ID": self.ID,
-            "beamline": self.beamline,
-            "detector": self.detector,
-            "trigger": self.trigger
-        }
-        return "\n".join(f"{k}: {str_or_exc(v)}" for k, v in values.items())
+        attrs = (
+            "name",
+            "ID",
+            "beamline",
+            "detector",
+            "trigger"
+        )
+        values = {name: str_or_exc(getattr(self, name)) for name in attrs}
+        return "\n".join(f"{k}: {v}" for k, v in values.items())
 
     def start(self):
         self.detector.start()
