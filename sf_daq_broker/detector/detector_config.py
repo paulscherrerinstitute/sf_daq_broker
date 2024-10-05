@@ -368,5 +368,18 @@ class DetectorConfig():
     def get_detector_temp_threshold(self):
         return DETECTOR_TEMP_THRESHOLD[self._detector_name]
 
+    def __repr__(self):
+        res = {}
+        for name in dir(self):
+            if name.startswith("get"):
+                func = getattr(self, name)
+                value = func()
+                for prefix in ("get_detector_", "get_"):
+                    if name.startswith(prefix):
+                        name = name[len(prefix):]
+                res[name] = value
+        res = "\n".join(f"{k}: {v}" for k, v in sorted(res.items()))
+        return res
+
 
 
