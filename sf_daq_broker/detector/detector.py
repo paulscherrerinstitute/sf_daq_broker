@@ -179,22 +179,22 @@ def validate_detector_name(detector_name):
 
 
 def apply_detector_config(detector_configuration, detector):
-    detector_number = detector_configuration.get_detector_number()
+    detector_number = detector_configuration.get_number()
 #    number_modules = detector_configuration.get_number_modules()
 
-    detector.detsize = detector_configuration.get_detector_size()
+    detector.detsize = detector_configuration.get_size()
 
-    detector.setHostname(detector_configuration.get_detector_hostname())
+    detector.setHostname(detector_configuration.get_hostname())
 
-    detector.udp_dstmac = detector_configuration.get_detector_udp_dstmac()
+    detector.udp_dstmac = detector_configuration.get_udp_dstmac()
     detector.udp_dstip  = detector_configuration.get_udp_dstip()
-    detector.udp_dstport = detector_configuration.get_detector_port_first_module() # increments port by +1 for each module
+    detector.udp_dstport = detector_configuration.get_port_first_module() # increments port by +1 for each module
 
-    detector.udp_srcip = detector_configuration.get_detector_upd_ip()
-    detector.udp_srcmac = detector_configuration.get_detector_udp_mac()
+    detector.udp_srcip = detector_configuration.get_upd_ip()
+    detector.udp_srcmac = detector_configuration.get_udp_mac()
 
-    detector.txdelay_frame = detector_configuration.get_detector_txndelay()
-    detector.delay = detector_configuration.get_detector_delay()
+    detector.txdelay_frame = detector_configuration.get_txndelay()
+    detector.delay = detector_configuration.get_delay()
 
     if detector_number == 2:
         detector.dacs.vb_comp = 1420
@@ -216,7 +216,7 @@ def apply_detector_config(detector_configuration, detector):
 #        ]
 #        detector.setGainMode(gainMode.FORCE_SWITCH_G1, modules)
 
-    detector.temp_threshold = detector_configuration.get_detector_temp_threshold()
+    detector.temp_threshold = detector_configuration.get_temp_threshold()
     detector.temp_control = 1
 
     detector.powerchip = True

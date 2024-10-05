@@ -18,7 +18,7 @@ class Debugger:
         self.ID = ID
         self.name = name = DETECTOR_ID_TO_NAME[ID]
         self.config = config = DetectorConfig(name)
-        self.beamline = beamline = config.get_detector_beamline()
+        self.beamline = beamline = config.get_beamline()
         self.detector = Detector(name)
         self.trigger = Trigger(beamline)
 

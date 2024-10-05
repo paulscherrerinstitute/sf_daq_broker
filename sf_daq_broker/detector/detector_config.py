@@ -277,78 +277,78 @@ class DetectorConfig():
             raise RuntimeError(f"length {n_txndelay} of configured txndelay {txndelay} does not match number of tiles {n_tiles} of detector {detector_name}")
 
 
-#    def get_detector_name(self):
+#    def get_name(self):
 #        return self._detector_name
 
-    def get_detector_beamline(self):
+    def get_beamline(self):
         daq  = DETECTOR_DAQ[self._detector_name]["daq"]
         port = DETECTOR_DAQ[self._detector_name]["port"]
         return DAQ_BEAMLINE[daq][port]
 
-    def get_detector_number(self):
+    def get_number(self):
         return int(self._detector_name[2:4])
 
     def get_number_modules(self):
         return int(self._detector_name[5:7])
 
-    def get_detector_size(self):
+    def get_size(self):
         return [1024, self.get_number_modules()*512]
 
-    def get_detector_hostname(self):
+    def get_hostname(self):
         return DETECTOR_HOSTNAME[self._detector_name]
 
-    def get_detector_udp_dstmac(self):
+    def get_udp_dstmac(self):
         daq  = DETECTOR_DAQ[self._detector_name]["daq"]
         port = DETECTOR_DAQ[self._detector_name]["port"]
         return DAQ_MAC[daq][port]
 
 
-#    def get_detector_daq_public_address(self):
-#        ip   = self.get_detector_daq_public_ip()
-#        port = self.get_detector_daq_public_port()
+#    def get_daq_public_address(self):
+#        ip   = self.get_daq_public_ip()
+#        port = self.get_daq_public_port()
 #        return f"tcp://{ip}:{port}"
 
-#    def get_detector_daq_public_ip(self):
+#    def get_daq_public_ip(self):
 #        daq = DETECTOR_DAQ[self._detector_name]["daq"]
 #        return DAQ_PUBLIC_IP[daq]
 
-#    def get_detector_daq_public_port(self):
-#        return 9000 + self.get_detector_number()
+#    def get_daq_public_port(self):
+#        return 9000 + self.get_number()
 
 
-#    def get_detector_daq_data_address(self):
-#        ip   = self.get_detector_daq_data_ip()
-#        port = self.get_detector_daq_data_port()
+#    def get_daq_data_address(self):
+#        ip   = self.get_daq_data_ip()
+#        port = self.get_daq_data_port()
 #        return f"tcp://{ip}:{port}"
 
-#    def get_detector_daq_data_ip(self):
+#    def get_daq_data_ip(self):
 #        daq = DETECTOR_DAQ[self._detector_name]["daq"]
 #        return DAQ_DATA_IP[daq]
 
-#    def get_detector_daq_data_port(self):
-#        return 9100 + self.get_detector_number()
+#    def get_daq_data_port(self):
+#        return 9100 + self.get_number()
 
 
-    def get_detector_vlan(self):
-        return BEAMLINE_VLAN[self.get_detector_beamline()]
+    def get_vlan(self):
+        return BEAMLINE_VLAN[self.get_beamline()]
 
     def get_udp_dstip(self):
-        vlan = self.get_detector_vlan()
+        vlan = self.get_vlan()
         daq = DETECTOR_DAQ[self._detector_name]["daq"]
         return f"{vlan}.{daq}"
 
-    def get_detector_port_first_module(self):
+    def get_port_first_module(self):
         return DETECTOR_PORT[self._detector_name]
 
-    def get_detector_upd_ip(self):
-        vlan = self.get_detector_vlan()
+    def get_upd_ip(self):
+        vlan = self.get_vlan()
         udp_ip = {}
         for i in range(self.get_number_modules()):
             n = DETECTOR_UDP_SRCIP[self._detector_name] + i
             udp_ip[i] = f"{vlan}.{n}"
         return udp_ip
 
-    def get_detector_udp_mac(self):
+    def get_udp_mac(self):
         udp_mac = {}
         for i in range(self.get_number_modules()):
             n = DETECTOR_UDP_SRCMAC[self._detector_name] + i
@@ -356,27 +356,26 @@ class DetectorConfig():
             udp_mac[i] = f"00:aa:bb:cc:dd:{ee}"
         return udp_mac
 
-    def get_detector_txndelay(self):
+    def get_txndelay(self):
         txndelay = {}
         for i in range(self.get_number_modules()):
             txndelay[i] = DETECTOR_TXNDELAY_FRAME[self._detector_name][i]
         return txndelay
 
-    def get_detector_delay(self):
-        return BEAMLINE_DELAY[self.get_detector_beamline()]
+    def get_delay(self):
+        return BEAMLINE_DELAY[self.get_beamline()]
 
-    def get_detector_temp_threshold(self):
+    def get_temp_threshold(self):
         return DETECTOR_TEMP_THRESHOLD[self._detector_name]
 
     def __repr__(self):
         res = {}
         for name in dir(self):
-            if name.startswith("get"):
+            prefix = "get_"
+            if name.startswith(prefix):
                 func = getattr(self, name)
                 value = func()
-                for prefix in ("get_detector_", "get_"):
-                    if name.startswith(prefix):
-                        name = name[len(prefix):]
+                name = name[len(prefix):]
                 res[name] = value
         res = "\n".join(f"{k}: {v}" for k, v in sorted(res.items()))
         return res
