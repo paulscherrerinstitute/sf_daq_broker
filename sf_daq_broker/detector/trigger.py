@@ -3,7 +3,6 @@ from time import sleep
 import epics
 
 from sf_daq_broker.errors import TriggerError, ValidationError
-from sf_daq_broker.utils import typename
 
 
 BEAMLINE_EVENT_PV = {
@@ -35,27 +34,29 @@ class Trigger:
 
         pvname = BEAMLINE_EVENT_PV[beamline]
 
+        self.name = f"{beamline} detector trigger ({pvname})"
+
         try:
             self.pv = epics.PV(pvname)
         except Exception as e:
-            raise TriggerError(f"could not connect to {beamline} event code PV {pvname}") from e
+            raise TriggerError(f"could not connect to {self.name}") from e
 
 
     def start(self):
-        self.set_trigger("start")
+        self.set("start")
 
     def stop(self):
-        self.set_trigger("stop")
+        self.set("stop")
 
 
-    def set_trigger(self, action):
+    def set(self, action):
         pv = self.pv
         value = EVENT_COMMANDS[action]
 
         try:
             pv.put(value)
         except Exception as e:
-            raise TriggerError(f"could not {action} detector trigger {pv.pvname}") from e
+            raise TriggerError(f"could not {action} {self.name}") from e
 
         # sleep to give epics a chance to process change
         sleep(4) #TODO: this seems excessive, check!
@@ -63,10 +64,10 @@ class Trigger:
         try:
             event_code = int(pv.get())
         except Exception as e:
-            raise TriggerError(f"got unexpected value from detector trigger {pv.pvname}: {pv.get()}") from e
+            raise TriggerError(f"got unexpected value from {self.name}: {pv.get()}") from e
 
         if event_code != value:
-            raise TriggerError(f"detector trigger {pv.pvname} did not {action} (expected {value} but event returned {event_code})")
+            raise TriggerError(f"{self.name} did not {action} (expected {value} but event returned {event_code})")
 
 
     @property
@@ -76,8 +77,7 @@ class Trigger:
         return res
 
     def __repr__(self):
-        tname = typename(self)
-        return f"{tname} {self.beamline}: {self.status}"
+        return f"{self.name}: {self.status}"
 
 
 
@@ -87,7 +87,7 @@ def validate_beamline(beamline):
         raise ValidationError("no beamline given")
 
     if beamline not in BEAMLINE_EVENT_PV:
-        raise ValidationError(f"trigger event code for beamline {beamline} not known")
+        raise ValidationError(f"detector trigger event code PV for beamline {beamline} not known")
 
 
 
