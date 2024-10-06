@@ -70,11 +70,11 @@ class Trigger:
 
         try:
             new_value = int(new_value)
+            if new_value != value:
+                raise ValueError
         except Exception as e:
             raise TriggerError(f"{msg} (expected {value} but received {new_value})") from e
 
-        if new_value != value:
-            raise TriggerError(f"{msg} (expected {value} but received {new_value})")
 
 
     @property
