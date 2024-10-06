@@ -78,7 +78,6 @@ class Trigger:
             raise TriggerError(f"{msg} (expected {value} but received {new_value})") from e
 
 
-
     @property
     def status(self):
         res = self.pv.get()
