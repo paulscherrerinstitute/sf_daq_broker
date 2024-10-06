@@ -89,10 +89,6 @@ class Trigger:
 
 
 def validate_beamline(beamline):
-    #TODO: is the None check even needed?
-    if beamline is None:
-        raise ValidationError("no beamline given")
-
     if beamline not in BEAMLINE_EVENT_PV:
         raise ValidationError(f"detector trigger event code PV for beamline {beamline} not known")
 
