@@ -6,7 +6,7 @@ from sf_daq_broker.errors import TriggerError, ValidationError
 from sf_daq_broker.utils import typename
 
 
-BEAMLINE_EVENT_CODE = {
+BEAMLINE_EVENT_PV = {
     "alvra"       : "SAR-CVME-TIFALL4-EVG0:SoftEvt-EvtCode-SP",
     "bernina"     : "SAR-CVME-TIFALL5-EVG0:SoftEvt-EvtCode-SP",
     "cristallina" : "SAR-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP",
@@ -15,12 +15,15 @@ BEAMLINE_EVENT_CODE = {
     "furka"       : "SAT-CVME-TIFALL6-EVG0:SoftEvt-EvtCode-SP"
 }
 
-TRIGGER_VALUES = {
-    "start": 254,
-    "stop":  255
-}
 
-TRIGGER_VALUES_INVERTED = {v: k for k, v in TRIGGER_VALUES.items()}
+# (value, command, state)
+EVENT_MAP = (
+    (254, "start", "running"),
+    (255, "stop",  "stopped")
+)
+
+EVENT_COMMANDS = {cmd: val for val, cmd, _sta in EVENT_MAP} # for put
+EVENT_STATES   = {val: sta for val, _cmd, sta in EVENT_MAP} # for get
 
 
 
@@ -30,7 +33,7 @@ class Trigger:
         self.beamline = beamline
         validate_beamline(beamline)
 
-        pvname = BEAMLINE_EVENT_CODE[beamline]
+        pvname = BEAMLINE_EVENT_PV[beamline]
 
         try:
             self.pv = epics.PV(pvname)
@@ -44,11 +47,15 @@ class Trigger:
     def stop(self):
         set_trigger(self.pv, "stop")
 
+    @property
+    def status(self):
+        res = self.pv.get()
+        res = EVENT_STATES.get(res, f"{res}?")
+        return res
+
     def __repr__(self):
         tname = typename(self)
-        status = self.pv.get()
-        status = TRIGGER_VALUES_INVERTED.get(status, status)
-        return f"{tname} {self.beamline}: {status}"
+        return f"{tname} {self.beamline}: {self.status}"
 
 
 
@@ -57,13 +64,13 @@ def validate_beamline(beamline):
     if beamline is None:
         raise ValidationError("no beamline given")
 
-    if beamline not in BEAMLINE_EVENT_CODE:
+    if beamline not in BEAMLINE_EVENT_PV:
         raise ValidationError(f"trigger event code for beamline {beamline} not known")
 
 
 
 def set_trigger(pv, action):
-    value = TRIGGER_VALUES[action]
+    value = EVENT_COMMANDS[action]
 
     try:
         pv.put(value)
