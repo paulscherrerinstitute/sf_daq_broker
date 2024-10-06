@@ -30,7 +30,9 @@ class Trigger:
 
     def __init__(self, beamline):
         self.beamline = beamline
-        validate_beamline(beamline)
+
+        if beamline not in BEAMLINE_EVENT_PV:
+            raise ValidationError(f"detector trigger event code PV for beamline {beamline} not known")
 
         pvname = BEAMLINE_EVENT_PV[beamline]
 
@@ -85,12 +87,6 @@ class Trigger:
 
     def __repr__(self):
         return f"{self.name}: {self.status}"
-
-
-
-def validate_beamline(beamline):
-    if beamline not in BEAMLINE_EVENT_PV:
-        raise ValidationError(f"detector trigger event code PV for beamline {beamline} not known")
 
 
 
