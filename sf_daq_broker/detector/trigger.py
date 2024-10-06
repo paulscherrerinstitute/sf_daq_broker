@@ -42,10 +42,32 @@ class Trigger:
 
 
     def start(self):
-        set_trigger(self.pv, "start")
+        self.set_trigger("start")
 
     def stop(self):
-        set_trigger(self.pv, "stop")
+        self.set_trigger("stop")
+
+
+    def set_trigger(self, action):
+        pv = self.pv
+        value = EVENT_COMMANDS[action]
+
+        try:
+            pv.put(value)
+        except Exception as e:
+            raise TriggerError(f"could not {action} detector trigger {pv.pvname}") from e
+
+        # sleep to give epics a chance to process change
+        sleep(4) #TODO: this seems excessive, check!
+
+        try:
+            event_code = int(pv.get())
+        except Exception as e:
+            raise TriggerError(f"got unexpected value from detector trigger {pv.pvname}: {pv.get()}") from e
+
+        if event_code != value:
+            raise TriggerError(f"detector trigger {pv.pvname} did not {action} (expected {value} but event returned {event_code})")
+
 
     @property
     def status(self):
@@ -66,27 +88,6 @@ def validate_beamline(beamline):
 
     if beamline not in BEAMLINE_EVENT_PV:
         raise ValidationError(f"trigger event code for beamline {beamline} not known")
-
-
-
-def set_trigger(pv, action):
-    value = EVENT_COMMANDS[action]
-
-    try:
-        pv.put(value)
-    except Exception as e:
-        raise TriggerError(f"could not {action} detector trigger {pv.pvname}") from e
-
-    # sleep to give epics a chance to process change
-    sleep(4) #TODO: this seems excessive, check!
-
-    try:
-        event_code = int(pv.get())
-    except Exception as e:
-        raise TriggerError(f"got unexpected value from detector trigger {pv.pvname}: {pv.get()}") from e
-
-    if event_code != value:
-        raise TriggerError(f"detector trigger {pv.pvname} did not {action} (expected {value} but event returned {event_code})")
 
 
 
