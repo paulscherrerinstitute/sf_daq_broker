@@ -53,21 +53,28 @@ class Trigger:
         pv = self.pv
         value = EVENT_COMMANDS[action]
 
+        errmsg = f"could not {action} {self.name}"
+
         try:
             pv.put(value)
         except Exception as e:
-            raise TriggerError(f"could not {action} {self.name}") from e
+            raise TriggerError(f"{msg} (could not write to PV)") from e
 
         # sleep to give epics a chance to process change
         sleep(4) #TODO: this seems excessive, check!
 
         try:
-            event_code = int(pv.get())
+            new_value = pv.get()
         except Exception as e:
-            raise TriggerError(f"got unexpected value from {self.name}: {pv.get()}") from e
+            raise TriggerError(f"{msg} (could not read from PV)") from e
 
-        if event_code != value:
-            raise TriggerError(f"{self.name} did not {action} (expected {value} but event returned {event_code})")
+        try:
+            new_value = int(new_value)
+        except Exception as e:
+            raise TriggerError(f"{msg} (expected {value} but received {new_value})") from e
+
+        if new_value != value:
+            raise TriggerError(f"{msg} (expected {value} but received {new_value})")
 
 
     @property
