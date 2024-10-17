@@ -190,7 +190,7 @@ def apply_detector_config(detector_configuration, detector):
     detector.udp_dstip  = detector_configuration.get_udp_dstip()
     detector.udp_dstport = detector_configuration.get_port_first_module() # increments port by +1 for each module
 
-    detector.udp_srcip = detector_configuration.get_upd_ip()
+    detector.udp_srcip = detector_configuration.get_udp_ip()
     detector.udp_srcmac = detector_configuration.get_udp_mac()
 
     detector.txdelay_frame = detector_configuration.get_txndelay()
