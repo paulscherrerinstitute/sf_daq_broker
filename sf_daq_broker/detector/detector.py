@@ -205,7 +205,7 @@ def apply_detector_config(detector_configuration, detector):
     if detector_number == 19:
         detector.dacs.vb_comp = 1050
         detector.dacs.vb_ds = 2400
-        detector.dacs.vb_pixbuf = 550
+        detector.dacs.vb_pixbuff = 550
 
     # workaround for mismatched frames problem
     if detector_number == 6:
