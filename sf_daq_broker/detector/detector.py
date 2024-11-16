@@ -154,6 +154,15 @@ class Detector:
         self.jf.pedestalmode = pp
 
 
+    def power_on_modules(self, modules):
+        self.jf.setPowerChip(True, modules)
+        self.jf.setHighVoltage(120, modules)
+
+    def power_off_modules(self, modules):
+        self.jf.setHighVoltage(0, modules)
+        self.jf.setPowerChip(False, modules)
+
+
 
 def parse_param_list(seq):
     """

@@ -14,6 +14,8 @@ _logger = logging.getLogger(__name__)
 
 ENDPOINTS_POST = [
     "set_detector_settings",
+    "power_on_modules",
+    "power_off_modules",
     "copy_user_files",
     "set_dap_settings"
 ]

@@ -71,6 +71,12 @@ def all_detector_names_in_allowed_detectors_beamline(dns, adb, bl):
     for dn in dns:
         detector_name_in_allowed_detectors_beamline(dn, adb, bl)
 
+def allowed_detector_modules(dn, mods, n_mods):
+    allowed = range(n_mods)
+    for i in mods:
+        if i not in allowed:
+            raise ValidationError(f"requested module {i} is not allowed for detector {dn} (number of modules: {n_mods})")
+
 def allowed_pulseid_range(pid_start, pid_stop):
     delta = pid_stop - pid_start
     if delta > MAX_PULSEID_DELTA:

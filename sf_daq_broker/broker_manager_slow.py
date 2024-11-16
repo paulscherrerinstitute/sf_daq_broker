@@ -131,6 +131,44 @@ class DetectorManager:
         return res
 
 
+    def power_on_modules(self, request, remote_ip):
+        return self._set_power_modules("on", request, remote_ip)
+
+    def power_off_modules(self, request, remote_ip):
+        return self._set_power_modules("off", request, remote_ip)
+
+    def _set_power_modules(self, target_state, request, remote_ip):
+        validate.request_has(request, "detector_name", "modules")
+
+        beamline = get_beamline(remote_ip)
+        allowed_detectors_beamline = get_configured_detectors(beamline)
+
+        detector_name = request["detector_name"]
+
+        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+
+        detector = Detector(detector_name)
+
+        modules = request["modules"]
+
+        number_modules = detector.cfg.get_number_modules()
+
+        validate.allowed_detector_modules(detector_name, modules, number_modules)
+
+        if target_state == "on":
+            detector.power_on_modules(modules)
+        elif target_state == "off":
+            detector.power_off_modules(modules)
+        else:
+            raise ValueError(f'detector modules power state can either be "on" or "off", but requested is: {target_state}')
+
+        res = {
+            "status": "ok",
+            "message": f"successfully powered {target_state} modules {modules} of {detector_name}"
+        }
+        return res
+
+
     def copy_user_files(self, request, remote_ip):
         validate.request_has(request, "pgroup", "run_number")
 
