@@ -7,13 +7,27 @@ from sf_daq_broker.rabbitmq import broker_config
 from sf_daq_broker.utils import json_str_to_obj
 
 
-COLOR_MAPPING = {
-    "write_request": "\x1b[34;1m",
-    "write_start": "\x1b[1;33;1m",
-    "write_finished": "\x1b[1;32;1m"
+COLORS = {
+    "red":     "\x1b[31;1m",
+    "green":   "\x1b[32;1m",
+    "yellow":  "\x1b[33;1m",
+    "blue":    "\x1b[34;1m",
+    "magenta": "\x1b[35;1m"
 }
 
 COLOR_END_MARKER = "\x1b[0m"
+
+COLOR_MAPPING = {
+    # sf-daq writers
+    "write_request":   "blue",
+    "write_start":     "yellow",
+    "write_finished":  "green",
+    "write_rejected":  "red",
+    # epics buffer
+    "request_start":   "yellow",
+    "request_success": "green",
+    "request_fail":    "red"
+}
 
 
 
@@ -50,14 +64,15 @@ def on_status(_channel, _method_frame, header_frame, body):
     source = header["source"]
 
     action_output = colorize(action)
-    time_output = datetime.utcnow().strftime("%Y%m%d-%H:%M:%S.%f")
+    time_output = datetime.now().strftime("%Y%m%d-%H:%M:%S.%f")
 
     print(f"[{time_output}] {action_output} {source}")
     print(request)
 
 
 def colorize(action):
-    color = COLOR_MAPPING.get(action, "")
+    color_name = COLOR_MAPPING.get(action, "magenta")
+    color = COLORS[color_name]
     return f"{color}{action}{COLOR_END_MARKER}"
 
 
