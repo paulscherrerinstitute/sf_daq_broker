@@ -131,7 +131,6 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
             n_output_frames = len(good_frames)
 
 
-    # Utility info
     _logger.info(f"input frames         : {n_input_frames}")
     _logger.info(f"skipped frames       : {n_input_frames - n_output_frames}")
     _logger.info(f"output frames        : {n_output_frames}")
