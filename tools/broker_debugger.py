@@ -12,7 +12,8 @@ COLORS = {
     "green":   "\x1b[32;1m",
     "yellow":  "\x1b[33;1m",
     "blue":    "\x1b[34;1m",
-    "magenta": "\x1b[35;1m"
+    "magenta": "\x1b[35;1m",
+    "cyan":    "\x1b[36;1m"
 }
 
 COLOR_END_MARKER = "\x1b[0m"
@@ -62,18 +63,22 @@ def on_status(_channel, _method_frame, header_frame, body):
 
     action = header["action"]
     source = header["source"]
+    message = header.get("message")
 
-    action_output = colorize(action)
-    time_output = datetime.now().strftime("%Y%m%d-%H:%M:%S.%f")
+    timestamp = datetime.now().strftime("%Y%m%d-%H:%M:%S.%f")
+    color = COLOR_MAPPING.get(action, "cyan")
+    colored_action = colorize(action, color)
+    print(f"[{timestamp}] {colored_action} {source}")
 
-    print(f"[{time_output}] {action_output} {source}")
+    colored_message = colorize(message, "magenta")
+    print(colored_message)
+
     print(request)
 
 
-def colorize(action):
-    color_name = COLOR_MAPPING.get(action, "magenta")
-    color = COLORS[color_name]
-    return f"{color}{action}{COLOR_END_MARKER}"
+def colorize(string, color):
+    color_marker = COLORS[color]
+    return f"{color_marker}{string}{COLOR_END_MARKER}"
 
 
 
