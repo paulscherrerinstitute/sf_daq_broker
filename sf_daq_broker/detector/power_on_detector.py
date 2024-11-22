@@ -18,8 +18,9 @@ def power_on_detector(detector_name, beamline):
         trigger.stop()
     except (DetectorError, TriggerError, ValidationError) as e:
         _logger.error(e, exc_info=e.__cause__)
-        return
+        raise e
 
+    # stop is allowed to fail if this is not a restart
     try:
         detector.stop()
     except DetectorError as e:
@@ -32,12 +33,13 @@ def power_on_detector(detector_name, beamline):
         detector.start()
     except DetectorError as e:
         _logger.error(e, exc_info=e.__cause__)
-
-    try:
-        trigger.start()
-    except TriggerError as e:
-        _logger.error(e, exc_info=e.__cause__)
-        return
+        raise e
+    finally:
+        try:
+            trigger.start()
+        except TriggerError as e:
+            _logger.error(e, exc_info=e.__cause__)
+            raise e
 
     _logger.info(f"detector {detector_name} powered on")
 
