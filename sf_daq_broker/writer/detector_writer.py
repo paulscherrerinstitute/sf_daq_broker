@@ -131,8 +131,11 @@ def detector_retrieve(request, output_file_detector):
 
         request_time = request["request_time"]
         res_file_name = raw_file_name[:-3] + ".res.h5"
-        copy_pedestal_file(request_time, res_file_name, detector_name, detector_config_file)
-        copy_calibration_files(res_file_name, detector_config_file)
+        #TODO: does this make sense? copy_pedestal_file only actively raises if detector_config_file does not exist. copy_calibration_files does not even check but would fail as well.
+        try:
+            copy_pedestal_file(request_time, res_file_name, detector_name, detector_config_file)
+        finally:
+            copy_calibration_files(res_file_name, detector_config_file)
 
 
     if convert_ju_file:
@@ -147,9 +150,10 @@ def detector_retrieve(request, output_file_detector):
             convert_file(raw_file_name, output_file_detector, run_file_json, detector_config_file)
         except Exception:
             _logger.exception("file conversion failed")
-
-        delta_time = time() - time_start
-        _logger.info(f"file conversion took {delta_time} seconds")
+            raise
+        finally:
+            delta_time = time() - time_start
+            _logger.info(f"file conversion took {delta_time} seconds")
 
 
         crystfel_lists_laser = detector_params.get("crystfel_lists_laser", False)
@@ -174,8 +178,9 @@ def create_pedestal_file(
     number_bad_modules=0
 ):
     if not os.path.isfile(filename) or not os.access(filename, os.R_OK):
-        _logger.info(f"cannot create pedestal file: input file {filename} not found")
-        return
+        msg = f"cannot create pedestal file: input file {filename} not found"
+        _logger.info(msg)
+        raise RuntimeError(msg)
 
     with h5py.File(filename, "r") as h5f:
         detector_name = h5f["general/detector_name"][()]
@@ -198,8 +203,9 @@ def create_pedestal_file(
         sh_y, sh_x = f_data0.shape
         nModules = (sh_x * sh_y) // (1024 * 512)
         if (nModules * 1024 * 512) != (sh_x * sh_y):
-            _logger.error(f"{detector_name}: shape mismatch: Jungfrau modules have shape 1024x512, while data has shape {sh_x}x{sh_y}")
-            return
+            msg = f"{detector_name}: shape mismatch: Jungfrau modules have shape 1024x512, while data has shape {sh_x}x{sh_y}"
+            _logger.error(msg)
+            raise RuntimeError(msg)
 
         tX = X_test_pixel
         tY = Y_test_pixel
@@ -369,8 +375,9 @@ def copy_pedestal_file(request_time, file_pedestal, detector, detector_config_fi
     copyfile(file_pedestal, out_name)
 
     if not os.path.exists(detector_config_file):
-        _logger.error(f"cannot update currently used pedestal: stream config file {detector_config_file} does not exists")
-        return
+        msg = f"cannot update currently used pedestal: stream config file {detector_config_file} does not exists"
+        _logger.error(msg)
+        raise RuntimeError(msg)
 
     det = json_load(detector_config_file)
     old_pedestal_file = det["pedestal_file"]
