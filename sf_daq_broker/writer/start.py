@@ -293,8 +293,9 @@ def audit_failed_write_request(write_request):
 def detector_pedestal_retrieve(broker_client, request):
     output_file_prefix = request.get("output_file_prefix", None)
     if output_file_prefix is None:
-        _logger.error("cannot take pedestal due to missing output_file_prefix")
-        return
+        msg = "cannot take pedestal due to missing output_file_prefix"
+        _logger.error(msg)
+        raise RuntimeError(msg)
 
     detectors = request.get("detectors", [])
     rate_multiplicator = request.get("rate_multiplicator", 1)
