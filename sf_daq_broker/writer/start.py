@@ -142,7 +142,7 @@ def reject_request(channel, method_frame, body, output_file, message):
 def update_status(channel, body, action, file, message=None):
     status_header = {
         "action": action,
-        "source": "bsread_writer",
+        "source": "sf_daq_writer",
         "routing_key": "*",
         "file": file,
         "message": message
