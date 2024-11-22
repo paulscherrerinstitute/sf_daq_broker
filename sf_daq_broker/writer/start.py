@@ -352,6 +352,11 @@ def detector_pedestal_retrieve(broker_client, request):
 
 
 def unwind_exception(exc):
+    '''
+    traverses the exception context backwards, i.e., all exceptions that are printed as
+    "During handling of the above exception, another exception occurred"
+    in tracebacks and collects their messages into a newline-separated string.
+    '''
     excs = [exc]
     while exc.__context__:
         exc = exc.__context__
