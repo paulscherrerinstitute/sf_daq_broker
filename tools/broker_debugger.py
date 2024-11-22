@@ -68,10 +68,10 @@ def on_status(_channel, _method_frame, header_frame, body):
     timestamp = datetime.now().strftime("%Y%m%d-%H:%M:%S.%f")
     color = COLOR_MAPPING.get(action, "cyan")
     colored_action = colorize(action, color)
-    print(f"[{timestamp}] {colored_action} {source}")
+    print(f"[{timestamp}]", colored_action, source)
 
-    colored_message = colorize(message, "magenta")
-    print(colored_message)
+    if message:
+        print(colorize(message, "magenta"))
 
     print(request)
 
