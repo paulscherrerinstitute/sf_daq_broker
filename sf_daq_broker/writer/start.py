@@ -109,7 +109,7 @@ def on_broker_message(channel, method_frame, _header_frame, body, connection, br
 
             except Exception as e:
                 _logger.exception("failed to write requested data")
-                callback = partial(reject_request, channel, method_frame, body, output_file, str(e))
+                callback = partial(reject_request, channel, method_frame, body, output_file, unwind_exception(e))
 
             else:
                 callback = partial(confirm_request, channel, method_frame, body, output_file)
@@ -122,7 +122,7 @@ def on_broker_message(channel, method_frame, _header_frame, body, connection, br
 
     except Exception as e:
         _logger.exception("failed to write requested data")
-        reject_request(channel, method_frame, body, output_file, str(e))
+        reject_request(channel, method_frame, body, output_file, unwind_exception(e))
 
 
 def write_start(channel, body, output_file):
@@ -349,6 +349,16 @@ def detector_pedestal_retrieve(broker_client, request):
         broker_client.send(write_request, broker_config.TAG_DETECTOR_RETRIEVE)
 
     broker_client.close()
+
+
+def unwind_exception(exc):
+    excs = [exc]
+    while exc.__context__:
+        exc = exc.__context__
+        excs.append(exc)
+    msgs = [str(e).strip() for e in excs]
+    msgs.reverse()
+    return "\n".join(msgs)
 
 
 
