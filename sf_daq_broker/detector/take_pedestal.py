@@ -15,7 +15,7 @@ PULSE_ID_SOURCE = "SLAAR11-LTIM01-EVR0:RX-PULSEID"
 
 def take_pedestal(detector_names, rate=1, pedestalmode=False):
     if not detector_names:
-        return None, None
+        raise ValueError("no detector names provided")
 
     detectors = [Detector(name) for name in detector_names]
 
