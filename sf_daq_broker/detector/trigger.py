@@ -60,7 +60,7 @@ class Trigger:
         try:
             pv.put(value)
         except Exception as e:
-            raise TriggerError(f"{msg} (could not write to PV)") from e
+            raise TriggerError(f"{errmsg} (could not write to PV)") from e
 
         # sleep to give epics a chance to process change
         sleep(4) #TODO: this seems excessive, check!
@@ -68,14 +68,14 @@ class Trigger:
         try:
             new_value = pv.get()
         except Exception as e:
-            raise TriggerError(f"{msg} (could not read from PV)") from e
+            raise TriggerError(f"{errmsg} (could not read from PV)") from e
 
         try:
             new_value = int(new_value)
             if new_value != value:
                 raise ValueError
         except Exception as e:
-            raise TriggerError(f"{msg} (expected {value} but received {new_value})") from e
+            raise TriggerError(f"{errmsg} (expected {value} but received {new_value})") from e
 
 
     @property
