@@ -43,9 +43,9 @@ def write_generic(data_api_request, output_file, buffer_url, requester, what):
     try:
         start_ts = pulse_id_to_timestamp(start_pid)
         stop_ts  = pulse_id_to_timestamp(stop_pid)
-    except RuntimeError as e:
-        _logger.info(f"request to Data API 3 failed: {e}")
-        return
+    except RuntimeError:
+        _logger.exception(f"request to Data API 3 to map pulse IDs to timestamps failed")
+        raise
 
     start_ts = tsfmt(start_ts)
     stop_ts  = tsfmt(stop_ts)
@@ -67,16 +67,18 @@ def write_generic(data_api_request, output_file, buffer_url, requester, what):
         delta_time = time() - start_time
         _logger.info(f"{what} download and writing took {delta_time} seconds")
 
-    except Exception as e:
-        _logger.error(f"request to Data API 3 failed: {e}")
+    except Exception:
+        _logger.exception(f"request to Data API 3 failed")
+        raise
 
-    range_pulse_id = data_api_request["range"]
-    start_pulse_id = range_pulse_id["startPulseId"]
-    stop_pulse_id  = range_pulse_id["endPulseId"]
+    finally:
+        range_pulse_id = data_api_request["range"]
+        start_pulse_id = range_pulse_id["startPulseId"]
+        stop_pulse_id  = range_pulse_id["endPulseId"]
 
-    rate_multiplicator = data_api_request.get("rate_multiplicator", 1)
+        rate_multiplicator = data_api_request.get("rate_multiplicator", 1)
 
-    check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, channels, output_file)
+        check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, channels, output_file)
 
 
 def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, channels, output_file):
@@ -88,6 +90,8 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
     expected_pulse_id = expected_pulse_id[expected_pulse_id % rate_multiplicator == 0]
     n_expected_pulse_id = len(expected_pulse_id)
 
+    #TODO: split function
+    #TODO: close h5 file
     try:
         data_h5py = h5py.File(output_file)
         channels_in_file = set(data_h5py.keys())
@@ -139,9 +143,11 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
 
     except Exception:
         _logger.exception("data consistency check failed")
+        raise
 
-    time_delta = time() - start_time
-    _logger.info(f"data consistency check took {time_delta} seconds")
+    finally:
+        time_delta = time() - start_time
+        _logger.info(f"data consistency check took {time_delta} seconds")
 
 
 def tsfmt(ts):
