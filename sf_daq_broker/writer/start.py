@@ -139,12 +139,12 @@ def reject_request(channel, method_frame, body, output_file, correlation_id, mes
     update_status(channel, body, "write_rejected", output_file, correlation_id, message=message)
 
 
-def update_status(channel, body, action, file, correlation_id, message=None):
+def update_status(channel, body, action, fname, correlation_id, message=None):
     status_header = {
         "action": action,
         "source": "sf_daq_writer",
         "routing_key": "*",
-        "file": file,
+        "file": fname,
         "message": message
     }
     properties = BasicProperties(headers=status_header, correlation_id=correlation_id)
