@@ -129,20 +129,20 @@ def on_broker_message(channel, method_frame, header_frame, body, connection, bro
 
 
 def write_start(channel, correlation_id, body, output_file):
-    update_status(channel, body, "write_start", output_file, correlation_id)
+    update_status(channel, correlation_id, body, "write_start", output_file)
 
 
 def confirm_request(channel, delivery_tag, correlation_id, body, output_file):
     channel.basic_ack(delivery_tag=delivery_tag)
-    update_status(channel, body, "write_finished", output_file, correlation_id)
+    update_status(channel, correlation_id, body, "write_finished", output_file)
 
 
 def reject_request(channel, delivery_tag, correlation_id, body, output_file, message):
     channel.basic_reject(delivery_tag=delivery_tag, requeue=False)
-    update_status(channel, body, "write_rejected", output_file, correlation_id, message=message)
+    update_status(channel, correlation_id, body, "write_rejected", output_file, message=message)
 
 
-def update_status(channel, body, action, fname, correlation_id, message=None):
+def update_status(channel, correlation_id, body, action, fname, message=None):
     status_header = {
         "action": action,
         "source": "sf_daq_writer",
