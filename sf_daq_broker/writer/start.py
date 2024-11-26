@@ -147,10 +147,11 @@ def update_status(channel, body, action, file, correlation_id, message=None):
         "file": file,
         "message": message
     }
+    properties = BasicProperties(headers=status_header, correlation_id=correlation_id)
 
     channel.basic_publish(
         exchange=broker_config.STATUS_EXCHANGE,
-        properties=BasicProperties(headers=status_header, correlation_id=correlation_id),
+        properties=properties,
         routing_key="",
         body=body
     )
