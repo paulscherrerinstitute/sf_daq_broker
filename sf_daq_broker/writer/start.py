@@ -104,7 +104,7 @@ def on_broker_message(channel, method_frame, header_frame, body, connection, bro
         delivery_tag = method_frame.delivery_tag
         correlation_id = header_frame.correlation_id
 
-        write_start(channel, body, output_file, correlation_id)
+        write_start(channel, correlation_id, body, output_file)
 
         def process_async():
             try:
@@ -112,10 +112,10 @@ def on_broker_message(channel, method_frame, header_frame, body, connection, bro
 
             except Exception as e:
                 _logger.exception("failed to write requested data")
-                callback = partial(reject_request, channel, delivery_tag, body, output_file, correlation_id, unwind_exception(e))
+                callback = partial(reject_request, channel, delivery_tag, correlation_id, body, output_file, unwind_exception(e))
 
             else:
-                callback = partial(confirm_request, channel, delivery_tag, body, output_file, correlation_id)
+                callback = partial(confirm_request, channel, delivery_tag, correlation_id, body, output_file)
 
             connection.add_callback_threadsafe(callback)
 
@@ -125,19 +125,19 @@ def on_broker_message(channel, method_frame, header_frame, body, connection, bro
 
     except Exception as e:
         _logger.exception("failed to write requested data")
-        reject_request(channel, delivery_tag, body, output_file, correlation_id, unwind_exception(e))
+        reject_request(channel, delivery_tag, correlation_id, body, output_file, unwind_exception(e))
 
 
-def write_start(channel, body, output_file, correlation_id):
+def write_start(channel, correlation_id, body, output_file):
     update_status(channel, body, "write_start", output_file, correlation_id)
 
 
-def confirm_request(channel, delivery_tag, body, output_file, correlation_id):
+def confirm_request(channel, delivery_tag, correlation_id, body, output_file):
     channel.basic_ack(delivery_tag=delivery_tag)
     update_status(channel, body, "write_finished", output_file, correlation_id)
 
 
-def reject_request(channel, delivery_tag, body, output_file, correlation_id, message):
+def reject_request(channel, delivery_tag, correlation_id, body, output_file, message):
     channel.basic_reject(delivery_tag=delivery_tag, requeue=False)
     update_status(channel, body, "write_rejected", output_file, correlation_id, message=message)
 
