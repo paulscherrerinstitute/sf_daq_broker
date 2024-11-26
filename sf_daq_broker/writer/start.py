@@ -96,7 +96,7 @@ def start_service(broker_url, writer_type=0):
         channel.stop_consuming()
 
 
-def on_broker_message(channel, method_frame, _header_frame, body, connection, broker_client):
+def on_broker_message(channel, method_frame, header_frame, body, connection, broker_client):
     try:
         request = json_str_to_obj(body.decode())
         output_file = request.get("output_file", None)
@@ -109,10 +109,10 @@ def on_broker_message(channel, method_frame, _header_frame, body, connection, br
 
             except Exception as e:
                 _logger.exception("failed to write requested data")
-                callback = partial(reject_request, channel, method_frame, body, output_file, unwind_exception(e))
+                callback = partial(reject_request, channel, method_frame, body, output_file, header_frame.correlation_id, unwind_exception(e))
 
             else:
-                callback = partial(confirm_request, channel, method_frame, body, output_file)
+                callback = partial(confirm_request, channel, method_frame, body, output_file, header_frame.correlation_id)
 
             connection.add_callback_threadsafe(callback)
 
@@ -125,21 +125,21 @@ def on_broker_message(channel, method_frame, _header_frame, body, connection, br
         reject_request(channel, method_frame, body, output_file, unwind_exception(e))
 
 
-def write_start(channel, body, output_file):
-    update_status(channel, body, "write_start", output_file)
+def write_start(channel, body, output_file, request_id):
+    update_status(channel, body, "write_start", output_file, request_id)
 
 
-def confirm_request(channel, method_frame, body, output_file):
+def confirm_request(channel, method_frame, body, output_file, request_id):
     channel.basic_ack(delivery_tag=method_frame.delivery_tag)
-    update_status(channel, body, "write_finished", output_file)
+    update_status(channel, body, "write_finished", output_file, request_id)
 
 
-def reject_request(channel, method_frame, body, output_file, message):
+def reject_request(channel, method_frame, body, output_file, request_id, message):
     channel.basic_reject(delivery_tag=method_frame.delivery_tag, requeue=False)
-    update_status(channel, body, "write_rejected", output_file, message=message)
+    update_status(channel, body, "write_rejected", output_file, request_id, message=message)
 
 
-def update_status(channel, body, action, file, message=None):
+def update_status(channel, body, action, file, request_id, message=None):
     status_header = {
         "action": action,
         "source": "sf_daq_writer",
@@ -150,7 +150,7 @@ def update_status(channel, body, action, file, message=None):
 
     channel.basic_publish(
         exchange=broker_config.STATUS_EXCHANGE,
-        properties=BasicProperties(headers=status_header),
+        properties=BasicProperties(headers=status_header, correlation_id=request_id),
         routing_key="",
         body=body
     )
