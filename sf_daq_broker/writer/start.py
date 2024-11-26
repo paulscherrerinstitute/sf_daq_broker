@@ -125,21 +125,21 @@ def on_broker_message(channel, method_frame, header_frame, body, connection, bro
         reject_request(channel, method_frame, body, output_file, header_frame.correlation_id, unwind_exception(e))
 
 
-def write_start(channel, body, output_file, request_id):
-    update_status(channel, body, "write_start", output_file, request_id)
+def write_start(channel, body, output_file, correlation_id):
+    update_status(channel, body, "write_start", output_file, correlation_id)
 
 
-def confirm_request(channel, method_frame, body, output_file, request_id):
+def confirm_request(channel, method_frame, body, output_file, correlation_id):
     channel.basic_ack(delivery_tag=method_frame.delivery_tag)
-    update_status(channel, body, "write_finished", output_file, request_id)
+    update_status(channel, body, "write_finished", output_file, correlation_id)
 
 
-def reject_request(channel, method_frame, body, output_file, request_id, message):
+def reject_request(channel, method_frame, body, output_file, correlation_id, message):
     channel.basic_reject(delivery_tag=method_frame.delivery_tag, requeue=False)
-    update_status(channel, body, "write_rejected", output_file, request_id, message=message)
+    update_status(channel, body, "write_rejected", output_file, correlation_id, message=message)
 
 
-def update_status(channel, body, action, file, request_id, message=None):
+def update_status(channel, body, action, file, correlation_id, message=None):
     status_header = {
         "action": action,
         "source": "sf_daq_writer",
@@ -150,7 +150,7 @@ def update_status(channel, body, action, file, request_id, message=None):
 
     channel.basic_publish(
         exchange=broker_config.STATUS_EXCHANGE,
-        properties=BasicProperties(headers=status_header, correlation_id=request_id),
+        properties=BasicProperties(headers=status_header, correlation_id=correlation_id),
         routing_key="",
         body=body
     )

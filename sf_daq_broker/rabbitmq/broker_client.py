@@ -62,9 +62,9 @@ class BrokerClient:
         else:
             routing_key = ROUTES[tag]
 
-        request_id = str(uuid.uuid4())
+        correlation_id = str(uuid.uuid4())
         body_bytes = json_obj_to_str(write_request).encode()
-        properties = BasicProperties(correlation_id=request_id)
+        properties = BasicProperties(correlation_id=correlation_id)
 
         self.channel.basic_publish(
             exchange=broker_config.REQUEST_EXCHANGE,
@@ -78,7 +78,7 @@ class BrokerClient:
             "source": "BrokerClient",
             "routing_key": routing_key
         }
-        properties = BasicProperties(headers=status_header, correlation_id=request_id)
+        properties = BasicProperties(headers=status_header, correlation_id=correlation_id)
 
         self.channel.basic_publish(
             exchange=broker_config.STATUS_EXCHANGE,
