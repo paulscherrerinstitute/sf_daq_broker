@@ -101,7 +101,7 @@ def on_broker_message(channel, method_frame, header_frame, body, connection, bro
         request = json_str_to_obj(body.decode())
         output_file = request.get("output_file", None)
 
-        write_start(channel, body, output_file)
+        write_start(channel, body, output_file, header_frame.correlation_id)
 
         def process_async():
             try:
@@ -122,7 +122,7 @@ def on_broker_message(channel, method_frame, header_frame, body, connection, bro
 
     except Exception as e:
         _logger.exception("failed to write requested data")
-        reject_request(channel, method_frame, body, output_file, unwind_exception(e))
+        reject_request(channel, method_frame, body, output_file, header_frame.correlation_id, unwind_exception(e))
 
 
 def write_start(channel, body, output_file, request_id):
