@@ -143,7 +143,7 @@ def reject_request(channel, delivery_tag, correlation_id, body, output_file, mes
 
 
 def update_status(channel, correlation_id, body, action, fname, message=None):
-    status_header = {
+    headers = {
         "action": action,
         "source": "sf_daq_writer",
         "routing_key": "*",
@@ -152,7 +152,7 @@ def update_status(channel, correlation_id, body, action, fname, message=None):
     }
 
     properties = BasicProperties(
-        headers=status_header,
+        headers=headers,
         correlation_id=correlation_id
     )
 
