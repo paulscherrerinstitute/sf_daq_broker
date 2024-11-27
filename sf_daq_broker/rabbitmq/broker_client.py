@@ -78,7 +78,11 @@ class BrokerClient:
             "source": "BrokerClient",
             "routing_key": routing_key
         }
-        properties = BasicProperties(headers=status_header, correlation_id=correlation_id)
+
+        properties = BasicProperties(
+            headers=status_header,
+            correlation_id=correlation_id
+        )
 
         self.channel.basic_publish(
             exchange=broker_config.STATUS_EXCHANGE,

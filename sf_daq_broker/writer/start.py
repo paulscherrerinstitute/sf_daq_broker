@@ -150,7 +150,11 @@ def update_status(channel, correlation_id, body, action, fname, message=None):
         "file": fname,
         "message": message
     }
-    properties = BasicProperties(headers=status_header, correlation_id=correlation_id)
+
+    properties = BasicProperties(
+        headers=status_header,
+        correlation_id=correlation_id
+    )
 
     channel.basic_publish(
         exchange=broker_config.STATUS_EXCHANGE,
