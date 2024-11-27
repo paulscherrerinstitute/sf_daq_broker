@@ -103,8 +103,9 @@ def on_broker_message(channel, method_frame, header_frame, body, connection, bro
 
         delivery_tag = method_frame.delivery_tag
         correlation_id = header_frame.correlation_id
+        timestamp = header_frame.timestamp
 
-        write_start(channel, correlation_id, body, output_file)
+        write_start(channel, correlation_id, timestamp, body, output_file)
 
         def process_async():
             try:
@@ -112,10 +113,10 @@ def on_broker_message(channel, method_frame, header_frame, body, connection, bro
 
             except Exception as e:
                 _logger.exception("failed to write requested data")
-                callback = partial(reject_request, channel, delivery_tag, correlation_id, body, output_file, unwind_exception(e))
+                callback = partial(reject_request, channel, delivery_tag, correlation_id, timestamp, body, output_file, unwind_exception(e))
 
             else:
-                callback = partial(confirm_request, channel, delivery_tag, correlation_id, body, output_file)
+                callback = partial(confirm_request, channel, delivery_tag, correlation_id, timestamp, body, output_file)
 
             connection.add_callback_threadsafe(callback)
 
@@ -125,24 +126,24 @@ def on_broker_message(channel, method_frame, header_frame, body, connection, bro
 
     except Exception as e:
         _logger.exception("failed to write requested data")
-        reject_request(channel, delivery_tag, correlation_id, body, output_file, unwind_exception(e))
+        reject_request(channel, delivery_tag, correlation_id, timestamp, body, output_file, unwind_exception(e))
 
 
-def write_start(channel, correlation_id, body, output_file):
-    update_status(channel, correlation_id, body, "write_start", output_file)
+def write_start(channel, correlation_id, timestamp, body, output_file):
+    update_status(channel, correlation_id, timestamp, body, "write_start", output_file)
 
 
-def confirm_request(channel, delivery_tag, correlation_id, body, output_file):
+def confirm_request(channel, delivery_tag, correlation_id, timestamp, body, output_file):
     channel.basic_ack(delivery_tag=delivery_tag)
-    update_status(channel, correlation_id, body, "write_finished", output_file)
+    update_status(channel, correlation_id, timestamp, body, "write_finished", output_file)
 
 
-def reject_request(channel, delivery_tag, correlation_id, body, output_file, message):
+def reject_request(channel, delivery_tag, correlation_id, timestamp, body, output_file, message):
     channel.basic_reject(delivery_tag=delivery_tag, requeue=False)
-    update_status(channel, correlation_id, body, "write_rejected", output_file, message=message)
+    update_status(channel, correlation_id, timestamp, body, "write_rejected", output_file, message=message)
 
 
-def update_status(channel, correlation_id, body, action, fname, message=None):
+def update_status(channel, correlation_id, timestamp, body, action, fname, message=None):
     headers = {
         "action": action,
         "source": "sf_daq_writer",
@@ -153,7 +154,8 @@ def update_status(channel, correlation_id, body, action, fname, message=None):
 
     properties = BasicProperties(
         headers=headers,
-        correlation_id=correlation_id
+        correlation_id=correlation_id,
+        timestamp=timestamp
     )
 
     channel.basic_publish(

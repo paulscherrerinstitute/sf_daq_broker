@@ -1,5 +1,5 @@
 import uuid
-from time import sleep
+from time import sleep, time_ns
 
 from pika import BasicProperties, BlockingConnection, ConnectionParameters
 
@@ -63,6 +63,7 @@ class BrokerClient:
             routing_key = ROUTES[tag]
 
         correlation_id = str(uuid.uuid4())
+        timestamp = time_ns()
         body_bytes = json_obj_to_str(write_request).encode()
         properties = BasicProperties(correlation_id=correlation_id)
 
@@ -81,7 +82,8 @@ class BrokerClient:
 
         properties = BasicProperties(
             headers=headers,
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
+            timestamp=timestamp
         )
 
         self.channel.basic_publish(
