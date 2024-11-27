@@ -73,14 +73,14 @@ class BrokerClient:
             body=body_bytes
         )
 
-        status_header = {
+        headers = {
             "action": "write_request",
             "source": "BrokerClient",
             "routing_key": routing_key
         }
 
         properties = BasicProperties(
-            headers=status_header,
+            headers=headers,
             correlation_id=correlation_id
         )
 
