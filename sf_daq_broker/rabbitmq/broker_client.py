@@ -65,7 +65,11 @@ class BrokerClient:
         correlation_id = str(uuid.uuid4())
         timestamp = time_ns()
         body_bytes = json_obj_to_str(write_request).encode()
-        properties = BasicProperties(correlation_id=correlation_id)
+
+        properties = BasicProperties(
+            correlation_id=correlation_id,
+            timestamp=timestamp
+        )
 
         self.channel.basic_publish(
             exchange=broker_config.REQUEST_EXCHANGE,
