@@ -164,21 +164,50 @@ class BrokerManager:
         beamline = get_beamline(remote_ip)
         allowed_detectors_beamline = get_configured_detectors(beamline)
 
-        time_now = datetime.now()
-        running_detectors = []
         buffer_location = "/gpfs/photonics/swissfel/buffer"
+        time_now = datetime.now()
+
+        missing_detectors = []
+        running_detectors = []
+        limping_detectors = {}
+
         for detector in allowed_detectors_beamline:
-            detector_buffer_file = f"{buffer_location}/{detector}/M00/LATEST"
-            if os.path.exists(detector_buffer_file):
-                time_file = datetime.fromtimestamp(os.path.getmtime(detector_buffer_file))
+            n_modules = int(detector[5:7])
+
+            running_modules = []
+            missing_modules = []
+
+            for i_module in range(n_modules):
+                module_buffer_file = f"{buffer_location}/{detector}/M{i_module:02}/LATEST"
+
+                if not os.path.exists(module_buffer_file):
+                    missing_modules.append(i_module)
+                    continue
+
+                time_file = datetime.fromtimestamp(os.path.getmtime(module_buffer_file))
                 delta_time = time_now - time_file
                 if delta_time.total_seconds() < 30:
-                    running_detectors.append(detector)
+                    running_modules.append(i_module)
+                else:
+                    missing_modules.append(i_module)
+
+            if not running_modules:
+                missing_detectors.append(detector)
+            elif not missing_modules:
+                running_detectors.append(detector)
+            else:
+                limping_detectors[detector] = {
+                    "running_modules": running_modules,
+                    "missing_modules": missing_modules
+                }
 
         res = {
             "status": "ok",
-            "message": f"successfully retrieved list of running detectors for {beamline}",
-            "detectors": running_detectors
+            "message": f"successfully retrieved list of running, limping and missing detectors for {beamline}",
+            "detectors": running_detectors, #TODO: remove; kept for backwards compatibility
+            "missing_detectors": missing_detectors,
+            "running_detectors": running_detectors,
+            "limping_detectors": limping_detectors
         }
         return res
 
