@@ -73,8 +73,8 @@ def run():
 
 def start_service(broker_url, writer_type=0):
     connection = BlockingConnection(ConnectionParameters(broker_url))
-    channel = connection.channel()
 
+    channel = connection.channel()
     channel.exchange_declare(exchange=broker_config.STATUS_EXCHANGE,  exchange_type="fanout")
     channel.exchange_declare(exchange=broker_config.REQUEST_EXCHANGE, exchange_type="topic")
 
