@@ -37,55 +37,59 @@ def run():
     parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL, help="RabbitMQ broker URL")
 
     clargs = parser.parse_args()
-    connect_to_broker(broker_url=clargs.broker_url)
+    BrokerDebugger(broker_url=clargs.broker_url)
 
 
-def connect_to_broker(broker_url):
-    connection = BlockingConnection(ConnectionParameters(broker_url))
 
-    channel = connection.channel()
-    channel.exchange_declare(exchange=broker_config.STATUS_EXCHANGE, exchange_type="fanout")
+class BrokerDebugger:
 
-    queue = channel.queue_declare(queue="", exclusive=True).method.queue
-    channel.queue_bind(queue=queue, exchange=broker_config.STATUS_EXCHANGE)
-    channel.basic_consume(queue, on_status, auto_ack=True)
+    def __init__(self, broker_url):
+        connection = BlockingConnection(ConnectionParameters(broker_url))
 
-    try:
-        channel.start_consuming()
-    except KeyboardInterrupt:
-        channel.stop_consuming()
+        channel = connection.channel()
+        channel.exchange_declare(exchange=broker_config.STATUS_EXCHANGE, exchange_type="fanout")
+
+        queue = channel.queue_declare(queue="", exclusive=True).method.queue
+        channel.queue_bind(queue=queue, exchange=broker_config.STATUS_EXCHANGE)
+        channel.basic_consume(queue, self.on_status, auto_ack=True)
+
+        try:
+            channel.start_consuming()
+        except KeyboardInterrupt:
+            channel.stop_consuming()
 
 
-def on_status(_channel, method_frame, header_frame, body):
-    correlation_id = header_frame.correlation_id
-    headers        = header_frame.headers
-    timestamp      = header_frame.timestamp
+    def on_status(self, _channel, method_frame, header_frame, body):
+        correlation_id = header_frame.correlation_id
+        headers        = header_frame.headers
+        timestamp      = header_frame.timestamp
 
-    body = body.decode()
-    request = json_str_to_obj(body)
+        body = body.decode()
+        request = json_str_to_obj(body)
 
-    writer_type = request.get("writer_type")
+        writer_type = request.get("writer_type")
 
-    action = headers["action"]
-    source = headers["source"]
-    message = headers.get("message")
+        action = headers["action"]
+        source = headers["source"]
+        message = headers.get("message")
 
-    color = COLOR_MAPPING.get(action, "cyan")
-    colored_action = colorize(action, color)
+        color = COLOR_MAPPING.get(action, "cyan")
+        colored_action = colorize(action, color)
 
-    timestamp_msg = datetime.fromtimestamp(timestamp / 1e9)
-    timestamp_now = datetime.now()
-    time_delta = timestamp_now - timestamp_msg
+        timestamp_msg = datetime.fromtimestamp(timestamp / 1e9)
+        timestamp_now = datetime.now()
+        time_delta = timestamp_now - timestamp_msg
 
-    print(f"[{timestamp_now}]", f"[{timestamp_msg}]", time_delta, correlation_id, colored_action, source, writer_type)
+        print(f"[{timestamp_now}]", f"[{timestamp_msg}]", time_delta, correlation_id, colored_action, source, writer_type)
 
-    if message:
-        print(colorize(message, "magenta"))
+        if message:
+            print(colorize(message, "magenta"))
 
-#    print("  Frame:  ", method_frame)
-#    print("  Headers:", headers)
-#    print("  Request:", request)
-#    print()
+#        print("  Frame:  ", method_frame)
+#        print("  Headers:", headers)
+#        print("  Request:", request)
+#        print()
+
 
 
 def colorize(string, color):
