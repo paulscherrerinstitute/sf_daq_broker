@@ -41,14 +41,14 @@ def run():
 
 
 def connect_to_broker(broker_url):
-    params = ConnectionParameters(broker_url)
-    connection = BlockingConnection(params)
+    connection = BlockingConnection(ConnectionParameters(broker_url))
 
     channel = connection.channel()
     channel.exchange_declare(exchange=broker_config.STATUS_EXCHANGE, exchange_type="fanout")
+
     queue = channel.queue_declare(queue="", exclusive=True).method.queue
     channel.queue_bind(queue=queue, exchange=broker_config.STATUS_EXCHANGE)
-    channel.basic_consume(queue, on_status)
+    channel.basic_consume(queue, on_status, auto_ack=True)
 
     try:
         channel.start_consuming()
