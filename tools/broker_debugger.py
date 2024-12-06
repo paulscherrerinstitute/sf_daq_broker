@@ -34,16 +34,19 @@ COLOR_MAPPING = {
 
 def run():
     parser = argparse.ArgumentParser(description="connect and listen to broker events")
-    parser.add_argument("--broker_url", default=broker_config.DEFAULT_BROKER_URL, help="RabbitMQ broker URL")
+    parser.add_argument("--broker_url", "-b", default=broker_config.DEFAULT_BROKER_URL, help="RabbitMQ broker URL")
+    parser.add_argument("--verbose", "-v", action="store_true", help="verbose output (print frame, headers and request)")
 
     clargs = parser.parse_args()
-    BrokerDebugger(broker_url=clargs.broker_url)
+    BrokerDebugger(broker_url=clargs.broker_url, verbose=clargs.verbose)
 
 
 
 class BrokerDebugger:
 
-    def __init__(self, broker_url):
+    def __init__(self, broker_url, verbose=False):
+        self.verbose = verbose
+
         connection = BlockingConnection(ConnectionParameters(broker_url))
 
         channel = connection.channel()
@@ -85,10 +88,11 @@ class BrokerDebugger:
         if message:
             print(colorize(message, "magenta"))
 
-#        print("  Frame:  ", method_frame)
-#        print("  Headers:", headers)
-#        print("  Request:", request)
-#        print()
+        if self.verbose:
+            print("  Frame:  ", method_frame)
+            print("  Headers:", headers)
+            print("  Request:", request)
+            print()
 
 
 
@@ -102,6 +106,5 @@ def colorize(string, color):
 
 if __name__ == "__main__":
     run()
-
 
 
