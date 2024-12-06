@@ -36,16 +36,18 @@ def run():
     parser = argparse.ArgumentParser(description="connect and listen to broker events")
     parser.add_argument("--broker_url", "-b", default=broker_config.DEFAULT_BROKER_URL, help="RabbitMQ broker URL")
     parser.add_argument("--verbose", "-v", action="store_true", help="verbose output (print frame, headers and request)")
+    parser.add_argument("--long_id", "-l", action="store_true", help="do not shorten correlation ID")
 
     clargs = parser.parse_args()
-    BrokerDebugger(broker_url=clargs.broker_url, verbose=clargs.verbose)
+    BrokerDebugger(broker_url=clargs.broker_url, verbose=clargs.verbose, long_id=clargs.long_id)
 
 
 
 class BrokerDebugger:
 
-    def __init__(self, broker_url, verbose=False):
+    def __init__(self, broker_url, verbose=False, long_id=False):
         self.verbose = verbose
+        self.long_id = long_id
 
         connection = BlockingConnection(ConnectionParameters(broker_url))
 
@@ -82,6 +84,9 @@ class BrokerDebugger:
         timestamp_msg = datetime.fromtimestamp(timestamp / 1e9)
         timestamp_now = datetime.now()
         time_delta = timestamp_now - timestamp_msg
+
+        if not self.long_id:
+            correlation_id = correlation_id.split("-", 1)[0]
 
         print(f"[{timestamp_now}]", f"[{timestamp_msg}]", time_delta, correlation_id, colored_action, source, writer_type)
 
