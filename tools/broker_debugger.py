@@ -56,24 +56,36 @@ def connect_to_broker(broker_url):
         channel.stop_consuming()
 
 
-def on_status(_channel, _method_frame, header_frame, body):
-    header = header_frame.headers
+def on_status(_channel, method_frame, header_frame, body):
+    correlation_id = header_frame.correlation_id
+    headers        = header_frame.headers
+    timestamp      = header_frame.timestamp
+
     body = body.decode()
     request = json_str_to_obj(body)
 
-    action = header["action"]
-    source = header["source"]
-    message = header.get("message")
+    writer_type = request.get("writer_type")
 
-    timestamp = datetime.now().strftime("%Y%m%d-%H:%M:%S.%f")
+    action = headers["action"]
+    source = headers["source"]
+    message = headers.get("message")
+
     color = COLOR_MAPPING.get(action, "cyan")
     colored_action = colorize(action, color)
-    print(f"[{timestamp}]", colored_action, source)
+
+    timestamp_msg = datetime.fromtimestamp(timestamp / 1e9)
+    timestamp_now = datetime.now()
+    time_delta = timestamp_now - timestamp_msg
+
+    print(f"[{timestamp_now}]", f"[{timestamp_msg}]", time_delta, correlation_id, colored_action, source, writer_type)
 
     if message:
         print(colorize(message, "magenta"))
 
-    print(request)
+#    print("  Frame:  ", method_frame)
+#    print("  Headers:", headers)
+#    print("  Request:", request)
+#    print()
 
 
 def colorize(string, color):
