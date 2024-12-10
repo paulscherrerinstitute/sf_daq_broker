@@ -1,3 +1,4 @@
+import argparse
 import itertools
 import random
 from collections import defaultdict
@@ -62,15 +63,19 @@ start.ROUTING_KEYS = defaultdict(lambda: "#") # any key
 
 
 def start_send():
-    thread = Thread(target=send)
+    parser = argparse.ArgumentParser(description="send random broker events")
+    parser.add_argument("--broker_url", "-b", default=broker_config.DEFAULT_BROKER_URL, help="RabbitMQ broker URL")
+    clargs = parser.parse_args()
+
+    thread = Thread(target=send, kwargs=clargs.__dict__)
     thread.daemon = True
     thread.start()
 
 
-def send():
+def send(broker_url=broker_config.DEFAULT_BROKER_URL):
     sleep(3)
 
-    broker_client = BrokerClient(broker_url=broker_config.DEFAULT_BROKER_URL)
+    broker_client = BrokerClient(broker_url=broker_url)
 
     for counter in itertools.count():
         sleep(random.random() * 5)
