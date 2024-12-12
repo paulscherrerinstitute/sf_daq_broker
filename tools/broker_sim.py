@@ -19,6 +19,15 @@ TAGS = (
     broker_config.TAG_DETECTOR_RETRIEVE
 )
 
+INSTRUMENTS = (
+    "alvra",
+    "bernina",
+    "cristallina",
+    "diavolezza",
+    "maloja",
+    "furka"
+)
+
 
 def process_request_internal(request, broker_client):
     writer_type = request["writer_type"]
@@ -80,6 +89,10 @@ def send(broker_url=broker_config.DEFAULT_BROKER_URL):
     for counter in itertools.count():
         sleep(random.random() * 5)
 
+        metadata = {
+            "general/instrument": random.choice(INSTRUMENTS)
+        }
+
         tag = random.choice(TAGS)
 
         #TODO: fill request
@@ -87,7 +100,7 @@ def send(broker_url=broker_config.DEFAULT_BROKER_URL):
 #            "channels": None,
 #            "detectors": detectors,
 #            "directory_name": directory_name,
-#            "metadata": None,
+            "metadata": metadata,
 #            "output_file": None,
 #            "output_file_prefix": f"{full_path}/{pedestal_name}",
 #            "path_to_pgroup": path_to_pgroup,
