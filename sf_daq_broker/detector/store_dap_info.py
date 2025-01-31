@@ -9,12 +9,19 @@ _logger = logging.getLogger("broker_writer")
 
 def store_dap_info(beamline, pgroup, detector, start_pulse_id, stop_pulse_id, file_name_out):
     if None in (beamline, pgroup, detector, start_pulse_id, stop_pulse_id, file_name_out):
-        msg = f"store_dap_info called with incomplete arguments: {beamline}, {pgroup}, {detector}, {start_pulse_id}, {stop_pulse_id}, {file_name_out}"
+        msg = f"store_dap_info called with incomplete arguments: {beamline=}, {pgroup=}, {detector=}, {start_pulse_id=}, {stop_pulse_id=}, {file_name_out=}"
         _logger.error(msg)
         raise RuntimeError(msg)
 
 #    path_to_dap_files = f"/sf/{beamline}/data/{pgroup}/res/jungfrau/output/"
     path_to_dap_files = f"/gpfs/photonics/swissfel/buffer/dap/data/{detector}"
+
+    try:
+        os.makedirs(path_to_dap_files, exist_ok=True)
+    except Exception:
+        _logger.exception(f"failed to create folder: {path_to_dap_files}")
+        raise
+
     if not os.path.exists(path_to_dap_files):
         msg = f'DAP output directory "{path_to_dap_files}" is not reachable'
         _logger.error(msg)
