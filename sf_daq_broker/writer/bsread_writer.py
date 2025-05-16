@@ -125,12 +125,12 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
             if n_pulse_id != n_expected_pulse_id:
                 _logger.error(f"check {channel} number of (unique) pulse IDs {n_pulse_id} differs from requested {n_expected_pulse_id}")
 
-            start_pulse_id = pulse_id[0]
+            start_pulse_id = pulse_id[0] if pulse_id else None
             start_expected = expected_pulse_id[0]
             if start_pulse_id != start_expected:
                 _logger.error(f"check {channel} start pulse ID {start_pulse_id} differs from requested {start_expected}")
 
-            stop_pulse_id = pulse_id[-1]
+            stop_pulse_id = pulse_id[-1] if pulse_id else None
             stop_expected = expected_pulse_id[-1]
             if stop_pulse_id != stop_expected:
                 _logger.error(f"check {channel} stop pulse ID {stop_pulse_id} differs from requested {stop_expected}")
