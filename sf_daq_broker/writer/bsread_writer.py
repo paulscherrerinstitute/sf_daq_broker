@@ -100,18 +100,18 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
                 _logger.error(f"check {channel} not present in file")
                 continue
 
-            pulse_id_raw = data_h5py[f"/{channel}/pulse_id"][:]
+            raw_pulse_ids = data_h5py[f"/{channel}/pulse_id"][:]
 
-            min_pulse_id_raw = min(pulse_id_raw)
+            min_pulse_id_raw = min(raw_pulse_ids)
             if min_pulse_id_raw < start_pulse_id:
                 _logger.error(f"check {channel} contains pulse IDs before the requested range: {min_pulse_id_raw} < {start_pulse_id}")
 
-            max_pulse_id_raw = max(pulse_id_raw)
+            max_pulse_id_raw = max(raw_pulse_ids)
             if max_pulse_id_raw > stop_pulse_id:
                 _logger.error(f"check {channel} contains pulse IDs after the requested range: {max_pulse_id_raw} > {stop_pulse_id}")
 
-            n_pulse_id_raw = len(pulse_id_raw)
-            n_unique_pulse_id_raw = len(set(pulse_id_raw))
+            n_pulse_id_raw = len(raw_pulse_ids)
+            n_unique_pulse_id_raw = len(set(raw_pulse_ids))
 
             duplicate_entries = (n_pulse_id_raw != n_unique_pulse_id_raw)
 
@@ -119,7 +119,7 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
                 n_duplicate = n_pulse_id_raw - n_unique_pulse_id_raw
                 _logger.error(f"check {channel} contains duplicate entries: total {n_pulse_id_raw}, duplicates {n_duplicate}")
 
-            matched_pulse_id = np.intersect1d(expected_pulse_id, pulse_id_raw)
+            matched_pulse_id = np.intersect1d(expected_pulse_id, raw_pulse_ids)
             n_matched_pulse_id = len(matched_pulse_id)
 
             if n_matched_pulse_id != n_expected_pulse_id:
