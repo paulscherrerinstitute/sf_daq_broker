@@ -102,13 +102,13 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
 
             raw_pulse_ids = data_h5py[f"/{channel}/pulse_id"][:]
 
-            min_pulse_id_raw = min(raw_pulse_ids)
-            if min_pulse_id_raw < start_pulse_id:
-                _logger.error(f"check {channel} contains pulse IDs before the requested range: {min_pulse_id_raw} < {start_pulse_id}")
+            min_raw_pulse_id = min(raw_pulse_ids)
+            if min_raw_pulse_id < start_pulse_id:
+                _logger.error(f"check {channel} contains pulse IDs before the requested range: {min_raw_pulse_id} < {start_pulse_id}")
 
-            max_pulse_id_raw = max(raw_pulse_ids)
-            if max_pulse_id_raw > stop_pulse_id:
-                _logger.error(f"check {channel} contains pulse IDs after the requested range: {max_pulse_id_raw} > {stop_pulse_id}")
+            max_raw_pulse_id = max(raw_pulse_ids)
+            if max_raw_pulse_id > stop_pulse_id:
+                _logger.error(f"check {channel} contains pulse IDs after the requested range: {max_raw_pulse_id} > {stop_pulse_id}")
 
             n_pulse_id_raw = len(raw_pulse_ids)
             n_unique_pulse_id_raw = len(set(raw_pulse_ids))
