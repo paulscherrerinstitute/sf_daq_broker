@@ -125,17 +125,17 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
             if n_matched_pulse_ids != n_expected_pulse_ids:
                 _logger.error(f"check {channel} number of (unique) pulse IDs {n_matched_pulse_ids} differs from requested {n_expected_pulse_ids}")
 
-            start_matched_pulse_ids = matched_pulse_ids[0] if len(matched_pulse_ids) else None
-            start_expected_pulse_ids = expected_pulse_ids[0]
-            if start_matched_pulse_ids != start_expected_pulse_ids:
-                _logger.error(f"check {channel} start pulse ID {start_matched_pulse_ids} differs from requested {start_expected_pulse_ids}")
+            start_matched_pulse_id = matched_pulse_ids[0] if len(matched_pulse_ids) else None
+            start_expected_pulse_id = expected_pulse_ids[0]
+            if start_matched_pulse_id != start_expected_pulse_id:
+                _logger.error(f"check {channel} start pulse ID {start_matched_pulse_id} differs from requested {start_expected_pulse_id}")
 
-            stop_matched_pulse_ids = matched_pulse_ids[-1] if len(matched_pulse_ids) else None
-            stop_expected_pulse_ids = expected_pulse_ids[-1]
-            if stop_matched_pulse_ids != stop_expected_pulse_ids:
-                _logger.error(f"check {channel} stop pulse ID {stop_matched_pulse_ids} differs from requested {stop_expected_pulse_ids}")
+            stop_matched_pulse_id = matched_pulse_ids[-1] if len(matched_pulse_ids) else None
+            stop_expected_pulse_id = expected_pulse_ids[-1]
+            if stop_matched_pulse_id != stop_expected_pulse_id:
+                _logger.error(f"check {channel} stop pulse ID {stop_matched_pulse_id} differs from requested {stop_expected_pulse_id}")
 
-            if start_matched_pulse_ids == start_expected_pulse_ids and stop_matched_pulse_ids == stop_expected_pulse_ids and not has_duplicates:
+            if start_matched_pulse_id == start_expected_pulse_id and stop_matched_pulse_id == stop_expected_pulse_id and not has_duplicates:
                 for mpi, epi in zip(matched_pulse_ids, expected_pulse_ids):
                     if mpi != epi:
                         _logger.error(f"check {channel} pulse IDs are not monotonic: {mpi} != {epi}")
