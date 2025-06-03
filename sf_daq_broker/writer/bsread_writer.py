@@ -136,9 +136,9 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
                 _logger.error(f"check {channel} stop pulse ID {stop_matched_pulse_ids} differs from requested {stop_expected_pulse_ids}")
 
             if start_matched_pulse_ids == start_expected_pulse_ids and stop_matched_pulse_ids == stop_expected_pulse_ids and not has_duplicates:
-                for pi, epi in zip(matched_pulse_ids, expected_pulse_ids):
-                    if pi != epi:
-                        _logger.error(f"check {channel} pulse IDs are not monotonic: {pi} != {epi}")
+                for mpi, epi in zip(matched_pulse_ids, expected_pulse_ids):
+                    if mpi != epi:
+                        _logger.error(f"check {channel} pulse IDs are not monotonic: {mpi} != {epi}")
                         break
 
     except Exception:
