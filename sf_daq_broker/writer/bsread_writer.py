@@ -110,14 +110,14 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
             if max_raw_pulse_id > stop_pulse_id:
                 _logger.error(f"check {channel} contains pulse IDs after the requested range: {max_raw_pulse_id} > {stop_pulse_id}")
 
-            n_pulse_id_raw = len(raw_pulse_ids)
+            n_raw_pulse_ids = len(raw_pulse_ids)
             n_unique_pulse_id_raw = len(set(raw_pulse_ids))
 
-            duplicate_entries = (n_pulse_id_raw != n_unique_pulse_id_raw)
+            duplicate_entries = (n_raw_pulse_ids != n_unique_pulse_id_raw)
 
             if duplicate_entries:
-                n_duplicate = n_pulse_id_raw - n_unique_pulse_id_raw
-                _logger.error(f"check {channel} contains duplicate entries: total {n_pulse_id_raw}, duplicates {n_duplicate}")
+                n_duplicate = n_raw_pulse_ids - n_unique_pulse_id_raw
+                _logger.error(f"check {channel} contains duplicate entries: total {n_raw_pulse_ids}, duplicates {n_duplicate}")
 
             matched_pulse_id = np.intersect1d(expected_pulse_ids, raw_pulse_ids)
             n_matched_pulse_id = len(matched_pulse_id)
