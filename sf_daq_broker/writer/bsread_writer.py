@@ -125,17 +125,17 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
             if n_matched_pulse_id != n_expected_pulse_id:
                 _logger.error(f"check {channel} number of (unique) pulse IDs {n_matched_pulse_id} differs from requested {n_expected_pulse_id}")
 
-            matched_start_pulse_id = matched_pulse_id[0] if len(matched_pulse_id) else None
+            start_matched_pulse_id = matched_pulse_id[0] if len(matched_pulse_id) else None
             start_expected = expected_pulse_id[0]
-            if matched_start_pulse_id != start_expected:
-                _logger.error(f"check {channel} start pulse ID {matched_start_pulse_id} differs from requested {start_expected}")
+            if start_matched_pulse_id != start_expected:
+                _logger.error(f"check {channel} start pulse ID {start_matched_pulse_id} differs from requested {start_expected}")
 
-            matched_stop_pulse_id = matched_pulse_id[-1] if len(matched_pulse_id) else None
+            stop_matched_pulse_id = matched_pulse_id[-1] if len(matched_pulse_id) else None
             stop_expected = expected_pulse_id[-1]
-            if matched_stop_pulse_id != stop_expected:
-                _logger.error(f"check {channel} stop pulse ID {matched_stop_pulse_id} differs from requested {stop_expected}")
+            if stop_matched_pulse_id != stop_expected:
+                _logger.error(f"check {channel} stop pulse ID {stop_matched_pulse_id} differs from requested {stop_expected}")
 
-            if matched_start_pulse_id == start_expected and matched_stop_pulse_id == stop_expected and not duplicate_entries:
+            if start_matched_pulse_id == start_expected and stop_matched_pulse_id == stop_expected and not duplicate_entries:
                 for pi, epi in zip(matched_pulse_id, expected_pulse_id):
                     if pi != epi:
                         _logger.error(f"check {channel} pulse IDs are not monotonic: {pi} != {epi}")
