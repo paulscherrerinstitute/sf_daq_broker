@@ -44,7 +44,7 @@ def write_generic(data_api_request, output_file, buffer_url, requester, what):
         start_ts = pulse_id_to_timestamp(start_pid)
         stop_ts  = pulse_id_to_timestamp(stop_pid)
     except RuntimeError:
-        _logger.exception(f"request to Data API 3 to map pulse IDs to timestamps failed")
+        _logger.exception("request to Data API 3 to map pulse IDs to timestamps failed")
         raise
 
     start_ts = tsfmt(start_ts)
@@ -68,7 +68,7 @@ def write_generic(data_api_request, output_file, buffer_url, requester, what):
         _logger.info(f"{what} download and writing took {delta_time} seconds")
 
     except Exception:
-        _logger.exception(f"request to Data API 3 failed")
+        _logger.exception("request to Data API 3 failed")
         raise
 
     finally:
