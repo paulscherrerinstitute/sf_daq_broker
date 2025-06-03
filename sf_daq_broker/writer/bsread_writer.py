@@ -88,7 +88,7 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
 
     expected_pulse_ids = np.arange(start_pulse_id, stop_pulse_id + 1)
     expected_pulse_ids = expected_pulse_ids[expected_pulse_ids % rate_multiplicator == 0]
-    n_expected_pulse_id = len(expected_pulse_ids)
+    n_expected_pulse_ids = len(expected_pulse_ids)
 
     #TODO: split function
     #TODO: close h5 file
@@ -122,8 +122,8 @@ def check_data_consistency(start_pulse_id, stop_pulse_id, rate_multiplicator, ch
             matched_pulse_id = np.intersect1d(expected_pulse_ids, raw_pulse_ids)
             n_matched_pulse_id = len(matched_pulse_id)
 
-            if n_matched_pulse_id != n_expected_pulse_id:
-                _logger.error(f"check {channel} number of (unique) pulse IDs {n_matched_pulse_id} differs from requested {n_expected_pulse_id}")
+            if n_matched_pulse_id != n_expected_pulse_ids:
+                _logger.error(f"check {channel} number of (unique) pulse IDs {n_matched_pulse_id} differs from requested {n_expected_pulse_ids}")
 
             start_matched_pulse_id = matched_pulse_id[0] if len(matched_pulse_id) else None
             start_expected = expected_pulse_ids[0]
