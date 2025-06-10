@@ -117,7 +117,6 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
                     downsample=downsample,
                     compression=compression,
                     factor=factor,
-                    dtype=None,
                     batch_size=35,
                 )
             else:
