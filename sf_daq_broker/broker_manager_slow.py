@@ -47,10 +47,12 @@ class DetectorManager:
 
         detector = Detector(detector_name)
 
+        pings = detector.ping()
+
         res = {
             "status": "ok",
             "message": f"successfully retrieved pings of {detector_name}",
-            "pings": detector.ping()
+            "pings": pings
         }
         return res
 
@@ -60,10 +62,12 @@ class DetectorManager:
 
         detector = Detector(detector_name)
 
+        detector_status = detector.status
+
         res = {
             "status": "ok",
             "message": f"successfully retrieved status from {detector_name}",
-            "detector_status": detector.status
+            "detector_status": detector_status
         }
         return res
 
@@ -72,6 +76,7 @@ class DetectorManager:
         detector_name = get_validated_detector_name(request, remote_ip)
 
         detector = Detector(detector_name)
+
         temperatures = detector.get_temperatures()
 
         res = {
