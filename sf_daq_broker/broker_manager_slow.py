@@ -49,6 +49,25 @@ class DetectorManager:
         return res
 
 
+    def get_detector_status(self, request, remote_ip):
+        validate.request_has(request, "detector_name")
+
+        beamline = get_beamline(remote_ip)
+        allowed_detectors_beamline = get_configured_detectors(beamline)
+
+        detector_name = request["detector_name"]
+        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+
+        detector = Detector(detector_name)
+
+        res = {
+            "status": "ok",
+            "message": f"successfully retrieved status from {detector_name}",
+            "detector_status": detector.status
+        }
+        return res
+
+
     def get_detector_temperatures(self, request, remote_ip):
         validate.request_has(request, "detector_name")
 

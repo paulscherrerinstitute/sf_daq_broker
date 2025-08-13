@@ -24,6 +24,7 @@ ENDPOINTS_GET = [
     "get_dap_settings",
     "get_detector_settings",
     "get_jfctrl_monitor",
+    "get_detector_status",
     "get_detector_temperatures",
     "get_jfstats"
 ]
