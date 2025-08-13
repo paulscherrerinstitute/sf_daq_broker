@@ -33,7 +33,6 @@ class DetectorManager:
         allowed_detectors_beamline = get_configured_detectors(beamline)
 
         detector_name = request["detector_name"]
-
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
         detector_number = int(detector_name[2:4])
@@ -114,7 +113,6 @@ class DetectorManager:
         allowed_detectors_beamline = get_configured_detectors(beamline)
 
         detector_name = request["detector_name"]
-
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
         detector = Detector(detector_name)
@@ -136,7 +134,6 @@ class DetectorManager:
         allowed_detectors_beamline = get_configured_detectors(beamline)
 
         detector_name = request["detector_name"]
-
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
         detector = Detector(detector_name)
@@ -182,7 +179,6 @@ class DetectorManager:
         allowed_detectors_beamline = get_configured_detectors(beamline)
 
         detector_name = request["detector_name"]
-
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
         detector = Detector(detector_name)
@@ -277,7 +273,6 @@ class DetectorManager:
         allowed_detectors_beamline = get_configured_detectors(beamline)
 
         detector_name = request["detector_name"]
-
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
@@ -300,7 +295,6 @@ class DetectorManager:
         allowed_detectors_beamline = get_configured_detectors(beamline)
 
         detector_name = request["detector_name"]
-
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
