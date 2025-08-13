@@ -4,6 +4,7 @@ from .slsdetcompat import Jungfrau, detectorSettings, gainMode, pedestalParamete
 
 from sf_daq_broker.detector.detector_config import DETECTOR_NAMES, DetectorConfig
 from sf_daq_broker.errors import DetectorError, ValidationError
+from sf_daq_broker.utils import ping_many
 
 
 def invert_dict(d):
@@ -90,6 +91,10 @@ class Detector:
         temperatures = {t.name: jf.getTemperature(t) for t in jf.getTemperatureList()}
         temperatures["TEMPERATURE_THRESHOLDS"] = jf.getThresholdTemperature()
         return temperatures
+
+    def ping(self):
+        hosts = self.cfg.get_hostname()
+        return ping_many(hosts)
 
 
     @property
