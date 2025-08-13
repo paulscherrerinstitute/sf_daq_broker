@@ -27,13 +27,7 @@ PARAMETER_NAMES = [
 class DetectorManager:
 
     def get_jfctrl_monitor(self, request, remote_ip):
-        validate.request_has(request, "detector_name")
-
-        beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = get_configured_detectors(beamline)
-
-        detector_name = request["detector_name"]
-        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+        detector_name = get_validated_detector_name(request, remote_ip)
 
         detector_number = int(detector_name[2:4])
         jfctrl = JFCtrl(detector_number)
@@ -49,13 +43,7 @@ class DetectorManager:
 
 
     def get_detector_pings(self, request, remote_ip):
-        validate.request_has(request, "detector_name")
-
-        beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = get_configured_detectors(beamline)
-
-        detector_name = request["detector_name"]
-        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+        detector_name = get_validated_detector_name(request, remote_ip)
 
         detector = Detector(detector_name)
 
@@ -68,13 +56,7 @@ class DetectorManager:
 
 
     def get_detector_status(self, request, remote_ip):
-        validate.request_has(request, "detector_name")
-
-        beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = get_configured_detectors(beamline)
-
-        detector_name = request["detector_name"]
-        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+        detector_name = get_validated_detector_name(request, remote_ip)
 
         detector = Detector(detector_name)
 
@@ -87,13 +69,7 @@ class DetectorManager:
 
 
     def get_detector_temperatures(self, request, remote_ip):
-        validate.request_has(request, "detector_name")
-
-        beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = get_configured_detectors(beamline)
-
-        detector_name = request["detector_name"]
-        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+        detector_name = get_validated_detector_name(request, remote_ip)
 
         detector = Detector(detector_name)
         temperatures = detector.get_temperatures()
@@ -107,13 +83,7 @@ class DetectorManager:
 
 
     def get_detector_settings(self, request, remote_ip):
-        validate.request_has(request, "detector_name")
-
-        beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = get_configured_detectors(beamline)
-
-        detector_name = request["detector_name"]
-        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+        detector_name = get_validated_detector_name(request, remote_ip)
 
         detector = Detector(detector_name)
 
@@ -267,13 +237,7 @@ class DetectorManager:
 
 
     def get_dap_settings(self, request, remote_ip):
-        validate.request_has(request, "detector_name")
-
-        beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = get_configured_detectors(beamline)
-
-        detector_name = request["detector_name"]
-        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+        detector_name = get_validated_detector_name(request, remote_ip)
 
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
         validate.dap_parameters_file_exists(dap_parameters_file)
@@ -376,6 +340,19 @@ def get_writing_state(detector):
     delta_time = time_now - time_file
     writing = (delta_time.total_seconds() < 30)
     return writing
+
+
+
+def get_validated_detector_name(request, remote_ip):
+    validate.request_has(request, "detector_name")
+
+    beamline = get_beamline(remote_ip)
+    allowed_detectors_beamline = get_configured_detectors(beamline)
+
+    detector_name = request["detector_name"]
+    validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+
+    return detector_name
 
 
 
