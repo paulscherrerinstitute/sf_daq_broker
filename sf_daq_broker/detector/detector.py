@@ -58,6 +58,7 @@ class Detector:
         else:
             n_modules = self.cfg.get_number_modules()
             status = [str(status)] * n_modules
+        status = parse_param_list(status)
         return status
 
     @property
