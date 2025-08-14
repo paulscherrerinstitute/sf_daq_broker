@@ -58,6 +58,7 @@ class Detector:
         else:
             n_modules = self.cfg.get_number_modules()
             status = [str(status)] * n_modules
+        status = [i.split(".", 1)[1].lower() for i in status]
         status = parse_param_list(status)
         return status
 
