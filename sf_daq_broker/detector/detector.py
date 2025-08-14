@@ -51,6 +51,15 @@ class Detector:
         except Exception as e:
             raise DetectorError(f"could not stop detector {self.name}") from e
 
+    def get_status(self):
+        status = self.jf.status
+        if isinstance(status, list):
+            status = [str(i) for i in status]
+        else:
+            n_modules = self.cfg.get_number_modules()
+            status = [str(status)] * n_modules
+        return status
+
     @property
     def status(self):
         return self.jf.status

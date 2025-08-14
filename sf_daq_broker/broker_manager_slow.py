@@ -67,11 +67,7 @@ class DetectorManager:
 
         detector = Detector(detector_name)
 
-        detector_status = detector.status
-        if isinstance(detector_status, list):
-            detector_status = [str(i) for i in detector_status]
-        else:
-            detector_status = str(detector_status)
+        detector_status = detector.get_status()
 
         res = {
             "status": "ok",
