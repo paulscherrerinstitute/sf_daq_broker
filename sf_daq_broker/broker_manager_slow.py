@@ -48,6 +48,7 @@ class DetectorManager:
         detector = Detector(detector_name)
 
         pings = detector.ping()
+        pings = dict(enumerate(pings.values())) # use module number instead of hostname
 
         res = {
             "status": "ok",
