@@ -49,6 +49,10 @@ class DetectorManager:
 
         pings = detector.ping()
         pings = dict(enumerate(pings.values())) # use module number instead of hostname
+        pings = {
+            "responding":  [k for k, v in pings.items() if v],
+            "unreachable": [k for k, v in pings.items() if not v]
+        }
 
         res = {
             "status": "ok",
