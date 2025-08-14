@@ -68,7 +68,7 @@ class DetectorManager:
         detector = Detector(detector_name)
 
         detector_status = detector.status
-        detector_status = {k, str(v) for k, v in detector_status.items()}
+        detector_status = {k: str(v) for k, v in detector_status.items()}
 
         res = {
             "status": "ok",
