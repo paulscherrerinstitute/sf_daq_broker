@@ -272,7 +272,10 @@ class DetectorManager:
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
         dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
-        validate.dap_parameters_file_exists(dap_parameters_file)
+
+        if not os.path.exists(dap_parameters_file):
+            _logger.info(f"DAP parameter file {dap_parameters_file} does not exist -- creating an empty one")
+            json_save({}, dap_parameters_file)
 
         new_parameters = request["parameters"]
 
