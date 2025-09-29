@@ -103,7 +103,7 @@ DETECTOR_DAQ = {
     "JF03T01V02" : {"daq": 12, "port": 1},
     "JF04T01V01" : {"daq": 12, "port": 1},
     "JF05T01V01" : {"daq": 10, "port": 1},
-    "JF06T08V07" : {"daq": 13, "port": 0},
+    "JF06T08V07" : {"daq": 12, "port": 0},
     "JF06T32V07" : {"daq": 12, "port": 0},
     "JF07T32V02" : {"daq": 13, "port": 1},
     "JF08T01V01" : {"daq": 13, "port": 0},
