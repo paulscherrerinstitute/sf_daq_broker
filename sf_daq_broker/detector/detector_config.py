@@ -358,7 +358,7 @@ class DetectorConfig():
     def get_port_first_module(self):
         return DETECTOR_PORT[self._detector_name]
 
-    def get_udp_ip(self):
+    def get_udp_srcip(self):
         vlan = self.get_vlan()
         udp_ip = {}
         for i in range(self.get_number_modules()):
@@ -366,7 +366,7 @@ class DetectorConfig():
             udp_ip[i] = f"{vlan}.{n}"
         return udp_ip
 
-    def get_udp_mac(self):
+    def get_udp_srcmac(self):
         n = self.get_number()
         hn = hex(n)[2:]
         udp_mac = {}
