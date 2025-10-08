@@ -168,28 +168,28 @@ DETECTOR_UDP_SRCIP = {
     "JF20T01V01" : 173
 }
 
-DETECTOR_UDP_SRCMAC = {
-    "JF01T03V01" : 16,
-    "JF02T09V03" : 32,
-    "JF03T01V02" : 42,
-    "JF04T01V01" : 43,
-    "JF05T01V01" : 44,
-    "JF06T08V07" : 45,
-    "JF06T32V07" : 45,
-    "JF07T32V02" : 81,
-    "JF08T01V01" : 121,
-    "JF09T01V01" : 122,
-    "JF10T01V01" : 123,
-    "JF11T04V01" : 124,
-    "JF13T01V01" : 131,
-    "JF14T01V01" : 132,
-    "JF15T08V01" : 133,
-    "JF16T03V02" : 143,
-    "JF17T16V01" : 148,
-    "JF18T01V01" : 164,
-    "JF19T01V01" : 165,
-    "JF20T01V01" : 166
-}
+#DETECTOR_UDP_SRCMAC = {
+#    "JF01T03V01" : 16,
+#    "JF02T09V03" : 32,
+#    "JF03T01V02" : 42,
+#    "JF04T01V01" : 43,
+#    "JF05T01V01" : 44,
+#    "JF06T08V07" : 45,
+#    "JF06T32V07" : 45,
+#    "JF07T32V02" : 81,
+#    "JF08T01V01" : 121,
+#    "JF09T01V01" : 122,
+#    "JF10T01V01" : 123,
+#    "JF11T04V01" : 124,
+#    "JF13T01V01" : 131,
+#    "JF14T01V01" : 132,
+#    "JF15T08V01" : 133,
+#    "JF16T03V02" : 143,
+#    "JF17T16V01" : 148,
+#    "JF18T01V01" : 164,
+#    "JF19T01V01" : 165,
+#    "JF20T01V01" : 166
+#}
 
 DETECTOR_TXNDELAY_FRAME = {
     "JF01T03V01" : [9, 9, 9],
@@ -278,8 +278,8 @@ class DetectorConfig():
         if detector_name not in DETECTOR_UDP_SRCIP:
             raise_missing("srcip")
 
-        if detector_name not in DETECTOR_UDP_SRCMAC:
-            raise_missing("srcmac")
+#        if detector_name not in DETECTOR_UDP_SRCMAC:
+#            raise_missing("srcmac")
 
         if detector_name not in DETECTOR_TEMP_THRESHOLD:
             raise_missing("temp_threshold")
@@ -367,11 +367,12 @@ class DetectorConfig():
         return udp_ip
 
     def get_udp_mac(self):
+        n = self.get_number()
+        hn = hex(n)[2:]
         udp_mac = {}
         for i in range(self.get_number_modules()):
-            n = DETECTOR_UDP_SRCMAC[self._detector_name] + i
-            ee = hex(n)[2:]
-            udp_mac[i] = f"00:aa:bb:cc:dd:{ee}"
+            hi = hex(i)[2:]
+            udp_mac[i] = f"de:de:cd:aa:{hn}:{hi}"
         return udp_mac
 
     def get_txndelay(self):
