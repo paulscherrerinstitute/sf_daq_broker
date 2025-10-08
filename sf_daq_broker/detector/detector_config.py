@@ -1,3 +1,5 @@
+from sf_daq_broker.utils import json_load
+
 
 BEAMLINE_VLAN = {
     "alvra"       : "10.3.10",
@@ -76,28 +78,34 @@ DETECTOR_HOSTNAME = {
 
 DETECTOR_NAMES = sorted(DETECTOR_HOSTNAME)
 
-DETECTOR_DESC = {
-    "JF01T03V01" : "Bernina (1.5M)",
-    "JF02T09V03" : "Alvra: von Hamos (4.5M)",
-    "JF03T01V02" : "Bernina: I0 (0.5M)",
-    "JF04T01V01" : "Bernina: Fluorescence (0.5M)",
-    "JF05T01V01" : "Cristallina: Stripsel (0.5M)",
-    "JF06T08V07" : "Alvra: 4M version of 16M (4M)",
-    "JF06T32V07" : "Alvra (16M)",
-    "JF07T32V02" : "Bernina (16M)",
-    "JF08T01V01" : "Alvra: Visual Light (0.5M)",
-    "JF09T01V01" : "Alvra: Flex (0.5M)",
-    "JF10T01V01" : "Alvra: Flex-Stripsel (0.5M)",
-    "JF11T04V01" : "Alvra: TXS (2M)",
-    "JF13T01V01" : "Bernina: Vacuum (0.5M)",
-    "JF14T01V01" : "Bernina: RIXS (0.5M)",
-    "JF15T08V01" : "Maloja (4M)",
-    "JF16T03V02" : "Cristallina-Q (1.5M)",
-    "JF17T16V01" : "Cristallina-MX (8M)",
-    "JF18T01V01" : "Furka: RIXS (0.5M)",
-    "JF19T01V01" : "Furka: UHV (0.5M)",
-    "JF20T01V01" : "Cristallina-Q: I0 (0.5M)"
-}
+#DETECTOR_DESC = {
+#    "JF01T03V01" : "Bernina (1.5M)",
+#    "JF02T09V03" : "Alvra: von Hamos (4.5M)",
+#    "JF03T01V02" : "Bernina: I0 (0.5M)",
+#    "JF04T01V01" : "Bernina: Fluorescence (0.5M)",
+#    "JF05T01V01" : "Cristallina: Stripsel (0.5M)",
+#    "JF06T08V07" : "Alvra: 4M version of 16M (4M)",
+#    "JF06T32V07" : "Alvra (16M)",
+#    "JF07T32V02" : "Bernina (16M)",
+#    "JF08T01V01" : "Alvra: Visual Light (0.5M)",
+#    "JF09T01V01" : "Alvra: Flex (0.5M)",
+#    "JF10T01V01" : "Alvra: Flex-Stripsel (0.5M)",
+#    "JF11T04V01" : "Alvra: TXS (2M)",
+#    "JF13T01V01" : "Bernina: Vacuum (0.5M)",
+#    "JF14T01V01" : "Bernina: RIXS (0.5M)",
+#    "JF15T08V01" : "Maloja (4M)",
+#    "JF16T03V02" : "Cristallina-Q (1.5M)",
+#    "JF17T16V01" : "Cristallina-MX (8M)",
+#    "JF18T01V01" : "Furka: RIXS (0.5M)",
+#    "JF19T01V01" : "Furka: UHV (0.5M)",
+#    "JF20T01V01" : "Cristallina-Q: I0 (0.5M)"
+#}
+
+# config file generated during deployment
+try:
+    DETECTOR_DESC = json_load("/home/dbe/service_configs/detector_descriptions.json")
+except:
+    DETECTOR_DESC = {}
 
 DETECTOR_DAQ = {
     "JF01T03V01" : {"daq": 12, "port": 1},
@@ -122,28 +130,34 @@ DETECTOR_DAQ = {
     "JF20T01V01" : {"daq": 10, "port": 1}
 }
 
-DETECTOR_PORT = {
-    "JF01T03V01" : 50100,
-    "JF02T09V03" : 50200,
-    "JF03T01V02" : 50300,
-    "JF04T01V01" : 50400,
-    "JF05T01V01" : 50500,
-    "JF06T08V07" : 50600,
-    "JF06T32V07" : 51200,
-    "JF07T32V02" : 50700,
-    "JF08T01V01" : 50800,
-    "JF09T01V01" : 50900,
-    "JF10T01V01" : 51000,
-    "JF11T04V01" : 51100,
-    "JF13T01V01" : 51300,
-    "JF14T01V01" : 51400,
-    "JF15T08V01" : 51500,
-    "JF16T03V02" : 51600,
-    "JF17T16V01" : 51700,
-    "JF18T01V01" : 51800,
-    "JF19T01V01" : 51900,
-    "JF20T01V01" : 52000
-}
+#DETECTOR_PORT = {
+#    "JF01T03V01" : 50100,
+#    "JF02T09V03" : 50200,
+#    "JF03T01V02" : 50300,
+#    "JF04T01V01" : 50400,
+#    "JF05T01V01" : 50500,
+#    "JF06T08V07" : 50600,
+#    "JF06T32V07" : 51200,
+#    "JF07T32V02" : 50700,
+#    "JF08T01V01" : 50800,
+#    "JF09T01V01" : 50900,
+#    "JF10T01V01" : 51000,
+#    "JF11T04V01" : 51100,
+#    "JF13T01V01" : 51300,
+#    "JF14T01V01" : 51400,
+#    "JF15T08V01" : 51500,
+#    "JF16T03V02" : 51600,
+#    "JF17T16V01" : 51700,
+#    "JF18T01V01" : 51800,
+#    "JF19T01V01" : 51900,
+#    "JF20T01V01" : 52000
+#}
+
+# config file generated during deployment
+try:
+    DETECTOR_PORT = json_load("/home/dbe/service_configs/detector_start_udp_ports.json")
+except:
+    DETECTOR_PORT = {}
 
 DETECTOR_UDP_SRCIP = {
     "JF01T03V01" : 60,
