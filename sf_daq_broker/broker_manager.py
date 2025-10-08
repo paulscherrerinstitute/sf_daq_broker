@@ -220,10 +220,7 @@ class BrokerManager:
 
         detectors = allowed_detectors_beamline
 
-        descriptions = []
-        for k, v in DETECTOR_DESC.items():
-            if k in detectors:
-                descriptions.append(v)
+        descriptions = [DETECTOR_DESC.get(d, d) for d in detectors]
 
         detectors_visualisation_address = get_streamvis_address()
         address = []
