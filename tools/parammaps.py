@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from sf_daq_broker.detector.detector_config import DETECTOR_PORT, DETECTOR_UDP_SRCIP, DETECTOR_UDP_SRCMAC
+from sf_daq_broker.detector.detector_config import DETECTOR_PORT, DETECTOR_UDP_SRCIP#, DETECTOR_UDP_SRCMAC
 
 
 def collect_data(d):
@@ -29,6 +29,8 @@ def get_ntiles(name):
 
 def print_table(d):
     for k, v in d.items():
+#        if not v:
+#            continue
         v = ",\t".join(v)
         print(k, v, sep="\t")
 
