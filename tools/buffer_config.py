@@ -30,7 +30,7 @@ class Choices(tuple):
         return super().__contains__(item) or item == self.default
 
 
-DETECTORS = Choices(sorted(DETECTOR_NAMES.keys()))
+DETECTORS = Choices(sorted(DETECTOR_NAMES))
 
 
 
