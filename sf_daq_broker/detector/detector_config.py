@@ -303,7 +303,7 @@ class DetectorConfig():
 
         txndelay = DETECTOR_TXNDELAY_FRAME[detector_name]
         n_txndelay = len(txndelay)
-        n_tiles = int(detector_name[5:7])
+        n_tiles = self.get_number_modules()
 
         if n_txndelay != n_tiles:
             raise RuntimeError(f"length {n_txndelay} of configured txndelay {txndelay} does not match number of tiles {n_tiles} of detector {detector_name}")
