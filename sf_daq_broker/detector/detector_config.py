@@ -8,8 +8,8 @@ BEAMLINE_VLAN = {
 }
 
 DAQ_MAC = {
-    3  : {0: "98:f2:b3:d4:5f:d0", 1: "98:f2:b3:d4:5f:d1"},
-    8  : {0: "b8:83:03:6e:de:9c", 1: "b8:83:03:6e:de:9d"},
+#    3  : {0: "98:f2:b3:d4:5f:d0", 1: "98:f2:b3:d4:5f:d1"},
+#    8  : {0: "b8:83:03:6e:de:9c", 1: "b8:83:03:6e:de:9d"},
     9  : {0: "04:09:73:dc:fa:18", 1: "04:09:73:dc:fa:19"},
     10 : {0: "88:e9:a4:1a:b1:a0", 1: "88:e9:a4:1a:b1:a1"},
     12 : {0: "88:e9:a4:6c:77:d0", 1: "88:e9:a4:6c:77:d1"},
@@ -17,8 +17,8 @@ DAQ_MAC = {
 }
 
 DAQ_BEAMLINE = {
-    3  : {0: "alvra",   1: "bernina"},
-    8  : {0: "alvra",   1: "cristallina"},
+#    3  : {0: "alvra",   1: "bernina"},
+#    8  : {0: "alvra",   1: "cristallina"},
     9  : {0: "maloja",  1: "furka"},
     10 : {0: "bernina", 1: "cristallina"},
     12 : {0: "alvra",   1: "bernina"},
