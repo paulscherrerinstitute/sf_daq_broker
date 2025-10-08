@@ -74,7 +74,9 @@ DETECTOR_HOSTNAME = {
     "JF20T01V01" : ["jf20-00"]
 }
 
-DETECTOR_NAMES = {
+DETECTOR_NAMES = sorted(DETECTOR_HOSTNAME)
+
+DETECTOR_DESC = {
     "JF01T03V01" : "Bernina (1.5M)",
     "JF02T09V03" : "Alvra: von Hamos (4.5M)",
     "JF03T01V02" : "Bernina: I0 (0.5M)",

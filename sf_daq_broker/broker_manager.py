@@ -5,7 +5,7 @@ from shutil import copyfile
 
 from sf_daq_broker import config
 from sf_daq_broker.detector.utils import get_configured_detectors, get_streamvis_address
-from sf_daq_broker.detector.detector_config import DETECTOR_NAMES
+from sf_daq_broker.detector.detector_config import DETECTOR_DESC
 from sf_daq_broker.rabbitmq import broker_config
 from sf_daq_broker.utils import get_writer_request, get_beamline, json_save, json_load, dueto
 from . import validate
@@ -221,7 +221,7 @@ class BrokerManager:
         detectors = allowed_detectors_beamline
 
         names = []
-        for k, v in DETECTOR_NAMES.items():
+        for k, v in DETECTOR_DESC.items():
             if k in detectors:
                 names.append(v)
 
