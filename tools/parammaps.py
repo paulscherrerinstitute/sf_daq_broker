@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from collections import defaultdict
 from sf_daq_broker.detector.detector_config import DETECTOR_PORT, DETECTOR_UDP_SRCIP#, DETECTOR_UDP_SRCMAC
 
 
@@ -7,7 +8,8 @@ def collect_data(d):
     vmin = min(d.values())
     vmax = max(d.values())
 
-    res = {i: [] for i in range(vmin, vmax + 1)}
+    res = defaultdict(list)
+    res.update({i: [] for i in range(vmin, vmax + 1)})
 
     for name, port in d.items():
         num = get_det_num(name)
