@@ -159,28 +159,41 @@ try:
 except:
     DETECTOR_PORT = {}
 
-DETECTOR_UDP_SRCIP = {
-    "JF01T03V01" : 60,
-    "JF02T09V03" : 65,
-    "JF03T01V02" : 75,
-    "JF04T01V01" : 76,
-    "JF05T01V01" : 77,
-    "JF06T08V07" : 78,
-    "JF06T32V07" : 78,
-    "JF07T32V02" : 101,
-    "JF08T01V01" : 130,
-    "JF09T01V01" : 131,
-    "JF10T01V01" : 132,
-    "JF11T04V01" : 133,
-    "JF13T01V01" : 140,
-    "JF14T01V01" : 141,
-    "JF15T08V01" : 142,
-    "JF16T03V02" : 150,
-    "JF17T16V01" : 155,
-    "JF18T01V01" : 171,
-    "JF19T01V01" : 172,
-    "JF20T01V01" : 173
-}
+#DETECTOR_UDP_SRCIP = {
+#    "JF01T03V01" : 60,
+#    "JF02T09V03" : 65,
+#    "JF03T01V02" : 75,
+#    "JF04T01V01" : 76,
+#    "JF05T01V01" : 77,
+#    "JF06T08V07" : 78,
+#    "JF06T32V07" : 78,
+#    "JF07T32V02" : 101,
+#    "JF08T01V01" : 130,
+#    "JF09T01V01" : 131,
+#    "JF10T01V01" : 132,
+#    "JF11T04V01" : 133,
+#    "JF13T01V01" : 140,
+#    "JF14T01V01" : 141,
+#    "JF15T08V01" : 142,
+#    "JF16T03V02" : 150,
+#    "JF17T16V01" : 155,
+#    "JF18T01V01" : 171,
+#    "JF19T01V01" : 172,
+#    "JF20T01V01" : 173
+#}
+
+def make_udp_srcip(detectors, start=0):
+    index = start
+    res = {}
+    for det in detectors:
+        res[det] = index
+        nmods = int(det[5:7])
+        index += nmods
+        if index > 256:
+            raise ValueError(f"index {index} needed for {det} is outside the allowed range (<256)")
+    return res
+
+DETECTOR_UDP_SRCIP = make_udp_srcip(DETECTOR_NAMES, start=60)
 
 #DETECTOR_UDP_SRCMAC = {
 #    "JF01T03V01" : 16,
