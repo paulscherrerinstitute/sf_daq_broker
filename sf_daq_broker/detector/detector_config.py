@@ -1,21 +1,7 @@
 from sf_daq_broker.utils import json_load
 
-from .detector_consts import BEAMLINE_VLAN, DAQ_MAC, DAQ_BEAMLINE, BEAMLINE_DELAY, DETECTOR_HOSTNAME, DETECTOR_DAQ, DETECTOR_TXNDELAY_FRAME, DETECTOR_TEMP_THRESHOLD
+from .detector_consts import BEAMLINE_DELAY, BEAMLINE_VLAN, DAQ_BEAMLINE, DAQ_MAC, DETECTOR_DAQ, DETECTOR_HOSTNAME, DETECTOR_TEMP_THRESHOLD, DETECTOR_TXNDELAY_FRAME
 
-
-DETECTOR_NAMES = sorted(DETECTOR_HOSTNAME)
-
-# config file generated during deployment
-try:
-    DETECTOR_DESC = json_load("/home/dbe/service_configs/detector_descriptions.json")
-except:
-    DETECTOR_DESC = {}
-
-# config file generated during deployment
-try:
-    DETECTOR_PORT = json_load("/home/dbe/service_configs/detector_start_udp_ports.json")
-except:
-    DETECTOR_PORT = {}
 
 def make_udp_srcip(detectors, start=0):
     index = start
@@ -28,7 +14,19 @@ def make_udp_srcip(detectors, start=0):
             raise ValueError(f"index {index} needed for {det} is outside the allowed range (<256)")
     return res
 
+DETECTOR_NAMES = sorted(DETECTOR_HOSTNAME)
 DETECTOR_UDP_SRCIP = make_udp_srcip(DETECTOR_NAMES, start=60)
+
+# config files generated during deployment
+try:
+    DETECTOR_DESC = json_load("/home/dbe/service_configs/detector_descriptions.json")
+except:
+    DETECTOR_DESC = {}
+
+try:
+    DETECTOR_PORT = json_load("/home/dbe/service_configs/detector_start_udp_ports.json")
+except:
+    DETECTOR_PORT = {}
 
 
 
