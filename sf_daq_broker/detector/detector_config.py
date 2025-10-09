@@ -89,11 +89,6 @@ class DetectorConfig():
 #    def get_name(self):
 #        return self._detector_name
 
-    def get_beamline(self):
-        daq  = DETECTOR_DAQ[self._detector_name]["daq"]
-        port = DETECTOR_DAQ[self._detector_name]["port"]
-        return DAQ_BEAMLINE[daq][port]
-
     def get_number(self):
         return int(self._detector_name[2:4])
 
@@ -103,13 +98,63 @@ class DetectorConfig():
     def get_size(self):
         return [1024, self.get_number_modules()*512]
 
+
+    def get_delay(self):
+        return BEAMLINE_DELAY[self.get_beamline()]
+
+    def get_vlan(self):
+        return BEAMLINE_VLAN[self.get_beamline()]
+
+
     def get_hostname(self):
         return DETECTOR_HOSTNAME[self._detector_name]
+
+    def get_port_first_module(self):
+        return DETECTOR_PORT[self._detector_name]
+
+    def get_temp_threshold(self):
+        return DETECTOR_TEMP_THRESHOLD[self._detector_name]
+
+
+    def get_beamline(self):
+        daq  = DETECTOR_DAQ[self._detector_name]["daq"]
+        port = DETECTOR_DAQ[self._detector_name]["port"]
+        return DAQ_BEAMLINE[daq][port]
+
+
+    def get_udp_dstip(self):
+        vlan = self.get_vlan()
+        daq = DETECTOR_DAQ[self._detector_name]["daq"]
+        return f"{vlan}.{daq}"
 
     def get_udp_dstmac(self):
         daq  = DETECTOR_DAQ[self._detector_name]["daq"]
         port = DETECTOR_DAQ[self._detector_name]["port"]
         return DAQ_MAC[daq][port]
+
+    def get_udp_srcip(self):
+        vlan = self.get_vlan()
+        udp_ip = {}
+        for i in range(self.get_number_modules()):
+            n = DETECTOR_UDP_SRCIP[self._detector_name] + i
+            udp_ip[i] = f"{vlan}.{n}"
+        return udp_ip
+
+    def get_udp_srcmac(self):
+        n = self.get_number()
+        hn = hex(n)[2:]
+        udp_mac = {}
+        for i in range(self.get_number_modules()):
+            hi = hex(i)[2:]
+            udp_mac[i] = f"de:de:cd:aa:{hn}:{hi}"
+        return udp_mac
+
+
+    def get_txndelay(self):
+        txndelay = {}
+        for i in range(self.get_number_modules()):
+            txndelay[i] = DETECTOR_TXNDELAY_FRAME[self._detector_name][i]
+        return txndelay
 
 
 #    def get_daq_public_address(self):
@@ -137,46 +182,6 @@ class DetectorConfig():
 #    def get_daq_data_port(self):
 #        return 9100 + self.get_number()
 
-
-    def get_vlan(self):
-        return BEAMLINE_VLAN[self.get_beamline()]
-
-    def get_udp_dstip(self):
-        vlan = self.get_vlan()
-        daq = DETECTOR_DAQ[self._detector_name]["daq"]
-        return f"{vlan}.{daq}"
-
-    def get_port_first_module(self):
-        return DETECTOR_PORT[self._detector_name]
-
-    def get_udp_srcip(self):
-        vlan = self.get_vlan()
-        udp_ip = {}
-        for i in range(self.get_number_modules()):
-            n = DETECTOR_UDP_SRCIP[self._detector_name] + i
-            udp_ip[i] = f"{vlan}.{n}"
-        return udp_ip
-
-    def get_udp_srcmac(self):
-        n = self.get_number()
-        hn = hex(n)[2:]
-        udp_mac = {}
-        for i in range(self.get_number_modules()):
-            hi = hex(i)[2:]
-            udp_mac[i] = f"de:de:cd:aa:{hn}:{hi}"
-        return udp_mac
-
-    def get_txndelay(self):
-        txndelay = {}
-        for i in range(self.get_number_modules()):
-            txndelay[i] = DETECTOR_TXNDELAY_FRAME[self._detector_name][i]
-        return txndelay
-
-    def get_delay(self):
-        return BEAMLINE_DELAY[self.get_beamline()]
-
-    def get_temp_threshold(self):
-        return DETECTOR_TEMP_THRESHOLD[self._detector_name]
 
     def __repr__(self):
         res = {}
