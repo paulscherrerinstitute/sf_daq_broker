@@ -35,7 +35,7 @@ class Detector:
     def __init__(self, name):
         validate_detector_name(name)
         self.name = name
-        self.ID = parse_det_name(name).N
+        self.ID = parse_det_name(name).ID
         self.load_config()
         self.connect()
 

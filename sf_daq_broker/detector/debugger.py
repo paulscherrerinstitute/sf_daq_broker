@@ -52,7 +52,7 @@ def parse_name(name):
     if name not in DETECTOR_NAMES:
         printable_detector_names = mk_printable(DETECTOR_NAMES)
         raise ValueError(f"detector name {name} unknown -- choose from: {printable_detector_names}")
-    ID = parse_det_name(name).N
+    ID = parse_det_name(name).ID
     return ID, name
 
 def parse_ID(ID):
@@ -70,7 +70,7 @@ def parse_ID(ID):
 def mk_mapping():
     detector_ID_to_name = defaultdict(list)
     for n in DETECTOR_NAMES:
-        ID = parse_det_name(n).N
+        ID = parse_det_name(n).ID
         detector_ID_to_name[ID].append(n)
     detector_ID_to_name = dict(detector_ID_to_name)
     return detector_ID_to_name

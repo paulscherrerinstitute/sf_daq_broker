@@ -29,7 +29,7 @@ class DetectorManager:
     def get_jfctrl_monitor(self, request, remote_ip):
         detector_name = get_validated_detector_name(request, remote_ip)
 
-        detector_number = parse_det_name(detector_name).N
+        detector_number = parse_det_name(detector_name).ID
         jfctrl = JFCtrl(detector_number)
 
         parameters = jfctrl.get_monitor()

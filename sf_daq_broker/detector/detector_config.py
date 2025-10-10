@@ -101,7 +101,7 @@ class DetectorConfig():
 #        return self.name
 
     def get_number(self):
-        return parse_det_name(self.name).N
+        return parse_det_name(self.name).ID
 
     def get_number_modules(self):
         return parse_det_name(self.name).T
