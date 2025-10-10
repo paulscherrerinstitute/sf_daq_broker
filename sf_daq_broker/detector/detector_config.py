@@ -1,6 +1,6 @@
 from sf_daq_broker.utils import json_load
 
-from .detector_consts import BEAMLINE_DELAY, BEAMLINE_VLAN, DAQ_BEAMLINE, DAQ_MAC, DETECTOR_DAQ, DETECTOR_HOSTNAME, DETECTOR_TEMP_THRESHOLD, DETECTOR_TEMP_THRESHOLD_DEFAULT, DETECTOR_TXNDELAY_FRAME
+from .detector_consts import BEAMLINE_DELAY, BEAMLINE_VLAN, DAQ_BEAMLINE, DAQ_MAC, DETECTOR_DAQ, DETECTOR_HOSTNAME, DETECTOR_TEMP_THRESHOLD, DETECTOR_TEMP_THRESHOLD_DEFAULT, DETECTOR_TXDELAY_FRAME
 
 
 def make_udp_srcip(detectors, start=0):
@@ -81,7 +81,7 @@ class DetectorConfig():
         if name not in DETECTOR_TEMP_THRESHOLD:
             raise_missing("temp_threshold")
 
-        if name not in DETECTOR_TXNDELAY_FRAME:
+        if name not in DETECTOR_TXDELAY_FRAME:
             raise_missing("txndelay")
 
         n_tiles = self.get_number_modules()
@@ -91,7 +91,7 @@ class DetectorConfig():
         if n_hostnames != n_tiles:
             raise RuntimeError(f"length {n_hostnames} of configured hostnames {hostnames} does not match number of tiles ({n_tiles}) of detector {name}")
 
-        txndelays = DETECTOR_TXNDELAY_FRAME[name]
+        txndelays = DETECTOR_TXDELAY_FRAME[name]
         n_txndelays = len(txndelays)
         if n_txndelays != n_tiles:
             raise RuntimeError(f"length {n_txndelays} of configured txndelay {txndelays} does not match number of tiles ({n_tiles}) of detector {name}")
@@ -157,7 +157,7 @@ class DetectorConfig():
 
 
     def get_txndelay(self):
-        txndelays = DETECTOR_TXNDELAY_FRAME[self.name]
+        txndelays = DETECTOR_TXDELAY_FRAME[self.name]
         return dict(enumerate(txndelays))
 
 
