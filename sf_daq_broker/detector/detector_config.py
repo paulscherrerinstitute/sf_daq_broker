@@ -52,7 +52,7 @@ class DetectorConfig():
         self.port = port = DETECTOR_DAQ[name]["port"]
 
         if daq not in DAQ_MAC or port not in DAQ_MAC[daq]:
-            raise_missing("DAQ/MAC")
+            raise_missing("DAQ MAC")
 
         if daq not in DAQ_BEAMLINE or port not in DAQ_BEAMLINE[daq]:
             raise_missing("association to beamline")
@@ -78,12 +78,17 @@ class DetectorConfig():
         if name not in DETECTOR_TXNDELAY_FRAME:
             raise_missing("txndelay")
 
-        txndelay = DETECTOR_TXNDELAY_FRAME[name]
-        n_txndelay = len(txndelay)
         n_tiles = self.get_number_modules()
 
-        if n_txndelay != n_tiles:
-            raise RuntimeError(f"length {n_txndelay} of configured txndelay {txndelay} does not match number of tiles {n_tiles} of detector {name}")
+        hostnames = DETECTOR_HOSTNAME[name]
+        n_hostnames = len(hostnames)
+        if n_hostnames != n_tiles:
+            raise RuntimeError(f"length {n_hostnames} of configured hostnames {hostnames} does not match number of tiles ({n_tiles}) of detector {name}")
+
+        txndelays = DETECTOR_TXNDELAY_FRAME[name]
+        n_txndelays = len(txndelays)
+        if n_txndelays != n_tiles:
+            raise RuntimeError(f"length {n_txndelays} of configured txndelay {txndelays} does not match number of tiles ({n_tiles}) of detector {name}")
 
 
 #    def get_name(self):
