@@ -7,7 +7,7 @@ from sf_daq_broker import config
 from sf_daq_broker.detector.utils import get_configured_detectors, get_streamvis_address
 from sf_daq_broker.detector.detector_config import DETECTOR_DESC
 from sf_daq_broker.rabbitmq import broker_config
-from sf_daq_broker.utils import get_writer_request, get_beamline, json_save, json_load, dueto
+from sf_daq_broker.utils import get_writer_request, get_beamline, json_save, json_load, dueto, parse_det_name
 from . import validate
 
 
@@ -172,7 +172,7 @@ class BrokerManager:
         limping_detectors = {}
 
         for detector in allowed_detectors_beamline:
-            n_modules = int(detector[5:7])
+            n_modules = parse_det_name(detector).T
 
             running_modules = []
             missing_modules = []

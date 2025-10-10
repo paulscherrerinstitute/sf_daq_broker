@@ -8,7 +8,7 @@ from sf_daq_broker.detector.jfctrl import JFCtrl
 from sf_daq_broker.detector.detector import Detector
 from sf_daq_broker.detector.trigger import Trigger
 from sf_daq_broker.detector.utils import get_configured_detectors
-from sf_daq_broker.utils import get_beamline, json_save, json_load, dueto
+from sf_daq_broker.utils import get_beamline, json_save, json_load, dueto, parse_det_name
 from . import validate
 
 
@@ -29,7 +29,7 @@ class DetectorManager:
     def get_jfctrl_monitor(self, request, remote_ip):
         detector_name = get_validated_detector_name(request, remote_ip)
 
-        detector_number = int(detector_name[2:4])
+        detector_number = parse_det_name(detector_name).N
         jfctrl = JFCtrl(detector_number)
 
         parameters = jfctrl.get_monitor()

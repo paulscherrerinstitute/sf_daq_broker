@@ -12,7 +12,7 @@ import numpy as np
 from sf_daq_broker.detector.make_crystfel_list import make_crystfel_list
 from sf_daq_broker.detector.store_dap_info import store_dap_info
 from sf_daq_broker.writer.convert_file import convert_file
-from sf_daq_broker.utils import json_save, json_load
+from sf_daq_broker.utils import json_save, json_load, parse_det_name
 
 
 _logger = logging.getLogger("broker_writer")
@@ -94,7 +94,7 @@ def detector_retrieve(request, output_file_detector):
     else:
         raw_file_name = output_file_detector
 
-    number_modules = int(detector_name[5:7])
+    number_modules = parse_det_name(detector_name).T
 
     command_retrieve_from_buffer = (
         "/home/dbe/bin/sf_writer",

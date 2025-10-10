@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from sf_daq_broker.utils import typename
+from sf_daq_broker.utils import typename, parse_det_name
 
 from .detector_config import DETECTOR_NAMES, DetectorConfig
 from .detector import Detector
@@ -52,7 +52,7 @@ def parse_name(name):
     if name not in DETECTOR_NAMES:
         printable_detector_names = mk_printable(DETECTOR_NAMES)
         raise ValueError(f"detector name {name} unknown -- choose from: {printable_detector_names}")
-    ID = name_to_ID(name)
+    ID = parse_det_name(name).N
     return ID, name
 
 def parse_ID(ID):
@@ -70,13 +70,10 @@ def parse_ID(ID):
 def mk_mapping():
     detector_ID_to_name = defaultdict(list)
     for n in DETECTOR_NAMES:
-        ID = name_to_ID(n)
+        ID = parse_det_name(n).N
         detector_ID_to_name[ID].append(n)
     detector_ID_to_name = dict(detector_ID_to_name)
     return detector_ID_to_name
-
-def name_to_ID(n):
-    return int(n[2:4])
 
 def mk_printable(seq):
     return ", ".join(repr(i) for i in sorted(seq))

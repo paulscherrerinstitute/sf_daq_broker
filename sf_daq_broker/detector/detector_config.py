@@ -1,4 +1,4 @@
-from sf_daq_broker.utils import json_load
+from sf_daq_broker.utils import json_load, parse_det_name
 
 from .detector_consts import BEAMLINE_DELAY, BEAMLINE_VLAN, DAQ_BEAMLINE, DAQ_MAC, DETECTOR_DAQ, DETECTOR_HOSTNAME, DETECTOR_TEMP_THRESHOLD, DETECTOR_TEMP_THRESHOLD_DEFAULT, DETECTOR_TXDELAY_FRAME
 
@@ -8,7 +8,7 @@ def make_udp_srcip(detectors, start=0):
     res = {}
     for det in detectors:
         res[det] = index
-        nmods = int(det[5:7])
+        nmods = parse_det_name(det).T
         index += nmods
         if index > 256:
             raise ValueError(f"index {index} needed for {det} is outside the allowed range (<256)")
@@ -101,10 +101,10 @@ class DetectorConfig():
 #        return self.name
 
     def get_number(self):
-        return int(self.name[2:4])
+        return parse_det_name(self.name).N
 
     def get_number_modules(self):
-        return int(self.name[5:7])
+        return parse_det_name(self.name).T
 
     def get_detsize(self):
         return [1024, self.get_number_modules()*512]

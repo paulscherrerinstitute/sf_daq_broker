@@ -4,7 +4,7 @@ from .slsdetcompat import Jungfrau, detectorSettings, gainMode, pedestalParamete
 
 from sf_daq_broker.detector.detector_config import DETECTOR_NAMES, DetectorConfig
 from sf_daq_broker.errors import DetectorError, ValidationError
-from sf_daq_broker.utils import ping_many
+from sf_daq_broker.utils import ping_many, parse_det_name
 
 
 def invert_dict(d):
@@ -35,7 +35,7 @@ class Detector:
     def __init__(self, name):
         validate_detector_name(name)
         self.name = name
-        self.ID = int(name[2:4])
+        self.ID = parse_det_name(name).N
         self.load_config()
         self.connect()
 
