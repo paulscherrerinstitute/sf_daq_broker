@@ -17,7 +17,9 @@ def make_udp_srcip(detectors, start=0):
 DETECTOR_NAMES = sorted(DETECTOR_HOSTNAME)
 DETECTOR_UDP_SRCIP = make_udp_srcip(DETECTOR_NAMES, start=60)
 
+
 # config files generated during deployment
+
 try:
     DETECTOR_DESC = json_load("/home/dbe/service_configs/detector_descriptions.json")
 except:
