@@ -1,5 +1,5 @@
 
-from .detname import extract_det_num, parse_det_name
+from .detname import parse_det_name
 from .excfmt import dueto, excfmt, typename
 from .get_beamline import get_beamline
 from .get_requests import get_data_api_request, get_writer_request
