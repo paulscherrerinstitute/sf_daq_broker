@@ -32,24 +32,24 @@ except:
 
 class DetectorConfig():
 
-    def __init__(self, detector_name):
-        self._detector_name = detector_name
+    def __init__(self, name):
+        self.name = name
 
-        if detector_name is None:
+        if name is None:
             raise RuntimeError("no detector name given")
 
         # helper to ensure conistent error message
         def raise_missing(what):
-            raise RuntimeError(f"{what} not configured for detector {detector_name}")
+            raise RuntimeError(f"{what} not configured for detector {name}")
 
-        if detector_name not in DETECTOR_HOSTNAME:
+        if name not in DETECTOR_HOSTNAME:
             raise_missing("hostname")
 
-        if detector_name not in DETECTOR_DAQ:
+        if name not in DETECTOR_DAQ:
             raise_missing("DAQ server")
 
-        daq  = DETECTOR_DAQ[detector_name]["daq"]
-        port = DETECTOR_DAQ[detector_name]["port"]
+        daq  = DETECTOR_DAQ[name]["daq"]
+        port = DETECTOR_DAQ[name]["port"]
 
         if daq not in DAQ_MAC or port not in DAQ_MAC[daq]:
             raise_missing("DAQ/MAC")
@@ -63,37 +63,37 @@ class DetectorConfig():
 #        if daq not in DAQ_DATA_IP:
 #            raise_missing("DAQ data IP")
 
-        if detector_name not in DETECTOR_PORT:
+        if name not in DETECTOR_PORT:
             raise_missing("config port")
 
-        if detector_name not in DETECTOR_UDP_SRCIP:
+        if name not in DETECTOR_UDP_SRCIP:
             raise_missing("srcip")
 
-#        if detector_name not in DETECTOR_UDP_SRCMAC:
+#        if name not in DETECTOR_UDP_SRCMAC:
 #            raise_missing("srcmac")
 
-        if detector_name not in DETECTOR_TEMP_THRESHOLD:
+        if name not in DETECTOR_TEMP_THRESHOLD:
             raise_missing("temp_threshold")
 
-        if detector_name not in DETECTOR_TXNDELAY_FRAME:
+        if name not in DETECTOR_TXNDELAY_FRAME:
             raise_missing("txndelay")
 
-        txndelay = DETECTOR_TXNDELAY_FRAME[detector_name]
+        txndelay = DETECTOR_TXNDELAY_FRAME[name]
         n_txndelay = len(txndelay)
         n_tiles = self.get_number_modules()
 
         if n_txndelay != n_tiles:
-            raise RuntimeError(f"length {n_txndelay} of configured txndelay {txndelay} does not match number of tiles {n_tiles} of detector {detector_name}")
+            raise RuntimeError(f"length {n_txndelay} of configured txndelay {txndelay} does not match number of tiles {n_tiles} of detector {name}")
 
 
 #    def get_name(self):
-#        return self._detector_name
+#        return self.name
 
     def get_number(self):
-        return int(self._detector_name[2:4])
+        return int(self.name[2:4])
 
     def get_number_modules(self):
-        return int(self._detector_name[5:7])
+        return int(self.name[5:7])
 
     def get_size(self):
         return [1024, self.get_number_modules()*512]
@@ -107,36 +107,36 @@ class DetectorConfig():
 
 
     def get_hostname(self):
-        return DETECTOR_HOSTNAME[self._detector_name]
+        return DETECTOR_HOSTNAME[self.name]
 
     def get_port_first_module(self):
-        return DETECTOR_PORT[self._detector_name]
+        return DETECTOR_PORT[self.name]
 
     def get_temp_threshold(self):
-        return DETECTOR_TEMP_THRESHOLD[self._detector_name]
+        return DETECTOR_TEMP_THRESHOLD[self.name]
 
 
     def get_beamline(self):
-        daq  = DETECTOR_DAQ[self._detector_name]["daq"]
-        port = DETECTOR_DAQ[self._detector_name]["port"]
+        daq  = DETECTOR_DAQ[self.name]["daq"]
+        port = DETECTOR_DAQ[self.name]["port"]
         return DAQ_BEAMLINE[daq][port]
 
 
     def get_udp_dstip(self):
         vlan = self.get_vlan()
-        daq = DETECTOR_DAQ[self._detector_name]["daq"]
+        daq = DETECTOR_DAQ[self.name]["daq"]
         return f"{vlan}.{daq}"
 
     def get_udp_dstmac(self):
-        daq  = DETECTOR_DAQ[self._detector_name]["daq"]
-        port = DETECTOR_DAQ[self._detector_name]["port"]
+        daq  = DETECTOR_DAQ[self.name]["daq"]
+        port = DETECTOR_DAQ[self.name]["port"]
         return DAQ_MAC[daq][port]
 
     def get_udp_srcip(self):
         vlan = self.get_vlan()
         udp_ip = {}
         for i in range(self.get_number_modules()):
-            n = DETECTOR_UDP_SRCIP[self._detector_name] + i
+            n = DETECTOR_UDP_SRCIP[self.name] + i
             udp_ip[i] = f"{vlan}.{n}"
         return udp_ip
 
@@ -153,7 +153,7 @@ class DetectorConfig():
     def get_txndelay(self):
         txndelay = {}
         for i in range(self.get_number_modules()):
-            txndelay[i] = DETECTOR_TXNDELAY_FRAME[self._detector_name][i]
+            txndelay[i] = DETECTOR_TXNDELAY_FRAME[self.name][i]
         return txndelay
 
 
@@ -163,7 +163,7 @@ class DetectorConfig():
 #        return f"tcp://{ip}:{port}"
 
 #    def get_daq_public_ip(self):
-#        daq = DETECTOR_DAQ[self._detector_name]["daq"]
+#        daq = DETECTOR_DAQ[self.name]["daq"]
 #        return DAQ_PUBLIC_IP[daq]
 
 #    def get_daq_public_port(self):
@@ -176,7 +176,7 @@ class DetectorConfig():
 #        return f"tcp://{ip}:{port}"
 
 #    def get_daq_data_ip(self):
-#        daq = DETECTOR_DAQ[self._detector_name]["daq"]
+#        daq = DETECTOR_DAQ[self.name]["daq"]
 #        return DAQ_DATA_IP[daq]
 
 #    def get_daq_data_port(self):
