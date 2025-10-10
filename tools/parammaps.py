@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 from collections import defaultdict
+
 from sf_daq_broker.detector.detector_config import DETECTOR_PORT, DETECTOR_UDP_SRCIP#, DETECTOR_UDP_SRCMAC
+from sf_daq_broker.utils import parse_det_name
 
 
 def collect_data(d):
@@ -12,22 +14,13 @@ def collect_data(d):
     res.update({i: [] for i in range(vmin, vmax + 1)})
 
     for name, port in d.items():
-        num = get_det_num(name)
-        ntiles = get_ntiles(name)
+        num, ntiles, _ = parse_det_name(name)
         for i in range(ntiles):
             entry = f"{num}:{i}"
             res[port + i].append(entry)
 
     return res
 
-
-def get_det_num(name):
-    num = name[2:4]
-    return int(num)
-
-def get_ntiles(name):
-    num = name[5:7]
-    return int(num)
 
 def print_table(d):
     for k, v in d.items():
