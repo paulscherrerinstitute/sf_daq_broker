@@ -182,7 +182,7 @@ class Detector:
 
 def parse_param_list(seq):
     """
-    convert list containg parameter value for each module into
+    convert list containing parameter value for each module into
     dict mapping parameter value to list of modules where it applies:
     [x, x, y, x] -> {x: [0, 1, 3], y: [2]}
     """
