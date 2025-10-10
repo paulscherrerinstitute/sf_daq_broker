@@ -207,7 +207,7 @@ def apply_detector_config(detector_configuration, detector):
     detector_number = detector_configuration.get_number()
 #    number_modules = detector_configuration.get_number_modules()
 
-    detector.detsize = detector_configuration.get_size()
+    detector.detsize = detector_configuration.get_detsize()
 
     detector.setHostname(detector_configuration.get_hostname())
 

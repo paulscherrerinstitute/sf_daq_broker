@@ -106,7 +106,7 @@ class DetectorConfig():
     def get_number_modules(self):
         return int(self.name[5:7])
 
-    def get_size(self):
+    def get_detsize(self):
         return [1024, self.get_number_modules()*512]
 
 
