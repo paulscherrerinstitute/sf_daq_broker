@@ -1,6 +1,6 @@
 from sf_daq_broker.utils import json_load
 
-from .detector_consts import BEAMLINE_DELAY, BEAMLINE_VLAN, DAQ_BEAMLINE, DAQ_MAC, DETECTOR_DAQ, DETECTOR_HOSTNAME, DETECTOR_TEMP_THRESHOLD, DETECTOR_TXNDELAY_FRAME
+from .detector_consts import BEAMLINE_DELAY, BEAMLINE_VLAN, DAQ_BEAMLINE, DAQ_MAC, DETECTOR_DAQ, DETECTOR_HOSTNAME, DETECTOR_TEMP_THRESHOLD, DETECTOR_TEMP_THRESHOLD_DEFAULT, DETECTOR_TXNDELAY_FRAME
 
 
 def make_udp_srcip(detectors, start=0):
@@ -16,6 +16,10 @@ def make_udp_srcip(detectors, start=0):
 
 DETECTOR_NAMES = sorted(DETECTOR_HOSTNAME)
 DETECTOR_UDP_SRCIP = make_udp_srcip(DETECTOR_NAMES, start=60)
+
+
+for det in DETECTOR_NAMES:
+    DETECTOR_TEMP_THRESHOLD.setdefault(det, DETECTOR_TEMP_THRESHOLD_DEFAULT)
 
 
 # config files generated during deployment
