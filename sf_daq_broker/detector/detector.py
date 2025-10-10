@@ -204,7 +204,7 @@ def validate_detector_name(detector_name):
 
 
 def apply_detector_config(detector_configuration, detector):
-    detector_number = detector_configuration.get_number()
+    number = detector_configuration.get_number()
 #    number_modules = detector_configuration.get_number_modules()
 
     detector.detsize = detector_configuration.get_detsize()
@@ -221,19 +221,19 @@ def apply_detector_config(detector_configuration, detector):
     detector.txdelay_frame = detector_configuration.get_txdelay_frame()
     detector.delay = detector_configuration.get_delay()
 
-    if detector_number == 2:
+    if number == 2:
         detector.dacs.vb_comp = 1420
 
-    if detector_number == 18:
+    if number == 18:
         detector.dacs.vb_comp = 1320
 
-    if detector_number == 19:
+    if number == 19:
         detector.dacs.vb_comp = 1050
         detector.dacs.vb_ds = 2400
         detector.dacs.vb_pixbuff = 550
 
     # workaround for mismatched frames problem
-    if detector_number == 6:
+    if number == 6:
         detector.sync = 1
         detector.setMaster(1, 0)
 
@@ -251,14 +251,14 @@ def apply_detector_config(detector_configuration, detector):
 
     detector.powerchip = True
     detector.highvoltage = 120
-    if detector_number == 18:
+    if number == 18:
         detector.highvoltage = 0
 
     detector.timing = timingMode.TRIGGER_EXPOSURE
     detector.triggers = 500000000
 
     detector.exptime = 5e-06
-    if detector_number == 15:
+    if number == 15:
         detector.exptime = 10e-06
 
     detector.frames = 1
