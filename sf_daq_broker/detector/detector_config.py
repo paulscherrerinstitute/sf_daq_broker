@@ -48,8 +48,8 @@ class DetectorConfig():
         if name not in DETECTOR_DAQ:
             raise_missing("DAQ server")
 
-        daq  = DETECTOR_DAQ[name]["daq"]
-        port = DETECTOR_DAQ[name]["port"]
+        self.daq  = daq  = DETECTOR_DAQ[name]["daq"]
+        self.port = port = DETECTOR_DAQ[name]["port"]
 
         if daq not in DAQ_MAC or port not in DAQ_MAC[daq]:
             raise_missing("DAQ/MAC")
@@ -117,20 +117,15 @@ class DetectorConfig():
 
 
     def get_beamline(self):
-        daq  = DETECTOR_DAQ[self.name]["daq"]
-        port = DETECTOR_DAQ[self.name]["port"]
-        return DAQ_BEAMLINE[daq][port]
+        return DAQ_BEAMLINE[self.daq][self.port]
 
 
     def get_udp_dstip(self):
         vlan = self.get_vlan()
-        daq = DETECTOR_DAQ[self.name]["daq"]
-        return f"{vlan}.{daq}"
+        return f"{vlan}.{self.daq}"
 
     def get_udp_dstmac(self):
-        daq  = DETECTOR_DAQ[self.name]["daq"]
-        port = DETECTOR_DAQ[self.name]["port"]
-        return DAQ_MAC[daq][port]
+        return DAQ_MAC[self.daq][self.port]
 
     def get_udp_srcip(self):
         vlan = self.get_vlan()
@@ -163,8 +158,7 @@ class DetectorConfig():
 #        return f"tcp://{ip}:{port}"
 
 #    def get_daq_public_ip(self):
-#        daq = DETECTOR_DAQ[self.name]["daq"]
-#        return DAQ_PUBLIC_IP[daq]
+#        return DAQ_PUBLIC_IP[self.daq]
 
 #    def get_daq_public_port(self):
 #        return 9000 + self.get_number()
@@ -176,8 +170,7 @@ class DetectorConfig():
 #        return f"tcp://{ip}:{port}"
 
 #    def get_daq_data_ip(self):
-#        daq = DETECTOR_DAQ[self.name]["daq"]
-#        return DAQ_DATA_IP[daq]
+#        return DAQ_DATA_IP[self.daq]
 
 #    def get_daq_data_port(self):
 #        return 9100 + self.get_number()
