@@ -156,7 +156,7 @@ class DetectorConfig():
         return udp_mac
 
 
-    def get_txndelay(self):
+    def get_txdelay_frame(self):
         txndelays = DETECTOR_TXDELAY_FRAME[self.name]
         return dict(enumerate(txndelays))
 

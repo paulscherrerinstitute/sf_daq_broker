@@ -218,7 +218,7 @@ def apply_detector_config(detector_configuration, detector):
     detector.udp_srcip = detector_configuration.get_udp_srcip()
     detector.udp_srcmac = detector_configuration.get_udp_srcmac()
 
-    detector.txdelay_frame = detector_configuration.get_txndelay()
+    detector.txdelay_frame = detector_configuration.get_txdelay_frame()
     detector.delay = detector_configuration.get_delay()
 
     if detector_number == 2:
