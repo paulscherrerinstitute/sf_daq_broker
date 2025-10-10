@@ -211,7 +211,7 @@ def apply_detector_config(detector_configuration, detector):
     detector.setHostname(detector_configuration.get_hostname())
 
     detector.udp_dstmac = detector_configuration.get_udp_dstmac()
-    detector.udp_dstip  = detector_configuration.get_udp_dstip()
+    detector.udp_dstip = detector_configuration.get_udp_dstip()
     detector.udp_dstport = detector_configuration.get_port_first_module() # increments port by +1 for each module
 
     detector.udp_srcip = detector_configuration.get_udp_srcip()
