@@ -146,10 +146,8 @@ class DetectorConfig():
 
 
     def get_txndelay(self):
-        txndelay = {}
-        for i in range(self.get_number_modules()):
-            txndelay[i] = DETECTOR_TXNDELAY_FRAME[self.name][i]
-        return txndelay
+        txndelays = DETECTOR_TXNDELAY_FRAME[self.name]
+        return dict(enumerate(txndelays))
 
 
 #    def get_daq_public_address(self):
