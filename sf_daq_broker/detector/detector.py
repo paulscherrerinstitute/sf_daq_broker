@@ -205,7 +205,6 @@ def validate_detector_name(detector_name):
 
 def apply_detector_config(detector_configuration, detector):
     number = detector_configuration.get_number()
-#    number_modules = detector_configuration.get_number_modules()
 
     detector.detsize = detector_configuration.get_detsize()
 
