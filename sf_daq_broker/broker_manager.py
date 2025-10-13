@@ -74,7 +74,10 @@ class BrokerManager:
 
         beamline = get_beamline(remote_ip)
 
-        config_file = f"/home/dbe/service_configs/sf.{beamline}.epics_buffer.json"
+        config_dir = "/home/dbe/service_configs"
+        os.makedirs(config_dir, exist_ok=True)
+
+        config_file = f"{config_dir}/sf.{beamline}.epics_buffer.json"
         validate.epics_config_file_exists(config_file, beamline)
 
         pv_list = request["pv_list"]
@@ -87,10 +90,13 @@ class BrokerManager:
 
         json_save(config_epics, config_file)
 
-        date_now = datetime.now()
-        date_now_str = date_now.strftime("%d-%b-%Y_%H:%M:%S")
-        config_file_timestamped = f"{config_file}.{date_now_str}"
-        copyfile(config_file, config_file_timestamped)
+        config_backup_dir = f"{config_dir}/backup"
+        os.makedirs(config_backup_dir, exist_ok=True)
+
+        timestamp = datetime.now().strftime("%d-%b-%Y_%H:%M:%S")
+
+        config_backup_file = f"{config_backup_dir}/sf.{beamline}.epics_buffer.json.{timestamp}"
+        copyfile(config_file, config_backup_file)
 
         res = {
             "status": "ok",
