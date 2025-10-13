@@ -93,7 +93,7 @@ class BrokerManager:
         config_backup_dir = f"{config_dir}/backup"
         os.makedirs(config_backup_dir, exist_ok=True)
 
-        timestamp = datetime.now().strftime("%d-%b-%Y_%H:%M:%S")
+        timestamp = datetime.now().strftime(config.CONFIG_FILENAME_TIME_FORMAT)
 
         config_backup_file = f"{config_backup_dir}/sf.{beamline}.epics_buffer.json.{timestamp}"
         copyfile(config_file, config_backup_file)
@@ -278,7 +278,7 @@ class BrokerManager:
             request["request_time"] = str(datetime.now())
 
         request_time = datetime.now() #TODO: this causes inconsistency between the json-dumped request and the file name
-        pedestal_name = request_time.strftime("%Y%m%d_%H%M%S")
+        pedestal_name = request_time.strftime(config.PEDESTAL_FILENAME_TIME_FORMAT)
         run_info_directory = full_path
         run_file_json = f"{run_info_directory}/{pedestal_name}.json"
 

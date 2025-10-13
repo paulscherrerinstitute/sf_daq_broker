@@ -9,6 +9,7 @@ from time import sleep, time
 import h5py
 import numpy as np
 
+from sf_daq_broker.config import PEDESTAL_FILENAME_TIME_FORMAT, REQUEST_TIME_FORMAT
 from sf_daq_broker.detector.make_crystfel_list import make_crystfel_list
 from sf_daq_broker.detector.store_dap_info import store_dap_info
 from sf_daq_broker.writer.convert_file import convert_file
@@ -366,8 +367,8 @@ def copy_pedestal_file(request_time, file_pedestal, detector, detector_config_fi
 
     os.makedirs(f"{PEDESTAL_DIRECTORY}/{detector}", exist_ok=True)
 
-    request_time = datetime.strptime(request_time, "%Y-%m-%d %H:%M:%S.%f")
-    request_time_formatted = request_time.strftime("%Y%m%d_%H%M%S")
+    request_time = datetime.strptime(request_time, REQUEST_TIME_FORMAT)
+    request_time_formatted = request_time.strftime(PEDESTAL_FILENAME_TIME_FORMAT)
 
     out_name = f"{PEDESTAL_DIRECTORY}/{detector}/{request_time_formatted}.h5"
 

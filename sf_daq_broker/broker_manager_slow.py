@@ -4,6 +4,7 @@ import shutil
 from datetime import datetime
 from glob import glob
 
+from sf_daq_broker.config import CONFIG_FILENAME_TIME_FORMAT
 from sf_daq_broker.detector.jfctrl import JFCtrl
 from sf_daq_broker.detector.detector import Detector
 from sf_daq_broker.detector.trigger import Trigger
@@ -293,7 +294,7 @@ class DetectorManager:
             backup_directory = "/gpfs/photonics/swissfel/buffer/dap/config/backup"
             os.makedirs(backup_directory, exist_ok=True)
 
-            timestamp = datetime.now().strftime("%d-%b-%Y_%H:%M:%S")
+            timestamp = datetime.now().strftime(CONFIG_FILENAME_TIME_FORMAT)
 
             dap_parameters_backup_file = f"{backup_directory}/pipeline_parameters.{detector_name}.json.{timestamp}"
 
