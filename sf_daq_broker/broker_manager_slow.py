@@ -290,18 +290,19 @@ class DetectorManager:
             dap_config[name] = new_value
 
         if changed_parameters:
-            date_now = datetime.now()
-            date_now_str = date_now.strftime("%d-%b-%Y_%H:%M:%S")
             backup_directory = "/gpfs/photonics/swissfel/buffer/dap/config/backup"
-            if not os.path.exists(backup_directory):
-                os.mkdir(backup_directory)
+            os.makedirs(backup_directory, exist_ok=True)
 
-            shutil.copyfile(dap_parameters_file, f"{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}")
+            timestamp = datetime.now().strftime("%d-%b-%Y_%H:%M:%S")
+
+            dap_parameters_backup_file = f"{backup_directory}/pipeline_parameters.{detector_name}.json.{timestamp}"
+
+            shutil.copyfile(dap_parameters_file, dap_parameters_backup_file)
 
             try:
                 json_save(dap_config, dap_parameters_file)
             except Exception as e:
-                shutil.copyfile(f"{backup_directory}/pipeline_parameters.{detector_name}.json.{date_now_str}", dap_parameters_file)
+                shutil.copyfile(dap_parameters_backup_file, dap_parameters_file)
                 raise RuntimeError(f"could not update DAP configuration {dueto(e)}") from e
 
         res = {
