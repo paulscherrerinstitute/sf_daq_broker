@@ -421,8 +421,7 @@ class BrokerManager:
         output_files_list = []
         output_file_prefix = f"{output_data_directory}/acq{current_acq:04}"
 
-        if not os.path.exists(output_data_directory):
-            os.mkdir(output_data_directory)
+        os.makedirs(output_data_directory, exist_ok=True)
 
         def send_write_request(tag, channels, filename_suffix):
             if not channels:
