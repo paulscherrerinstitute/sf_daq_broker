@@ -148,11 +148,9 @@ class DetectorConfig():
 
     def get_udp_srcmac(self):
         n = self.get_number()
-        hn = hex(n)[2:]
         udp_mac = {}
         for i in range(self.get_number_modules()):
-            hi = hex(i)[2:]
-            udp_mac[i] = f"de:de:cd:aa:{hn}:{hi}"
+            udp_mac[i] = f"de:de:cd:aa:{n:02x}:{i:02x}"
         return udp_mac
 
 
