@@ -114,10 +114,8 @@ def run_dir_exists(lddr, rn):
 # checks with side effects -- move somewhere else? refactor logic?
 
 def directory_exists(pd):
-    if os.path.exists(pd):
-        return
     try:
-        os.makedirs(pd)
+        os.makedirs(pd, exist_ok=True)
     except Exception as e:
         raise ValidationError(f"cannot create directory {pd} {dueto(e)}") from e
 
