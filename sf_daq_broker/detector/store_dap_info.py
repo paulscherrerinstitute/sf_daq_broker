@@ -13,7 +13,6 @@ def store_dap_info(beamline, pgroup, detector, start_pulse_id, stop_pulse_id, fi
         _logger.error(msg)
         raise RuntimeError(msg)
 
-#    path_to_dap_files = f"/sf/{beamline}/data/{pgroup}/res/jungfrau/output/"
     path_to_dap_files = f"/gpfs/photonics/swissfel/buffer/dap/data/{detector}"
 
     try:
@@ -35,7 +34,6 @@ def store_dap_info(beamline, pgroup, detector, start_pulse_id, stop_pulse_id, fi
 
     with open(file_name_out, "w") as file_out:
         for dap_f_ending in dap_ending:
-#            dap_file_name = f"{path_to_dap_files}/{dap_f_ending}.{detector}.dap"
             dap_file_name = f"{path_to_dap_files}/{dap_f_ending}.dap"
             if not os.path.exists(dap_file_name):
                 continue
