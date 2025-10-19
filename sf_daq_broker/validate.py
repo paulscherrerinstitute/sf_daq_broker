@@ -101,9 +101,9 @@ def request_detectors_is_dict(rd):
     if not isinstance(rd, dict):
         raise ValidationError(f'"detectors" provided in the request parameters ({rd}) is not a dictionary')
 
-def dap_parameters_file_exists(dpf):
-    if not os.path.exists(dpf):
-        raise ValidationError(f"DAP parameter file {dpf} does not exist")
+def dap_config_file_exists(dcf):
+    if not os.path.exists(dcf):
+        raise ValidationError(f"DAP config file {dcf} does not exist")
 
 def run_dir_exists(lddr, rn):
     if not lddr:

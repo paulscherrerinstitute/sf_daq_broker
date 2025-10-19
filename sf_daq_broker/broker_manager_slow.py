@@ -250,10 +250,10 @@ class DetectorManager:
     def get_dap_settings(self, request, remote_ip):
         detector_name = get_validated_detector_name(request, remote_ip)
 
-        dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
-        validate.dap_parameters_file_exists(dap_parameters_file)
+        dap_config_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
+        validate.dap_config_file_exists(dap_config_file)
 
-        parameters = json_load(dap_parameters_file)
+        parameters = json_load(dap_config_file)
 
         res = {
             "status": "ok",
@@ -272,15 +272,15 @@ class DetectorManager:
         detector_name = request["detector_name"]
         validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
-        dap_parameters_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
+        dap_config_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
 
-        if not os.path.exists(dap_parameters_file):
-            _logger.info(f"DAP parameter file {dap_parameters_file} does not exist -- creating an empty one")
-            json_save({}, dap_parameters_file)
+        if not os.path.exists(dap_config_file):
+            _logger.info(f"DAP config file {dap_config_file} does not exist -- creating an empty one")
+            json_save({}, dap_config_file)
 
         new_parameters = request["parameters"]
 
-        dap_config = json_load(dap_parameters_file)
+        dap_config = json_load(dap_config_file)
 
         changed_parameters = {}
         for name, new_value in new_parameters.items():
@@ -296,14 +296,14 @@ class DetectorManager:
 
             timestamp = datetime.now().strftime(CONFIG_FILENAME_TIME_FORMAT)
 
-            dap_parameters_backup_file = f"{backup_directory}/pipeline_parameters.{detector_name}.json.{timestamp}"
+            dap_config_file_backup = f"{backup_directory}/pipeline_parameters.{detector_name}.json.{timestamp}"
 
-            shutil.copyfile(dap_parameters_file, dap_parameters_backup_file)
+            shutil.copyfile(dap_config_file, dap_config_file_backup)
 
             try:
-                json_save(dap_config, dap_parameters_file)
+                json_save(dap_config, dap_config_file)
             except Exception as e:
-                shutil.copyfile(dap_parameters_backup_file, dap_parameters_file)
+                shutil.copyfile(dap_config_file_backup, dap_config_file)
                 raise RuntimeError(f"could not update DAP configuration {dueto(e)}") from e
 
         res = {
