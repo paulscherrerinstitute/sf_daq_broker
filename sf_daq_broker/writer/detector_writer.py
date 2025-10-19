@@ -162,7 +162,7 @@ def detector_retrieve(request, output_file_detector):
             make_crystfel_list(output_file_detector, run_file_json, detector_name)
 
 
-    if not pedestal_run and save_dap_results:
+    if save_dap_results and not pedestal_run:
         file_name_out = output_file_detector[:-3] + ".dap"
         store_dap_info(beamline, pgroup, detector_name, det_start_pulse_id, det_stop_pulse_id, file_name_out)
 
