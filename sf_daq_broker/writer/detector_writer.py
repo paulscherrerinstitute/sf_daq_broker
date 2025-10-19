@@ -69,10 +69,6 @@ def detector_retrieve(request, output_file_detector):
 
     pedestal_run = (directory_name == "JF_pedestals")
 
-    if save_dap_results and not pedestal_run:
-        file_name_out = output_file_detector[:-3] + ".dap"
-        store_dap_info(beamline, pgroup, detector_name, det_start_pulse_id, det_stop_pulse_id, file_name_out)
-
     convert_ju_file = any((
         adc_to_energy,
         compression,
