@@ -26,15 +26,15 @@ def store_dap_info(beamline, pgroup, detector, start_pulse_id, stop_pulse_id, fi
         _logger.error(msg)
         raise RuntimeError(msg)
 
-    dap_ending = set(p // 10000 * 10000 for p in range(start_pulse_id, stop_pulse_id + 1))
+    dap_endings = set(p // 10000 * 10000 for p in range(start_pulse_id, stop_pulse_id + 1))
 
     sleep(10)
 
     n_lines_out = 0
 
     with open(file_name_out, "w") as file_out:
-        for dap_f_ending in dap_ending:
-            dap_file_name = f"{path_to_dap_files}/{dap_f_ending}.dap"
+        for dap_ending in dap_endings:
+            dap_file_name = f"{path_to_dap_files}/{dap_ending}.dap"
             if not os.path.exists(dap_file_name):
                 continue
             with open(dap_file_name, "r") as dap_file:
