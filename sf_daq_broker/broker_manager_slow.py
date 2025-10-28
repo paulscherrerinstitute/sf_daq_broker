@@ -238,6 +238,33 @@ class DetectorManager:
         return res
 
 
+    def upload_custom_dap_script(self, request, remote_ip):
+        validate.request_has(request, "name", "code")
+
+        beamline = get_beamline(remote_ip)
+
+        name = request["name"]
+        code = request["code"]
+
+        # write code to base/beamline/name.py
+
+        ext = ".py"
+        if not name.endswith(ext):
+            name += ext
+
+        base = "/home/dbe/git/custom_dap_scripts"
+        fn = os.path.join(base, beamline, name)
+
+        os.makedirs(os.path.dirname(fn), exist_ok=True)
+
+        with open(fn, "w") as f:
+            f.write(code)
+
+        # import file
+        # run test with fake data
+        # commit to git ... or delete and complain
+
+
     def get_dap_settings(self, request, remote_ip):
         detector_name = validate.get_validated_detector_name(request, remote_ip)
 
