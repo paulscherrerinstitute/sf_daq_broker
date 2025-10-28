@@ -2,7 +2,8 @@ import os
 from glob import glob
 
 from sf_daq_broker.errors import ValidationError
-from sf_daq_broker.utils import dueto
+from sf_daq_broker.detector.utils import get_configured_detectors
+from sf_daq_broker.utils import dueto, get_beamline
 
 
 MAX_PULSEID_DELTA = 60001
@@ -18,6 +19,19 @@ ALLOWED_RATE_MULTIPLICATORS = [1, 2, 4, 8, 10, 20, 40, 50, 100]
 def detectors(ds):
     if not ds:
         raise ValidationError('no "detectors" provided in the request parameters')
+
+
+
+def get_validated_detector_name(request, remote_ip):
+    request_has(request, "detector_name")
+
+    beamline = get_beamline(remote_ip)
+    allowed_detectors_beamline = get_configured_detectors(beamline)
+
+    detector_name = request["detector_name"]
+    detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+
+    return detector_name
 
 
 
