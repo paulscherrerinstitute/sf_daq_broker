@@ -154,13 +154,9 @@ class DetectorManager:
         return self._set_power_modules("off", request, remote_ip)
 
     def _set_power_modules(self, target_state, request, remote_ip):
-        validate.request_has(request, "detector_name", "modules")
+        validate.request_has(request, "modules")
 
-        beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = get_configured_detectors(beamline)
-
-        detector_name = request["detector_name"]
-        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+        detector_name = get_validated_detector_name(request, remote_ip)
 
         detector = Detector(detector_name)
 
@@ -264,13 +260,9 @@ class DetectorManager:
 
 
     def set_dap_settings(self, request, remote_ip):
-        validate.request_has(request, "detector_name", "parameters")
+        validate.request_has(request, "parameters")
 
-        beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = get_configured_detectors(beamline)
-
-        detector_name = request["detector_name"]
-        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+        detector_name = get_validated_detector_name(request, remote_ip)
 
         dap_config_file = f"/gpfs/photonics/swissfel/buffer/dap/config/pipeline_parameters.{detector_name}.json"
 
