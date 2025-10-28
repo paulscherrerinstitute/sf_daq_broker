@@ -23,6 +23,11 @@ def detectors(ds):
 
 
 def get_validated_detector_name(request, remote_ip):
+    detector_name, _beamline = get_validated_detector_name_and_beamline(request, remote_ip)
+    return detector_name
+
+
+def get_validated_detector_name_and_beamline(request, remote_ip):
     request_has(request, "detector_name")
 
     beamline = get_beamline(remote_ip)
@@ -31,7 +36,8 @@ def get_validated_detector_name(request, remote_ip):
     detector_name = request["detector_name"]
     detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
 
-    return detector_name
+    return detector_name, beamline
+
 
 
 

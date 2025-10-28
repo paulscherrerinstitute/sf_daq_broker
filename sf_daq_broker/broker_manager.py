@@ -141,14 +141,7 @@ class BrokerManager:
 
 
     def power_on_detector(self, request, remote_ip):
-        validate.request_has(request, "detector_name")
-
-        beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = get_configured_detectors(beamline)
-
-        detector_name = request["detector_name"]
-
-        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+        detector_name, beamline = validate.get_validated_detector_name_and_beamline(request, remote_ip)
 
         request_power_on = {
             "beamline": beamline,

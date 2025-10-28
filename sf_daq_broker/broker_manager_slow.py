@@ -8,7 +8,6 @@ from sf_daq_broker.config import CONFIG_FILENAME_TIME_FORMAT
 from sf_daq_broker.detector.jfctrl import JFCtrl
 from sf_daq_broker.detector.detector import Detector
 from sf_daq_broker.detector.trigger import Trigger
-from sf_daq_broker.detector.utils import get_configured_detectors
 from sf_daq_broker.utils import get_beamline, json_save, json_load, dueto, parse_det_name
 from . import validate
 
@@ -109,13 +108,9 @@ class DetectorManager:
 
 
     def set_detector_settings(self, request, remote_ip):
-        validate.request_has(request, "detector_name", "parameters")
+        validate.request_has(request, "parameters")
 
-        beamline = get_beamline(remote_ip)
-        allowed_detectors_beamline = get_configured_detectors(beamline)
-
-        detector_name = request["detector_name"]
-        validate.detector_name_in_allowed_detectors_beamline(detector_name, allowed_detectors_beamline, beamline)
+        detector_name, beamline = validate.get_validated_detector_name_and_beamline(request, remote_ip)
 
         detector = Detector(detector_name)
 
