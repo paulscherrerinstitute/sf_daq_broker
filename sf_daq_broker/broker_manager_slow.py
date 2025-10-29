@@ -8,7 +8,7 @@ from sf_daq_broker.config import CONFIG_FILENAME_TIME_FORMAT
 from sf_daq_broker.detector.jfctrl import JFCtrl
 from sf_daq_broker.detector.detector import Detector
 from sf_daq_broker.detector.trigger import Trigger
-from sf_daq_broker.utils import get_beamline, json_save, json_load, dueto, parse_det_name
+from sf_daq_broker.utils import get_beamline, json_save, json_load, dueto, parse_det_name, load_module
 from . import validate
 
 
@@ -260,7 +260,15 @@ class DetectorManager:
         with open(fn, "w") as f:
             f.write(code)
 
-        # import file
+        # import function from file
+
+        mod = load_module(fn)
+
+        proc_func_name = "proc"
+        func = getattr(mod, proc_func_name, None) or getattr(mod, name, None)
+        if func is None:
+            raise AttributeError(f'module "{mod.__name__}" contains neither "{proc_func_name}" nor "{name}" function')
+
         # run test with fake data
         # commit to git ... or delete and complain
 
