@@ -249,10 +249,17 @@ class DetectorManager:
         code = request["code"]
 
         fn = write_code_to_file(name, code, beamline)
-        func = load_proc_from_file(fn)
-        test_run(func)
 
-        # commit to git ... or delete and complain
+        try:
+            func = load_proc_from_file(fn)
+            test_run(func)
+        except:
+            _logger.exception(f'uploading custom DAP script "{name}" for {beamline} failed')
+            if os.path.exists(fn):
+                os.remove(fn)
+            raise
+
+        # commit to git
 
 
     def get_dap_settings(self, request, remote_ip):
