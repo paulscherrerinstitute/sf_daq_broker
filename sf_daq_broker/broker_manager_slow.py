@@ -250,6 +250,10 @@ class DetectorManager:
 
         # write code to base/beamline/name.py
 
+        dname = os.path.dirname(name)
+        if dname:
+            raise ValueError(f'name "{name}" contains directory information "{dname}"')
+
         ext = ".py"
         if not name.endswith(ext):
             name += ext
