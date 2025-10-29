@@ -257,9 +257,10 @@ class DetectorManager:
             _logger.exception(f'uploading custom DAP script "{name}" for {beamline} failed')
             if os.path.exists(fn):
                 os.remove(fn)
+                #TODO: checkout previous version from git
             raise
 
-        # commit to git
+        #TODO: commit to git
 
 
     def get_dap_settings(self, request, remote_ip):
