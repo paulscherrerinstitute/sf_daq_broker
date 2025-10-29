@@ -249,7 +249,7 @@ class DetectorManager:
         code = request["code"]
 
         fn = write_code_to_file(name, code, beamline)
-        func = load_proc_from_file(fn, name)
+        func = load_proc_from_file(fn)
         test_run(func)
 
         # commit to git ... or delete and complain
@@ -382,13 +382,15 @@ def write_code_to_file(name, code, beamline):
     return fn
 
 
-def load_proc_from_file(fn, name):
+def load_proc_from_file(fn):
     mod = load_module(fn)
 
     proc_func_name = "proc"
-    func = getattr(mod, proc_func_name, None) or getattr(mod, name, None)
+    mod_name = mod.__name__
+
+    func = getattr(mod, proc_func_name, None) or getattr(mod, mod_name, None)
     if func is None:
-        raise AttributeError(f'module "{mod.__name__}" contains neither "{proc_func_name}" nor "{name}" function')
+        raise AttributeError(f'module "{mod_name}" contains neither "{proc_func_name}" nor "{mod_name}" function')
 
     return func
 
