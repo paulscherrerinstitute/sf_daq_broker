@@ -248,45 +248,9 @@ class DetectorManager:
         name = request["name"]
         code = request["code"]
 
-        # write code to base/beamline/name.py
-
-        dname = os.path.dirname(name)
-        if dname:
-            raise ValueError(f'name "{name}" contains directory information "{dname}"')
-
-        ext = ".py"
-        if not name.endswith(ext):
-            name += ext
-
-        base = "/home/dbe/git/custom_dap_scripts"
-        fn = os.path.join(base, beamline, name)
-
-        os.makedirs(os.path.dirname(fn), exist_ok=True)
-
-        with open(fn, "w") as f:
-            f.write(code)
-
-        # import function from file
-
-        mod = load_module(fn)
-
-        proc_func_name = "proc"
-        func = getattr(mod, proc_func_name, None) or getattr(mod, name, None)
-        if func is None:
-            raise AttributeError(f'module "{mod.__name__}" contains neither "{proc_func_name}" nor "{name}" function')
-
-        # run test with fake data
-
-        shape = (1024, 512) #TODO: does this have to be the correct JF's size?
-        image = np.random.random(shape)
-        mask = image < 0.5
-        meta = {} #TODO: add some/all possible entries
-        orig_meta = meta.copy()
-
-        func(meta, image, mask)
-
-        if meta != orig_meta:
-            raise RuntimeError(f'function "{func.__name__}" modifies the metadata -- this is not allowed, return the result(s) instead')
+        fn = write_code_to_file(name, code, beamline)
+        func = load_proc_from_file(fn, name)
+        test_run(func)
 
         # commit to git ... or delete and complain
 
@@ -395,6 +359,51 @@ def get_writing_state(detector):
     delta_time = time_now - time_file
     writing = (delta_time.total_seconds() < 30)
     return writing
+
+
+
+def write_code_to_file(name, code, beamline):
+    dname = os.path.dirname(name)
+    if dname:
+        raise ValueError(f'name "{name}" contains directory information "{dname}"')
+
+    ext = ".py"
+    if not name.endswith(ext):
+        name += ext
+
+    base = "/home/dbe/git/custom_dap_scripts"
+    fn = os.path.join(base, beamline, name)
+
+    os.makedirs(os.path.dirname(fn), exist_ok=True)
+
+    with open(fn, "w") as f:
+        f.write(code)
+
+    return fn
+
+
+def load_proc_from_file(fn, name):
+    mod = load_module(fn)
+
+    proc_func_name = "proc"
+    func = getattr(mod, proc_func_name, None) or getattr(mod, name, None)
+    if func is None:
+        raise AttributeError(f'module "{mod.__name__}" contains neither "{proc_func_name}" nor "{name}" function')
+
+    return func
+
+
+def test_run(func):
+    shape = (1024, 512) #TODO: does this have to be the correct JF's size?
+    image = np.random.random(shape)
+    mask = image < 0.5
+    meta = {} #TODO: add some/all possible entries
+    orig_meta = meta.copy()
+
+    func(meta, image, mask)
+
+    if meta != orig_meta:
+        raise RuntimeError(f'function "{func.__name__}" modifies the metadata -- this is not allowed, return the result(s) instead')
 
 
 
