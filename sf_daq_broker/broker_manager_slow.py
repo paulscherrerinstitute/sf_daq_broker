@@ -383,7 +383,7 @@ def write_code_to_file(name, code, beamline):
 
     os.makedirs(os.path.dirname(fn), exist_ok=True)
 
-    with open(fn, "w") as f:
+    with open(fn, "x") as f:
         f.write(code)
 
     return fn
