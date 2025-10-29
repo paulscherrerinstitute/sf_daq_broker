@@ -4,6 +4,8 @@ import shutil
 from datetime import datetime
 from glob import glob
 
+import numpy as np
+
 from sf_daq_broker.config import CONFIG_FILENAME_TIME_FORMAT
 from sf_daq_broker.detector.jfctrl import JFCtrl
 from sf_daq_broker.detector.detector import Detector
@@ -270,6 +272,18 @@ class DetectorManager:
             raise AttributeError(f'module "{mod.__name__}" contains neither "{proc_func_name}" nor "{name}" function')
 
         # run test with fake data
+
+        shape = (1024, 512) #TODO: does this have to be the correct JF's size?
+        image = np.random.random(shape)
+        mask = image < 0.5
+        meta = {} #TODO: add some/all possible entries
+        orig_meta = meta.copy()
+
+        func(meta, image, mask)
+
+        if meta != orig_meta:
+            raise RuntimeError(f'function "{func.__name__}" modifies the metadata -- this is not allowed, return the result(s) instead')
+
         # commit to git ... or delete and complain
 
 
