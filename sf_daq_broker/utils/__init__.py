@@ -8,5 +8,6 @@ from .jsonext import json_load, json_save, json_obj_to_str, json_str_to_obj
 from .load_module import load_module
 from .ping import ping, ping_many
 from .pulseids import pulse_id_to_timestamp
+from .run_timeout import run_timeout
 
 
