@@ -265,7 +265,7 @@ class DetectorManager:
 
         fn = os.path.join(path, name)
 
-        write_code_to_file(code, fn)
+        write_to_file(code, fn)
 
         try:
             func = load_proc_from_file(fn)
@@ -385,11 +385,11 @@ def get_writing_state(detector):
 
 
 
-def write_code_to_file(code, fn):
+def write_to_file(txt, fn):
     os.makedirs(os.path.dirname(fn), exist_ok=True)
 
     with open(fn, "x") as f:
-        f.write(code)
+        f.write(txt)
 
 
 def load_proc_from_file(fn):
