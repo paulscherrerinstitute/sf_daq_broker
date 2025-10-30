@@ -265,9 +265,8 @@ class DetectorManager:
 
         fn = os.path.join(path, name)
 
-        write_to_file(code, fn)
-
         try:
+            write_to_file(code, fn)
             func = load_proc_from_file(fn)
             test_run(func)
         except:
