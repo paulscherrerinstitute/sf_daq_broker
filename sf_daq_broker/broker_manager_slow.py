@@ -10,7 +10,7 @@ from sf_daq_broker.config import CONFIG_FILENAME_TIME_FORMAT
 from sf_daq_broker.detector.jfctrl import JFCtrl
 from sf_daq_broker.detector.detector import Detector
 from sf_daq_broker.detector.trigger import Trigger
-from sf_daq_broker.utils import get_beamline, json_save, json_load, dueto, parse_det_name, load_module
+from sf_daq_broker.utils import GitRepo, get_beamline, json_save, json_load, dueto, parse_det_name, load_module
 from . import validate
 
 
@@ -248,6 +248,11 @@ class DetectorManager:
         name = request["name"]
         code = request["code"]
 
+        url = "git@gitea.psi.ch:sf-daq/custom_dap_scripts.git"
+        path = "/home/dbe/git/custom_dap_scripts" #TODO
+        git = GitRepo(url, path)
+        git.update()
+
         fn = write_code_to_file(name, code, beamline)
 
         try:
@@ -255,12 +260,11 @@ class DetectorManager:
             test_run(func)
         except:
             _logger.exception(f'uploading custom DAP script "{name}" for {beamline} failed')
-            if os.path.exists(fn):
-                os.remove(fn)
-                #TODO: checkout previous version from git
+            git.clean()
             raise
 
-        #TODO: commit to git
+        bln = os.path.join(beamline, name)
+        git.commit(bln)
 
 
     def get_dap_settings(self, request, remote_ip):
@@ -379,7 +383,7 @@ def write_code_to_file(name, code, beamline):
     if not name.endswith(ext):
         name += ext
 
-    base = "/home/dbe/git/custom_dap_scripts"
+    base = "/home/dbe/git/custom_dap_scripts" #TODO
     fn = os.path.join(base, beamline, name)
 
     os.makedirs(os.path.dirname(fn), exist_ok=True)
