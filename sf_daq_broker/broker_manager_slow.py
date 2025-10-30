@@ -249,11 +249,21 @@ class DetectorManager:
         code = request["code"]
 
         url = "git@gitea.psi.ch:sf-daq/custom_dap_scripts.git"
-        path = "/home/dbe/git/custom_dap_scripts" #TODO
+        path = "/home/dbe/git/custom_dap_scripts"
         git = GitRepo(url, path)
         git.update()
 
-        fn = write_code_to_file(name, code, beamline)
+        dname = os.path.dirname(name)
+        if dname:
+            raise ValueError(f'name "{name}" contains directory information "{dname}"')
+
+        ext = ".py"
+        if not name.endswith(ext):
+            name += ext
+
+        fn = os.path.join(path, beamline, name)
+
+        write_code_to_file(code, fn)
 
         try:
             func = load_proc_from_file(fn)
@@ -374,24 +384,11 @@ def get_writing_state(detector):
 
 
 
-def write_code_to_file(name, code, beamline):
-    dname = os.path.dirname(name)
-    if dname:
-        raise ValueError(f'name "{name}" contains directory information "{dname}"')
-
-    ext = ".py"
-    if not name.endswith(ext):
-        name += ext
-
-    base = "/home/dbe/git/custom_dap_scripts" #TODO
-    fn = os.path.join(base, beamline, name)
-
+def write_code_to_file(code, fn):
     os.makedirs(os.path.dirname(fn), exist_ok=True)
 
     with open(fn, "x") as f:
         f.write(code)
-
-    return fn
 
 
 def load_proc_from_file(fn):
