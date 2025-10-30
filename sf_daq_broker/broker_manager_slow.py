@@ -387,7 +387,7 @@ def get_writing_state(detector):
 def write_to_file(txt, fn):
     os.makedirs(os.path.dirname(fn), exist_ok=True)
 
-    with open(fn, "x") as f:
+    with open(fn, "w") as f:
         f.write(txt)
 
 
