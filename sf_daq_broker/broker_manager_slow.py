@@ -248,11 +248,6 @@ class DetectorManager:
         name = request["name"]
         code = request["code"]
 
-        url = "git@gitea.psi.ch:sf-daq/custom_dap_scripts.git"
-        path = "/home/dbe/git/custom_dap_scripts"
-        git = GitRepo(url, path)
-        git.update()
-
         dname = os.path.dirname(name)
         if dname:
             raise ValueError(f'name "{name}" contains directory information "{dname}"')
@@ -261,7 +256,14 @@ class DetectorManager:
         if not name.endswith(ext):
             name += ext
 
-        fn = os.path.join(path, beamline, name)
+        name = os.path.join(beamline, name)
+
+        url = "git@gitea.psi.ch:sf-daq/custom_dap_scripts.git"
+        path = "/home/dbe/git/custom_dap_scripts"
+        git = GitRepo(url, path)
+        git.update()
+
+        fn = os.path.join(path, name)
 
         write_code_to_file(code, fn)
 
@@ -269,12 +271,11 @@ class DetectorManager:
             func = load_proc_from_file(fn)
             test_run(func)
         except:
-            _logger.exception(f'uploading custom DAP script "{name}" for {beamline} failed')
+            _logger.exception(f'uploading custom DAP script "{name}" failed')
             git.clean()
             raise
 
-        bln = os.path.join(beamline, name)
-        git.commit(bln)
+        git.commit(name)
 
 
     def get_dap_settings(self, request, remote_ip):
