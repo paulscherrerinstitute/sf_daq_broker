@@ -4,11 +4,14 @@ from git import Repo, InvalidGitRepositoryError
 
 class GitRepo:
 
-    def __init__(self, url, path):
+    def __init__(self, url, path, ssh_key=None):
         self.url = url
         self.path = path = Path(path)
         path.mkdir(parents=True, exist_ok=True)
-        self.repo = get_or_clone_repo(url, path)
+        self.repo = repo = get_or_clone_repo(url, path)
+        if ssh_key:
+            git_ssh_command = f"ssh -i {ssh_key} -o IdentitiesOnly=yes"
+            repo.git.update_environment(GIT_SSH_COMMAND=git_ssh_command)
 
     def update(self):
         self.check_clean()
