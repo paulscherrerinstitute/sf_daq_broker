@@ -260,7 +260,8 @@ class DetectorManager:
 
         url = "git@gitea.psi.ch:sf-daq/custom_dap_scripts.git"
         path = "/gpfs/photonics/swissfel/buffer/dap/custom_dap_scripts"
-        git = GitRepo(url, path)
+        ssh_key = "/gpfs/photonics/swissfel/buffer/dap/key_custom_dap_script"
+        git = GitRepo(url, path, ssh_key=ssh_key)
         git.update()
 
         fn = os.path.join(path, name)
