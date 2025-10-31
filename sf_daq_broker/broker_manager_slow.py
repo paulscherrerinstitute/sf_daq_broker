@@ -259,7 +259,7 @@ class DetectorManager:
         name = os.path.join(beamline, name)
 
         url = "git@gitea.psi.ch:sf-daq/custom_dap_scripts.git"
-        path = "/home/dbe/git/custom_dap_scripts"
+        path = "/gpfs/photonics/swissfel/buffer/dap/custom_dap_scripts"
         git = GitRepo(url, path)
         git.update()
 
