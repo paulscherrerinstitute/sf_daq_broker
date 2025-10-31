@@ -10,7 +10,7 @@ from sf_daq_broker.config import CONFIG_FILENAME_TIME_FORMAT
 from sf_daq_broker.detector.jfctrl import JFCtrl
 from sf_daq_broker.detector.detector import Detector
 from sf_daq_broker.detector.trigger import Trigger
-from sf_daq_broker.utils import GitRepo, get_beamline, json_save, json_load, dueto, parse_det_name, load_module
+from sf_daq_broker.utils import GitRepo, get_beamline, json_save, json_load, dueto, parse_det_name, load_module, run_timeout
 from . import validate
 
 
@@ -411,7 +411,7 @@ def test_run(func):
     meta = {} #TODO: add some/all possible entries
     orig_meta = meta.copy()
 
-    func(meta, image, mask)
+    run_timeout(func, meta, image, mask, timeout=0.1)
 
     if meta != orig_meta:
         raise RuntimeError(f'function "{func.__name__}" modifies the metadata -- this is not allowed, return the result(s) instead')
