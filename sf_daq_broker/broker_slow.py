@@ -17,6 +17,7 @@ ENDPOINTS_POST = [
     "power_on_modules",
     "power_off_modules",
     "copy_user_files",
+    "upload_custom_dap_script",
     "set_dap_settings"
 ]
 
