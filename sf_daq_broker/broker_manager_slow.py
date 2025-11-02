@@ -277,6 +277,12 @@ class DetectorManager:
 
         git.commit(name)
 
+        res = {
+            "status": "ok",
+            "message": f'successfully uploaded custom DAP script "{name}"'
+        }
+        return res
+
 
     def get_dap_settings(self, request, remote_ip):
         detector_name = validate.get_validated_detector_name(request, remote_ip)
