@@ -513,6 +513,7 @@ class BrokerManager:
             "scan_name": "dummy",
             "Id": ["dummy"],
             "name": ["dummy"],
+            "units": ["dummy"],
             "offset": [0],
             "conversion_factor": [1.0],
             "scan_readbacks": [0],
