@@ -357,6 +357,11 @@ def create_pedestal_file(
         nbad = ntotal - ngood
         _logger.info(f"{detector_name}: number of good pixels: {ngood} from {ntotal} in total ({nbad} bad pixels)")
 
+        if ngood == 0:
+            msg = f"pedestal file: output file {full_fileNameOut} contains no good pixel"
+            _logger.error(msg)
+            raise RuntimeError(msg)
+
 
 
 def copy_pedestal_file(request_time, file_pedestal, detector, detector_config_file):
