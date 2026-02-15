@@ -300,7 +300,7 @@ def create_pedestal_file(
                 highG0Check = highG0
 
             if gainGoodAllModules:
-                pixelMask[~correct_gain] |= (1 << (trueGain + 4 * highG0))
+                pixelMask[~correct_gain] |= (1 << (1 + trueGain + 4 * highG0)) # skip additional_pixel_mask
                 #trueGain += 4 * highG0
                 nMgain[trueGain] += 1
 
@@ -322,7 +322,7 @@ def create_pedestal_file(
                 _logger.info(f"{detector_name}: adding additional pixel mask from file {add_pixel_mask}, number of additionally masked pixels: {nmasked}")
                 if additional_pixel_mask.shape == pixelMask.shape:
                     additional_pixel_mask = additional_pixel_mask.astype(bool)
-                    pixelMask[additional_pixel_mask] |= (1 << 5)
+                    pixelMask[additional_pixel_mask] |= (1 << 0)
                 else:
                     _logger.error(f"{detector_name}: shape of additional pixel mask ({additional_pixel_mask.shape}) does not match current pixel mask ({pixelMask.shape})")
             else:
@@ -335,17 +335,22 @@ def create_pedestal_file(
         gains    = []
         gainsRMS = []
 
-        for index, gain in enumerate((0, 1, 3)):
+        for gain in range(4):
             numberFramesAverage = max(1, min(frames_average, nMgain[gain]))
             mean  = adcValuesN[gain]  / numberFramesAverage
             mean2 = adcValuesNN[gain] / numberFramesAverage
             variance = mean2 - mean**2
             stdDeviation = np.sqrt(variance)
             _logger.debug(f"{detector_name}: results for gain {gain}: test pixel ({tY}, {tX}), mean: {mean[tY][tX]}, stddev: {stdDeviation[tY][tX]}")
+
+            # gain 2 is unused
+            if gain == 2:
+                continue
+
             gains.append(mean)
             gainsRMS.append(stdDeviation)
 
-            pixelMask[np.isclose(stdDeviation, 0)] |= (1 << (6 + index))
+            pixelMask[np.isclose(stdDeviation, 0)] |= (1 << (9 + gain)) # skip additional_pixel_mask and 4*2 wrong gain
 
         with h5py.File(full_fileNameOut, "w") as outFile:
             outFile.create_dataset("pixel_mask", data=pixelMask)
