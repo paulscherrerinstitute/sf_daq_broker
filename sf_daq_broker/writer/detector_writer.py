@@ -34,7 +34,7 @@ PEDESTAL_SPECIFIC = {
 
 PEDESTAL_DIRECTORY="/sf/jungfrau/data/pedestal"
 
-TMPDIR = "/gpfs/photonics/swissfel/daqtmp"
+TMP_DIRECTORY = "/gpfs/photonics/swissfel/daqtmp"
 TMP_SPACE_THRESH = 1e12 # 1TB
 
 
@@ -66,7 +66,7 @@ def detector_retrieve(request, output_file_detector):
     use_tmp = detector_params.get("remove_raw_files", False)
 
     # get free space in SSD tmp storage, if smaller than threshold do not use it
-    _tmp_space_total, _tmp_space_used, tmp_space_free = shutil.disk_usage(TMPDIR)
+    _tmp_space_total, _tmp_space_used, tmp_space_free = shutil.disk_usage(TMP_DIRECTORY)
     if tmp_space_free < TMP_SPACE_THRESH:
         use_tmp = False
 
@@ -88,7 +88,7 @@ def detector_retrieve(request, output_file_detector):
         if use_tmp:
             # flatten folder structure so that there are no empty folders after removal
             flat_raw_file_name = raw_file_name.replace("/", "_")
-            raw_file_name = f"{TMPDIR}/{flat_raw_file_name}"
+            raw_file_name = f"{TMP_DIRECTORY}/{flat_raw_file_name}"
         raw_dir = os.path.dirname(raw_file_name)
         os.makedirs(raw_dir, exist_ok=True)
     else:
