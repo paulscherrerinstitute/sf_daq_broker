@@ -377,6 +377,9 @@ def create_pedestal_file(
 
 
 def copy_pedestal_file(request_time, pedestal_file, detector, detector_config_file):
+    """
+    copies the pedestal file from the pgroup to the central folder
+    """
     os.makedirs(f"{PEDESTAL_DIRECTORY}/{detector}", exist_ok=True)
 
     request_time = datetime.strptime(request_time, REQUEST_TIME_FORMAT)
@@ -401,6 +404,9 @@ def copy_pedestal_file(request_time, pedestal_file, detector, detector_config_fi
 
 
 def copy_calibration_files(pedestal_file, pixel_mask_file, detector_config_file):
+    """
+    copies the gain and pixel_mask files from the central folder to the pgroup
+    """
     pedestal_directory = os.path.dirname(pedestal_file)
     gain_directory = f"{pedestal_directory}/gainMaps"
     pixel_mask_directory = f"{pedestal_directory}/pixel_mask"
