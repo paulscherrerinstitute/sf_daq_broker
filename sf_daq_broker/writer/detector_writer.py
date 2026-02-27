@@ -125,7 +125,7 @@ def detector_retrieve(request, output_file_detector):
         sleep(5)
 
         add_pixel_mask = f"{MASK_DIRECTORY}/{detector_name}/pixel_mask.h5"
-        if not os.path.isfile(add_pixel_mask) or not os.access(add_pixel_mask, os.R_OK):
+        if not can_read_file(add_pixel_mask):
             add_pixel_mask = None
 
         specific_kwargs = PEDESTAL_SPECIFIC.get(detector_name, {})
@@ -182,7 +182,7 @@ def create_pedestal_file(
     add_pixel_mask=None,
     number_bad_modules=0
 ):
-    if not os.path.isfile(filename) or not os.access(filename, os.R_OK):
+    if not can_read_file(filename):
         msg = f"cannot create pedestal file: input file {filename} not found"
         _logger.info(msg)
         raise RuntimeError(msg)
@@ -322,7 +322,7 @@ def create_pedestal_file(
         _logger.info(f"{detector_name}: {numberOfFrames} frames analyzed, {nGoodFrames} good frames, {nGoodFramesGain} frames without settings mismatch; gain frames distribution (0, 1, 2, 3): {tuple(nMgain)}")
 
         if add_pixel_mask is not None:
-            if os.path.isfile(add_pixel_mask) and os.access(add_pixel_mask, os.R_OK):
+            if can_read_file(add_pixel_mask):
                 with h5py.File(add_pixel_mask, "r") as additional_pixel_mask_file:
                     additional_pixel_mask = additional_pixel_mask_file["pixel_mask"][:]
                 nmasked = np.sum(additional_pixel_mask)
@@ -421,6 +421,11 @@ def copy_calibration_files(pedestal_file, pixel_mask_file, detector_config_file)
         pixel_mask_file_copy = f"{pixel_mask_directory}/{detector_name}.h5"
         if not os.path.exists(pixel_mask_file_copy):
             copyfile(pixel_mask_file, pixel_mask_file_copy)
+
+
+
+def can_read_file(fname):
+    return os.path.isfile(fname) and os.access(fname, os.R_OK)
 
 
 
