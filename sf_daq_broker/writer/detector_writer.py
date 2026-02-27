@@ -174,12 +174,12 @@ def detector_retrieve(request, output_file_detector):
 
 def create_pedestal_file(
     filename="pedestal.h5",
+    directory="./",
+    add_pixel_mask=None,
     X_test_pixel=0,
     Y_test_pixel=0,
     frames_average=1000,
-    directory="./",
     gain_check=True,
-    add_pixel_mask=None,
     number_bad_modules=0
 ):
     if not can_read_file(filename):
