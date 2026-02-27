@@ -376,7 +376,7 @@ def create_pedestal_file(
 
 
 
-def copy_pedestal_file(request_time, file_pedestal, detector, detector_config_file):
+def copy_pedestal_file(request_time, pedestal_file, detector, detector_config_file):
     os.makedirs(f"{PEDESTAL_DIRECTORY}/{detector}", exist_ok=True)
 
     request_time = datetime.strptime(request_time, REQUEST_TIME_FORMAT)
@@ -384,8 +384,8 @@ def copy_pedestal_file(request_time, file_pedestal, detector, detector_config_fi
 
     out_name = f"{PEDESTAL_DIRECTORY}/{detector}/{request_time_formatted}.h5"
 
-    _logger.info(f"copying pedestal file {file_pedestal} to {out_name}")
-    copyfile(file_pedestal, out_name)
+    _logger.info(f"copying pedestal file {pedestal_file} to {out_name}")
+    copyfile(pedestal_file, out_name)
 
     if not os.path.exists(detector_config_file):
         msg = f"cannot update currently used pedestal: stream config file {detector_config_file} does not exists"
