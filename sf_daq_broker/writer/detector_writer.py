@@ -32,7 +32,7 @@ PEDESTAL_SPECIFIC = {
     "JF18T01V01" : {"number_bad_modules" : 1}
 }
 
-PEDESTAL_DIRECTORY="/sf/jungfrau/data/pedestal"
+PEDESTAL_DIRECTORY = "/sf/jungfrau/data/pedestal"
 
 TMP_DIRECTORY = "/gpfs/photonics/swissfel/daqtmp"
 TMP_SPACE_THRESH = 1e12 # 1TB
