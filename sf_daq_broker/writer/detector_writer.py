@@ -32,6 +32,8 @@ PEDESTAL_SPECIFIC = {
     "JF18T01V01" : {"number_bad_modules" : 1}
 }
 
+PEDESTAL_DIRECTORY="/sf/jungfrau/data/pedestal"
+
 TMPDIR = "/gpfs/photonics/swissfel/daqtmp"
 TMP_SPACE_THRESH = 1e12 # 1TB
 
@@ -370,8 +372,6 @@ def create_pedestal_file(
 
 
 def copy_pedestal_file(request_time, file_pedestal, detector, detector_config_file):
-    PEDESTAL_DIRECTORY="/sf/jungfrau/data/pedestal"
-
     os.makedirs(f"{PEDESTAL_DIRECTORY}/{detector}", exist_ok=True)
 
     request_time = datetime.strptime(request_time, REQUEST_TIME_FORMAT)
