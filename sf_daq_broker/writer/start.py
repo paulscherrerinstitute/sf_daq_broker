@@ -5,7 +5,7 @@ from functools import partial
 from threading import Thread
 from time import sleep, time
 
-from pika import BasicProperties, BlockingConnection, ConnectionParameters
+from pika import BasicProperties
 
 from sf_daq_broker import config
 from sf_daq_broker.detector.power_on_detector import power_on_detector
@@ -72,11 +72,7 @@ def run():
 
 
 def start_service(broker_url, writer_type=0):
-    connection = BlockingConnection(ConnectionParameters(broker_url))
-
-    channel = connection.channel()
-    channel.exchange_declare(exchange=broker_config.STATUS_EXCHANGE,  exchange_type="fanout")
-    channel.exchange_declare(exchange=broker_config.REQUEST_EXCHANGE, exchange_type="topic")
+    connection, channel = BrokerClient(broker_url=broker_url).open()
 
     routing_key   = ROUTING_KEYS[writer_type]
     request_queue = REQUEST_QUEUES[writer_type]

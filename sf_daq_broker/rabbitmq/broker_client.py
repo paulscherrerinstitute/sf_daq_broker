@@ -46,6 +46,8 @@ class BrokerClient:
             exchange_type="fanout"
         )
 
+        return self.connection, self.channel
+
 
     def close(self):
         self.connection.close()
