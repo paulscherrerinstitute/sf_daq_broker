@@ -1,12 +1,15 @@
 import uuid
 from time import sleep, time_ns
 
-from pika import BasicProperties, BlockingConnection, ConnectionParameters
+from pika import BasicProperties, BlockingConnection, ConnectionParameters, PlainCredentials
 
-from sf_daq_broker.utils import json_obj_to_str
+from sf_daq_broker.utils import json_obj_to_str, json_load
 
 from . import broker_config
 
+
+RMQ_DEFS = "/home/dbe/service_configs/rmq_definitions.json"
+RMQ_USER = "owner"
 
 ROUTES = {
     broker_config.TAG_DATA3BUFFER:       broker_config.ROUTE_DATA_API,
@@ -28,7 +31,9 @@ class BrokerClient:
 
 
     def open(self):
-        params = ConnectionParameters(self.broker_url)
+        password = get_password(RMQ_DEFS, RMQ_USER)
+        credentials = PlainCredentials(RMQ_USER, password)
+        params = ConnectionParameters(self.broker_url, credentials=credentials)
 
         try:
             self.connection = BlockingConnection(params)
@@ -100,6 +105,15 @@ class BrokerClient:
             routing_key=routing_key,
             body=body_bytes
         )
+
+
+
+def get_password(fname, user):
+    defs = json_load(fname)
+    users = defs["users"]
+    for i in users:
+        if i["name"] == user:
+            return i["password"]
 
 
 
