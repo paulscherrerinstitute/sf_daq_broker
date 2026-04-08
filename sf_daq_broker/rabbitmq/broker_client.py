@@ -28,11 +28,13 @@ class BrokerClient:
 
 
     def open(self):
+        params = ConnectionParameters(self.broker_url)
+
         try:
-            self.connection = BlockingConnection(ConnectionParameters(self.broker_url))
+            self.connection = BlockingConnection(params)
         except Exception:
             sleep(1)
-            self.connection = BlockingConnection(ConnectionParameters(self.broker_url))
+            self.connection = BlockingConnection(params)
 
         self.channel = self.connection.channel()
 
