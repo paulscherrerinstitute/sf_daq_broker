@@ -81,9 +81,13 @@ class BrokerDebugger:
         color = COLOR_MAPPING.get(action, "cyan")
         colored_action = colorize(action, color)
 
-        timestamp_msg = datetime.fromtimestamp(timestamp / 1e9)
         timestamp_now = datetime.now()
-        time_delta = timestamp_now - timestamp_msg
+
+        if timestamp is None:
+            timestamp_msg = time_delta = None
+        else:
+            timestamp_msg = datetime.fromtimestamp(timestamp / 1e9)
+            time_delta = timestamp_now - timestamp_msg
 
         if not self.long_id:
             correlation_id = correlation_id.split("-", 1)[0]
