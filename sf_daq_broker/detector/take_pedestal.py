@@ -9,7 +9,7 @@ from sf_daq_broker.detector.detector import Detector
 _logger = logging.getLogger("broker_writer")
 
 
-PULSE_ID_SOURCE = "SLAAR11-LTIM01-EVR0:RX-PULSEID"
+PULSE_ID_SOURCE = "SLAAR11-LTIM01-EVR0:RX-PULSEID" #TODO: this should be matched to the BL
 
 
 
