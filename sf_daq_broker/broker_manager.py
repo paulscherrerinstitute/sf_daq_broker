@@ -84,7 +84,7 @@ class BrokerManager:
         pv_list = list(dict.fromkeys(pv_list))
 
         config_epics = {
-            "pulse_id_pv": "SLAAR11-LTIM01-EVR0:RX-PULSEID", #TODO: this should be matched to the BL
+            "pulse_id_pv": "SLAAR21-LTIM01-EVR0:RX-PULSEID", #TODO: this should be matched to the BL
             "pv_list": pv_list
         }
 
