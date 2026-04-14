@@ -4,12 +4,10 @@ from time import sleep
 import epics
 
 from sf_daq_broker.detector.detector import Detector
+from sf_daq_broker.utils import get_pulse_id_pvname
 
 
 _logger = logging.getLogger("broker_writer")
-
-
-PULSE_ID_SOURCE = "SLAAR21-LTIM01-EVR0:RX-PULSEID" #TODO: this should be matched to the BL
 
 
 
@@ -34,7 +32,7 @@ def take_pedestal(detector_names, rate=1, pedestalmode=False):
 
 
 def switch_gains_manually(detectors, rate):
-    pulse_id_pv = epics.PV(PULSE_ID_SOURCE)
+    pulse_id_pv = get_pulse_id_pv(detectors)
 
     # store original gain mode settings
     gain_mode_orig = {d.ID: d.gain_mode for d in detectors}
@@ -76,7 +74,7 @@ def switch_gains_manually(detectors, rate):
 
 
 def switch_gains_via_pedestalmode(detectors, rate):
-    pulse_id_pv = epics.PV(PULSE_ID_SOURCE)
+    pulse_id_pv = get_pulse_id_pv(detectors)
 
     # config
     frames = 50
@@ -130,6 +128,14 @@ def align_pids(start_pulse_id, stop_pulse_id, rate):
                 det_start_pulse_id = p
 
     return det_start_pulse_id, det_stop_pulse_id
+
+
+def get_pulse_id_pv(detectors):
+    det = detectors[0] # this assumes that all detectors are from the same beamline
+    beamline = det.cfg.get_beamline()
+    pulse_id_pvname = get_pulse_id_pvname(beamline)
+    pulse_id_pv = epics.get_pv(pulse_id_pvname)
+    return pulse_id_pv
 
 
 

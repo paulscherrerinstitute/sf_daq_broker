@@ -7,7 +7,7 @@ from sf_daq_broker import config
 from sf_daq_broker.detector.utils import get_configured_detectors, get_streamvis_address
 from sf_daq_broker.detector.detector_config import DETECTOR_DESC
 from sf_daq_broker.rabbitmq import broker_config
-from sf_daq_broker.utils import get_writer_request, get_beamline, json_save, json_load, dueto, parse_det_name
+from sf_daq_broker.utils import get_writer_request, get_beamline, get_pulse_id_pvname, json_save, json_load, dueto, parse_det_name
 from . import validate
 
 
@@ -80,11 +80,14 @@ class BrokerManager:
         config_file = f"{config_dir}/sf.{beamline}.epics_buffer.json"
         validate.epics_config_file_exists(config_file, beamline)
 
+        config_info = json_load(config_file)
+        pulse_id_pv = config_info.get("pulse_id_pv") or get_pulse_id_pvname(beamline)
+
         pv_list = request["pv_list"]
         pv_list = list(dict.fromkeys(pv_list))
 
         config_epics = {
-            "pulse_id_pv": "SLAAR21-LTIM01-EVR0:RX-PULSEID", #TODO: this should be matched to the BL
+            "pulse_id_pv": pulse_id_pv,
             "pv_list": pv_list
         }
 
