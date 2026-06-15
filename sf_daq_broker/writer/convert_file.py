@@ -43,12 +43,14 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
         gap_pixels           = detector_params.get("gap_pixels", True)
         geometry             = detector_params.get("geometry", False)
         mask                 = detector_params.get("mask", True)
+        module_edge_pixels   = detector_params.get("module_edge_pixels", "keep")
     else:
         double_pixels_action = "keep"
         factor               = None
         gap_pixels           = False
         geometry             = False
         mask                 = False
+        module_edge_pixels   = "keep"
 
     roi = detector_params.get("roi", None)
     save_ppicker_events_only = detector_params.get("save_ppicker_events_only", False)
@@ -68,6 +70,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
             conversion=conversion,
             mask=mask,
             double_pixels=double_pixels_action,
+            module_edge_pixels=module_edge_pixels,
             gap_pixels=gap_pixels,
             geometry=geometry,
             parallel=True,
