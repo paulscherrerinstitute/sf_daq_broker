@@ -163,6 +163,8 @@ When providing detector-specific parameters within the "detectors" key:
 
     * `"double_pixels_action"` (str): Handling of double pixels at chip inner edges.
 
+    * `"module_edge_pixels"` (str): Handling of pixels on the module edges.
+
     * `"geometry"` (bool): Apply geometry correction.
 
     * `"gap_pixels"` (bool): Add gap pixels between detector chips.
