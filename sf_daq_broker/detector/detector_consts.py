@@ -73,7 +73,9 @@ DETECTOR_DAQ = {
     "JF17T16V01" : {"daq": 10, "port": 1},
     "JF18T01V01" : {"daq": 9,  "port": 1},
     "JF19T01V01" : {"daq": 9,  "port": 1},
-    "JF20T01V01" : {"daq": 10, "port": 1}
+    "JF20T01V01" : {"daq": 10, "port": 1},
+    "JF21T01V01" : {"daq": 10, "port": 1},
+    "JF22T01V01" : {"daq": 10, "port": 1}
 }
 
 DETECTOR_HOSTNAME = {
@@ -96,7 +98,9 @@ DETECTOR_HOSTNAME = {
     "JF17T16V01" : ["jf8ma-00", "jf8ma-01", "jf8ma-02", "jf8ma-03", "jf8ma-04", "jf8ma-05", "jf8ma-06", "jf8ma-07", "jf8ma-08", "jf8ma-09", "jf8ma-10", "jf8ma-11", "jf8ma-12", "jf8ma-13", "jf8ma-14", "jf8ma-15"],
     "JF18T01V01" : ["jf18t01-00"],
     "JF19T01V01" : ["jf19-00"],
-    "JF20T01V01" : ["jf20-00"]
+    "JF20T01V01" : ["jf20-00"],
+    "JF21T01V01" : ["jf21-00"],
+    "JF22T01V01" : ["jf22-00"]
 }
 
 DETECTOR_TXDELAY_FRAME = {
@@ -119,7 +123,9 @@ DETECTOR_TXDELAY_FRAME = {
     "JF17T16V01" : [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4],
     "JF18T01V01" : [0],
     "JF19T01V01" : [0],
-    "JF20T01V01" : [0]
+    "JF20T01V01" : [0],
+    "JF21T01V01" : [0],
+    "JF22T01V01" : [0]
 }
 
 DETECTOR_TEMP_THRESHOLD_DEFAULT = 55
