@@ -99,8 +99,8 @@ DETECTOR_HOSTNAME = {
     "JF18T01V01" : ["jf18t01-00"],
     "JF19T01V01" : ["jf19-00"],
     "JF20T01V01" : ["jf20-00"],
-    "JF21T01V01" : ["jf21-00"],
-    "JF22T01V01" : ["jf22-00"]
+    "JF21T01V01" : ["bchip643"],
+    "JF22T01V01" : ["bchip542"]
 }
 
 DETECTOR_TXDELAY_FRAME = {
