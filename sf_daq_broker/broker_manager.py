@@ -55,7 +55,7 @@ class BrokerManager:
 
         beamline = get_beamline(remote_ip)
 
-        config_file = f"/home/dbe/service_configs/sf.{beamline}.epics_buffer.json"
+        config_file = f"/home/svcusr-sfdaq/service_configs/sf.{beamline}.epics_buffer.json"
         validate.epics_config_file_exists(config_file, beamline)
 
         config_info = json_load(config_file)
@@ -74,7 +74,7 @@ class BrokerManager:
 
         beamline = get_beamline(remote_ip)
 
-        config_dir = "/home/dbe/service_configs"
+        config_dir = "/home/svcusr-sfdaq/service_configs"
         os.makedirs(config_dir, exist_ok=True)
 
         config_file = f"{config_dir}/sf.{beamline}.epics_buffer.json"
