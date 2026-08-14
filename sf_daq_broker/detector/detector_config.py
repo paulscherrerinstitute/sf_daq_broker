@@ -25,12 +25,12 @@ for det in DETECTOR_NAMES:
 # config files generated during deployment
 
 try:
-    DETECTOR_DESC = json_load("/home/dbe/service_configs/detector_descriptions.json")
+    DETECTOR_DESC = json_load("/home/svcusr-sfdaq/service_configs/detector_descriptions.json")
 except:
     DETECTOR_DESC = {}
 
 try:
-    DETECTOR_PORT = json_load("/home/dbe/service_configs/detector_start_udp_ports.json")
+    DETECTOR_PORT = json_load("/home/svcusr-sfdaq/service_configs/detector_start_udp_ports.json")
 except:
     DETECTOR_PORT = {}
 
