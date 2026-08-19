@@ -2,7 +2,7 @@ import logging
 
 import bottle
 
-from sf_daq_broker.utils import json_obj_to_str
+from sf_daq_broker.utils import json_obj_to_str, typename
 
 
 _logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ def register_error_handler(app):
         return json_obj_to_str({
             "status": "error",
             "message": str(exc),
-            "exception": type(exc).__name__
+            "exception": typename(exc)
         })
 
 
