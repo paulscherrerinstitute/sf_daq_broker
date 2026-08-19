@@ -30,8 +30,8 @@ PEDESTAL_SPECIFIC = {
     "JF10T01V01" : {"number_bad_modules" : 1},
     "JF11T04V01" : {"number_bad_modules" : 2},
     "JF18T01V01" : {"number_bad_modules" : 1},
-    "JF21T01V01" : {"X_test_pixel": 600, "Y_test_pixel": 600},
-    "JF22T01V01" : {"X_test_pixel": 600, "Y_test_pixel": 600}
+    "JF21T01V01" : {"X_test_pixel": 600, "Y_test_pixel": 100},
+    "JF22T01V01" : {"X_test_pixel": 600, "Y_test_pixel": 100}
 }
 
 PEDESTAL_DIRECTORY = "/sf/jungfrau/data/pedestal"
