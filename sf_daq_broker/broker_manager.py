@@ -278,6 +278,8 @@ class BrokerManager:
         run_info_directory = full_path
         run_file_json = f"{run_info_directory}/{pedestal_name}.json"
 
+        run_log_level = request.get("run_log_level", None)
+
         json_save(request, run_file_json)
 
         pedestal_request = {
@@ -294,6 +296,7 @@ class BrokerManager:
             "run_file_json": run_file_json,
             "run_info_directory": run_info_directory,
             "run_log_file": f"{run_info_directory}/{pedestal_name}.log",
+            "run_log_level": run_log_level,
             "start_pulse_id": 0,
             "stop_pulse_id": 100,
             "timestamp": None,

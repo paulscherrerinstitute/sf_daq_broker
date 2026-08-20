@@ -166,11 +166,12 @@ def process_request(request, broker_client):
     writer_type = request["writer_type"]
 
     run_log_file = request.get("run_log_file", None)
+    run_log_level = request.get("run_log_level", logging.INFO)
 
     file_handler = None
     if run_log_file:
         file_handler = logging.FileHandler(run_log_file)
-        file_handler.setLevel(logging.INFO)
+        file_handler.setLevel(run_log_level)
         _logger.addHandler(file_handler)
 
         logger_data_api = None
