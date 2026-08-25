@@ -95,7 +95,7 @@ def start_service(broker_url, writer_type=0):
 def on_broker_message(channel, method_frame, header_frame, body, connection, broker_client):
     try:
         request = json_str_to_obj(body.decode())
-        output_file = request.get("output_file", None)
+        output_file = request.get("output_file")
 
         delivery_tag = method_frame.delivery_tag
         correlation_id = header_frame.correlation_id
@@ -165,7 +165,7 @@ def update_status(channel, correlation_id, timestamp, body, action, fname, messa
 def process_request(request, broker_client):
     writer_type = request["writer_type"]
 
-    run_log_file = request.get("run_log_file", None)
+    run_log_file = request.get("run_log_file")
     run_log_level = request.get("run_log_level") or logging.INFO
 
     file_handler = None
@@ -203,12 +203,12 @@ def process_request(request, broker_client):
 def process_request_internal(request, broker_client):
     writer_type = request["writer_type"]
 
-    channels          = request.get("channels", None)
+    channels          = request.get("channels")
     start_pulse_id    = request.get("start_pulse_id", 0)
     stop_pulse_id     = request.get("stop_pulse_id", 100)
-    output_file       = request.get("output_file", None)
-    metadata          = request.get("metadata", None)
-    request_timestamp = request.get("timestamp", None)
+    output_file       = request.get("output_file")
+    metadata          = request.get("metadata")
+    request_timestamp = request.get("timestamp")
 
     _logger.info(f"request for writer type {writer_type}: output file {output_file} from pulse ID {start_pulse_id} to {stop_pulse_id}")
 
@@ -240,8 +240,8 @@ def process_request_internal(request, broker_client):
 
     elif writer_type == broker_config.TAG_DETECTOR_POWER_ON:
         _logger.info("powering on detector")
-        detector_name = request.get("detector_name", None)
-        beamline = request.get("beamline", None)
+        detector_name = request.get("detector_name")
+        beamline = request.get("beamline")
         power_on_detector(detector_name, beamline)
 
     elif writer_type == broker_config.TAG_DETECTOR_RETRIEVE:
@@ -279,7 +279,7 @@ def wait_for_delay(request_timestamp, writer_type):
 
 
 def audit_failed_write_request(write_request):
-    original_output_file = write_request.get("output_file", None)
+    original_output_file = write_request.get("output_file")
     if not original_output_file:
         return
 
@@ -298,7 +298,7 @@ def audit_failed_write_request(write_request):
 
 #TODO: this should probably be in detector_writer.py
 def detector_pedestal_retrieve(broker_client, request):
-    output_file_prefix = request.get("output_file_prefix", None)
+    output_file_prefix = request.get("output_file_prefix")
     if output_file_prefix is None:
         msg = "cannot take pedestal due to missing output_file_prefix"
         _logger.error(msg)
@@ -310,7 +310,7 @@ def detector_pedestal_retrieve(broker_client, request):
     det_start_pulse_id, det_stop_pulse_id = take_pedestal(detectors, rate=rate_multiplicator, pedestalmode=pedestalmode)
 
     # overwrite start/stop pulse IDs in run_info json file
-    run_file_json = request.get("run_file_json", None)
+    run_file_json = request.get("run_file_json")
     if run_file_json is not None:
         run_info = json_load(run_file_json)
 
@@ -324,9 +324,9 @@ def detector_pedestal_retrieve(broker_client, request):
         "det_start_pulse_id": det_start_pulse_id,
         "det_stop_pulse_id":  det_stop_pulse_id,
         "rate_multiplicator": request.get("rate_multiplicator", 1),
-        "run_file_json":      request.get("run_file_json", None),
-        "path_to_pgroup":     request.get("path_to_pgroup", None),
-        "run_info_directory": request.get("run_info_directory", None),
+        "run_file_json":      request.get("run_file_json"),
+        "path_to_pgroup":     request.get("path_to_pgroup"),
+        "run_info_directory": request.get("run_info_directory"),
         "directory_name":     request.get("directory_name"),
         "request_time":       request.get("request_time", str(datetime.now()))
     }

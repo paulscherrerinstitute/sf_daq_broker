@@ -51,9 +51,9 @@ def detector_retrieve(request, output_file_detector):
 #    path_to_pgroup     = request["path_to_pgroup"]
 #    run_info_directory = request["run_info_directory"]
 
-    beamline           = request.get("beamline", None)
-    pgroup             = request.get("pgroup", None)
-    directory_name     = request.get("directory_name", None)
+    beamline           = request.get("beamline")
+    pgroup             = request.get("pgroup")
+    directory_name     = request.get("directory_name")
     selected_pulse_ids = request.get("selected_pulse_ids", [])
 
     detector_params = request["detectors"][detector_name]
@@ -416,7 +416,7 @@ def copy_calibration_files(pedestal_file, pixel_mask_file, detector_config_file)
     det_config = json_load(detector_config_file)
     detector_name = det_config["detector_name"]
 
-    gain_file = det_config.get("gain_file", None)
+    gain_file = det_config.get("gain_file")
 
     if gain_file:
         os.makedirs(gain_directory, exist_ok=True)

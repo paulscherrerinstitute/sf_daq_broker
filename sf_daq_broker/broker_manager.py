@@ -357,7 +357,7 @@ class BrokerManager:
         output_run_directory = f"run{run_number:04}"
 
         append_user_tag = request.get("append_user_tag_to_data_dir", False)
-        user_tag = request.get("user_tag", None)
+        user_tag = request.get("user_tag")
 
         if append_user_tag and user_tag is not None and len(user_tag) > 0:
             cleaned_user_tag = clean_user_tag(user_tag)

@@ -157,20 +157,20 @@ def retrieve_data_from_buffer(
     response = r.json()
     if "status" in response:
         if response["status"] == "ok":
-            message = response.get("message", None)
-            run_number = response.get("run_number", None)
+            message = response.get("message")
+            run_number = response.get("run_number")
             if run_number is not None:
                 run_number = int(run_number)
                 run_number_print = f"{run_number:04}"
             else:
                 run_number_print = None
-            acq_number = response.get("acquisition_number", None)
-            unq_acq_number = response.get("unique_acquisition_number", None)
+            acq_number = response.get("acquisition_number")
+            unq_acq_number = response.get("unique_acquisition_number")
             files_daq = response.get("files", [])
             print(f"success: {message=} {run_number=} {acq_number=} {unq_acq_number=}")
             print(f" these files to expect in raw/{pgroup}/run{run_number_print}/data/ directory : {files_daq}")
         else:
-            message = response.get("message", None)
+            message = response.get("message")
             print(f" Error, reason : {message=}")
             print(f"    whole response : {response=}")
     else:

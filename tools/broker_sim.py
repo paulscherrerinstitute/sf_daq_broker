@@ -32,12 +32,12 @@ INSTRUMENTS = (
 def process_request_internal(request, broker_client):
     writer_type = request["writer_type"]
 
-#    channels          = request.get("channels", None)
+#    channels          = request.get("channels")
 #    start_pulse_id    = request.get("start_pulse_id", 0)
 #    stop_pulse_id     = request.get("stop_pulse_id", 100)
-#    output_file       = request.get("output_file", None)
-#    metadata          = request.get("metadata", None)
-    request_timestamp = request.get("timestamp", None)
+#    output_file       = request.get("output_file")
+#    metadata          = request.get("metadata")
+    request_timestamp = request.get("timestamp")
 
 #    _logger.info(f"request for writer type {writer_type}: output file {output_file} from pulse ID {start_pulse_id} to {stop_pulse_id}")
     _logger.info(f"request for writer type {writer_type}")

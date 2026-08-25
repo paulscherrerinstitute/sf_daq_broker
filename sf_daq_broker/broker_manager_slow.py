@@ -317,7 +317,7 @@ class DetectorManager:
 
         changed_parameters = {}
         for name, new_value in new_parameters.items():
-            old_value = dap_config.get(name, None)
+            old_value = dap_config.get(name)
             if old_value == new_value:
                 continue
             changed_parameters[name] = (old_value, new_value)

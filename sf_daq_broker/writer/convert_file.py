@@ -27,7 +27,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
     compression      = detector_params.get("compression", False)
     conversion       = detector_params.get("adc_to_energy", False)
     disabled_modules = detector_params.get("disabled_modules", [])
-    downsample       = detector_params.get("downsample", None)
+    downsample       = detector_params.get("downsample")
     remove_raw_files = detector_params.get("remove_raw_files", False)
 
     if downsample is not None:
@@ -39,7 +39,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
 
     if conversion:
         double_pixels_action = detector_params.get("double_pixels_action", "mask")
-        factor               = detector_params.get("factor", None)
+        factor               = detector_params.get("factor")
         gap_pixels           = detector_params.get("gap_pixels", True)
         geometry             = detector_params.get("geometry", False)
         mask                 = detector_params.get("mask", True)
@@ -52,7 +52,7 @@ def convert_file(file_in, file_out, json_run_file, detector_config_file):
         mask                 = False
         module_edge_pixels   = "keep"
 
-    roi = detector_params.get("roi", None)
+    roi = detector_params.get("roi")
     save_ppicker_events_only = detector_params.get("save_ppicker_events_only", False)
     selected_pulse_ids = data.get("selected_pulse_ids", [])
 
