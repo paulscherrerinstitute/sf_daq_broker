@@ -278,7 +278,7 @@ class BrokerManager:
         run_info_directory = full_path
         run_file_json = f"{run_info_directory}/{pedestal_name}.json"
 
-        run_log_level = request.get("run_log_level", "INFO")
+        run_log_level = request.get("run_log_level")
 
         json_save(request, run_file_json)
 
