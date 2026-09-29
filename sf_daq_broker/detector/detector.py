@@ -52,7 +52,7 @@ class Detector:
             raise DetectorError(f"could not stop detector {self.name}") from e
 
     def get_status(self):
-        status = self.jf.status
+        status = self.status
         if isinstance(status, list):
             status = [str(i) for i in status]
         else:
@@ -64,6 +64,7 @@ class Detector:
 
     @property
     def status(self):
+        self.ensure_reachable()
         return self.jf.status
 
     def __repr__(self):
@@ -98,6 +99,7 @@ class Detector:
 
 
     def get_temperatures(self):
+        self.ensure_reachable()
         jf = self.jf
         temperatures = {t.name: jf.getTemperature(t) for t in jf.getTemperatureList()}
         temperatures["TEMPERATURE_THRESHOLDS"] = jf.getThresholdTemperature()
@@ -106,6 +108,12 @@ class Detector:
     def ping(self):
         hosts = self.cfg.get_hostname()
         return ping_many(hosts)
+
+    def ensure_reachable(self):
+        unreachable = [host for host, ping in self.ping().items() if not ping]
+        if unreachable:
+            printable_unreachable = ", ".join(unreachable)
+            raise DetectorError(f"could not reach detector {self.name} modules: {printable_unreachable}")
 
 
     @property
