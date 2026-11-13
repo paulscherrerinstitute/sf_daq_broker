@@ -242,7 +242,7 @@ def apply_detector_config(detector_configuration, detector):
     # workaround for mismatched frames problem
     if number == 6:
         detector.sync = 1
-        detector.setMaster(1, 0)
+        detector.setMaster(1, 1)
 
 #    # hardcoded fixed gain for specific modules
 #    if detector_number == 6:
